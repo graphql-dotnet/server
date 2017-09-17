@@ -1,6 +1,7 @@
 GraphQL for .NET - Subscription Transport WebSockets
 ====================================================
 
+>WARNING: not ready for production use!
 
 ## Sample
 
