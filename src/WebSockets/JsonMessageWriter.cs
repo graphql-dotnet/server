@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using GraphQL.Server.Transports.WebSockets.Abstractions;
 using Newtonsoft.Json;
 
 namespace GraphQL.Server.Transports.WebSockets

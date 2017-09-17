@@ -18,8 +18,8 @@ namespace GraphQL.Server.Transports.WebSockets
             _connection = connection;
             Op = op;
             Stream = stream;
-            Unsubscribe = stream.Subscribe(this);
             _documentWriter = documentWriter;
+            Unsubscribe = stream.Subscribe(this);
         }
 
         public OperationMessage Op { get; }

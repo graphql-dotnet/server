@@ -5,10 +5,8 @@ namespace GraphQL.Server.Transports.WebSockets
 {
     public class GraphQLConnectionContext
     {
-        public string ConnectionId { get; }
-        private readonly WebSocketMessageClient _socketClient;
-
         public const string Protocol = "graphql-ws";
+        private readonly WebSocketMessageClient _socketClient;
 
         public GraphQLConnectionContext(WebSocket socket, string connectionId)
         {
@@ -17,6 +15,8 @@ namespace GraphQL.Server.Transports.WebSockets
             Reader = new JsonMessageReader(_socketClient);
             Writer = new JsonMessageWriter(_socketClient);
         }
+
+        public string ConnectionId { get; }
 
         public WebSocketCloseStatus? CloseStatus => _socketClient.CloseStatus;
 

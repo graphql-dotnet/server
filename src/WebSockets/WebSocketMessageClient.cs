@@ -4,6 +4,7 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using GraphQL.Server.Transports.WebSockets.Abstractions;
 
 namespace GraphQL.Server.Transports.WebSockets
 {
@@ -21,9 +22,7 @@ namespace GraphQL.Server.Transports.WebSockets
         public Task WriteMessageAsync(string message)
         {
             if (_socket.CloseStatus.HasValue)
-            {
                 throw new InvalidOperationException("Socket is closed/closing");
-            }
 
             var messageSegment = new ArraySegment<byte>(Encoding.UTF8.GetBytes(message));
             return _socket.SendAsync(messageSegment, WebSocketMessageType.Text, true, CancellationToken.None);
@@ -47,9 +46,7 @@ namespace GraphQL.Server.Transports.WebSockets
                         receiveResult = await _socket.ReceiveAsync(segment, CancellationToken.None);
 
                         if (receiveResult.CloseStatus.HasValue)
-                        {
                             return null;
-                        }
 
                         if (receiveResult.Count == 0)
                             continue;
@@ -70,13 +67,12 @@ namespace GraphQL.Server.Transports.WebSockets
 
         public Task CloseAsync()
         {
+            if (_socket.State != WebSocketState.Open)
+                return Task.CompletedTask;
+
             if (CloseStatus.HasValue)
-            {
                 if (CloseStatus != WebSocketCloseStatus.NormalClosure || CloseStatus != WebSocketCloseStatus.Empty)
-                {
                     return AbortAsync();
-                }
-            }
 
             return _socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closed", CancellationToken.None);
         }

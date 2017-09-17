@@ -12,13 +12,11 @@ namespace GraphQL.Server.Transports.WebSockets
 {
     public class GraphQLEndPoint<TSchema> where TSchema : Schema
     {
-        private readonly TSchema _schema;
-        private readonly ISubscriptionExecuter _subscriptionExecuter;
         private readonly IDocumentExecuter _documentExecuter;
         private readonly IDocumentWriter _documentWriter;
         private readonly ILogger<GraphQLEndPoint<TSchema>> _log;
-
-        protected ConcurrentBag<SubscriptionHandle> Subscriptions { get; } = new ConcurrentBag<SubscriptionHandle>();
+        private readonly TSchema _schema;
+        private readonly ISubscriptionExecuter _subscriptionExecuter;
 
         public GraphQLEndPoint(
             TSchema schema,
@@ -33,6 +31,10 @@ namespace GraphQL.Server.Transports.WebSockets
             _documentWriter = documentWriter;
             _log = log;
         }
+
+        protected ConcurrentBag<SubscriptionHandle> Subscriptions { get; } = new ConcurrentBag<SubscriptionHandle>();
+
+        protected ConcurrentDictionary<string, GraphQLConnectionContext> Connections { get; } = new ConcurrentDictionary<string, GraphQLConnectionContext>();
 
         public Task OnConnectedAsync(GraphQLConnectionContext connection)
         {
@@ -58,6 +60,16 @@ namespace GraphQL.Server.Transports.WebSockets
             }
 
             await connection.CloseAsync();
+        }
+
+        public Task CloseAsync(string connectionId)
+        {
+            if (Connections.TryRemove(connectionId, out var connection))
+            {
+                return connection.CloseAsync();
+            }
+
+            return Task.CompletedTask;
         }
 
         private Task HandleMessageAsync(OperationMessage op, GraphQLConnectionContext connection)

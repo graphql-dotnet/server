@@ -1,4 +1,3 @@
-using System.Runtime.Serialization;
 using GraphQL.Http;
 using GraphQL.Subscription;
 using GraphQL.Types;
@@ -27,7 +26,8 @@ namespace GraphQL.Server.Transports.WebSockets
             return services;
         }
 
-        public static IApplicationBuilder UseGraphQLEndPoint<TEndPoint, TSchema>(this IApplicationBuilder builder, string path)
+        public static IApplicationBuilder UseGraphQLEndPoint<TEndPoint, TSchema>(this IApplicationBuilder builder,
+            string path)
             where TEndPoint : GraphQLEndPoint<TSchema>
             where TSchema : Schema
         {

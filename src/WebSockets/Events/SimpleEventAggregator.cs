@@ -26,12 +26,12 @@ namespace GraphQL.Server.Transports.WebSockets.Events
 
         public IObservable<T> Subject<T>(string eventType)
         {
-            return (IObservable<T>)Subject(eventType);
+            return (IObservable<T>) Subject(eventType);
         }
 
         public void Publish<T>(string eventType, T eventData)
         {
-            Publish(eventType, (object)eventData);
+            Publish(eventType, (object) eventData);
         }
 
         private ISubject<object> GetSubject(string eventType)
