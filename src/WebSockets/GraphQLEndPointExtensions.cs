@@ -8,11 +8,10 @@ namespace GraphQL.Server.Transports.WebSockets
 {
     public static class GraphQLEndPointExtensions
     {
-        public static IServiceCollection AddGraphQLEndPoint<TEndPoint, TSchema>(this IServiceCollection services)
-            where TEndPoint : GraphQLEndPoint<TSchema>
+        public static IServiceCollection AddGraphQLEndPoint<TSchema>(this IServiceCollection services)
             where TSchema : Schema
         {
-            services.AddSingleton<TEndPoint>();
+            services.AddSingleton<GraphQLEndPoint<TSchema>>();
 
             return services;
         }
@@ -26,9 +25,8 @@ namespace GraphQL.Server.Transports.WebSockets
             return services;
         }
 
-        public static IApplicationBuilder UseGraphQLEndPoint<TEndPoint, TSchema>(this IApplicationBuilder builder,
+        public static IApplicationBuilder UseGraphQLEndPoint<TSchema>(this IApplicationBuilder builder,
             string path)
-            where TEndPoint : GraphQLEndPoint<TSchema>
             where TSchema : Schema
         {
             builder.Use(async (context, next) =>
@@ -37,7 +35,7 @@ namespace GraphQL.Server.Transports.WebSockets
                     {
                         var socket = await context.WebSockets.AcceptWebSocketAsync(GraphQLConnectionContext.Protocol);
                         var connection = new GraphQLConnectionContext(socket, context.Connection.Id);
-                        var endpoint = context.RequestServices.GetRequiredService<TEndPoint>();
+                        var endpoint = context.RequestServices.GetRequiredService<GraphQLEndPoint<TSchema>>();
                         await endpoint.OnConnectedAsync(connection);
                     }
 

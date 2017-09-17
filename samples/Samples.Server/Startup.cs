@@ -34,7 +34,7 @@ namespace GraphQL.Samples.Server
             services.AddSingleton<IEventAggregator, SimpleEventAggregator>();
 
             services.AddGraphQL();
-            services.AddGraphQLEndPoint<GraphQLEndPoint<ChatSchema>, ChatSchema>();
+            services.AddGraphQLEndPoint<ChatSchema>();
             services.AddMvc();
         }
 
@@ -47,7 +47,7 @@ namespace GraphQL.Samples.Server
             app.UseStaticFiles();
 
             app.UseWebSockets();
-            app.UseGraphQLEndPoint<GraphQLEndPoint<ChatSchema>, ChatSchema>("/graphql/subscriptions");
+            app.UseGraphQLEndPoint<ChatSchema>("/graphql/subscriptions");
 
             app.UseMvc();
         }
