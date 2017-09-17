@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>GraphQL.Server.Transports.WebSockets</AssemblyName>
+    <RootNamespace>GraphQL.Server.Transports.WebSockets</RootNamespace>
+  </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="GraphQL" Version="2.0.0-alpha-783" />
+        <PackageReference Include="Microsoft.AspNetCore.WebSockets" Version="2.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="2.0.0" />
+        <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+        <PackageReference Include="System.Reactive" Version="3.1.1" />
+    </ItemGroup>
+</Project>
