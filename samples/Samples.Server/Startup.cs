@@ -47,7 +47,7 @@ namespace GraphQL.Samples.Server
             app.UseStaticFiles();
 
             app.UseWebSockets();
-            app.UseGraphQLEndPoint<ChatSchema>("/graphql/subscriptions");
+            app.UseGraphQLEndPoint<ChatSchema>("/graphql");
 
             app.UseMvc();
         }

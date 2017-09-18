@@ -116,7 +116,7 @@
         // Change this to point wherever you host your GraphQL server.
         console.log(graphQLParams);
 
-        return fetch('/graphql/query',
+        return fetch('/graphql',
             {
                 method: 'post',
                 headers: {
@@ -136,7 +136,7 @@
         });
     }
 
-    var subscriptionsClient = new window.SubscriptionsTransportWs.SubscriptionClient("ws://localhost:60341/graphql/subscriptions", { reconnect: true });
+    var subscriptionsClient = new window.SubscriptionsTransportWs.SubscriptionClient("ws://localhost:60341/graphql", { reconnect: true });
     var subscriptionsFetcher = window.GraphiQLSubscriptionsFetcher.graphQLFetcher(subscriptionsClient, graphQLFetcher);
 
     // Render <GraphiQL /> into the body.
