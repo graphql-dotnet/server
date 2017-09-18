@@ -56,10 +56,9 @@ namespace GraphQL.Server.Transports.WebSockets
 
                     message = Encoding.UTF8.GetString(memoryStream.ToArray());
                 }
-                catch (Exception e)
+                catch
                 {
-                    Console.WriteLine(e);
-                    throw;
+                    return null;
                 }
             }
             return message;

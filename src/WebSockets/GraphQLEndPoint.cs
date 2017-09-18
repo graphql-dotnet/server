@@ -34,11 +34,20 @@ namespace GraphQL.Server.Transports.WebSockets
 
         protected ConcurrentBag<SubscriptionHandle> Subscriptions { get; } = new ConcurrentBag<SubscriptionHandle>();
 
-        protected ConcurrentDictionary<string, GraphQLConnectionContext> Connections { get; } = new ConcurrentDictionary<string, GraphQLConnectionContext>();
+        protected ConcurrentDictionary<string, GraphQLConnectionContext> Connections { get; } =
+            new ConcurrentDictionary<string, GraphQLConnectionContext>();
 
-        public Task OnConnectedAsync(GraphQLConnectionContext connection)
+        public async Task OnConnectedAsync(GraphQLConnectionContext connection)
         {
-            return WaitForMessagesAsync(connection);
+            AddConnection(connection);
+            await WaitForMessagesAsync(connection);
+            await CloseConnectionAsync(connection);
+        }
+
+        private void AddConnection(GraphQLConnectionContext connection)
+        {
+            if (!Connections.TryAdd(connection.ConnectionId, connection))
+                throw new InvalidOperationException($"Connection '{connection.ConnectionId}' already is connected");
         }
 
         public async Task WaitForMessagesAsync(GraphQLConnectionContext connection)
@@ -51,23 +60,18 @@ namespace GraphQL.Server.Transports.WebSockets
                 {
                     _log.LogWarning(
                         $"Connection: {connection.ConnectionId} was closed while reading messages");
-                    await connection.CloseAsync();
                     break;
                 }
 
                 _log.LogDebug($"Received op: {operationMessage.Type}, opid: {operationMessage.Id}");
                 await HandleMessageAsync(operationMessage, connection);
             }
-
-            await connection.CloseAsync();
         }
 
-        public Task CloseAsync(string connectionId)
+        public Task CloseConnectionAsync(GraphQLConnectionContext connection)
         {
-            if (Connections.TryRemove(connectionId, out var connection))
-            {
-                return connection.CloseAsync();
-            }
+            Connections.TryRemove(connection.ConnectionId, out var _);
+            connection.CloseAsync();
 
             return Task.CompletedTask;
         }
