@@ -30,7 +30,7 @@ Task("Pack")
   .IsDependentOn("Build")
   .Does(()=>
   {
-      Information("VersionSuffix: {versionSuffix}");
+      Information($"VersionSuffix: {versionSuffix}");
       var settings = new DotNetCorePackSettings
       {
           Configuration = configuration,
