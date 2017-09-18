@@ -4,7 +4,8 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>GraphQL.Server.Transports.WebSockets</AssemblyName>
     <RootNamespace>GraphQL.Server.Transports.WebSockets</RootNamespace>
-    <Version>0.0.1-alpha</Version>
+    <VersionPrefix>0.0.2</VersionPrefix>
+    <VersionSuffix></VersionSuffix>
     <Product>GraphQL for .NET</Product>
     <Company />
     <Authors>Pekka Heikura</Authors>
