@@ -6,6 +6,7 @@ var framework = Argument("framework", "netstandard2.0");
 var projectFile = "./src/WebSockets/WebSockets.csproj";
 var runtime = Argument("runtime", "win-x64");
 bool isAppVeyor = AppVeyor.IsRunningOnAppVeyor;
+var versionSuffix = "";
 
 Task("Default")
   .IsDependentOn("Build");
@@ -34,7 +35,7 @@ Task("Pack")
           Configuration = configuration,
           OutputDirectory = artifactsDir,
           IncludeSymbols = true,
-          VersionSuffix = "alpha"
+          VersionSuffix = versionSuffix
       };
 
       DotNetCorePack(projectFile, settings);
@@ -71,11 +72,19 @@ Task("Restore")
 
 Task("AppVeyor")  
     .WithCriteria(isAppVeyor)
+    .IsDependentOn("UseAppVeyorVersion")
     .IsDependentOn("Pack")
     .Does(() => 
     {
         Information("AppVeyor build done.");
         //AppVeyor.UploadArtifact("./dist/Cake.VisualStudio.vsix");
+    });
+
+Task("UseAppVeyorVersion")
+    .Does(()=> {
+        var avVersion = EnvironmentVariable("APPVEYOR_BUILD_NUMBER");
+        var branch = EnvironmentVariable("APPVEYOR_REPO_BRANCH");
+        versionSuffix = $"{avVersion}-branch";
     });
 
 Information($"AppVeyor: {isAppVeyor}, Repo: {AppVeyor?.Environment?.Repository?.Name}");
