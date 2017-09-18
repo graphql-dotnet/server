@@ -60,7 +60,6 @@ namespace GraphQL.Server.Transports.WebSockets
                 {
                     _log.LogWarning(
                         $"Connection: {connection.ConnectionId} was closed while reading messages");
-                    await connection.CloseAsync();
                     break;
                 }
 
