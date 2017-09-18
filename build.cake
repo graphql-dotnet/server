@@ -6,7 +6,7 @@ var framework = Argument("framework", "netstandard2.0");
 var projectFile = "./src/WebSockets/WebSockets.csproj";
 var runtime = Argument("runtime", "win-x64");
 bool isAppVeyor = AppVeyor.IsRunningOnAppVeyor;
-var versionSuffix = "";
+var versionSuffix = "alpha";
 
 Task("Default")
   .IsDependentOn("Build");
@@ -30,6 +30,7 @@ Task("Pack")
   .IsDependentOn("Build")
   .Does(()=>
   {
+      Information("VersionSuffix: {versionSuffix}");
       var settings = new DotNetCorePackSettings
       {
           Configuration = configuration,
@@ -84,7 +85,7 @@ Task("UseAppVeyorVersion")
     .Does(()=> {
         var avVersion = EnvironmentVariable("APPVEYOR_BUILD_NUMBER");
         var branch = EnvironmentVariable("APPVEYOR_REPO_BRANCH");
-        versionSuffix = $"{avVersion}-branch";
+        versionSuffix = $"{versionSuffix}-{avVersion}-branch";
     });
 
 Information($"AppVeyor: {isAppVeyor}, Repo: {AppVeyor?.Environment?.Repository?.Name}");
