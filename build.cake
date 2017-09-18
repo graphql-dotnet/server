@@ -5,7 +5,7 @@ var publishDir = Directory(Argument("publishDir", "./publish"));
 var framework = Argument("framework", "netstandard2.0");
 var projectFile = "./src/WebSockets/WebSockets.csproj";
 var runtime = Argument("runtime", "win-x64");
-bool isAppVeyor = AppVeyor.IsRunningOnAppVeyora;
+bool isAppVeyor = AppVeyor.IsRunningOnAppVeyor;
 
 Task("Default")
   .IsDependentOn("Build");
