@@ -1,7 +1,8 @@
 GraphQL for .NET - Subscription Transport WebSockets
 ====================================================
-
 >WARNING: not ready for production use!
+
+[![Build Status](https://ci.appveyor.com/api/projects/status/github/graphql-dotnet/subscription-transport-ws?branch=master&svg=true)](https://ci.appveyor.com/project/graphql-dotnet-ci/subscriptions-transport-ws)
 
 ## Sample
 

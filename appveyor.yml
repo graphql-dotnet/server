@@ -1,0 +1,15 @@
+image: Visual Studio 2017
+
+build_script:  
+  - ps: .\build.ps1 -Target "AppVeyor"
+
+artifacts:
+  - path: artifacts\*.nupkg
+    name: Packages
+
+branches:
+  only:
+    - develop
+    - master
+    - /bugs/.*/
+    - /features/.*/

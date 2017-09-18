@@ -20,3 +20,7 @@ packages/
 node_modules/
 nuget/lib
 artifacts
+
+# cake
+tools/*
+!tools/packages.config

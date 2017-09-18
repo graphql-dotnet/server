@@ -4,6 +4,15 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>GraphQL.Server.Transports.WebSockets</AssemblyName>
     <RootNamespace>GraphQL.Server.Transports.WebSockets</RootNamespace>
+    <Version>0.0.1-alpha</Version>
+    <Product>GraphQL for .NET</Product>
+    <Company />
+    <Authors>Pekka Heikura</Authors>
+    <Description>WebSockets transport for subscriptions</Description>
+    <PackageProjectUrl>https://github.com/graphql-dotnet/subscriptions-transport-ws</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/graphql-dotnet/subscriptions-transport-ws</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <PackageTags>GraphQL WebSockets subscriptions transport</PackageTags>
   </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="GraphQL" Version="2.0.0-alpha-783" />
