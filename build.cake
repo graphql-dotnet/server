@@ -30,7 +30,6 @@ Task("Pack")
   .IsDependentOn("Build")
   .Does(()=>
   {
-      Information($"VersionSuffix: {versionSuffix}");
       var settings = new DotNetCorePackSettings
       {
           Configuration = configuration,
@@ -84,13 +83,15 @@ Task("AppVeyor")
 Task("UseAppVeyorVersion")
     .Does(()=> {
         var avVersion = EnvironmentVariable("APPVEYOR_BUILD_NUMBER");
-        var branch = EnvironmentVariable("APPVEYOR_PULL_REQUEST_NUMBER");
+        var branch = EnvironmentVariable("APPVEYOR_REPO_BRANCH");
         versionSuffix = $"{versionSuffix}-{avVersion}";
 
         if (branch != "master") 
         {
-            versionSuffix += $"-{branch}";
+            versionSuffix += $"-{branch.Replace("/", "-")}";
         }
+
+        Information($"VersionSuffix: {versionSuffix}");
     });
 
 Information($"AppVeyor: {isAppVeyor}, Repo: {AppVeyor?.Environment?.Repository?.Name}");
