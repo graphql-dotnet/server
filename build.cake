@@ -5,7 +5,7 @@ var publishDir = Directory(Argument("publishDir", "./publish"));
 var framework = Argument("framework", "netstandard2.0");
 var projectFile = "./src/WebSockets/WebSockets.csproj";
 var runtime = Argument("runtime", "win-x64");
-bool isAppVeyor = AppVeyor.IsRunningOnAppVeyor && AppVeyor.Environment.Repository.Name == "graphql-dotnet/subscription-transport-ws";
+bool isAppVeyor = AppVeyor.IsRunningOnAppVeyora;
 
 Task("Default")
   .IsDependentOn("Build");
@@ -78,5 +78,5 @@ Task("AppVeyor")
         //AppVeyor.UploadArtifact("./dist/Cake.VisualStudio.vsix");
     });
 
-Information($"AppVeyor: {isAppVeyor}");
+Information($"AppVeyor: {isAppVeyor}, Repo: {AppVeyor?.Environment?.Repository?.Name}");
 RunTarget(target);
