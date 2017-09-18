@@ -84,7 +84,7 @@ Task("AppVeyor")
 Task("UseAppVeyorVersion")
     .Does(()=> {
         var avVersion = EnvironmentVariable("APPVEYOR_BUILD_NUMBER");
-        var branch = EnvironmentVariable("APPVEYOR_REPO_BRANCH");
+        var branch = EnvironmentVariable("APPVEYOR_PULL_REQUEST_NUMBER");
         versionSuffix = $"{versionSuffix}-{avVersion}";
 
         if (branch != "master") 
