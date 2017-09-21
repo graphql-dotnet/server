@@ -1,12 +1,11 @@
-var target = Argument("target", "Default");
-var configuration = Argument("configuration", "Release");
-var artifactsDir = Directory(Argument("artifactsDir", "./artifacts"));
-var publishDir = Directory(Argument("publishDir", "./publish"));
-var framework = Argument("framework", "netstandard2.0");
+var target = Argument<string>("target", "Default");
+var configuration = Argument<string>("configuration", "Release");
+var artifactsDir = Directory(Argument<string>("artifactsDir", "./artifacts"));
+var publishDir = Directory(Argument<string>("publishDir", "./publish"));
+var framework = Argument<string>("framework", "netstandard2.0");
+var runtime = Argument<string>("runtime", "win-x64");
+var version = Argument<string>("packageVersion", "0.0.0-dev");
 var projectFile = "./src/WebSockets/WebSockets.csproj";
-var runtime = Argument("runtime", "win-x64");
-bool isAppVeyor = AppVeyor.IsRunningOnAppVeyor;
-var versionSuffix = "alpha";
 
 Task("Default")
   .IsDependentOn("Build");
@@ -30,12 +29,15 @@ Task("Pack")
   .IsDependentOn("Build")
   .Does(()=>
   {
+      Information($"Version: {version}");
+      var buildSettings = new DotNetCoreMSBuildSettings();
+      buildSettings.SetVersion(version);
       var settings = new DotNetCorePackSettings
       {
           Configuration = configuration,
           OutputDirectory = artifactsDir,
           IncludeSymbols = true,
-          VersionSuffix = versionSuffix
+          MSBuildSettings = buildSettings
       };
 
       DotNetCorePack(projectFile, settings);
@@ -70,29 +72,26 @@ Task("Restore")
       DotNetCoreRestore(projectFile);
   });
 
-Task("AppVeyor")  
-    .WithCriteria(isAppVeyor)
-    .IsDependentOn("UseAppVeyorVersion")
+Task("AppVeyor")
+    .IsDependentOn("PrintAppVeyorInfo")
+    .IsDependentOn("UseEnvironment")
     .IsDependentOn("Pack")
     .Does(() => 
     {
         Information("AppVeyor build done.");
-        //AppVeyor.UploadArtifact("./dist/Cake.VisualStudio.vsix");
     });
 
-Task("UseAppVeyorVersion")
-    .Does(()=> {
-        var avVersion = EnvironmentVariable("APPVEYOR_BUILD_NUMBER");
-        var branch = EnvironmentVariable("APPVEYOR_REPO_BRANCH");
-        versionSuffix = $"{versionSuffix}-{avVersion}";
+Task("PrintAppVeyorInfo")
+  .Does(()=>
+  {
+    Information($"AppVeyor: {AppVeyor.IsRunningOnAppVeyor}, Repo: {AppVeyor?.Environment?.Repository?.Name}");
+  });
 
-        if (branch != "master") 
-        {
-            versionSuffix += $"-{branch.Replace("/", "-")}";
-        }
-
-        Information($"VersionSuffix: {versionSuffix}");
+Task("UseEnvironment")
+    .Does(()=> 
+    {
+        version = AppVeyor.Environment.Build.Version;
+        Information($"version: {version}");
     });
 
-Information($"AppVeyor: {isAppVeyor}, Repo: {AppVeyor?.Environment?.Repository?.Name}");
 RunTarget(target);

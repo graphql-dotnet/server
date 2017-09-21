@@ -1,6 +1,6 @@
 image: Visual Studio 2017
 
-version: '0.0.2-alpha-{build}'
+version: "0.1.0.{build}-alpha"
 
 build_script:  
   - ps: .\build.ps1 -Target "AppVeyor"
@@ -9,6 +9,7 @@ artifacts:
   - path: artifacts\*.nupkg
     name: Packages
 
+skip_branch_with_pr: true
 branches:
   only:
     - develop
