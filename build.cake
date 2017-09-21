@@ -74,6 +74,7 @@ Task("Restore")
 
 Task("AppVeyor")
     .IsDependentOn("PrintAppVeyorInfo")
+    .IsDependentOn("UseEnvironment")
     .IsDependentOn("Pack")
     .Does(() => 
     {
@@ -85,5 +86,12 @@ Task("PrintAppVeyorInfo")
   {
     Information($"AppVeyor: {AppVeyor.IsRunningOnAppVeyor}, Repo: {AppVeyor?.Environment?.Repository?.Name}");
   });
+
+Task("UseEnvironment")
+    .Does(()=> 
+    {
+        version = AppVeyor.Environment.Build.Version;
+        Information($"version: {version}");
+    });
 
 RunTarget(target);
