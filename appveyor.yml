@@ -3,7 +3,7 @@ image: Visual Studio 2017
 version: "0.1.0.{build}-alpha"
 
 build_script:  
-  - ps: .\build.ps1 -Target "AppVeyor" -packageVersion="{version}"
+  - ps: .\build.ps1 -Target "AppVeyor" -packageVersion="$(appveyor_build_version)"
 
 artifacts:
   - path: artifacts\*.nupkg
