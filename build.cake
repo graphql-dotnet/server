@@ -1,14 +1,18 @@
+#tool "nuget:?package=GitVersion.CommandLine"
+
 var target = Argument<string>("target", "Default");
 var configuration = Argument<string>("configuration", "Release");
 var artifactsDir = Directory(Argument<string>("artifactsDir", "./artifacts"));
 var publishDir = Directory(Argument<string>("publishDir", "./publish"));
 var framework = Argument<string>("framework", "netstandard2.0");
 var runtime = Argument<string>("runtime", "win-x64");
-var version = Argument<string>("packageVersion", "0.0.0-dev");
 var projectFile = "./src/WebSockets/WebSockets.csproj";
 
+var version = "0.0.0-dev";
+
 Task("Default")
-  .IsDependentOn("Build");
+  .IsDependentOn("SetVersion")
+  .IsDependentOn("Pack");
 
 Task("Publish")
   .IsDependentOn("Build")
@@ -29,7 +33,6 @@ Task("Pack")
   .IsDependentOn("Build")
   .Does(()=>
   {
-      Information($"Version: {version}");
       var buildSettings = new DotNetCoreMSBuildSettings();
       buildSettings.SetVersion(version);
       var settings = new DotNetCorePackSettings
@@ -72,26 +75,18 @@ Task("Restore")
       DotNetCoreRestore(projectFile);
   });
 
-Task("AppVeyor")
-    .IsDependentOn("PrintAppVeyorInfo")
-    .IsDependentOn("UseEnvironment")
-    .IsDependentOn("Pack")
-    .Does(() => 
-    {
-        Information("AppVeyor build done.");
-    });
+Task("SetVersion")
+    .Does(()=> {
+        var versionInfo = GitVersion(new GitVersionSettings {
+            RepositoryPath = "."
+        });
+        version = versionInfo.NuGetVersionV2;
 
-Task("PrintAppVeyorInfo")
-  .Does(()=>
-  {
-    Information($"AppVeyor: {AppVeyor.IsRunningOnAppVeyor}, Repo: {AppVeyor?.Environment?.Repository?.Name}");
-  });
+        if(AppVeyor.IsRunningOnAppVeyor) {
+            AppVeyor.UpdateBuildVersion(version);
+        }
 
-Task("UseEnvironment")
-    .Does(()=> 
-    {
-        version = AppVeyor.Environment.Build.Version;
-        Information($"version: {version}");
+        Information($"Version: {version}");
     });
 
 RunTarget(target);
