@@ -8,10 +8,5 @@ artifacts:
   - path: artifacts\*.nupkg
     name: Packages
 
+skip_tags: false
 skip_branch_with_pr: true
-branches:
-  only:
-    - develop
-    - master
-    - /bugs/.*/
-    - /features/.*/
