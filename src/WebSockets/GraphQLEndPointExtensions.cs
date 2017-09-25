@@ -2,7 +2,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using GraphQL.Http;
-using GraphQL.Server.Transports.WebSockets.Messages;
+using GraphQL.Server.Transports.WebSockets.Abstractions;
 using GraphQL.Subscription;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Builder;
@@ -17,6 +17,7 @@ namespace GraphQL.Server.Transports.WebSockets
         public static IServiceCollection AddGraphQLEndPoint<TSchema>(this IServiceCollection services)
             where TSchema : Schema
         {
+            services.AddSingleton<ISubscriptionMessageProtocol<TSchema>, SubscriptionMessageProtocol<TSchema>>();
             services.AddSingleton<GraphQLEndPoint<TSchema>>();
 
             return services;

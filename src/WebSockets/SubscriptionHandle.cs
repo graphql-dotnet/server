@@ -1,5 +1,6 @@
 using System;
 using GraphQL.Http;
+using GraphQL.Server.Transports.WebSockets.Abstractions;
 using GraphQL.Server.Transports.WebSockets.Messages;
 using Newtonsoft.Json.Linq;
 
@@ -7,17 +8,17 @@ namespace GraphQL.Server.Transports.WebSockets
 {
     public class SubscriptionHandle : IObserver<object>, IDisposable
     {
-        private readonly GraphQLConnectionContext _connection;
+        private readonly IJsonMessageWriter _messageWriter;
         private readonly IDocumentWriter _documentWriter;
 
         public SubscriptionHandle(OperationMessage op,
             IObservable<object> stream,
-            GraphQLConnectionContext connection,
+            IJsonMessageWriter messageWriter,
             IDocumentWriter documentWriter)
         {
-            _connection = connection;
             Op = op;
             Stream = stream;
+            _messageWriter = messageWriter;
             _documentWriter = documentWriter;
             Unsubscribe = stream.Subscribe(this);
         }
@@ -31,6 +32,13 @@ namespace GraphQL.Server.Transports.WebSockets
         public void Dispose()
         {
             Unsubscribe?.Dispose();
+
+            // complete
+            _messageWriter.WriteMessageAsync(new OperationMessage
+            {
+                Id = Op.Id,
+                Type = MessageTypes.GQL_COMPLETE
+            }).GetAwaiter().GetResult();
         }
 
         public void OnCompleted()
@@ -46,7 +54,7 @@ namespace GraphQL.Server.Transports.WebSockets
         public void OnNext(object value)
         {
             var json = _documentWriter.Write(value);
-            _connection.Writer.WriteMessageAsync(new OperationMessage
+            _messageWriter.WriteMessageAsync(new OperationMessage
             {
                 Id = Op.Id,
                 Type = MessageTypes.GQL_DATA,

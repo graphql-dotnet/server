@@ -1,17 +1,18 @@
 using System.Net.WebSockets;
 using System.Threading.Tasks;
+using GraphQL.Server.Transports.WebSockets.Messages;
 
 namespace GraphQL.Server.Transports.WebSockets
 {
     public class GraphQLConnectionContext
     {
         public const string Protocol = "graphql-ws";
-        private readonly WebSocketMessageClient _socketClient;
+        private readonly WebSocketClient _socketClient;
 
         public GraphQLConnectionContext(WebSocket socket, string connectionId)
         {
             ConnectionId = connectionId;
-            _socketClient = new WebSocketMessageClient(socket);
+            _socketClient = new WebSocketClient(socket);
             Reader = new JsonMessageReader(_socketClient);
             Writer = new JsonMessageWriter(_socketClient);
         }
