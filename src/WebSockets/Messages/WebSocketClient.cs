@@ -6,13 +6,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using GraphQL.Server.Transports.WebSockets.Abstractions;
 
-namespace GraphQL.Server.Transports.WebSockets
+namespace GraphQL.Server.Transports.WebSockets.Messages
 {
-    public class WebSocketMessageClient : IWebSocketMessageClient
+    public class WebSocketClient : IWebSocketClient
     {
         private readonly WebSocket _socket;
 
-        public WebSocketMessageClient(WebSocket socket)
+        public WebSocketClient(WebSocket socket)
         {
             _socket = socket;
         }
@@ -21,8 +21,9 @@ namespace GraphQL.Server.Transports.WebSockets
 
         public Task WriteMessageAsync(string message)
         {
+            //todo: should throw or not?
             if (_socket.CloseStatus.HasValue)
-                throw new InvalidOperationException("Socket is closed/closing");
+                return Task.CompletedTask;
 
             var messageSegment = new ArraySegment<byte>(Encoding.UTF8.GetBytes(message));
             return _socket.SendAsync(messageSegment, WebSocketMessageType.Text, true, CancellationToken.None);
