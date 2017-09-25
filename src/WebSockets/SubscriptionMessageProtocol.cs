@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,18 +7,16 @@ using GraphQL.Server.Transports.WebSockets.Messages;
 using GraphQL.Subscription;
 using GraphQL.Types;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 
 namespace GraphQL.Server.Transports.WebSockets
 {
-    public class SubscriptionMessageProtocol<TSchema> : ISubscriptionMessageProtocol<TSchema> where TSchema: Schema
+    public class SubscriptionMessageProtocol<TSchema> : ISubscriptionMessageProtocol<TSchema> where TSchema : Schema
     {
-        private readonly TSchema _schema;
-        private readonly ISubscriptionExecuter _subscriptionExecuter;
         private readonly IDocumentExecuter _documentExecuter;
         private readonly ILogger<SubscriptionMessageProtocol<TSchema>> _log;
-
-        public ConcurrentDictionary<string, ConcurrentDictionary<string, SubscriptionHandle>> Subscriptions { get; } =
-            new ConcurrentDictionary<string, ConcurrentDictionary<string, SubscriptionHandle>>();
+        private readonly TSchema _schema;
+        private readonly ISubscriptionExecuter _subscriptionExecuter;
 
 
         public SubscriptionMessageProtocol(
@@ -33,6 +30,9 @@ namespace GraphQL.Server.Transports.WebSockets
             _documentExecuter = documentExecuter;
             _log = log;
         }
+
+        public ConcurrentDictionary<string, ConcurrentDictionary<string, SubscriptionHandle>> Subscriptions { get; } =
+            new ConcurrentDictionary<string, ConcurrentDictionary<string, SubscriptionHandle>>();
 
         public Task HandleMessageAsync(OperationMessageContext context)
         {
@@ -72,13 +72,8 @@ namespace GraphQL.Server.Transports.WebSockets
         protected Task HandleStopAsync(OperationMessageContext context)
         {
             if (Subscriptions.TryGetValue(context.ConnectionId, out var subscriptions))
-            {
                 if (subscriptions.TryRemove(context.Op.Id, out var subscriptionHandle))
-                {
-                    // unsubscribe
                     subscriptionHandle.Dispose();
-                }
-            }
 
             return Task.CompletedTask;
         }
@@ -86,8 +81,15 @@ namespace GraphQL.Server.Transports.WebSockets
         protected async Task HandleStartAsync(OperationMessageContext context)
         {
             var query = context.Op.Payload.ToObject<GraphQuery>();
-            var stream = await SubscribeAsync(query);
+            var result = await SubscribeAsync(query);
 
+            if (result.Errors?.Any() == true)
+            {
+                await WriteOperationErrorsAsync(context, result);
+                return;
+            }
+
+            var stream = result.Streams.Values.Single();
             Subscriptions.AddOrUpdate(context.ConnectionId, connectionId =>
             {
                 var subscriptions = new ConcurrentDictionary<string, SubscriptionHandle>();
@@ -105,17 +107,34 @@ namespace GraphQL.Server.Transports.WebSockets
             _log.LogInformation($"Subscription: {context.Op.Id} started");
         }
 
-        private async Task<IObservable<object>> SubscribeAsync(GraphQuery query)
+        private async Task WriteOperationErrorsAsync(OperationMessageContext context,
+            SubscriptionExecutionResult result)
         {
-            var result = await _subscriptionExecuter.SubscribeAsync(new ExecutionOptions
+            var error = result.Errors.First();
+
+            await context.MessageWriter.WriteMessageAsync(
+                new OperationMessage
+                {
+                    Type = MessageTypes.GQL_ERROR,
+                    Id = context.Op.Id,
+                    Payload = JObject.FromObject(
+                        new
+                        {
+                            message = error.Message,
+                            locations = error.Locations
+                        })
+                });
+        }
+
+        private Task<SubscriptionExecutionResult> SubscribeAsync(GraphQuery query)
+        {
+            return _subscriptionExecuter.SubscribeAsync(new ExecutionOptions
             {
                 Schema = _schema,
                 OperationName = query.OperationName,
                 Inputs = query.GetInputs(),
                 Query = query.Query
             });
-
-            return result.Streams.Values.Single();
         }
 
         protected Task HandleConnectionInitAsync(OperationMessageContext context)
