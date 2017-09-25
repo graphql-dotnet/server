@@ -2,22 +2,22 @@ using System.Threading.Tasks;
 using GraphQL.Server.Transports.WebSockets.Abstractions;
 using Newtonsoft.Json;
 
-namespace GraphQL.Server.Transports.WebSockets
+namespace GraphQL.Server.Transports.WebSockets.Messages
 {
     public class JsonMessageWriter : IJsonMessageWriter
     {
-        private readonly IWebSocketMessageClient _socketMessageClient;
+        private readonly IWebSocketClient _socketClient;
 
-        public JsonMessageWriter(IWebSocketMessageClient socketMessageClient)
+        public JsonMessageWriter(IWebSocketClient socketClient)
         {
-            _socketMessageClient = socketMessageClient;
+            _socketClient = socketClient;
         }
 
         public Task WriteMessageAsync<T>(T message)
         {
             var messageJson = JsonConvert.SerializeObject(message);
 
-            return _socketMessageClient.WriteMessageAsync(messageJson);
+            return _socketClient.WriteMessageAsync(messageJson);
         }
     }
 }

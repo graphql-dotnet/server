@@ -80,13 +80,12 @@ Task("SetVersion")
         var versionInfo = GitVersion(new GitVersionSettings {
             RepositoryPath = "."
         });
-        version = versionInfo.NuGetVersionV2;
+        version = versionInfo.SemVer;
+        Information($"Version: {version}, FullSemVer: {versionInfo.SemVer}");
 
         if(AppVeyor.IsRunningOnAppVeyor) {
-            AppVeyor.UpdateBuildVersion(version);
+            AppVeyor.UpdateBuildVersion(versionInfo.FullSemVer);
         }
-
-        Information($"Version: {version}");
     });
 
 RunTarget(target);

@@ -7,18 +7,18 @@ namespace GraphQL.Server.Transports.WebSockets
 {
     public class JsonMessageReader : IJsonMessageReader
     {
-        private readonly IWebSocketMessageClient _socketMessageClient;
+        private readonly IWebSocketClient _socketClient;
 
-        public JsonMessageReader(IWebSocketMessageClient socketMessageClient)
+        public JsonMessageReader(IWebSocketClient socketClient)
         {
-            _socketMessageClient = socketMessageClient;
+            _socketClient = socketClient;
         }
 
         public async Task<T> ReadMessageAsync<T>()
         {
             try
             {
-                var message = await _socketMessageClient.ReadMessageAsync();
+                var message = await _socketClient.ReadMessageAsync();
 
                 if (message == null)
                     return default(T);
