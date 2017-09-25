@@ -12,7 +12,7 @@ skip_tags: false
 skip_branch_with_pr: true
 
 cache:
-- '%USERPROFILE%\.nuget\packages'
+# - '%USERPROFILE%\.nuget\packages' <- slow builds
 - tools -> tools\packages.config
 
 on_failure:
