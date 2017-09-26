@@ -1,10 +1,9 @@
 using GraphQL.Samples.Schemas.Chat;
 using GraphQL.Server.Transports.WebSockets;
 using GraphQL.Server.Transports.WebSockets.Events;
-using GraphQL.Types;
+using GraphQL.Transports.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -33,8 +32,9 @@ namespace GraphQL.Samples.Server
             // subscriptions
             services.AddSingleton<IEventAggregator, SimpleEventAggregator>();
 
+            services.AddGraphQLHttpTransport<ChatSchema>();
+            services.AddGraphQLWebSocketsTransport<ChatSchema>();
             services.AddGraphQL();
-            services.AddGraphQLEndPoint<ChatSchema>();
             services.AddMvc();
         }
 
@@ -43,7 +43,7 @@ namespace GraphQL.Samples.Server
         {
             if (env.IsDevelopment())
                 app.UseDeveloperExceptionPage();
-            
+
             app.UseStaticFiles();
 
             app.UseWebSockets();

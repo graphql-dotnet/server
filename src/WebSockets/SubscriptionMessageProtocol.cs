@@ -8,6 +8,7 @@ using GraphQL.Subscription;
 using GraphQL.Types;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
+using GraphQL.Transports.AspNetCore.Requests;
 
 namespace GraphQL.Server.Transports.WebSockets
 {
