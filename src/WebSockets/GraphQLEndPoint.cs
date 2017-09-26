@@ -65,7 +65,7 @@ namespace GraphQL.Server.Transports.WebSockets
                         Type = MessageTypes.GQL_CONNECTION_TERMINATE
                     }));
 
-            connection.CloseAsync();
+            await connection.CloseAsync();
         }
 
         private Task HandleMessageAsync(OperationMessage op, GraphQLConnectionContext connection)
