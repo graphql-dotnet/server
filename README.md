@@ -17,8 +17,15 @@ Transport compatible with [Apollo](https://github.com/apollographql/subscription
 public void ConfigureServices(IServiceCollection services)
 {
     services.AddSingleton<ChatSchema>();
+
+    // Http transport using json
+    services.AddGraphQLHttpTransport<ChatSchema>();
+
+    // WebSockets transport using subscription-transport-ws
+    services.AddGraphQLWebSocketsTransport<ChatSchema>();
+
+    // common GraphQL services
     services.AddGraphQL();
-    services.AddGraphQLEndPoint<ChatSchema>();
 }
 
 public void Configure(IApplicationBuilder app, IHostingEnvironment env)

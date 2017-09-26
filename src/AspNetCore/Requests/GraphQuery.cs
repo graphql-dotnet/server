@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace GraphQL.Server.Transports.WebSockets
+namespace GraphQL.Transports.AspNetCore.Requests
 {
     public class GraphQuery
     {
