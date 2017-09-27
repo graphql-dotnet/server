@@ -3,7 +3,7 @@ GraphQL for .NET - Subscription Transport WebSockets
 
 >WARNING: not ready for production use!
 
-[![Build status](https://ci.appveyor.com/api/projects/status/11e1i3yp07jy18jj/branch/master?svg=true)](https://ci.appveyor.com/project/graphql-dotnet-ci/subscriptions-transport-ws/branch/master)
+[![Build status](https://ci.appveyor.com/api/projects/status/x0nf67vfao60wf7e/branch/master?svg=true)](https://ci.appveyor.com/project/graphql-dotnet-ci/server/branch/master)
 
 Transport compatible with [Apollo](https://github.com/apollographql/subscriptions-transport-ws) subscription protocol.
 
