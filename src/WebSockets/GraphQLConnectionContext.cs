@@ -1,15 +1,16 @@
 using System.Net.WebSockets;
 using System.Threading.Tasks;
+using GraphQL.Server.Transports.WebSockets.Abstractions;
 using GraphQL.Server.Transports.WebSockets.Messages;
 
 namespace GraphQL.Server.Transports.WebSockets
 {
-    public class GraphQLConnectionContext
+    public class ConnectionContext : IConnectionContext
     {
         public const string Protocol = "graphql-ws";
         private readonly WebSocketClient _socketClient;
 
-        public GraphQLConnectionContext(WebSocket socket, string connectionId)
+        public ConnectionContext(WebSocket socket, string connectionId)
         {
             ConnectionId = connectionId;
             _socketClient = new WebSocketClient(socket);
@@ -21,9 +22,9 @@ namespace GraphQL.Server.Transports.WebSockets
 
         public WebSocketCloseStatus? CloseStatus => _socketClient.CloseStatus;
 
-        public JsonMessageWriter Writer { get; protected set; }
+        public IJsonMessageWriter Writer { get; protected set; }
 
-        public JsonMessageReader Reader { get; protected set; }
+        public IJsonMessageReader Reader { get; protected set; }
 
         public Task CloseAsync()
         {

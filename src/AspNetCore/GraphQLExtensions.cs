@@ -36,7 +36,7 @@ namespace GraphQL.Transports.AspNetCore
                         throw new InvalidOperationException(
                             $"No transport found for {typeof(TSchema).FullName} found.");
 
-                    await transport.AcceptAsync(context);
+                    await transport.OnConnectedAsync(context);
                 }
                 else
                 {
@@ -51,7 +51,7 @@ namespace GraphQL.Transports.AspNetCore
         {
             foreach (var transport in transports)
             {
-                var accepts = transport.AcceptsRequest(context);
+                var accepts = transport.Accepts(context);
 
                 if (accepts)
                     return transport;

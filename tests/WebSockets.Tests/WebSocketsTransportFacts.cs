@@ -2,13 +2,9 @@ using System;
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
-using GraphQL.Transports.AspNetCore;
-using GraphQL.Types;
 using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
-using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace GraphQL.Server.Transports.WebSockets.Tests
@@ -29,7 +25,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         {
             /* Given */
             /* When */
-            var socket = await ConnectAsync(GraphQLConnectionContext.Protocol).ConfigureAwait(false);
+            var socket = await ConnectAsync(ConnectionContext.Protocol).ConfigureAwait(false);
 
             /* Then */
             Assert.Equal(WebSocketState.Open, socket.State);
@@ -56,24 +52,5 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
             };
             return client.ConnectAsync(new Uri("http://localhost/graphql"), CancellationToken.None);
         }
-    }
-
-    public class TestStartup
-    {
-        public void ConfigureServices(IServiceCollection services)
-        {
-            services.AddGraphQL();
-            services.AddGraphQLWebSocketsTransport<TestSchema>();
-        }
-
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
-        {
-            app.UseWebSockets();
-            app.UseGraphQLEndPoint<TestSchema>("/graphql");
-        }
-    }
-
-    public class TestSchema : Schema
-    {
     }
 }

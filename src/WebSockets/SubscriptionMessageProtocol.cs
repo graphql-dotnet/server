@@ -12,19 +12,19 @@ using GraphQL.Transports.AspNetCore.Requests;
 
 namespace GraphQL.Server.Transports.WebSockets
 {
-    public class SubscriptionMessageProtocol<TSchema> : ISubscriptionMessageProtocol<TSchema> where TSchema : Schema
+    public class SubscriptionProtocolHandlerHandler<TSchema> : ISubscriptionProtocolHandler<TSchema> where TSchema : Schema
     {
         private readonly IDocumentExecuter _documentExecuter;
-        private readonly ILogger<SubscriptionMessageProtocol<TSchema>> _log;
+        private readonly ILogger<SubscriptionProtocolHandlerHandler<TSchema>> _log;
         private readonly TSchema _schema;
         private readonly ISubscriptionExecuter _subscriptionExecuter;
 
 
-        public SubscriptionMessageProtocol(
+        public SubscriptionProtocolHandlerHandler(
             TSchema schema,
             ISubscriptionExecuter subscriptionExecuter,
             IDocumentExecuter documentExecuter,
-            ILogger<SubscriptionMessageProtocol<TSchema>> log)
+            ILogger<SubscriptionProtocolHandlerHandler<TSchema>> log)
         {
             _schema = schema;
             _subscriptionExecuter = subscriptionExecuter;

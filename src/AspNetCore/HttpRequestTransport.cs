@@ -22,7 +22,7 @@ namespace GraphQL.Transports.AspNetCore
 
 
         /// <inheritdoc />
-        public bool AcceptsRequest(HttpContext context)
+        public bool Accepts(HttpContext context)
         {
             if (context.Request.ContentType == null)
                 return false;
@@ -36,7 +36,7 @@ namespace GraphQL.Transports.AspNetCore
         }
 
         /// <inheritdoc />
-        public async Task AcceptAsync(HttpContext context)
+        public async Task OnConnectedAsync(HttpContext context)
         {
             var documentExecuter = context.RequestServices.GetRequiredService<IDocumentExecuter>();
             var documentWriter = context.RequestServices.GetRequiredService<IDocumentWriter>();
