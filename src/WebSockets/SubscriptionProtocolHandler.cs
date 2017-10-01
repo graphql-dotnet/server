@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using GraphQL.Http;
@@ -82,11 +83,21 @@ namespace GraphQL.Server.Transports.WebSockets
         protected async Task HandleStartAsync(OperationMessageContext context)
         {
             var query = context.Op.Payload.ToObject<GraphQuery>();
-            var result = await SubscribeAsync(query);
+            var result = await SubscribeAsync(query).ConfigureAwait(false);
 
             if (result.Errors?.Any() == true)
             {
-                await WriteOperationErrorsAsync(context, result);
+                await WriteOperationErrorsAsync(context, result.Errors).ConfigureAwait(false);
+                return;
+            }
+
+            if (result.Streams == null || !result.Streams.Any())
+            {
+                await WriteOperationErrorsAsync(context, new[]
+                {
+                    new ExecutionError(
+                        $"Could not resolve subsciption stream for {context.Op}")
+                }).ConfigureAwait(false);
                 return;
             }
 
@@ -109,9 +120,9 @@ namespace GraphQL.Server.Transports.WebSockets
         }
 
         private async Task WriteOperationErrorsAsync(OperationMessageContext context,
-            SubscriptionExecutionResult result)
-        {
-            var error = result.Errors.First();
+            IEnumerable<ExecutionError> errors)
+        { 
+            var error = errors?.FirstOrDefault();
 
             await context.MessageWriter.WriteMessageAsync(
                 new OperationMessage
@@ -124,7 +135,7 @@ namespace GraphQL.Server.Transports.WebSockets
                             message = error.Message,
                             locations = error.Locations
                         })
-                });
+                }).ConfigureAwait(false);
         }
 
         private Task<SubscriptionExecutionResult> SubscribeAsync(GraphQuery query)

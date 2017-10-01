@@ -1,8 +1,10 @@
 using System;
 using System.Threading.Tasks;
+using GraphQL.Execution;
 using GraphQL.Server.Transports.WebSockets.Abstractions;
 using GraphQL.Server.Transports.WebSockets.Messages;
 using GraphQL.Subscription;
+using GraphQL.Transports.AspNetCore.Requests;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using NSubstitute;
@@ -49,6 +51,35 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
                 .WriteMessageAsync(Arg.Is<OperationMessage>(
                     message => message.Type == MessageTypes.GQL_CONNECTION_ACK)).ConfigureAwait(false);
         }
+
+        [Fact]
+        public async Task should_handle_start()
+        {
+            /* Given */
+            var query = new GraphQuery()
+            {
+                OperationName = "test",
+                Query = "query",
+                Variables = JObject.FromObject(new {test = "variable"})
+            };
+            
+            var messageContext = CreateMessage(
+                MessageTypes.GQL_START, query);
+
+            _subscriptionExecuter.SubscribeAsync(Arg.Any<ExecutionOptions>())
+                .Returns(new SubscriptionExecutionResult());
+            
+            /* When */
+            await _sut.HandleMessageAsync(messageContext).ConfigureAwait(false);
+
+            /* Then */
+            await _subscriptionExecuter.Received()
+                .SubscribeAsync(Arg.Is<ExecutionOptions>(
+                    context => context.Schema == _schema
+                               && context.Query == query.Query
+                               && context.Inputs.ContainsKey("test")))
+                    .ConfigureAwait(false);
+                }
 
         private OperationMessageContext CreateMessage(string type, object payload)
         {
