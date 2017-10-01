@@ -31,6 +31,7 @@ Task("Publish")
 
 Task("Pack")
   .IsDependentOn("Build")
+  .IsDependentOn("Test")
   .Does(()=>
   {
       var buildSettings = new DotNetCoreMSBuildSettings();
@@ -86,6 +87,15 @@ Task("SetVersion")
         if(AppVeyor.IsRunningOnAppVeyor) {
             AppVeyor.UpdateBuildVersion(versionInfo.FullSemVer);
         }
+    });
+
+Task("Test")
+  .Does(()=> {
+      var projectFiles = GetFiles("./tests/**/*.csproj");
+      foreach(var file in projectFiles)
+      {
+          DotNetCoreTest(file.FullPath);
+      }
     });
 
 RunTarget(target);

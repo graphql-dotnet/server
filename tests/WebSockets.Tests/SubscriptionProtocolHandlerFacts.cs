@@ -148,9 +148,8 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
                 .WriteMessageAsync(Arg.Is<OperationMessage>(
                     message => message.Type == MessageTypes.GQL_COMPLETE)).ConfigureAwait(false);
 
-            var connectionSubscriptions = _sut.Subscriptions[messageContext.ConnectionId];
-            Assert.False(connectionSubscriptions.ContainsKey(messageContext.Op.Id));
-            
+            Assert.False(_sut.Subscriptions.ContainsKey(messageContext.ConnectionId));
+            Assert.True(_sut.Subscriptions.IsEmpty);
         }
     }
 }
