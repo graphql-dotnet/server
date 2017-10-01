@@ -6,8 +6,8 @@ namespace GraphQL.Transports.AspNetCore.Abstractions
 {
     public interface ITransport<TSchema> where TSchema: Schema
     {
-        bool AcceptsRequest(HttpContext context);
+        bool Accepts(HttpContext context);
 
-        Task AcceptAsync(HttpContext context);
+        Task OnConnectedAsync(HttpContext context);
     }
 }

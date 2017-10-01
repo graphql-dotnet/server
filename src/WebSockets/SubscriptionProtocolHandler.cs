@@ -1,30 +1,31 @@
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using GraphQL.Http;
 using GraphQL.Server.Transports.WebSockets.Abstractions;
 using GraphQL.Server.Transports.WebSockets.Messages;
 using GraphQL.Subscription;
+using GraphQL.Transports.AspNetCore.Requests;
 using GraphQL.Types;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
-using GraphQL.Transports.AspNetCore.Requests;
 
 namespace GraphQL.Server.Transports.WebSockets
 {
-    public class SubscriptionMessageProtocol<TSchema> : ISubscriptionMessageProtocol<TSchema> where TSchema : Schema
+    public class SubscriptionProtocolHandler<TSchema> : ISubscriptionProtocolHandler<TSchema> where TSchema : Schema
     {
         private readonly IDocumentExecuter _documentExecuter;
-        private readonly ILogger<SubscriptionMessageProtocol<TSchema>> _log;
+        private readonly ILogger<SubscriptionProtocolHandler<TSchema>> _log;
         private readonly TSchema _schema;
         private readonly ISubscriptionExecuter _subscriptionExecuter;
 
 
-        public SubscriptionMessageProtocol(
+        public SubscriptionProtocolHandler(
             TSchema schema,
             ISubscriptionExecuter subscriptionExecuter,
             IDocumentExecuter documentExecuter,
-            ILogger<SubscriptionMessageProtocol<TSchema>> log)
+            ILogger<SubscriptionProtocolHandler<TSchema>> log)
         {
             _schema = schema;
             _subscriptionExecuter = subscriptionExecuter;
@@ -82,11 +83,27 @@ namespace GraphQL.Server.Transports.WebSockets
         protected async Task HandleStartAsync(OperationMessageContext context)
         {
             var query = context.Op.Payload.ToObject<GraphQuery>();
-            var result = await SubscribeAsync(query);
+            var result = await SubscribeAsync(query).ConfigureAwait(false);
 
+            await AddSubscription(context, result).ConfigureAwait(false);
+            _log.LogInformation($"Subscription: {context.Op.Id} started");
+        }
+
+        public async Task AddSubscription(OperationMessageContext context, SubscriptionExecutionResult result)
+        {
             if (result.Errors?.Any() == true)
             {
-                await WriteOperationErrorsAsync(context, result);
+                await WriteOperationErrorsAsync(context, result.Errors).ConfigureAwait(false);
+                return;
+            }
+
+            if (result.Streams == null || !result.Streams.Any())
+            {
+                await WriteOperationErrorsAsync(context, new[]
+                {
+                    new ExecutionError(
+                        $"Could not resolve subsciption stream for {context.Op}")
+                }).ConfigureAwait(false);
                 return;
             }
 
@@ -105,13 +122,12 @@ namespace GraphQL.Server.Transports.WebSockets
 
                 return subscriptions;
             });
-            _log.LogInformation($"Subscription: {context.Op.Id} started");
         }
 
         private async Task WriteOperationErrorsAsync(OperationMessageContext context,
-            SubscriptionExecutionResult result)
+            IEnumerable<ExecutionError> errors)
         {
-            var error = result.Errors.First();
+            var error = errors?.FirstOrDefault();
 
             await context.MessageWriter.WriteMessageAsync(
                 new OperationMessage
@@ -124,7 +140,7 @@ namespace GraphQL.Server.Transports.WebSockets
                             message = error.Message,
                             locations = error.Locations
                         })
-                });
+                }).ConfigureAwait(false);
         }
 
         private Task<SubscriptionExecutionResult> SubscribeAsync(GraphQuery query)

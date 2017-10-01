@@ -1,3 +1,5 @@
+using System.Net;
+using System.Net.WebSockets;
 using System.Threading.Tasks;
 using GraphQL.Transports.AspNetCore.Abstractions;
 using GraphQL.Types;
@@ -9,14 +11,9 @@ namespace GraphQL.Server.Transports.WebSockets
     public class WebSocketsTransport<TSchema> : ITransport<TSchema> where TSchema : Schema
     {
         /// <inheritdoc />
-        public bool AcceptsRequest(HttpContext context)
+        public bool Accepts(HttpContext context)
         {
             if (!context.WebSockets.IsWebSocketRequest)
-            {
-                return false;
-            }
-
-            if (!context.WebSockets.WebSocketRequestedProtocols.Contains(GraphQLConnectionContext.Protocol))
             {
                 return false;
             }
@@ -25,14 +22,26 @@ namespace GraphQL.Server.Transports.WebSockets
         }
 
         /// <inheritdoc />
-        public async Task AcceptAsync(HttpContext context)
-        {
+        public async Task OnConnectedAsync(HttpContext context)
+        {            
             var socket = await context.WebSockets
-                .AcceptWebSocketAsync(GraphQLConnectionContext.Protocol);
+                .AcceptWebSocketAsync(ConnectionContext.Protocol).ConfigureAwait(false);
 
-            var connection = new GraphQLConnectionContext(socket, context.Connection.Id);
+            if (!context.WebSockets.WebSocketRequestedProtocols
+                .Contains(socket.SubProtocol))
+            {
+                await socket.CloseAsync(
+                    WebSocketCloseStatus.ProtocolError,
+                    $"Server only supports {ConnectionContext.Protocol} protocol",
+                    context.RequestAborted).ConfigureAwait(false);
+
+                return;
+            }
+            
+            var connection = new ConnectionContext(socket, context.Connection.Id);
             var endpoint = context.RequestServices.GetRequiredService<GraphQLEndPoint<TSchema>>();
-            await endpoint.OnConnectedAsync(connection);
+            await endpoint.OnConnectedAsync(connection).ConfigureAwait(false);
+            await endpoint.CloseConnectionAsync(connection).ConfigureAwait(false);
         }
     }
 }
