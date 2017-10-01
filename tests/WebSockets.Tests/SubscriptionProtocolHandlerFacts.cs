@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
+using GraphQL.Http;
 using GraphQL.Server.Transports.WebSockets.Abstractions;
 using GraphQL.Server.Transports.WebSockets.Messages;
 using GraphQL.Subscription;
@@ -112,7 +113,9 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         {
             /* Given */
             var messageContext = CreateMessage(
-                MessageTypes.GQL_CONNECTION_INIT, null);
+                MessageTypes.GQL_STOP, null);
+
+            await _sut.AddSubscription(messageContext, CreateStreamResult(null)).ConfigureAwait(false);
 
             /* When */
             await _sut.HandleMessageAsync(messageContext).ConfigureAwait(false);
@@ -121,7 +124,33 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
             await messageContext.MessageWriter
                 .Received()
                 .WriteMessageAsync(Arg.Is<OperationMessage>(
-                    message => message.Type == MessageTypes.GQL_CONNECTION_ACK)).ConfigureAwait(false);
+                    message => message.Type == MessageTypes.GQL_COMPLETE)).ConfigureAwait(false);
+
+            var connectionSubscriptions = _sut.Subscriptions[messageContext.ConnectionId];
+            Assert.False(connectionSubscriptions.ContainsKey(messageContext.Op.Id));
+        }
+
+        [Fact]
+        public async Task should_handle_terminate()
+        {
+            /* Given */
+            var messageContext = CreateMessage(
+                MessageTypes.GQL_CONNECTION_TERMINATE, null);
+
+            await _sut.AddSubscription(messageContext, CreateStreamResult(null)).ConfigureAwait(false);
+
+            /* When */
+            await _sut.HandleMessageAsync(messageContext).ConfigureAwait(false);
+
+            /* Then */
+            await messageContext.MessageWriter
+                .Received()
+                .WriteMessageAsync(Arg.Is<OperationMessage>(
+                    message => message.Type == MessageTypes.GQL_COMPLETE)).ConfigureAwait(false);
+
+            var connectionSubscriptions = _sut.Subscriptions[messageContext.ConnectionId];
+            Assert.False(connectionSubscriptions.ContainsKey(messageContext.Op.Id));
+            
         }
     }
 }

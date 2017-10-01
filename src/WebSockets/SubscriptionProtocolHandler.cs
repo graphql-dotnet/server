@@ -6,10 +6,10 @@ using GraphQL.Http;
 using GraphQL.Server.Transports.WebSockets.Abstractions;
 using GraphQL.Server.Transports.WebSockets.Messages;
 using GraphQL.Subscription;
+using GraphQL.Transports.AspNetCore.Requests;
 using GraphQL.Types;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
-using GraphQL.Transports.AspNetCore.Requests;
 
 namespace GraphQL.Server.Transports.WebSockets
 {
@@ -85,6 +85,12 @@ namespace GraphQL.Server.Transports.WebSockets
             var query = context.Op.Payload.ToObject<GraphQuery>();
             var result = await SubscribeAsync(query).ConfigureAwait(false);
 
+            await AddSubscription(context, result).ConfigureAwait(false);
+            _log.LogInformation($"Subscription: {context.Op.Id} started");
+        }
+
+        public async Task AddSubscription(OperationMessageContext context, SubscriptionExecutionResult result)
+        {
             if (result.Errors?.Any() == true)
             {
                 await WriteOperationErrorsAsync(context, result.Errors).ConfigureAwait(false);
@@ -116,12 +122,11 @@ namespace GraphQL.Server.Transports.WebSockets
 
                 return subscriptions;
             });
-            _log.LogInformation($"Subscription: {context.Op.Id} started");
         }
 
         private async Task WriteOperationErrorsAsync(OperationMessageContext context,
             IEnumerable<ExecutionError> errors)
-        { 
+        {
             var error = errors?.FirstOrDefault();
 
             await context.MessageWriter.WriteMessageAsync(
