@@ -6,7 +6,11 @@ var artifactsDir = Directory(Argument<string>("artifactsDir", "./artifacts"));
 var publishDir = Directory(Argument<string>("publishDir", "./publish"));
 var framework = Argument<string>("framework", "netstandard2.0");
 var runtime = Argument<string>("runtime", "win-x64");
-var projectFile = "./src/WebSockets/WebSockets.csproj";
+var sln = "./GraphQL.Server.Transports.sln";
+var projectFiles = new [] {
+  "./src/AspNetCore/AspNetCore.csproj",
+  "./src/WebSockets/WebSockets.csproj"
+  };
 
 var version = "0.0.0-dev";
 
@@ -26,7 +30,10 @@ Task("Publish")
           Runtime = runtime
       };
 
-      DotNetCorePublish(projectFile, settings);
+      foreach(var projectFile in projectFiles)
+      {
+        DotNetCorePublish(projectFile, settings);
+      }
   });
 
 Task("Pack")
@@ -44,7 +51,10 @@ Task("Pack")
           MSBuildSettings = buildSettings
       };
 
-      DotNetCorePack(projectFile, settings);
+      foreach(var projectFile in projectFiles)
+      {
+        DotNetCorePack(projectFile, settings);
+      }
   });
 
 Task("Build")
@@ -57,8 +67,11 @@ Task("Build")
           Framework = framework,
           Configuration = configuration
       };
- 
-      DotNetCoreBuild(projectFile, settings);
+
+      foreach(var projectFile in projectFiles)
+      {
+        DotNetCoreBuild(projectFile, settings);
+      }
   });
 
 Task("Clean")
@@ -73,7 +86,10 @@ Task("Clean")
 Task("Restore")
   .Does(()=>
   {
-      DotNetCoreRestore(projectFile);
+      foreach(var projectFile in projectFiles)
+      {
+        DotNetCoreRestore(projectFile);
+      }
   });
 
 Task("SetVersion")

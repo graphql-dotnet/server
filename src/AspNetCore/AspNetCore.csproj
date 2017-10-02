@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <AssemblyName>GraphQL.Transports.AspNetCore</AssemblyName>
-    <RootNamespace>GraphQL.Transports.AspNetCore</RootNamespace>
+    <AssemblyName>GraphQL.Server.Transports.AspNetCore</AssemblyName>
+    <RootNamespace>GraphQL.Server.Transports.AspNetCore</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
