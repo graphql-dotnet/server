@@ -8,6 +8,7 @@ artifacts:
   - path: artifacts\*.nupkg
     name: Packages
 
+test: off
 skip_tags: false
 skip_branch_with_pr: true
 
