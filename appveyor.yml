@@ -19,7 +19,7 @@ cache:
 on_failure:
   - ps: Update-AppveyorBuild -Version "$($env:appveyor_build_version)-$(Get-Date -format HHmmss)-failed"
   
-  deploy:
+deploy:
   - provider: NuGet
     server: https://www.myget.org/F/graphql-dotnet/api/v2/package
     api_key:
