@@ -9,7 +9,14 @@ Transport compatible with [Apollo](https://github.com/apollographql/subscription
 
 ## Getting started
 
->`install package`
+Add graphql-dotnet MyGet feed to your nuget.config
+>https://myget.org/F/graphql-dotnet/api/v3/index.json
+
+For just the ASP.NET Core middleware:
+>`dotnet add GraphQL.Server.Transports.AspNetCore`
+
+For WebSocket subscription protocol (depends on above)
+>`dotnet add GraphQL.Server.Transports.WebSockets`
 
 ### Configure
 
