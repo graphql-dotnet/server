@@ -1,15 +1,17 @@
 using System;
+using System.Threading.Tasks;
 using GraphQL.Http;
 using GraphQL.Server.Transports.WebSockets.Abstractions;
+using GraphQL.Server.Transports.WebSockets.Extensions;
 using GraphQL.Server.Transports.WebSockets.Messages;
 using Newtonsoft.Json.Linq;
 
 namespace GraphQL.Server.Transports.WebSockets
 {
-    public class SubscriptionHandle : IObserver<object>, IDisposable
+    public class SubscriptionHandle
     {
-        private readonly IJsonMessageWriter _messageWriter;
         private readonly IDocumentWriter _documentWriter;
+        private readonly IJsonMessageWriter _messageWriter;
 
         public SubscriptionHandle(OperationMessage op,
             IObservable<object> stream,
@@ -20,7 +22,7 @@ namespace GraphQL.Server.Transports.WebSockets
             Stream = stream;
             _messageWriter = messageWriter;
             _documentWriter = documentWriter;
-            Unsubscribe = stream.Subscribe(this);
+            Unsubscribe = stream.SubscribeAsync(OnNext, OnError, OnCompleted);
         }
 
         public OperationMessage Op { get; }
@@ -29,16 +31,13 @@ namespace GraphQL.Server.Transports.WebSockets
 
         public IDisposable Unsubscribe { get; set; }
 
-        public void Dispose()
+        public Task CloseAsync()
         {
-            Unsubscribe?.Dispose();
-
-            // complete
-            _messageWriter.WriteMessageAsync(new OperationMessage
+            return _messageWriter.WriteMessageAsync(new OperationMessage
             {
                 Id = Op.Id,
                 Type = MessageTypes.GQL_COMPLETE
-            }).GetAwaiter().GetResult();
+            });
         }
 
         public void OnCompleted()
@@ -51,15 +50,15 @@ namespace GraphQL.Server.Transports.WebSockets
             Unsubscribe.Dispose();
         }
 
-        public void OnNext(object value)
+        public Task OnNext(object value)
         {
             var json = _documentWriter.Write(value);
-            _messageWriter.WriteMessageAsync(new OperationMessage
+            return _messageWriter.WriteMessageAsync(new OperationMessage
             {
                 Id = Op.Id,
                 Type = MessageTypes.GQL_DATA,
                 Payload = JObject.Parse(json)
-            }).GetAwaiter().GetResult();
+            });
         }
     }
 }
