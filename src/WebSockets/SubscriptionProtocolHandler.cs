@@ -58,26 +58,22 @@ namespace GraphQL.Server.Transports.WebSockets
             return HandleTerminateAsync(context);
         }
 
-        protected Task HandleTerminateAsync(OperationMessageContext context)
+        protected async Task HandleTerminateAsync(OperationMessageContext context)
         {
             if (Subscriptions.TryRemove(context.ConnectionId, out var subscriptions))
             {
                 foreach (var subscription in subscriptions.Values)
-                    subscription.Dispose();
+                    await subscription.CloseAsync();
 
                 subscriptions.Clear();
             }
-
-            return Task.CompletedTask;
         }
 
-        protected Task HandleStopAsync(OperationMessageContext context)
+        protected async Task HandleStopAsync(OperationMessageContext context)
         {
             if (Subscriptions.TryGetValue(context.ConnectionId, out var subscriptions))
                 if (subscriptions.TryRemove(context.Op.Id, out var subscriptionHandle))
-                    subscriptionHandle.Dispose();
-
-            return Task.CompletedTask;
+                    await subscriptionHandle.CloseAsync();
         }
 
         protected async Task HandleStartAsync(OperationMessageContext context)
