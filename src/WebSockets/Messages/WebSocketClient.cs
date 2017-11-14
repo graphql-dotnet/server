@@ -91,6 +91,8 @@ namespace GraphQL.Server.Transports.WebSockets.Messages
 
         public Task CloseAsync()
         {
+            _writer.Dispose();
+            
             if (_socket.State != WebSocketState.Open)
                 return Task.CompletedTask;
 
