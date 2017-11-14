@@ -1,10 +1,13 @@
 using System;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Net.WebSockets;
+using System.Reactive.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using GraphQL.Server.Transports.WebSockets.Abstractions;
+using GraphQL.Server.Transports.WebSockets.Extensions;
 
 namespace GraphQL.Server.Transports.WebSockets.Messages
 {
@@ -12,21 +15,42 @@ namespace GraphQL.Server.Transports.WebSockets.Messages
     {
         private readonly WebSocket _socket;
 
+        private readonly ConcurrentQueue<ArraySegment<byte>> _writeQueue = new ConcurrentQueue<ArraySegment<byte>>();
+        private IDisposable _writer;
+
+        //todo(pekka): allow configuration
+        private static readonly TimeSpan WriteMessageInterval = TimeSpan.FromMilliseconds(10);
+
         public WebSocketClient(WebSocket socket)
         {
             _socket = socket;
+            _writer = Observable.Timer(TimeSpan.FromMilliseconds(0), WriteMessageInterval)
+                .SubscribeAsync(_ => InternalWriteMessage(), OnWriteError, () => { });
+        }
+
+        private Task InternalWriteMessage()
+        {
+            //todo: should throw or not?
+            if (_socket.CloseStatus.HasValue)
+                return Task.CompletedTask;
+
+            if (_writeQueue.TryDequeue(out var message))
+            {
+                return _socket.SendAsync(message, WebSocketMessageType.Text, true, CancellationToken.None);
+            }
+        }
+
+        private void OnWriteError(Exception error)
+        {
+           
         }
 
         public WebSocketCloseStatus? CloseStatus => _socket.CloseStatus;
 
         public Task WriteMessageAsync(string message)
         {
-            //todo: should throw or not?
-            if (_socket.CloseStatus.HasValue)
-                return Task.CompletedTask;
-
             var messageSegment = new ArraySegment<byte>(Encoding.UTF8.GetBytes(message));
-            return _socket.SendAsync(messageSegment, WebSocketMessageType.Text, true, CancellationToken.None);
+            _writeQueue.Enqueue(messageSegment);
         }
 
         public async Task<string> ReadMessageAsync()
