@@ -38,6 +38,8 @@ namespace GraphQL.Server.Transports.WebSockets.Messages
             {
                 return _socket.SendAsync(message, WebSocketMessageType.Text, true, CancellationToken.None);
             }
+
+            return Task.CompletedTask;
         }
 
         private void OnWriteError(Exception error)
@@ -51,6 +53,7 @@ namespace GraphQL.Server.Transports.WebSockets.Messages
         {
             var messageSegment = new ArraySegment<byte>(Encoding.UTF8.GetBytes(message));
             _writeQueue.Enqueue(messageSegment);
+            return Task.CompletedTask;
         }
 
         public async Task<string> ReadMessageAsync()
