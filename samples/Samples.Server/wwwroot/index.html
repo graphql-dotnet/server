@@ -136,7 +136,7 @@
         });
     }
 
-    var subscriptionsClient = new window.SubscriptionsTransportWs.SubscriptionClient("ws://localhost:60341/graphql", { reconnect: true });
+    var subscriptionsClient = new window.SubscriptionsTransportWs.SubscriptionClient("ws://" + window.location.host + "/graphql", { reconnect: true });
     var subscriptionsFetcher = window.GraphiQLSubscriptionsFetcher.graphQLFetcher(subscriptionsClient, graphQLFetcher);
 
     // Render <GraphiQL /> into the body.
