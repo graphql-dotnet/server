@@ -50,7 +50,6 @@ namespace GraphQL.Samples.Server
             app.UseWebSockets();
             app.UseGraphQLEndPoint<ChatSchema>("/graphql");
             
-            app.UseDefaultFiles();
             app.UseMvc();
         }
     }
