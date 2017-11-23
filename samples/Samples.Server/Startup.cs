@@ -43,12 +43,13 @@ namespace GraphQL.Samples.Server
         {
             if (env.IsDevelopment())
                 app.UseDeveloperExceptionPage();
-
+            
+            app.UseDefaultFiles();
             app.UseStaticFiles();
 
             app.UseWebSockets();
             app.UseGraphQLEndPoint<ChatSchema>("/graphql");
-
+            
             app.UseMvc();
         }
     }
