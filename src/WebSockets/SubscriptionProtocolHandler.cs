@@ -13,7 +13,7 @@ using Newtonsoft.Json.Linq;
 
 namespace GraphQL.Server.Transports.WebSockets
 {
-    public class SubscriptionProtocolHandler<TSchema> : ISubscriptionProtocolHandler<TSchema> where TSchema : Schema
+    public class SubscriptionProtocolHandler<TSchema> : ISubscriptionProtocolHandler<TSchema> where TSchema : ISchema
     {
         private readonly IDocumentExecuter _documentExecuter;
         private readonly ILogger<SubscriptionProtocolHandler<TSchema>> _log;
@@ -79,7 +79,7 @@ namespace GraphQL.Server.Transports.WebSockets
         protected async Task HandleStartAsync(OperationMessageContext context)
         {
             var query = context.Op.Payload.ToObject<GraphQuery>();
-            var result = await SubscribeAsync(query).ConfigureAwait(false);
+            var result = await SubscribeAsync(query, context).ConfigureAwait(false);
 
             await AddSubscription(context, result).ConfigureAwait(false);
             _log.LogInformation($"Subscription: {context.Op.Id} started");
@@ -133,20 +133,22 @@ namespace GraphQL.Server.Transports.WebSockets
                     Payload = JObject.FromObject(
                         new
                         {
-                            message = error.Message,
-                            locations = error.Locations
+                            message = error?.Message,
+                            locations = error?.Locations
                         })
                 }).ConfigureAwait(false);
         }
 
-        private Task<SubscriptionExecutionResult> SubscribeAsync(GraphQuery query)
+        private Task<SubscriptionExecutionResult> SubscribeAsync(GraphQuery query, OperationMessageContext op)
         {
+            var options = op.Connection.Options;
             return _subscriptionExecuter.SubscribeAsync(new ExecutionOptions
             {
                 Schema = _schema,
                 OperationName = query.OperationName,
                 Inputs = query.GetInputs(),
-                Query = query.Query
+                Query = query.Query,
+                UserContext = options?.BuildUserContext?.Invoke(op)
             });
         }
 
