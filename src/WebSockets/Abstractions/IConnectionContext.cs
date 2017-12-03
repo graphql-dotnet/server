@@ -8,7 +8,6 @@ namespace GraphQL.Server.Transports.WebSockets.Abstractions
         string ConnectionId { get; }
         WebSocketCloseStatus? CloseStatus { get; }
         IJsonMessageWriter Writer { get; }
-        IJsonMessageReader Reader { get; }
-        Task CloseAsync();
+        IJsonMessageReader Reader { get; }        GraphQlWebSocketsOptions Options { get; }        Task CloseAsync();
     }
 }

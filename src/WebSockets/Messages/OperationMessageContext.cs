@@ -4,16 +4,20 @@ namespace GraphQL.Server.Transports.WebSockets.Messages
 {
     public class OperationMessageContext
     {
-        public OperationMessageContext(string connectionId, IJsonMessageWriter messageWriter, OperationMessage op)
+        private readonly IConnectionContext _connectionContext;
+
+        public OperationMessageContext(IConnectionContext connectionContext, OperationMessage op)
         {
-            ConnectionId = connectionId;
-            MessageWriter = messageWriter;
+            _connectionContext = connectionContext;
             Op = op;
         }
 
-        public string ConnectionId { get; protected set; }
+        public string ConnectionId => _connectionContext.ConnectionId;
 
-        public IJsonMessageWriter MessageWriter { get; }
+        public IJsonMessageWriter MessageWriter => _connectionContext.Writer;
+
+        public IConnectionContext Connection => _connectionContext;
+
         public OperationMessage Op { get; }
     }
 }

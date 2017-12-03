@@ -8,14 +8,14 @@ using Microsoft.Extensions.Logging;
 
 namespace GraphQL.Server.Transports.WebSockets
 {
-    public class GraphQLEndPoint<TSchema> where TSchema : Schema
+    public class GraphQlEndPoint<TSchema> where TSchema : ISchema
     {
-        private readonly ILogger<GraphQLEndPoint<TSchema>> _log;
+        private readonly ILogger<GraphQlEndPoint<TSchema>> _log;
         private readonly ISubscriptionProtocolHandler<TSchema> _messagingProtocolHandler;
 
-        public GraphQLEndPoint(
+        public GraphQlEndPoint(
             ISubscriptionProtocolHandler<TSchema> messagingProtocolHandler,
-            ILogger<GraphQLEndPoint<TSchema>> log)
+            ILogger<GraphQlEndPoint<TSchema>> log)
         {
             _log = log;
             _messagingProtocolHandler = messagingProtocolHandler;
@@ -58,8 +58,9 @@ namespace GraphQL.Server.Transports.WebSockets
         {
             Connections.TryRemove(connection.ConnectionId, out var _);
             await _messagingProtocolHandler.HandleConnectionClosed(
-                new OperationMessageContext(connection.ConnectionId,
-                    connection.Writer, new OperationMessage
+                new OperationMessageContext(
+                    connection,
+                    new OperationMessage
                     {
                         Type = MessageTypes.GQL_CONNECTION_TERMINATE
                     })).ConfigureAwait(false);
@@ -69,8 +70,10 @@ namespace GraphQL.Server.Transports.WebSockets
 
         private Task HandleMessageAsync(OperationMessage op, IConnectionContext connection)
         {
-            return _messagingProtocolHandler.HandleMessageAsync(new OperationMessageContext(connection.ConnectionId,
-                connection.Writer, op));
+            return _messagingProtocolHandler.HandleMessageAsync(
+                new OperationMessageContext(
+                    connection,
+                    op));
         }
     }
 }

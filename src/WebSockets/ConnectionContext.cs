@@ -10,13 +10,16 @@ namespace GraphQL.Server.Transports.WebSockets
         public const string Protocol = "graphql-ws";
         private readonly WebSocketClient _socketClient;
 
-        public ConnectionContext(WebSocket socket, string connectionId)
+        public ConnectionContext(WebSocket socket, string connectionId, GraphQlWebSocketsOptions options)
         {
+            Options = options;
             ConnectionId = connectionId;
             _socketClient = new WebSocketClient(socket);
             Reader = new JsonMessageReader(_socketClient);
             Writer = new JsonMessageWriter(_socketClient);
         }
+
+        public GraphQlWebSocketsOptions Options { get; }
 
         public string ConnectionId { get; }
 

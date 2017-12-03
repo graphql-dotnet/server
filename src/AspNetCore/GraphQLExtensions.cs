@@ -1,63 +1,31 @@
-using System;
-using System.Collections.Generic;
 using GraphQL.Http;
 using GraphQL.Subscription;
-using GraphQL.Transports.AspNetCore.Abstractions;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 
-namespace GraphQL.Transports.AspNetCore
+namespace GraphQL.Server.Transports.AspNetCore
 {
-    public static class GraphQLExtensions
+    public static class GraphQlExtensions
     {
-        public static IServiceCollection AddGraphQL(this IServiceCollection services)
+        public static IServiceCollection AddGraphQLHttp(this IServiceCollection services)
         {
-            services.AddSingleton<IDocumentWriter, DocumentWriter>();
-            services.AddSingleton<IDocumentExecuter, DocumentExecuter>();
-            services.AddSingleton<ISubscriptionExecuter, SubscriptionExecuter>();
+            services.TryAddSingleton<IDocumentWriter, DocumentWriter>();
+            services.TryAddSingleton<IDocumentExecuter, DocumentExecuter>();
+            services.TryAddSingleton<ISubscriptionExecuter, SubscriptionExecuter>();
 
             return services;
         }
 
-        public static IApplicationBuilder UseGraphQLEndPoint<TSchema>(this IApplicationBuilder builder,
-            string path)
-            where TSchema : Schema
+        public static IApplicationBuilder UseGraphQLHttp<TSchema>(this IApplicationBuilder builder,
+            GraphQlOptions schemaOptions)
+            where TSchema : ISchema
         {
-            builder.Use(async (context, next) =>
-            {
-                if (context.Request.Path == path)
-                {
-                    var transports = context.RequestServices.GetServices<ITransport<TSchema>>();
-                    var transport = GetFirstAcceptedTransport(transports, context);
-
-                    if (transport == null)
-                        throw new InvalidOperationException(
-                            $"No transport found for {typeof(TSchema).FullName} found.");
-
-                    await transport.OnConnectedAsync(context);
-                }
-                else
-                {
-                    await next();
-                }
-            });
+            builder.UseMiddleware<GraphQlHttpMiddleware<TSchema>>(Options.Create(schemaOptions));
 
             return builder;
-        }
-
-        private static ITransport<TSchema> GetFirstAcceptedTransport<TSchema>(IEnumerable<ITransport<TSchema>> transports, HttpContext context) where TSchema : Schema
-        {
-            foreach (var transport in transports)
-            {
-                var accepts = transport.Accepts(context);
-
-                if (accepts)
-                    return transport;
-            }
-
-            return null;
         }
     }
 }

@@ -4,7 +4,7 @@ using GraphQL.Types;
 
 namespace GraphQL.Server.Transports.WebSockets.Abstractions
 {
-    public interface ISubscriptionProtocolHandler<TSchema> where TSchema : Schema
+    public interface ISubscriptionProtocolHandler<TSchema> where TSchema : ISchema
     {
         Task HandleMessageAsync(OperationMessageContext context);
 

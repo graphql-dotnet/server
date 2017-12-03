@@ -24,6 +24,10 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
             _subscriptionExecuter = Substitute.For<ISubscriptionExecuter>();
             _messageWriter = Substitute.For<IJsonMessageWriter>();
 
+            _connection = Substitute.For<IConnectionContext>();
+            _connection.Writer.Returns(_messageWriter);
+            _connection.ConnectionId.Returns("1");
+
             var logger = Substitute.For<ILogger<SubscriptionProtocolHandler<TestSchema>>>();
             _sut = new SubscriptionProtocolHandler<TestSchema>(
                 _schema,
@@ -37,6 +41,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         private readonly ISubscriptionExecuter _subscriptionExecuter;
         private readonly SubscriptionProtocolHandler<TestSchema> _sut;
         private readonly IJsonMessageWriter _messageWriter;
+        private IConnectionContext _connection;
 
         private SubscriptionExecutionResult CreateStreamResult(CallInfo arg)
         {
@@ -57,7 +62,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
                 Payload = payload != null ? JObject.FromObject(payload) : null
             };
 
-            return new OperationMessageContext("1", _messageWriter, op);
+            return new OperationMessageContext(_connection, op);
         }
 
         [Fact]
