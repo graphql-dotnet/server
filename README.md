@@ -24,15 +24,12 @@ For WebSocket subscription protocol (depends on above)
 public void ConfigureServices(IServiceCollection services)
 {
     services.AddSingleton<ChatSchema>();
-
+    
     // Http transport using json
-    services.AddGraphQLHttpTransport<ChatSchema>();
-
+    services.AddGraphQLHttp();
+    
     // WebSockets transport using subscription-transport-ws
-    services.AddGraphQLWebSocketsTransport<ChatSchema>();
-
-    // common GraphQL services
-    services.AddGraphQL();
+    services.AddGraphQlWebSockets<ChatSchema>();
 }
 
 public void Configure(IApplicationBuilder app, IHostingEnvironment env)
@@ -40,9 +37,11 @@ public void Configure(IApplicationBuilder app, IHostingEnvironment env)
     // this is required for websockets support
     app.UseWebSockets();
 
-    // registers schema as endpoint handling both
-    // json requests and websocket requests
-    app.UseGraphQLEndPoint<ChatSchema>("/graphql");
+    // add websockets transport
+    app.UseGraphQlEndPoint<ChatSchema>(new GraphQlWebSocketsOptions());
+    
+    // Add HTTP transport support
+    app.UseGraphQLHttp<ChatSchema>(new GraphQlOptions());
 }
 
 ```
