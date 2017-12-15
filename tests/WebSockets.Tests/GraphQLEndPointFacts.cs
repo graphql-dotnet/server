@@ -14,12 +14,12 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         public async Task should_connect()
         {
             /* Given */
-            var log = Substitute.For<ILogger<GraphQlEndPoint<TestSchema>>>();
+            var log = Substitute.For<ILogger<GraphQLEndPoint<TestSchema>>>();
             var handler = Substitute.For<ISubscriptionProtocolHandler<TestSchema>>();
             var connection = Substitute.For<IConnectionContext>();
             connection.ConnectionId.Returns("1");
 
-            var sut = new GraphQlEndPoint<TestSchema>(handler, log);
+            var sut = new GraphQLEndPoint<TestSchema>(handler, log);
                 
             /* When */
             await sut.OnConnectedAsync(connection).ConfigureAwait(false);
@@ -32,12 +32,12 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         public async Task should_receive_messages()
         {
             /* Given */
-            var log = Substitute.For<ILogger<GraphQlEndPoint<TestSchema>>>();
+            var log = Substitute.For<ILogger<GraphQLEndPoint<TestSchema>>>();
             var handler = Substitute.For<ISubscriptionProtocolHandler<TestSchema>>();
             var connection = Substitute.For<IConnectionContext>();
             connection.ConnectionId.Returns("1");
 
-            var sut = new GraphQlEndPoint<TestSchema>(handler, log);
+            var sut = new GraphQLEndPoint<TestSchema>(handler, log);
 
             /* When */
             await sut.OnConnectedAsync(connection).ConfigureAwait(false);
@@ -50,7 +50,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         public async Task should_handle_received_messages()
         {
             /* Given */
-            var log = Substitute.For<ILogger<GraphQlEndPoint<TestSchema>>>();
+            var log = Substitute.For<ILogger<GraphQLEndPoint<TestSchema>>>();
             var handler = Substitute.For<ISubscriptionProtocolHandler<TestSchema>>();
             var connection = Substitute.For<IConnectionContext>();
             connection.ConnectionId.Returns("1");
@@ -58,7 +58,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
             var message = new OperationMessage();
             connection.Reader.ReadMessageAsync<OperationMessage>().Returns(message)
                 .AndDoes(ci => connection.CloseStatus.Returns(WebSocketCloseStatus.NormalClosure));
-            var sut = new GraphQlEndPoint<TestSchema>(handler, log);
+            var sut = new GraphQLEndPoint<TestSchema>(handler, log);
 
             /* When */
             await sut.OnConnectedAsync(connection).ConfigureAwait(false);
@@ -73,12 +73,12 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         public async Task should_disconnect()
         {
             /* Given */
-            var log = Substitute.For<ILogger<GraphQlEndPoint<TestSchema>>>();
+            var log = Substitute.For<ILogger<GraphQLEndPoint<TestSchema>>>();
             var handler = Substitute.For<ISubscriptionProtocolHandler<TestSchema>>();
             var connection = Substitute.For<IConnectionContext>();
             connection.ConnectionId.Returns("1");
 
-            var sut = new GraphQlEndPoint<TestSchema>(handler, log);
+            var sut = new GraphQLEndPoint<TestSchema>(handler, log);
 
             /* When */
             await sut.OnConnectedAsync(connection).ConfigureAwait(false);

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using GraphQL.Http;
-using GraphQL.Transports.AspNetCore.Requests;
+using GraphQL.Server.Transports.AspNetCore.Common;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
@@ -12,17 +12,17 @@ using Newtonsoft.Json;
 
 namespace GraphQL.Server.Transports.AspNetCore
 {
-    public class GraphQlHttpMiddleware<TSchema> where TSchema : ISchema
+    public class GraphQLHttpMiddleware<TSchema> where TSchema : ISchema
     {
         private readonly RequestDelegate _next;
-        private readonly GraphQlOptions _options;
+        private readonly GraphQLHttpOptions _options;
         private readonly IDocumentExecuter _executer;
         private readonly IDocumentWriter _writer;
         private readonly TSchema _schema;
 
-        public GraphQlHttpMiddleware(
+        public GraphQLHttpMiddleware(
             RequestDelegate next,
-            IOptions<GraphQlOptions> options,
+            IOptions<GraphQLHttpOptions> options,
             IDocumentExecuter executer,
             IDocumentWriter writer,
             TSchema schema)
@@ -58,7 +58,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                 body = await streamReader.ReadToEndAsync().ConfigureAwait(true);
             }
 
-            var request = JsonConvert.DeserializeObject<GraphQuery>(body);
+            var request = JsonConvert.DeserializeObject<GraphQLQuery>(body);
 
             var result = await _executer.ExecuteAsync(_ =>
             {
