@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using GraphQL.Http;
+using GraphQL.Server.Transports.AspNetCore.Common;
 using GraphQL.Server.Transports.WebSockets.Abstractions;
 using GraphQL.Server.Transports.WebSockets.Messages;
 using GraphQL.Subscription;
-using GraphQL.Transports.AspNetCore.Requests;
 using GraphQL.Types;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
@@ -78,7 +78,7 @@ namespace GraphQL.Server.Transports.WebSockets
 
         protected async Task HandleStartAsync(OperationMessageContext context)
         {
-            var query = context.Op.Payload.ToObject<GraphQuery>();
+            var query = context.Op.Payload.ToObject<GraphQLQuery>();
             var result = await SubscribeAsync(query, context).ConfigureAwait(false);
 
             await AddSubscription(context, result).ConfigureAwait(false);
@@ -139,7 +139,7 @@ namespace GraphQL.Server.Transports.WebSockets
                 }).ConfigureAwait(false);
         }
 
-        private Task<SubscriptionExecutionResult> SubscribeAsync(GraphQuery query, OperationMessageContext op)
+        private Task<SubscriptionExecutionResult> SubscribeAsync(GraphQLQuery query, OperationMessageContext op)
         {
             var options = op.Connection.Options;
             return _subscriptionExecuter.SubscribeAsync(new ExecutionOptions

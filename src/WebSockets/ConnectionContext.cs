@@ -10,7 +10,7 @@ namespace GraphQL.Server.Transports.WebSockets
         public const string Protocol = "graphql-ws";
         private readonly WebSocketClient _socketClient;
 
-        public ConnectionContext(WebSocket socket, string connectionId, GraphQlWebSocketsOptions options)
+        public ConnectionContext(WebSocket socket, string connectionId, GraphQLWebSocketsOptions options)
         {
             Options = options;
             ConnectionId = connectionId;
@@ -19,7 +19,7 @@ namespace GraphQL.Server.Transports.WebSockets
             Writer = new JsonMessageWriter(_socketClient);
         }
 
-        public GraphQlWebSocketsOptions Options { get; }
+        public GraphQLWebSocketsOptions Options { get; }
 
         public string ConnectionId { get; }
 

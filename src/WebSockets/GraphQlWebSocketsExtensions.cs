@@ -8,24 +8,24 @@ using Microsoft.Extensions.Options;
 
 namespace GraphQL.Server.Transports.WebSockets
 {
-    public static class GraphQlWebSocketsExtensions
+    public static class GraphQLWebSocketsExtensions
     {
-        public static IServiceCollection AddGraphQlWebSockets<TSchema>(this IServiceCollection services) where TSchema : ISchema
+        public static IServiceCollection AddGraphQLWebSocket<TSchema>(this IServiceCollection services) where TSchema : ISchema
         {
             services.TryAddSingleton<ISubscriptionExecuter, SubscriptionExecuter>();
             services.TryAddSingleton<IDocumentWriter, DocumentWriter>();
 
             services.TryAddSingleton<ISubscriptionProtocolHandler<TSchema>, SubscriptionProtocolHandler<TSchema>>();
-            services.TryAddSingleton<GraphQlEndPoint<TSchema>>();
+            services.TryAddSingleton<GraphQLEndPoint<TSchema>>();
 
             return services;
         }
 
-        public static IApplicationBuilder UseGraphQlEndPoint<TSchema>(this IApplicationBuilder builder,
-            GraphQlWebSocketsOptions schemaOptions)
+        public static IApplicationBuilder UseGraphQLWebSocket<TSchema>(this IApplicationBuilder builder,
+            GraphQLWebSocketsOptions schemaOptions)
             where TSchema : ISchema
         {
-            builder.UseMiddleware<GraphQlWebSocketsMiddleware<TSchema>>(Options.Create(schemaOptions));
+            builder.UseMiddleware<GraphQLWebSocketsMiddleware<TSchema>>(Options.Create(schemaOptions));
             return builder;
         }
     }

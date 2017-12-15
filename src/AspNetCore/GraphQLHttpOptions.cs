@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace GraphQL.Server.Transports.AspNetCore
 {
-    public class GraphQlOptions
+    public class GraphQLHttpOptions
     {
         public PathString Path { get; set; } = "/graphql";
 

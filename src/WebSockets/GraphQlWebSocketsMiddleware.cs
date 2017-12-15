@@ -6,16 +6,16 @@ using Microsoft.Extensions.Options;
 
 namespace GraphQL.Server.Transports.WebSockets
 {
-    public class GraphQlWebSocketsMiddleware<TSchema> where TSchema : ISchema
+    public class GraphQLWebSocketsMiddleware<TSchema> where TSchema : ISchema
     {
         private readonly RequestDelegate _next;
-        private readonly GraphQlWebSocketsOptions _options;
-        private readonly GraphQlEndPoint<TSchema> _endpoint;
+        private readonly GraphQLWebSocketsOptions _options;
+        private readonly GraphQLEndPoint<TSchema> _endpoint;
 
-        public GraphQlWebSocketsMiddleware(
+        public GraphQLWebSocketsMiddleware(
             RequestDelegate next,
-            IOptions<GraphQlWebSocketsOptions> options,
-            GraphQlEndPoint<TSchema> endpoint)
+            IOptions<GraphQLWebSocketsOptions> options,
+            GraphQLEndPoint<TSchema> endpoint)
         {
             _next = next;
             _options = options.Value;
