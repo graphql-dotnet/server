@@ -1,7 +1,8 @@
 GraphQL for .NET - Subscription Transport WebSockets
 ====================================================
 
->WARNING: not ready for production use!
+>WARNING: not tested in heavy production use! That said if you are using this in production
+>drop me a line to tell me how's it working for you. Maybe I can take this disclaimer off.
 
 [![Build status](https://ci.appveyor.com/api/projects/status/x0nf67vfao60wf7e/branch/master?svg=true)](https://ci.appveyor.com/project/graphql-dotnet-ci/server/branch/master)
 
@@ -24,12 +25,12 @@ For WebSocket subscription protocol (depends on above)
 public void ConfigureServices(IServiceCollection services)
 {
     services.AddSingleton<ChatSchema>();
-    
-    // Http transport using json
+
+    // add http transport    
     services.AddGraphQLHttp();
-    
-    // WebSockets transport using subscription-transport-ws
-    services.AddGraphQlWebSockets<ChatSchema>();
+
+    // add websocket transport for ChatSchema
+    services.AddGraphQLWebSocket<ChatSchema>();
 }
 
 public void Configure(IApplicationBuilder app, IHostingEnvironment env)
@@ -37,11 +38,11 @@ public void Configure(IApplicationBuilder app, IHostingEnvironment env)
     // this is required for websockets support
     app.UseWebSockets();
 
-    // add websockets transport
-    app.UseGraphQlEndPoint<ChatSchema>(new GraphQlWebSocketsOptions());
-    
-    // Add HTTP transport support
-    app.UseGraphQLHttp<ChatSchema>(new GraphQlOptions());
+    // add websocket for ChatSchema at default url /graphql
+    app.UseGraphQLWebSocket<ChatSchema>(new GraphQLWebSocketsOptions());
+
+    // add http for ChatSchema at default url /graphql
+    app.UseGraphQLHttp<ChatSchema>(new GraphQLHttpOptions());
 }
 
 ```

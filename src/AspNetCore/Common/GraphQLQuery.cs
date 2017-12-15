@@ -2,9 +2,9 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace GraphQL.Transports.AspNetCore.Requests
+namespace GraphQL.Server.Transports.AspNetCore.Common
 {
-    public class GraphQuery
+    public class GraphQLQuery
     {
         [JsonProperty("query")]
         public string Query { get; set; }

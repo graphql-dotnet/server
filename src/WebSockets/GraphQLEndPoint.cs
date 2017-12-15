@@ -8,14 +8,14 @@ using Microsoft.Extensions.Logging;
 
 namespace GraphQL.Server.Transports.WebSockets
 {
-    public class GraphQlEndPoint<TSchema> where TSchema : ISchema
+    public class GraphQLEndPoint<TSchema> where TSchema : ISchema
     {
-        private readonly ILogger<GraphQlEndPoint<TSchema>> _log;
+        private readonly ILogger<GraphQLEndPoint<TSchema>> _log;
         private readonly ISubscriptionProtocolHandler<TSchema> _messagingProtocolHandler;
 
-        public GraphQlEndPoint(
+        public GraphQLEndPoint(
             ISubscriptionProtocolHandler<TSchema> messagingProtocolHandler,
-            ILogger<GraphQlEndPoint<TSchema>> log)
+            ILogger<GraphQLEndPoint<TSchema>> log)
         {
             _log = log;
             _messagingProtocolHandler = messagingProtocolHandler;

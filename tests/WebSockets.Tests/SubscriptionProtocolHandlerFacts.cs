@@ -2,11 +2,10 @@ using System;
 using System.Collections.Concurrent;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
-using GraphQL.Http;
+using GraphQL.Server.Transports.AspNetCore.Common;
 using GraphQL.Server.Transports.WebSockets.Abstractions;
 using GraphQL.Server.Transports.WebSockets.Messages;
 using GraphQL.Subscription;
-using GraphQL.Transports.AspNetCore.Requests;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using NSubstitute;
@@ -86,7 +85,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         public async Task should_handle_start()
         {
             /* Given */
-            var query = new GraphQuery
+            var query = new GraphQLQuery
             {
                 OperationName = "test",
                 Query = "query",

@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 
 namespace GraphQL.Server.Transports.AspNetCore
 {
-    public static class GraphQlExtensions
+    public static class GraphQLExtensions
     {
         public static IServiceCollection AddGraphQLHttp(this IServiceCollection services)
         {
@@ -20,10 +20,10 @@ namespace GraphQL.Server.Transports.AspNetCore
         }
 
         public static IApplicationBuilder UseGraphQLHttp<TSchema>(this IApplicationBuilder builder,
-            GraphQlOptions schemaOptions)
+            GraphQLHttpOptions schemaOptions)
             where TSchema : ISchema
         {
-            builder.UseMiddleware<GraphQlHttpMiddleware<TSchema>>(Options.Create(schemaOptions));
+            builder.UseMiddleware<GraphQLHttpMiddleware<TSchema>>(Options.Create(schemaOptions));
 
             return builder;
         }
