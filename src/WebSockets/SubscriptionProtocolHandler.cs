@@ -38,6 +38,7 @@ namespace GraphQL.Server.Transports.WebSockets
 
         public Task HandleMessageAsync(OperationMessageContext context)
         {
+            _log.LogDebug($"Subscription: {context.Op.Id} received message of type {context.Op.Type}");
             switch (context.Op.Type)
             {
                 case MessageTypes.GQL_CONNECTION_INIT:
@@ -104,9 +105,11 @@ namespace GraphQL.Server.Transports.WebSockets
             }
 
             var stream = result.Streams.Values.Single();
+            SubscriptionHandle handle = null;
             Subscriptions.AddOrUpdate(context.ConnectionId, connectionId =>
             {
                 var subscriptions = new ConcurrentDictionary<string, SubscriptionHandle>();
+
                 subscriptions.TryAdd(context.Op.Id,
                     new SubscriptionHandle(context.Op, stream, context.MessageWriter, new DocumentWriter()));
 
@@ -164,6 +167,15 @@ namespace GraphQL.Server.Transports.WebSockets
             {
                 Type = MessageTypes.GQL_CONNECTION_ACK
             });
+        }
+
+        public SubscriptionHandle GetSubscriptionHandle(string connectionId, string id)
+        {
+            if (Subscriptions.TryGetValue(connectionId, out var subscriptions))
+                if (subscriptions.TryGetValue(id, out var handle))
+                    return handle;
+
+            return null;
         }
     }
 }
