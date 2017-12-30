@@ -50,7 +50,7 @@ namespace GraphQL.Samples.Server
             app.UseWebSockets();
             app.UseGraphQLWebSocket<ChatSchema>(new GraphQLWebSocketsOptions());
             app.UseGraphQLHttp<ChatSchema>(new GraphQLHttpOptions());
-            app.UsePlayground(new PlaygroundOptions());
+            app.UseGraphQLPlayground(new GraphQLPlaygroundOptions());
             app.UseMvc();
         }
     }

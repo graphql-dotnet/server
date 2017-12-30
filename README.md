@@ -43,6 +43,9 @@ public void Configure(IApplicationBuilder app, IHostingEnvironment env)
 
     // add http for ChatSchema at default url /graphql
     app.UseGraphQLHttp<ChatSchema>(new GraphQLHttpOptions());
+
+    // use graphql-playground at default url /ui/playground
+    app.UseGraphQLPlayground(new GraphQLPlaygroundOptions());
 }
 
 ```

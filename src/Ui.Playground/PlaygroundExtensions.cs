@@ -7,7 +7,7 @@ namespace GraphQL.Server.Ui.Playground
 {
     public static class PlaygroundExtensions
     {
-        public static IApplicationBuilder UsePlayground(this IApplicationBuilder app, PlaygroundOptions options)
+        public static IApplicationBuilder UseGraphQLPlayground(this IApplicationBuilder app, GraphQLPlaygroundOptions options)
         {
             app.UseFileServer(new FileServerOptions()
             {
