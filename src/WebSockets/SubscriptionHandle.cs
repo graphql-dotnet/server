@@ -33,6 +33,7 @@ namespace GraphQL.Server.Transports.WebSockets
 
         public Task CloseAsync()
         {
+            Unsubscribe?.Dispose();
             return _messageWriter.WriteMessageAsync(new OperationMessage
             {
                 Id = Op.Id,
