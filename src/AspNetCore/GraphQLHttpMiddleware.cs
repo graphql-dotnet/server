@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using GraphQL.Http;
 using GraphQL.Server.Transports.AspNetCore.Common;
 using GraphQL.Types;
+using GraphQL.Validation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -67,6 +68,8 @@ namespace GraphQL.Server.Transports.AspNetCore
                 _.OperationName = request.OperationName;
                 _.Inputs = request.Variables.ToInputs();
                 _.UserContext = _options.BuildUserContext?.Invoke(context);
+                _.ExposeExceptions = _options.ExposeExceptions;
+                _.ValidationRules = _options.ValidationRules.Concat(DocumentValidator.CoreRules()).ToList();
             });
 
             await WriteResponseAsync(context, result);
