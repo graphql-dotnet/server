@@ -105,7 +105,6 @@ namespace GraphQL.Server.Transports.WebSockets
             }
 
             var stream = result.Streams.Values.Single();
-            SubscriptionHandle handle = null;
             Subscriptions.AddOrUpdate(context.ConnectionId, connectionId =>
             {
                 var subscriptions = new ConcurrentDictionary<string, SubscriptionHandle>();
