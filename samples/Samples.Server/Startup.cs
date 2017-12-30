@@ -2,6 +2,7 @@ using GraphQL.Samples.Schemas.Chat;
 using GraphQL.Server.Transports.AspNetCore;
 using GraphQL.Server.Transports.WebSockets;
 using GraphQL.Server.Transports.WebSockets.Events;
+using GraphQL.Server.Ui.Playground;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -49,7 +50,7 @@ namespace GraphQL.Samples.Server
             app.UseWebSockets();
             app.UseGraphQLWebSocket<ChatSchema>(new GraphQLWebSocketsOptions());
             app.UseGraphQLHttp<ChatSchema>(new GraphQLHttpOptions());
-            
+            app.UsePlayground(new PlaygroundOptions());
             app.UseMvc();
         }
     }

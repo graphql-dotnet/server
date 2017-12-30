@@ -10,10 +10,11 @@
     <Company />
     <Authors>Pekka Heikura</Authors>
     <Description>WebSockets transport for subscriptions</Description>
-    <PackageProjectUrl>https://github.com/graphql-dotnet/subscriptions-transport-ws</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/graphql-dotnet/subscriptions-transport-ws</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/graphql-dotnet/server</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/graphql-dotnet/server</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>GraphQL WebSockets subscriptions transport</PackageTags>
+    <Copyright>Pekka Heikura</Copyright>
   </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="GraphQL" Version="2.0.0-alpha-825" />

@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\AspNetCore\AspNetCore.csproj" />
+    <ProjectReference Include="..\..\src\Ui.Playground\Ui.Playground.csproj" />
     <ProjectReference Include="..\..\src\WebSockets\WebSockets.csproj" />
     <ProjectReference Include="..\Samples.Schemas.Chat\Samples.Schemas.Chat.csproj" />
   </ItemGroup>
