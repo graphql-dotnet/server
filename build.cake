@@ -9,7 +9,8 @@ var runtime = Argument<string>("runtime", "win-x64");
 var sln = "./GraphQL.Server.Transports.sln";
 var projectFiles = new [] {
   "./src/AspNetCore/AspNetCore.csproj",
-  "./src/WebSockets/WebSockets.csproj"
+  "./src/WebSockets/WebSockets.csproj",
+  "./src/Ui.Playground/Ui.Playground.csproj"
   };
 
 var version = "0.0.0-dev";
