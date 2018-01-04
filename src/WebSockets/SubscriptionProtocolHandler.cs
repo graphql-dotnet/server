@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +9,7 @@ using GraphQL.Server.Transports.WebSockets.Abstractions;
 using GraphQL.Server.Transports.WebSockets.Messages;
 using GraphQL.Subscription;
 using GraphQL.Types;
+using GraphQL.Validation;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 
@@ -17,6 +19,8 @@ namespace GraphQL.Server.Transports.WebSockets
     {
         private readonly IDocumentExecuter _documentExecuter;
         private readonly ILogger<SubscriptionProtocolHandler<TSchema>> _log;
+        private readonly SubscriptionDeterminator _determinator;
+        private readonly IDocumentWriter _writer;
         private readonly TSchema _schema;
         private readonly ISubscriptionExecuter _subscriptionExecuter;
 
@@ -25,12 +29,16 @@ namespace GraphQL.Server.Transports.WebSockets
             TSchema schema,
             ISubscriptionExecuter subscriptionExecuter,
             IDocumentExecuter documentExecuter,
-            ILogger<SubscriptionProtocolHandler<TSchema>> log)
+            ILogger<SubscriptionProtocolHandler<TSchema>> log,
+            SubscriptionDeterminator determinator,
+            IDocumentWriter writer)
         {
             _schema = schema;
             _subscriptionExecuter = subscriptionExecuter;
             _documentExecuter = documentExecuter;
             _log = log;
+            _determinator = determinator;
+            _writer = writer;
         }
 
         public ConcurrentDictionary<string, ConcurrentDictionary<string, SubscriptionHandle>> Subscriptions { get; } =
@@ -80,10 +88,42 @@ namespace GraphQL.Server.Transports.WebSockets
         protected async Task HandleStartAsync(OperationMessageContext context)
         {
             var query = context.Op.Payload.ToObject<GraphQLQuery>();
-            var result = await SubscribeAsync(query, context).ConfigureAwait(false);
+            var options = context.Connection.Options;
 
-            await AddSubscription(context, result).ConfigureAwait(false);
-            _log.LogInformation($"Subscription: {context.Op.Id} started");
+            var isSubscription = _determinator.IsSubscription(new ExecutionOptions
+            {
+                Schema = _schema,
+                OperationName = query.OperationName,
+                Inputs = query.GetInputs(),
+                Query = query.Query,
+                ExposeExceptions = options.ExposeExceptions,
+            });
+
+            if (isSubscription)
+            {
+                var result = await SubscribeAsync(query, context).ConfigureAwait(false);
+
+                await AddSubscription(context, result).ConfigureAwait(false);
+                _log.LogInformation($"Subscription: {context.Op.Id} started");
+            }
+            else
+            {
+                var result = await ExecuteAsync(query, context).ConfigureAwait(false);
+                _log.LogInformation($"Subscription: {context.Op.Id} started");
+                await context.MessageWriter.WriteMessageAsync(new OperationMessage
+                {
+                    Type = MessageTypes.GQL_DATA,
+                    Id = context.Op.Id,
+                    Payload = JObject.Parse(_writer.Write(result))
+                });
+                await context.MessageWriter.WriteMessageAsync(new OperationMessage
+                {
+                    Type = MessageTypes.GQL_COMPLETE,
+                    Id = context.Op.Id
+                });
+                _log.LogInformation($"Subscription: {context.Op.Id} completed");
+            }
+
         }
 
         public async Task AddSubscription(OperationMessageContext context, SubscriptionExecutionResult result)
@@ -153,6 +193,22 @@ namespace GraphQL.Server.Transports.WebSockets
                 UserContext = options?.BuildUserContext?.Invoke(op)
             });
         }
+
+        private Task<ExecutionResult> ExecuteAsync(GraphQLQuery query, OperationMessageContext context)
+        {
+            var options = context.Connection.Options;
+            return _documentExecuter.ExecuteAsync(_ =>
+            {
+                _.Schema = _schema;
+                _.Query = query.Query;
+                _.OperationName = query.OperationName;
+                _.Inputs = query.GetInputs();
+                _.UserContext = options.BuildUserContext?.Invoke(context);
+                _.ExposeExceptions = options.ExposeExceptions;
+                _.ValidationRules = options.ValidationRules.Concat(DocumentValidator.CoreRules()).ToList();
+            });
+        }
+
 
         protected Task HandleConnectionInitAsync(OperationMessageContext context)
         {
