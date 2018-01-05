@@ -53,13 +53,7 @@ namespace GraphQL.Server.Transports.AspNetCore
 
         private async Task ExecuteAsync(HttpContext context, ISchema schema)
         {
-            string body;
-            using (var streamReader = new StreamReader(context.Request.Body))
-            {
-                body = await streamReader.ReadToEndAsync().ConfigureAwait(true);
-            }
-
-            var request = JsonConvert.DeserializeObject<GraphQLQuery>(body);
+            var request = Deserialize<GraphQLQuery>(context.Request.Body);
 
             var result = await _executer.ExecuteAsync(_ =>
             {
@@ -83,6 +77,16 @@ namespace GraphQL.Server.Transports.AspNetCore
             context.Response.StatusCode = result.Errors?.Any() == true ? (int)HttpStatusCode.BadRequest : (int)HttpStatusCode.OK;
 
             await context.Response.WriteAsync(json);
+        }
+
+        private static T Deserialize<T>(Stream s)
+        {
+            using (var reader = new StreamReader(s))
+            using (var jsonReader = new JsonTextReader(reader))
+            {
+                var ser = new JsonSerializer();
+                return ser.Deserialize<T>(jsonReader);
+            }
         }
     }
 }

@@ -22,12 +22,7 @@ namespace GraphQL.Server.Transports.AspNetCore.Common
 
         public static Inputs GetInputs(JObject variables)
         {
-            if (variables == null)
-                return null;
-
-            var inputs = variables.GetValue() as Dictionary<string, object>;
-
-            return new Inputs(inputs);
+            return variables.ToInputs();
         }
     }
 }
