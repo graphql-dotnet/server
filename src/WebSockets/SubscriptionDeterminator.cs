@@ -1,19 +1,11 @@
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using GraphQL.Execution;
-using GraphQL.Instrumentation;
 using GraphQL.Language.AST;
-using GraphQL.Types;
-using GraphQL.Validation;
-using GraphQL.Validation.Complexity;
-using GraphQLParser.AST;
-using OperationType = GraphQL.Language.AST.OperationType;
+using GraphQL.Server.Transports.WebSockets.Abstractions;
 
 namespace GraphQL.Server.Transports.WebSockets
 {
-    public class SubscriptionDeterminator
+    public class SubscriptionDeterminator : ISubscriptionDeterminator
     {
         private readonly IDocumentBuilder _documentBuilder;
 
@@ -28,28 +20,15 @@ namespace GraphQL.Server.Transports.WebSockets
 
         public bool IsSubscription(ExecutionOptions config)
         {
-
-            config.Schema.FieldNameConverter = config.FieldNameConverter;
-
             ValidateOptions(config);
 
-            if (!config.Schema.Initialized)
-            {
-                config.Schema.Initialize();
-            }
+            config.Document = config.Document ?? _documentBuilder.Build(config.Query);
 
-            var document = config.Document ?? _documentBuilder.Build(config.Query);
-
-            return GetOperation(config.OperationName, document).OperationType == OperationType.Subscription;
+            return GetOperation(config.OperationName, config.Document).OperationType == OperationType.Subscription;
         }
 
         private void ValidateOptions(ExecutionOptions options)
         {
-            if (options.Schema == null)
-            {
-                throw new ExecutionError("A schema is required.");
-            }
-
             if (string.IsNullOrWhiteSpace(options.Query))
             {
                 throw new ExecutionError("A query is required.");

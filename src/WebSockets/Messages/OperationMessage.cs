@@ -12,6 +12,6 @@ namespace GraphQL.Server.Transports.WebSockets.Messages
         public string Id { get; set; }
 
         [JsonProperty("payload")]
-        public JObject Payload { get; set; }
+        public dynamic Payload { get; set; }
     }
 }

@@ -53,12 +53,11 @@ namespace GraphQL.Server.Transports.WebSockets
 
         public Task OnNext(object value)
         {
-            var json = _documentWriter.Write(value);
             return _messageWriter.WriteMessageAsync(new OperationMessage
             {
                 Id = Op.Id,
                 Type = MessageTypes.GQL_DATA,
-                Payload = JObject.Parse(json)
+                Payload = value
             });
         }
     }

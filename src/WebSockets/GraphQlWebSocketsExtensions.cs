@@ -14,6 +14,7 @@ namespace GraphQL.Server.Transports.WebSockets
         {
             services.TryAddSingleton<ISubscriptionExecuter, SubscriptionExecuter>();
             services.TryAddSingleton<IDocumentWriter, DocumentWriter>();
+            services.TryAddSingleton<ISubscriptionDeterminator, SubscriptionDeterminator>();
 
             services.TryAddSingleton<ISubscriptionProtocolHandler<TSchema>, SubscriptionProtocolHandler<TSchema>>();
             services.TryAddSingleton<GraphQLEndPoint<TSchema>>();
