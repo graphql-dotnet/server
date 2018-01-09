@@ -55,7 +55,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
             };
         }
 
-        private OperationMessageContext CreateMessage(string type, object payload)
+        private OperationMessageContext CreateMessage(string type, GraphQLQuery payload)
         {
             var op = new OperationMessage
             {

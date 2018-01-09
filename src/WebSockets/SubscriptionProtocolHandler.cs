@@ -81,7 +81,8 @@ namespace GraphQL.Server.Transports.WebSockets
 
         protected async Task HandleStartAsync(OperationMessageContext context)
         {
-            var query = context.Op.Payload as GraphQLQuery;
+            var payload = context.Op.Payload;
+            var query = payload is GraphQLQuery ? payload : context.Op.Payload.ToObject<GraphQLQuery>();
             var options = context.Connection.Options;
             var exOptions = new ExecutionOptions
             {
@@ -111,7 +112,7 @@ namespace GraphQL.Server.Transports.WebSockets
                 {
                     Type = MessageTypes.GQL_DATA,
                     Id = context.Op.Id,
-                    Payload = result.Data
+                    Payload = result
                 });
                 await context.MessageWriter.WriteMessageAsync(new OperationMessage
                 {
