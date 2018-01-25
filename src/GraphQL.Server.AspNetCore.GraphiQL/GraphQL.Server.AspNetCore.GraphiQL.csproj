@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<!--<Import Project="../src.props" />-->
+
+	<PropertyGroup>
+		<Description>A GraphiQL Integration for AspNetCore</Description>
+		<TargetFrameworks>netstandard1.3;netstandard2.0</TargetFrameworks>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Include="Internal\graphiql.cshtml" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="1.1.2" />
+	</ItemGroup>
+	
+</Project>
