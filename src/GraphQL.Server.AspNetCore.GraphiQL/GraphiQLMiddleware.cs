@@ -13,13 +13,19 @@ namespace GraphQL.Server.AspNetCore.GraphiQL {
 
 		private readonly GraphiQLMiddlewareSettings settings;
 
-		/// <summary>
-		/// Create a new GraphiQLMiddleware
-		/// </summary>
-		/// <param name="nextMiddleware">The Next Middleware</param>
-		/// <param name="settings">The Settings of the Middleware</param>
-		public GraphiQLMiddleware(RequestDelegate nextMiddleware, GraphiQLMiddlewareSettings settings) : base(nextMiddleware) {
-			this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
+        /// <summary>
+        /// The Next Middleware
+        /// </summary>
+        private readonly RequestDelegate nextMiddleware;
+
+        /// <summary>
+        /// Create a new GraphiQLMiddleware
+        /// </summary>
+        /// <param name="nextMiddleware">The Next Middleware</param>
+        /// <param name="settings">The Settings of the Middleware</param>
+        public GraphiQLMiddleware(RequestDelegate nextMiddleware, GraphiQLMiddlewareSettings settings) {
+            this.nextMiddleware = nextMiddleware ?? throw new ArgumentNullException(nameof(nextMiddleware));
+            this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
 		}
 
 		/// <summary>
@@ -27,7 +33,7 @@ namespace GraphQL.Server.AspNetCore.GraphiQL {
 		/// </summary>
 		/// <param name="httpContext">The HttpContext</param>
 		/// <returns></returns>
-		public async override Task Invoke(HttpContext httpContext) {
+		public async Task Invoke(HttpContext httpContext) {
 			if (httpContext == null) { throw new ArgumentNullException(nameof(httpContext)); }
 
 			if (this.IsGraphiQLRequest(httpContext.Request)) {
@@ -35,7 +41,7 @@ namespace GraphQL.Server.AspNetCore.GraphiQL {
 				return;
 			}
 
-			await this.NextMiddleware(httpContext).ConfigureAwait(false);
+			await this.nextMiddleware(httpContext).ConfigureAwait(false);
 		}
 
 		private bool IsGraphiQLRequest(HttpRequest httpRequest) {
