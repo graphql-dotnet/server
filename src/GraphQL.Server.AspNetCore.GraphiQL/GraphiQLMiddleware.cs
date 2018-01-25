@@ -9,7 +9,7 @@ namespace GraphQL.Server.AspNetCore.GraphiQL {
 	/// <summary>
 	/// A middleware for GraphiQL
 	/// </summary>
-	public class GraphiQLMiddleware : BaseMiddleware {
+	public class GraphiQLMiddleware {
 
 		private readonly GraphiQLMiddlewareSettings settings;
 
