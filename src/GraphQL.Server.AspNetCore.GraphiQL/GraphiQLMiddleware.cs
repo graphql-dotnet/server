@@ -47,7 +47,6 @@ namespace GraphQL.Server.AspNetCore.GraphiQL {
 			httpResponse.ContentType = "text/html";
 			httpResponse.StatusCode = 200;
 
-			// TODO: use RazorPageGenerator when ASP.NET Core 1.1 is out...?
 			var graphiQLPageModel = new GraphiQLPageModel(this.settings);
 
 			var data = Encoding.UTF8.GetBytes(graphiQLPageModel.Render());
