@@ -20,7 +20,7 @@ namespace GraphQL.Server.Ui.GraphiQL.Internal {
 				return graphiQLCSHtml;
 			}
 			var assembly = typeof(GraphiQLPageModel).GetTypeInfo().Assembly;
-            using (var manifestResourceStream = assembly.GetManifestResourceStream("GraphQL.Server.AspNetCore.GraphiQL.Internal.graphiql.cshtml")) {
+            using (var manifestResourceStream = assembly.GetManifestResourceStream("GraphQL.Server.Ui.GraphiQL.Internal.graphiql.cshtml")) {
                 using (var streamReader = new StreamReader(manifestResourceStream)) {
                     var builder = new StringBuilder(streamReader.ReadToEnd());
                     builder.Replace("@Model.GraphQLEndPoint", this.settings.GraphQLEndPoint);
