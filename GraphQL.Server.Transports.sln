@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27130.2024
+VisualStudioVersion = 15.0.27130.2026
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{DD6938E1-E98D-4BD4-9882-FE1CE79F7306}"
 EndProject
@@ -31,8 +31,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ui.Playground", "src\Ui.Playground\Ui.Playground.csproj", "{C6DA4A1C-867A-4633-B15B-12A2EEE9F405}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.Server.AspNetCore.GraphiQL", "src\GraphQL.Server.AspNetCore.GraphiQL\GraphQL.Server.AspNetCore.GraphiQL.csproj", "{B83414A2-F9E3-44CC-982F-5D830F54BED3}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{77C56C3B-519A-45E3-BA59-88C6367154F9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -75,7 +73,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{EB56A378-89E5-4425-BFA6-6BA0F4A67432} = {DD6938E1-E98D-4BD4-9882-FE1CE79F7306}
 		{85FBD882-AC9F-419F-95ED-42BBBC199CC2} = {DD6938E1-E98D-4BD4-9882-FE1CE79F7306}
-		{B83414A2-F9E3-44CC-982F-5D830F54BED3} = {77C56C3B-519A-45E3-BA59-88C6367154F9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3FC7FA59-E938-453C-8C4A-9D5635A9489A}
