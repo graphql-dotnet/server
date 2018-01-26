@@ -1,8 +1,8 @@
 using GraphQL.Samples.Schemas.Chat;
-using GraphQL.Server.AspNetCore.GraphiQL;
 using GraphQL.Server.Transports.AspNetCore;
 using GraphQL.Server.Transports.WebSockets;
 using GraphQL.Server.Transports.WebSockets.Events;
+using GraphQL.Server.Ui.GraphiQL;
 using GraphQL.Server.Ui.Playground;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
