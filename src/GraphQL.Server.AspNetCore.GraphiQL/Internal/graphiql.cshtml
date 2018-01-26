@@ -41,6 +41,9 @@
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/graphiql/0.11.11/graphiql.css" />
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/graphiql/0.11.11/graphiql.min.js"></script>
 
+	<script src="https://unpkg.com/subscriptions-transport-ws@0.9.5/browser/client.js"></script>
+    <script src="https://unpkg.com/graphiql-subscriptions-fetcher@0.0.2/browser/client.js"></script>
+
 </head>
 <body>
 	<div id="graphiql">Loading...</div>
@@ -129,13 +132,17 @@
 			});
 		}
 
+		// Enable Subscriptions via WebSocket
+		var subscriptionsClient = new window.SubscriptionsTransportWs.SubscriptionClient("ws://" + window.location.host + "@Model.GraphQLEndPoint", { reconnect: true });
+    	var subscriptionsFetcher = window.GraphiQLSubscriptionsFetcher.graphQLFetcher(subscriptionsClient, graphQLFetcher);
+
 		// Render <GraphiQL /> into the body.
 		// See the README in the top level of this module to learn more about
 		// how you can customize GraphiQL by providing different values or
 		// additional child elements.
 		ReactDOM.render(
 			React.createElement(GraphiQL, {
-				fetcher: graphQLFetcher,
+				fetcher: subscriptionsFetcher,
 				query: parameters.query,
 				variables: parameters.variables,
 				operationName: parameters.operationName,
