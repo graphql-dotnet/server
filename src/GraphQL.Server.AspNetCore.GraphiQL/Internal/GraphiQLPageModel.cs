@@ -2,7 +2,7 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 
-namespace GraphQL.Server.AspNetCore.GraphiQL.Internal {
+namespace GraphQL.Server.Ui.GraphiQL.Internal {
 
 	// https://docs.microsoft.com/en-us/aspnet/core/mvc/razor-pages/?tabs=netcore-cli
 	internal class GraphiQLPageModel {

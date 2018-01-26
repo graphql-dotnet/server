@@ -1,5 +1,5 @@
 using System;
-using GraphQL.Server.AspNetCore.GraphiQL;
+using GraphQL.Server.Ui.GraphiQL;
 
 namespace Microsoft.AspNetCore.Builder {
 

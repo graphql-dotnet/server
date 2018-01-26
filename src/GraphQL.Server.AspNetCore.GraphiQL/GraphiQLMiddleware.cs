@@ -1,15 +1,15 @@
 using System;
 using System.Text;
 using System.Threading.Tasks;
-using GraphQL.Server.AspNetCore.GraphiQL.Internal;
+using GraphQL.Server.Ui.GraphiQL.Internal;
 using Microsoft.AspNetCore.Http;
 
-namespace GraphQL.Server.AspNetCore.GraphiQL {
+namespace GraphQL.Server.Ui.GraphiQL {
 
-	/// <summary>
-	/// A middleware for GraphiQL
-	/// </summary>
-	public class GraphiQLMiddleware {
+    /// <summary>
+    /// A middleware for GraphiQL
+    /// </summary>
+    public class GraphiQLMiddleware {
 
 		private readonly GraphiQLMiddlewareSettings settings;
 

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http;
 
-namespace GraphQL.Server.AspNetCore.GraphiQL {
+namespace GraphQL.Server.Ui.GraphiQL {
 
 	/// <summary>
 	/// The Settings of the <see cref="GraphiQLMiddleware"/>
