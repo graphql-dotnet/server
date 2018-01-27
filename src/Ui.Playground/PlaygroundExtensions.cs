@@ -1,23 +1,17 @@
-using System.Reflection;
+using System;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.FileProviders;
 
-namespace GraphQL.Server.Ui.Playground
-{
-    public static class PlaygroundExtensions
-    {
-        public static IApplicationBuilder UseGraphQLPlayground(this IApplicationBuilder app, GraphQLPlaygroundOptions options)
-        {
-            app.UseFileServer(new FileServerOptions()
-            {
-                RequestPath = new PathString(options.Path),
-                FileProvider = new EmbeddedFileProvider(
-                    typeof(PlaygroundExtensions).GetTypeInfo().Assembly,
-                    "GraphQL.Server.Ui.Playground.Html")
-            });
+namespace GraphQL.Server.Ui.Playground {
 
+    public static class PlaygroundExtensions {
+
+        public static IApplicationBuilder UseGraphQLPlayground(this IApplicationBuilder app, GraphQLPlaygroundOptions options) {
+            if (options == null) { throw new ArgumentNullException(nameof(options)); }
+
+            app.UseMiddleware<PlaygroundMiddleware>(options);
             return app;
         }
+
     }
+
 }
