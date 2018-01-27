@@ -22,6 +22,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
             _documentExecuter = Substitute.For<IDocumentExecuter>();
             _subscriptionExecuter = Substitute.For<ISubscriptionExecuter>();
             _messageWriter = Substitute.For<IJsonMessageWriter>();
+            _determinator = Substitute.For<ISubscriptionDeterminator>();
 
             _connection = Substitute.For<IConnectionContext>();
             _connection.Writer.Returns(_messageWriter);
@@ -32,6 +33,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
                 _schema,
                 _subscriptionExecuter,
                 _documentExecuter,
+                _determinator,
                 logger);
         }
 
@@ -41,6 +43,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         private readonly SubscriptionProtocolHandler<TestSchema> _sut;
         private readonly IJsonMessageWriter _messageWriter;
         private IConnectionContext _connection;
+        private readonly ISubscriptionDeterminator _determinator;
 
         private SubscriptionExecutionResult CreateStreamResult(CallInfo arg)
         {
@@ -52,13 +55,13 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
             };
         }
 
-        private OperationMessageContext CreateMessage(string type, object payload)
+        private OperationMessageContext CreateMessage(string type, GraphQLQuery payload)
         {
             var op = new OperationMessage
             {
                 Id = Guid.NewGuid().ToString(),
                 Type = type,
-                Payload = payload != null ? JObject.FromObject(payload) : null
+                Payload = payload
             };
 
             return new OperationMessageContext(_connection, op);
@@ -82,13 +85,13 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         }
 
         [Fact]
-        public async Task should_handle_start()
+        public async Task should_handle_start_subscriptions()
         {
             /* Given */
             var query = new GraphQLQuery
             {
                 OperationName = "test",
-                Query = "query",
+                Query = "subscription",
                 Variables = JObject.FromObject(new {test = "variable"})
             };
 
@@ -97,6 +100,8 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
 
             _subscriptionExecuter.SubscribeAsync(Arg.Any<ExecutionOptions>())
                 .Returns(CreateStreamResult);
+
+            _determinator.IsSubscription(Arg.Any<ExecutionOptions>()).Returns(true);
 
             /* When */
             await _sut.HandleMessageAsync(messageContext).ConfigureAwait(false);
@@ -110,6 +115,43 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
                 .ConfigureAwait(false);
             var connectionSubscriptions = _sut.Subscriptions[messageContext.ConnectionId];
             Assert.True(connectionSubscriptions.ContainsKey(messageContext.Op.Id));
+        }
+
+        [Fact]
+        public async Task should_handle_start_others()
+        {
+            /* Given */
+            var query = new GraphQLQuery
+            {
+                OperationName = "test",
+                Query = "query",
+                Variables = JObject.FromObject(new { test = "variable" })
+            };
+            var messageContext = CreateMessage(MessageTypes.GQL_START, query);
+
+            var result = new object();
+            _documentExecuter.ExecuteAsync(Arg.Any<ExecutionOptions>()).Returns(new ExecutionResult{ Data = result});
+
+            _determinator.IsSubscription(Arg.Any<ExecutionOptions>()).Returns(false);
+
+            /* When */
+            await _sut.HandleMessageAsync(messageContext).ConfigureAwait(false);
+
+            /* Then */
+            await _documentExecuter.Received()
+                .ExecuteAsync(Arg.Is<ExecutionOptions>(
+                    context => context.Schema == _schema
+                               && context.Query == query.Query
+                               && context.Inputs.ContainsKey("test")))
+                .ConfigureAwait(false);
+
+            await _messageWriter.Received().WriteMessageAsync(Arg.Is<OperationMessage>(
+                context => context.Type == MessageTypes.GQL_DATA
+            )).ConfigureAwait(false);
+
+            await _messageWriter.Received().WriteMessageAsync(Arg.Is<OperationMessage>(
+                context => context.Type == MessageTypes.GQL_COMPLETE
+            )).ConfigureAwait(false);
         }
 
         [Fact]
