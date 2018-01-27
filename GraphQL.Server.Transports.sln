@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27130.2010
+VisualStudioVersion = 15.0.27130.2026
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{DD6938E1-E98D-4BD4-9882-FE1CE79F7306}"
 EndProject
@@ -28,7 +28,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspNetCore", "src\AspNetCor
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebSockets.Tests", "tests\WebSockets.Tests\WebSockets.Tests.csproj", "{63AF8BD1-95F4-4443-9C30-891E3DBEB7AE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ui.Playground", "src\Ui.Playground\Ui.Playground.csproj", "{C6DA4A1C-867A-4633-B15B-12A2EEE9F405}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ui.Playground", "src\Ui.Playground\Ui.Playground.csproj", "{C6DA4A1C-867A-4633-B15B-12A2EEE9F405}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.Server.Ui.GraphiQL", "src\GraphQL.Server.AspNetCore.GraphiQL\GraphQL.Server.Ui.GraphiQL.csproj", "{B83414A2-F9E3-44CC-982F-5D830F54BED3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -60,6 +62,10 @@ Global
 		{C6DA4A1C-867A-4633-B15B-12A2EEE9F405}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C6DA4A1C-867A-4633-B15B-12A2EEE9F405}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C6DA4A1C-867A-4633-B15B-12A2EEE9F405}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B83414A2-F9E3-44CC-982F-5D830F54BED3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B83414A2-F9E3-44CC-982F-5D830F54BED3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B83414A2-F9E3-44CC-982F-5D830F54BED3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B83414A2-F9E3-44CC-982F-5D830F54BED3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
