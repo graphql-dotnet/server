@@ -9,9 +9,9 @@ namespace GraphQL.Server.Ui.GraphiQL.Internal {
 
 		private static string graphiQLCSHtml;
 
-		private readonly GraphiQLMiddlewareSettings settings;
+		private readonly GraphiQLOptions settings;
 
-		public GraphiQLPageModel(GraphiQLMiddlewareSettings settings) {
+		public GraphiQLPageModel(GraphiQLOptions settings) {
 			this.settings = settings;
 		}
 

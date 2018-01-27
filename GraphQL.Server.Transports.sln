@@ -30,7 +30,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebSockets.Tests", "tests\W
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ui.Playground", "src\Ui.Playground\Ui.Playground.csproj", "{C6DA4A1C-867A-4633-B15B-12A2EEE9F405}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.Server.Ui.GraphiQL", "src\GraphQL.Server.AspNetCore.GraphiQL\GraphQL.Server.Ui.GraphiQL.csproj", "{B83414A2-F9E3-44CC-982F-5D830F54BED3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ui.GraphiQL", "src\Ui.GraphiQL\Ui.GraphiQL.csproj", "{B83414A2-F9E3-44CC-982F-5D830F54BED3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -10,7 +10,8 @@ var sln = "./GraphQL.Server.Transports.sln";
 var projectFiles = new [] {
   "./src/AspNetCore/AspNetCore.csproj",
   "./src/WebSockets/WebSockets.csproj",
-  "./src/Ui.Playground/Ui.Playground.csproj"
+  "./src/Ui.Playground/Ui.Playground.csproj",
+  "./src/Ui.GraphiQL/Ui.GraphiQL.csproj"
   };
 
 var version = "0.0.0-dev";

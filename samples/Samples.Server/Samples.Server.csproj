@@ -11,8 +11,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="GraphQL" Version="2.0.0-alpha-825" />
-    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.3" />
+    <PackageReference Include="GraphQL" Version="2.0.0-alpha-845" />
+    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.5" />
     <PackageReference Include="Microsoft.AspNetCore.WebSockets" Version="2.0.1" />
   </ItemGroup>
 
@@ -22,7 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\AspNetCore\AspNetCore.csproj" />
-    <ProjectReference Include="..\..\src\GraphQL.Server.AspNetCore.GraphiQL\GraphQL.Server.Ui.GraphiQL.csproj" />
+    <ProjectReference Include="..\..\src\Ui.GraphiQL\Ui.GraphiQL.csproj" />
     <ProjectReference Include="..\..\src\Ui.Playground\Ui.Playground.csproj" />
     <ProjectReference Include="..\..\src\WebSockets\WebSockets.csproj" />
     <ProjectReference Include="..\Samples.Schemas.Chat\Samples.Schemas.Chat.csproj" />

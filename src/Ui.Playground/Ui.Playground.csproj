@@ -13,6 +13,7 @@
     <RepositoryType>Git</RepositoryType>
     <PackageTags>GraphQL Playground</PackageTags>
     <Copyright>Pekka Heikura</Copyright>
+    <PackageId>GraphQL.Server.Ui.Playground</PackageId>
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="Html\index.html" />
