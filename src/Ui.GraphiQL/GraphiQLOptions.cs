@@ -5,7 +5,7 @@ namespace GraphQL.Server.Ui.GraphiQL {
 	/// <summary>
 	/// The Settings of the <see cref="GraphiQLMiddleware"/>
 	/// </summary>
-	public class GraphiQLMiddlewareSettings {
+	public class GraphiQLOptions {
 
 		/// <summary>
 		/// The GraphiQL Endpoint to listen

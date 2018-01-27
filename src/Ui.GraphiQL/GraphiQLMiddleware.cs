@@ -11,7 +11,7 @@ namespace GraphQL.Server.Ui.GraphiQL {
     /// </summary>
     public class GraphiQLMiddleware {
 
-		private readonly GraphiQLMiddlewareSettings settings;
+		private readonly GraphiQLOptions settings;
 
         /// <summary>
         /// The Next Middleware
@@ -23,7 +23,7 @@ namespace GraphQL.Server.Ui.GraphiQL {
         /// </summary>
         /// <param name="nextMiddleware">The Next Middleware</param>
         /// <param name="settings">The Settings of the Middleware</param>
-        public GraphiQLMiddleware(RequestDelegate nextMiddleware, GraphiQLMiddlewareSettings settings) {
+        public GraphiQLMiddleware(RequestDelegate nextMiddleware, GraphiQLOptions settings) {
             this.nextMiddleware = nextMiddleware ?? throw new ArgumentNullException(nameof(nextMiddleware));
             this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
 		}

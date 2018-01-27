@@ -51,8 +51,15 @@ namespace GraphQL.Samples.Server
             app.UseWebSockets();
             app.UseGraphQLWebSocket<ChatSchema>(new GraphQLWebSocketsOptions());
             app.UseGraphQLHttp<ChatSchema>(new GraphQLHttpOptions());
-            app.UseGraphQLPlayground(new GraphQLPlaygroundOptions());
-            app.UseGraphiQLServer(new GraphiQLMiddlewareSettings { GraphQLEndPoint = "/graphql" });
+            app.UseGraphQLPlayground(new GraphQLPlaygroundOptions()
+            {
+                Path = "/ui/playground"
+            });
+            app.UseGraphiQLServer(new GraphiQLOptions
+            {
+                GraphiQLPath = "/ui/graphiql",
+                GraphQLEndPoint = "/graphql"
+            });
             app.UseMvc();
         }
     }
