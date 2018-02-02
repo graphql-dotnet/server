@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
+using GraphQL.Execution;
 using GraphQL.Server.Transports.AspNetCore.Common;
 using GraphQL.Server.Transports.WebSockets.Abstractions;
 using GraphQL.Server.Transports.WebSockets.Messages;
@@ -34,7 +36,9 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
                 _subscriptionExecuter,
                 _documentExecuter,
                 _determinator,
-                logger);
+                logger,
+                Enumerable.Empty<IDocumentExecutionListener>()
+                );
         }
 
         private readonly TestSchema _schema;
