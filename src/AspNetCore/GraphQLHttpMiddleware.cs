@@ -22,7 +22,7 @@ namespace GraphQL.Server.Transports.AspNetCore
         private readonly IDocumentExecuter _executer;
         private readonly IDocumentWriter _writer;
         private readonly TSchema _schema;
-        private readonly IEnumerable<IDocumentExecutionListener> _documentListners;
+        private readonly IEnumerable<IDocumentExecutionListener> _documentListeners;
 
         public GraphQLHttpMiddleware(
             RequestDelegate next,
@@ -30,14 +30,14 @@ namespace GraphQL.Server.Transports.AspNetCore
             IDocumentExecuter executer,
             IDocumentWriter writer,
             TSchema schema,
-            IEnumerable<IDocumentExecutionListener> documentListners)
+            IEnumerable<IDocumentExecutionListener> documentListeners)
         {
             _next = next;
             _options = options.Value;
             _executer = executer;
             _writer = writer;
             _schema = schema;
-            _documentListners = documentListners;
+            _documentListeners = documentListeners;
         }
 
         public async Task Invoke(HttpContext context)
@@ -69,7 +69,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                 _.UserContext = _options.BuildUserContext?.Invoke(context);
                 _.ExposeExceptions = _options.ExposeExceptions;
                 _.ValidationRules = _options.ValidationRules.Concat(DocumentValidator.CoreRules()).ToList();
-                _documentListners
+                _documentListeners
                     .ToList()
                     .ForEach(_.Listeners.Add);
             });
