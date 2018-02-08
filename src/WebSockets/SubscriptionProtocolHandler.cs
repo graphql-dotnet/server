@@ -17,7 +17,7 @@ namespace GraphQL.Server.Transports.WebSockets
     {
         private readonly IDocumentExecuter _documentExecuter;
         private readonly ILogger<SubscriptionProtocolHandler<TSchema>> _log;
-        private readonly IEnumerable<IDocumentExecutionListener> _documentListners;
+        private readonly IEnumerable<IDocumentExecutionListener> _documentListeners;
         private readonly ISubscriptionDeterminator _determinator;
         private readonly TSchema _schema;
         private readonly ISubscriptionExecuter _subscriptionExecuter;
@@ -29,13 +29,13 @@ namespace GraphQL.Server.Transports.WebSockets
             IDocumentExecuter documentExecuter,
             ISubscriptionDeterminator determinator,
             ILogger<SubscriptionProtocolHandler<TSchema>> log,
-            IEnumerable<IDocumentExecutionListener> documentListners)
+            IEnumerable<IDocumentExecutionListener> documentListeners)
         {
             _schema = schema;
             _subscriptionExecuter = subscriptionExecuter;
             _documentExecuter = documentExecuter;
             _log = log;
-            _documentListners = documentListners;
+            _documentListeners = documentListeners;
             _determinator = determinator;
         }
 
@@ -98,7 +98,7 @@ namespace GraphQL.Server.Transports.WebSockets
                 ValidationRules = options?.ValidationRules,
                 UserContext = options?.BuildUserContext?.Invoke(context)
             };
-            _documentListners
+            _documentListeners
                 .ToList()
                 .ForEach(exOptions.Listeners.Add);
 
