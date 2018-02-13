@@ -98,9 +98,9 @@ namespace GraphQL.Server.Transports.WebSockets
                 ValidationRules = options?.ValidationRules,
                 UserContext = options?.BuildUserContext?.Invoke(context)
             };
-            _documentListeners
-                .ToList()
-                .ForEach(exOptions.Listeners.Add);
+            foreach(var listener in _documentListeners){
+                   exOptions.Listeners.Add(listener);
+            }
 
             var isSubscription = _determinator.IsSubscription(exOptions);
 
