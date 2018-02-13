@@ -8,6 +8,7 @@ using GraphQL.Server.Transports.AspNetCore.Common;
 using GraphQL.Types;
 using GraphQL.Validation;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
@@ -54,14 +55,25 @@ namespace GraphQL.Server.Transports.AspNetCore
         private async Task ExecuteAsync(HttpContext context, ISchema schema)
         {
             var request = Deserialize<GraphQLQuery>(context.Request.Body);
-
+            
+            object userContext = null;
+            var userContextBuilder = context.RequestServices.GetService<IUserContextBuilder>();
+            if (userContextBuilder != null)
+            {
+                userContext = await userContextBuilder.BuildUserContext(context);
+            }
+            else
+            {
+                userContext = _options.BuildUserContext?.Invoke(context);
+            }
+            
             var result = await _executer.ExecuteAsync(_ =>
             {
                 _.Schema = schema;
                 _.Query = request.Query;
                 _.OperationName = request.OperationName;
                 _.Inputs = request.Variables.ToInputs();
-                _.UserContext = _options.BuildUserContext?.Invoke(context);
+                _.UserContext = userContext;
                 _.ExposeExceptions = _options.ExposeExceptions;
                 _.ValidationRules = _options.ValidationRules.Concat(DocumentValidator.CoreRules()).ToList();
             });
