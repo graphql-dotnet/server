@@ -18,18 +18,14 @@ namespace GraphQL.Server.Transports.WebSockets
         private readonly ILogger<SubscriptionProtocolHandler<TSchema>> _log;
         private readonly ISubscriptionDeterminator _determinator;
         private readonly TSchema _schema;
-        private readonly ISubscriptionExecuter _subscriptionExecuter;
-
 
         public SubscriptionProtocolHandler(
             TSchema schema,
-            ISubscriptionExecuter subscriptionExecuter,
             IDocumentExecuter documentExecuter,
             ISubscriptionDeterminator determinator,
             ILogger<SubscriptionProtocolHandler<TSchema>> log)
         {
             _schema = schema;
-            _subscriptionExecuter = subscriptionExecuter;
             _documentExecuter = documentExecuter;
             _log = log;
             _determinator = determinator;
@@ -178,9 +174,9 @@ namespace GraphQL.Server.Transports.WebSockets
                 }).ConfigureAwait(false);
         }
 
-        private Task<SubscriptionExecutionResult> SubscribeAsync(ExecutionOptions options)
+        private async Task<SubscriptionExecutionResult> SubscribeAsync(ExecutionOptions options)
         {
-            return _subscriptionExecuter.SubscribeAsync(options);
+            return (SubscriptionExecutionResult)await _documentExecuter.ExecuteAsync(options);
         }
 
         private Task<ExecutionResult> ExecuteAsync(ExecutionOptions options)

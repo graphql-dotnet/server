@@ -1,5 +1,5 @@
-using GraphQL.Http;using GraphQL.Server.Transports.WebSockets.Abstractions;
-using GraphQL.Subscription;
+using GraphQL.Http;
+using GraphQL.Server.Transports.WebSockets.Abstractions;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,7 +12,7 @@ namespace GraphQL.Server.Transports.WebSockets
     {
         public static IServiceCollection AddGraphQLWebSocket<TSchema>(this IServiceCollection services) where TSchema : ISchema
         {
-            services.TryAddSingleton<ISubscriptionExecuter, SubscriptionExecuter>();
+            services.TryAddSingleton<IDocumentExecuter, DocumentExecuter>();
             services.TryAddSingleton<IDocumentWriter, DocumentWriter>();
             services.TryAddSingleton<ISubscriptionDeterminator, SubscriptionDeterminator>();
 

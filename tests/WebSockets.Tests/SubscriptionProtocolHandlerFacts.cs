@@ -20,7 +20,6 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         {
             _schema = new TestSchema();
             _documentExecuter = Substitute.For<IDocumentExecuter>();
-            _subscriptionExecuter = Substitute.For<ISubscriptionExecuter>();
             _messageWriter = Substitute.For<IJsonMessageWriter>();
             _determinator = Substitute.For<ISubscriptionDeterminator>();
 
@@ -31,7 +30,6 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
             var logger = Substitute.For<ILogger<SubscriptionProtocolHandler<TestSchema>>>();
             _sut = new SubscriptionProtocolHandler<TestSchema>(
                 _schema,
-                _subscriptionExecuter,
                 _documentExecuter,
                 _determinator,
                 logger);
@@ -39,10 +37,9 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
 
         private readonly TestSchema _schema;
         private readonly IDocumentExecuter _documentExecuter;
-        private readonly ISubscriptionExecuter _subscriptionExecuter;
         private readonly SubscriptionProtocolHandler<TestSchema> _sut;
         private readonly IJsonMessageWriter _messageWriter;
-        private IConnectionContext _connection;
+        private readonly IConnectionContext _connection;
         private readonly ISubscriptionDeterminator _determinator;
 
         private SubscriptionExecutionResult CreateStreamResult(CallInfo arg)
@@ -98,7 +95,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
             var messageContext = CreateMessage(
                 MessageTypes.GQL_START, query);
 
-            _subscriptionExecuter.SubscribeAsync(Arg.Any<ExecutionOptions>())
+            _documentExecuter.ExecuteAsync(Arg.Any<ExecutionOptions>())
                 .Returns(CreateStreamResult);
 
             _determinator.IsSubscription(Arg.Any<ExecutionOptions>()).Returns(true);
@@ -107,8 +104,8 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
             await _sut.HandleMessageAsync(messageContext).ConfigureAwait(false);
 
             /* Then */
-            await _subscriptionExecuter.Received()
-                .SubscribeAsync(Arg.Is<ExecutionOptions>(
+            await _documentExecuter.Received()
+                .ExecuteAsync(Arg.Is<ExecutionOptions>(
                     context => context.Schema == _schema
                                && context.Query == query.Query
                                && context.Inputs.ContainsKey("test")))
