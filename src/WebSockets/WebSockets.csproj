@@ -26,4 +26,7 @@
     <ItemGroup>
       <ProjectReference Include="..\AspNetCore\AspNetCore.csproj" />
     </ItemGroup>
+    <ItemGroup>
+      <Folder Include="Subscriptions\" />
+    </ItemGroup>
 </Project>

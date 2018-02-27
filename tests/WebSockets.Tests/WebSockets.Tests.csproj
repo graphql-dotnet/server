@@ -29,4 +29,8 @@
     <ProjectReference Include="..\..\src\WebSockets\WebSockets.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Subscriptions\" />
+  </ItemGroup>
+
 </Project>
