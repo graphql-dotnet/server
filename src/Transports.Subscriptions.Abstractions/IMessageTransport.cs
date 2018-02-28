@@ -1,12 +1,11 @@
-using System;
-using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
 
-namespace GraphQL.Transports.Subscriptions.Abstractions
+namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 {
     public interface IMessageTransport
     {
-        Task<IObservable<Message>> OpenReadAsync();
+        ISourceBlock<OperationMessage> Reader { get; }
 
-        Task WriteAsync(Message message);
+        ITargetBlock<OperationMessage> Writer { get; }
     }
 }

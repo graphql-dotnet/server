@@ -2,8 +2,13 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <AssemblyName>GraphQL.Transports.Subscriptions.Abstractions</AssemblyName>
-    <RootNamespace>GraphQL.Transports.Subscriptions.Abstractions</RootNamespace>
+    <AssemblyName>GraphQL.Server.Transports.Subscriptions.Abstractions</AssemblyName>
+    <RootNamespace>GraphQL.Server.Transports.Subscriptions.Abstractions</RootNamespace>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Threading.Tasks.Dataflow" Version="4.8.0" />
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.4.0" />
+  </ItemGroup>
 
 </Project>
