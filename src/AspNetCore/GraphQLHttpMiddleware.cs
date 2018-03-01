@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using GraphQL.Execution;
 using GraphQL.Http;
 using GraphQL.Server.Transports.AspNetCore.Common;
 using GraphQL.Types;
@@ -36,7 +38,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             _schema = schema;
         }
 
-        public async Task Invoke(HttpContext context)
+        public async Task Invoke(HttpContext context, IEnumerable<IDocumentExecutionListener> documentExecutionListeners)
         {
             if (!IsGraphQlRequest(context))
             {
@@ -44,7 +46,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                 return;
             }
 
-            await ExecuteAsync(context, _schema);
+            await ExecuteAsync(context, _schema, documentExecutionListeners);
         }
 
         private bool IsGraphQlRequest(HttpContext context)
@@ -52,7 +54,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             return context.Request.Path.StartsWithSegments(_options.Path);
         }
 
-        private async Task ExecuteAsync(HttpContext context, ISchema schema)
+        private async Task ExecuteAsync(HttpContext context, ISchema schema, IEnumerable<IDocumentExecutionListener> documentExecutionListeners)
         {
             var request = Deserialize<GraphQLQuery>(context.Request.Body);
             
@@ -76,6 +78,10 @@ namespace GraphQL.Server.Transports.AspNetCore
                 _.UserContext = userContext;
                 _.ExposeExceptions = _options.ExposeExceptions;
                 _.ValidationRules = _options.ValidationRules.Concat(DocumentValidator.CoreRules()).ToList();
+                foreach(var listener in documentExecutionListeners)
+                {
+                   _.Listeners.Add(listener);
+                }
             });
 
             await WriteResponseAsync(context, result);

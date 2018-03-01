@@ -1,13 +1,16 @@
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using GraphQL.Execution;
 using GraphQL.Http;
 using GraphQL.Server.Transports.AspNetCore.Common;
 using GraphQL.Server.Transports.WebSockets.Abstractions;
 using GraphQL.Server.Transports.WebSockets.Messages;
 using GraphQL.Subscription;
 using GraphQL.Types;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace GraphQL.Server.Transports.WebSockets
@@ -16,6 +19,7 @@ namespace GraphQL.Server.Transports.WebSockets
     {
         private readonly IDocumentExecuter _documentExecuter;
         private readonly ILogger<SubscriptionProtocolHandler<TSchema>> _log;
+        private readonly IServiceProvider _serviceProvider;
         private readonly ISubscriptionDeterminator _determinator;
         private readonly TSchema _schema;
         private readonly ISubscriptionExecuter _subscriptionExecuter;
@@ -26,12 +30,14 @@ namespace GraphQL.Server.Transports.WebSockets
             ISubscriptionExecuter subscriptionExecuter,
             IDocumentExecuter documentExecuter,
             ISubscriptionDeterminator determinator,
-            ILogger<SubscriptionProtocolHandler<TSchema>> log)
+            ILogger<SubscriptionProtocolHandler<TSchema>> log,
+            IServiceProvider serviceProvider)
         {
             _schema = schema;
             _subscriptionExecuter = subscriptionExecuter;
             _documentExecuter = documentExecuter;
             _log = log;
+            _serviceProvider = serviceProvider;
             _determinator = determinator;
         }
 
@@ -94,6 +100,9 @@ namespace GraphQL.Server.Transports.WebSockets
                 ValidationRules = options?.ValidationRules,
                 UserContext = options?.BuildUserContext?.Invoke(context)
             };
+            foreach(var listener in _serviceProvider.GetServices<IDocumentExecutionListener>()){
+                   exOptions.Listeners.Add(listener);
+            }
 
             var isSubscription = _determinator.IsSubscription(exOptions);
 

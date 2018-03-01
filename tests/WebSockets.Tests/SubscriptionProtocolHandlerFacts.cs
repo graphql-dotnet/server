@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
+using GraphQL.Execution;
 using GraphQL.Server.Transports.AspNetCore.Common;
 using GraphQL.Server.Transports.WebSockets.Abstractions;
 using GraphQL.Server.Transports.WebSockets.Messages;
@@ -23,6 +26,9 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
             _subscriptionExecuter = Substitute.For<ISubscriptionExecuter>();
             _messageWriter = Substitute.For<IJsonMessageWriter>();
             _determinator = Substitute.For<ISubscriptionDeterminator>();
+            _serviceProvider = Substitute.For<IServiceProvider>();
+            _serviceProvider.GetService(typeof(IEnumerable<IDocumentExecutionListener>))
+                .Returns(Enumerable.Empty<IDocumentExecutionListener>());
 
             _connection = Substitute.For<IConnectionContext>();
             _connection.Writer.Returns(_messageWriter);
@@ -34,7 +40,9 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
                 _subscriptionExecuter,
                 _documentExecuter,
                 _determinator,
-                logger);
+                logger,
+                _serviceProvider
+                );
         }
 
         private readonly TestSchema _schema;
@@ -44,6 +52,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         private readonly IJsonMessageWriter _messageWriter;
         private IConnectionContext _connection;
         private readonly ISubscriptionDeterminator _determinator;
+        private IServiceProvider _serviceProvider;
 
         private SubscriptionExecutionResult CreateStreamResult(CallInfo arg)
         {
