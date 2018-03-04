@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
@@ -8,14 +7,15 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
     public class SubscriptionServer
     {
         private readonly Task _completion;
-        private readonly IMessageTransport _transport;
 
         public SubscriptionServer(IMessageTransport transport, ISubscriptionManager subscriptions)
         {
             Subscriptions = subscriptions;
-            _transport = transport;
+            Transport = transport;
             _completion = LinkToTransportReader();
         }
+
+        public IMessageTransport Transport { get; }
 
         public ISubscriptionManager Subscriptions { get; }
 
@@ -36,7 +36,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
                 PropagateCompletion = true
             });
 
-            _transport.Reader.LinkTo(reader, new DataflowLinkOptions
+            Transport.Reader.LinkTo(reader, new DataflowLinkOptions
             {
                 PropagateCompletion = true
             });
@@ -63,14 +63,14 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 
         private Task WriteErrorAsync(OperationMessage message)
         {
-            return _transport.Writer.SendAsync(new OperationMessage()
+            return Transport.Writer.SendAsync(new OperationMessage
             {
                 Type = MessageType.GQL_CONNECTION_ERROR,
                 Id = message.Id,
                 Payload = new
                 {
                     message.Id,
-                    Errors = new ExecutionErrors()
+                    Errors = new ExecutionErrors
                     {
                         new ExecutionError($"Unexpected message type {message.Type}")
                     }
@@ -83,8 +83,8 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             foreach (var subscription in Subscriptions)
                 await Subscriptions.UnsubscribeAsync(subscription.Id);
 
-            _transport.Writer.Complete();
-            _transport.Reader.Complete();
+            Transport.Writer.Complete();
+            Transport.Reader.Complete();
         }
 
         private Task HandleStopAsync(OperationMessage message)
@@ -100,12 +100,12 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             return Subscriptions.SubscribeAsync(
                 message.Id,
                 payload,
-                _transport.Writer);
+                Transport.Writer);
         }
 
         private Task HandleInitAsync(OperationMessage message)
         {
-            return _transport.Writer.SendAsync(new OperationMessage
+            return Transport.Writer.SendAsync(new OperationMessage
             {
                 Type = MessageType.GQL_CONNECTION_ACK
             });
