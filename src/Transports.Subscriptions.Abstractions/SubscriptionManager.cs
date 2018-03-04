@@ -65,7 +65,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             {
                 await writer.SendAsync(new OperationMessage
                 {
-                    Type = MessageTypeConstants.GQL_ERROR,
+                    Type = MessageType.GQL_ERROR,
                     Id = id,
                     Payload = result
                 });
@@ -77,7 +77,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             {
                 await writer.SendAsync(new OperationMessage
                 {
-                    Type = MessageTypeConstants.GQL_ERROR,
+                    Type = MessageType.GQL_ERROR,
                     Id = id,
                     Payload = result
                 });

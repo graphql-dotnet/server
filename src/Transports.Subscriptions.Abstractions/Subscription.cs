@@ -34,7 +34,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         {
             _writer.Post(new OperationMessage
             {
-                Type = MessageTypeConstants.GQL_COMPLETE,
+                Type = MessageType.GQL_COMPLETE,
                 Id = Id
             });
 
@@ -51,7 +51,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         {
             _writer.Post(new OperationMessage
             {
-                Type = MessageTypeConstants.GQL_DATA,
+                Type = MessageType.GQL_DATA,
                 Id = Id,
                 Payload = value
             });
@@ -68,7 +68,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             _unsubscribe.Dispose();
             return _writer.SendAsync(new OperationMessage
             {
-                Type = MessageTypeConstants.GQL_COMPLETE,
+                Type = MessageType.GQL_COMPLETE,
                 Id = Id
             });
         }

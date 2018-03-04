@@ -47,11 +47,11 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         {
             switch (message.Type)
             {
-                case MessageTypeConstants.GQL_CONNECTION_INIT:
+                case MessageType.GQL_CONNECTION_INIT:
                     return HandleInitAsync(message);
-                case MessageTypeConstants.GQL_START:
+                case MessageType.GQL_START:
                     return HandleStartAsync(message);
-                case MessageTypeConstants.GQL_STOP:
+                case MessageType.GQL_STOP:
                     return HandleStopAsync(message);
                 default:
                     throw new InvalidOperationException($"Unknown message type {message.Type}");
@@ -80,7 +80,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         {
             return _transport.Writer.SendAsync(new OperationMessage
             {
-                Type = MessageTypeConstants.GQL_CONNECTION_ACK
+                Type = MessageType.GQL_CONNECTION_ACK
             });
         }
 

@@ -38,7 +38,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
                 Arg.Any<DataflowMessageHeader>(),
                 Arg.Is<OperationMessage>(
                     message => message.Id == id
-                               && message.Type == MessageTypeConstants.GQL_COMPLETE),
+                               && message.Type == MessageType.GQL_COMPLETE),
                 Arg.Any<ISourceBlock<OperationMessage>>(),
                 Arg.Any<bool>());
         }
@@ -118,7 +118,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
                 Arg.Any<DataflowMessageHeader>(),
                 Arg.Is<OperationMessage>(
                     message => message.Id == id
-                               && message.Type == MessageTypeConstants.GQL_DATA),
+                               && message.Type == MessageType.GQL_DATA),
                 Arg.Any<ISourceBlock<OperationMessage>>(),
                 Arg.Any<bool>());
 
@@ -153,7 +153,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
                 Arg.Any<DataflowMessageHeader>(),
                 Arg.Is<OperationMessage>(
                     message => message.Id == id
-                               && message.Type == MessageTypeConstants.GQL_COMPLETE),
+                               && message.Type == MessageType.GQL_COMPLETE),
                 Arg.Any<ISourceBlock<OperationMessage>>(),
                 Arg.Any<bool>());
 

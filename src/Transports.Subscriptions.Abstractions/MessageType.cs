@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 {
     [SuppressMessage("ReSharper", "InconsistentNaming")]
-    public class MessageTypeConstants
+    public class MessageType
     {
         /// <summary>
         ///     Client sends this message after plain websocket connection to start the communication with the server

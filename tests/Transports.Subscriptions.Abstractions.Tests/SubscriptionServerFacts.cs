@@ -36,7 +36,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             /* Given */
             var expected = new OperationMessage
             {
-                Type = MessageTypeConstants.GQL_CONNECTION_INIT
+                Type = MessageType.GQL_CONNECTION_INIT
             };
             _transport.AddMessageToRead(expected);
             _transport.Complete();
@@ -46,7 +46,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
 
             /* Then */
             Assert.Contains(_transport.WrittenMessages,
-                message => message.Type == MessageTypeConstants.GQL_CONNECTION_ACK);
+                message => message.Type == MessageType.GQL_CONNECTION_ACK);
         }
 
         [Fact]
@@ -55,7 +55,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             /* Given */
             var expected = new OperationMessage
             {
-                Type = MessageTypeConstants.GQL_START,
+                Type = MessageType.GQL_START,
                 Id = "1",
                 Payload = new OperationMessagePayload
                 {
@@ -78,7 +78,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             /* Given */
             var subscribe = new OperationMessage
             {
-                Type = MessageTypeConstants.GQL_START,
+                Type = MessageType.GQL_START,
                 Id = "1",
                 Payload = new OperationMessagePayload
                 {
@@ -89,7 +89,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
 
             var unsubscribe = new OperationMessage
             {
-                Type = MessageTypeConstants.GQL_STOP,
+                Type = MessageType.GQL_STOP,
                 Id = "1"
             };
             _transport.AddMessageToRead(unsubscribe);
