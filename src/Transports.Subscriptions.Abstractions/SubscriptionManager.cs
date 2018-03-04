@@ -10,12 +10,12 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 {
     public class SubscriptionManager : ISubscriptionManager
     {
-        private readonly ISubscriptionExecuter _executer;
+        private readonly IGraphQLExecuter _executer;
 
         private readonly ConcurrentDictionary<string, Subscription> _subscriptions =
             new ConcurrentDictionary<string, Subscription>();
 
-        public SubscriptionManager(ISubscriptionExecuter executer)
+        public SubscriptionManager(IGraphQLExecuter executer)
         {
             _executer = executer;
         }
@@ -41,7 +41,8 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 
         public Task UnsubscribeAsync(string id)
         {
-            if (_subscriptions.TryRemove(id, out var removed)) return removed.UnsubscribeAsync();
+            if (_subscriptions.TryRemove(id, out var removed))
+                return removed.UnsubscribeAsync();
 
             return Task.CompletedTask;
         }
@@ -56,7 +57,8 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             OperationMessagePayload payload,
             ITargetBlock<OperationMessage> writer)
         {
-            SubscriptionExecutionResult result = await _executer.SubscribeAsync(
+
+            ExecutionResult result = await _executer.ExecuteAsync(
                 payload.OperationName,
                 payload.Query,
                 payload.Variables);
@@ -73,24 +75,44 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
                 return null;
             }
 
-            if (result.Streams?.Values.SingleOrDefault() == null)
+            // is sub
+            if (result is SubscriptionExecutionResult subscriptionExecutionResult)
             {
-                await writer.SendAsync(new OperationMessage
+                if (subscriptionExecutionResult.Streams?.Values.SingleOrDefault() == null)
                 {
-                    Type = MessageType.GQL_ERROR,
-                    Id = id,
-                    Payload = result
-                });
+                    await writer.SendAsync(new OperationMessage
+                    {
+                        Type = MessageType.GQL_ERROR,
+                        Id = id,
+                        Payload = result
+                    });
 
-                return null;
+                    return null;
+                }
+
+                return new Subscription(
+                    id,
+                    payload,
+                    subscriptionExecutionResult,
+                    writer,
+                    completed: sub => _subscriptions.TryRemove(id, out var _));
             }
 
-            return new Subscription(
-                id, 
-                payload, 
-                result, 
-                writer, 
-                completed: sub => _subscriptions.TryRemove(id, out var _));
+            //is query or mutation
+            await writer.SendAsync(new OperationMessage()
+            {
+                Type = MessageType.GQL_DATA,
+                Id = id,
+                Payload = result
+            });
+
+            await writer.SendAsync(new OperationMessage()
+            {
+                Type = MessageType.GQL_COMPLETE,
+                Id = id
+            });
+
+            return null;
         }
     }
 }

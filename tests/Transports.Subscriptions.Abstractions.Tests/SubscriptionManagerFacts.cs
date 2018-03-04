@@ -13,14 +13,14 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
     public class SubscriptionManagerFacts
     {
         private SubscriptionManager _sut;
-        private ISubscriptionExecuter _executer;
+        private IGraphQLExecuter _executer;
         private ITargetBlock<OperationMessage> _writer;
 
         public SubscriptionManagerFacts()
         {
             _writer = Substitute.For<ITargetBlock<OperationMessage>>();
-            _executer = Substitute.For<ISubscriptionExecuter>();
-            _executer.SubscribeAsync(null, null, null).ReturnsForAnyArgs(
+            _executer = Substitute.For<IGraphQLExecuter>();
+            _executer.ExecuteAsync(null, null, null).ReturnsForAnyArgs(
                 new SubscriptionExecutionResult()
                 {
                     Streams = new Dictionary<string, IObservable<ExecutionResult>>()
@@ -56,7 +56,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             await _sut.SubscribeAsync(id, payload, _writer);
 
             /* Then */
-            _executer.Received().SubscribeAsync(
+            _executer.Received().ExecuteAsync(
                 Arg.Is<string>(payload.OperationName),
                 Arg.Is<string>(payload.Query),
                 Arg.Any<dynamic>());
@@ -69,7 +69,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             var id = "1";
             var payload = new OperationMessagePayload();
 
-            _executer.SubscribeAsync(null, null, null).ReturnsForAnyArgs(
+            _executer.ExecuteAsync(null, null, null).ReturnsForAnyArgs(
                 new SubscriptionExecutionResult()
                 {
                     Errors = new ExecutionErrors()
@@ -98,7 +98,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             var id = "1";
             var payload = new OperationMessagePayload();
 
-            _executer.SubscribeAsync(null, null, null).ReturnsForAnyArgs(
+            _executer.ExecuteAsync(null, null, null).ReturnsForAnyArgs(
                 new SubscriptionExecutionResult()
                 {
                     Streams = new Dictionary<string, IObservable<ExecutionResult>>()
@@ -127,7 +127,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             var id = "1";
             var payload = new OperationMessagePayload();
 
-            _executer.SubscribeAsync(null, null, null).ReturnsForAnyArgs(
+            _executer.ExecuteAsync(null, null, null).ReturnsForAnyArgs(
                 new SubscriptionExecutionResult()
                 {
                     Errors = new ExecutionErrors()
