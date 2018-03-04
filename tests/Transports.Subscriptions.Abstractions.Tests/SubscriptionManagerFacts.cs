@@ -1,4 +1,6 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using GraphQL.Subscription;
@@ -19,7 +21,13 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             _writer = Substitute.For<ITargetBlock<OperationMessage>>();
             _executer = Substitute.For<ISubscriptionExecuter>();
             _executer.SubscribeAsync(null, null, null).ReturnsForAnyArgs(
-                new SubscriptionExecutionResult());
+                new SubscriptionExecutionResult()
+                {
+                    Streams = new Dictionary<string, IObservable<ExecutionResult>>()
+                    {
+                        {"1", Substitute.For<IObservable<ExecutionResult>>()}
+                    }
+                });
             _sut = new SubscriptionManager(_executer);
         }
 
@@ -79,6 +87,35 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
                 Arg.Is<OperationMessage>(
                     message => message.Id == id
                     && message.Type == MessageTypeConstants.GQL_ERROR),
+                Arg.Any<ISourceBlock<OperationMessage>>(),
+                Arg.Any<bool>());
+        }
+
+        [Fact]
+        public async Task Failed_Subscribe_with_null_stream()
+        {
+            /* Given */
+            var id = "1";
+            var payload = new OperationMessagePayload();
+
+            _executer.SubscribeAsync(null, null, null).ReturnsForAnyArgs(
+                new SubscriptionExecutionResult()
+                {
+                    Streams = new Dictionary<string, IObservable<ExecutionResult>>()
+                    {
+                        {"1", null}
+                    }
+                });
+
+            /* When */
+            await _sut.SubscribeAsync(id, payload, _writer);
+
+            /* Then */
+            _writer.Received().OfferMessage(
+                Arg.Any<DataflowMessageHeader>(),
+                Arg.Is<OperationMessage>(
+                    message => message.Id == id
+                               && message.Type == MessageTypeConstants.GQL_ERROR),
                 Arg.Any<ISourceBlock<OperationMessage>>(),
                 Arg.Any<bool>());
         }

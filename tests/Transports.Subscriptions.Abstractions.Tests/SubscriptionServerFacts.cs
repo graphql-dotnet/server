@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using GraphQL.Subscription;
 using NSubstitute;
 using Xunit;
@@ -12,7 +14,13 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             _transport = new TestableSubscriptionTransport();
             _subscriptionExecuter = Substitute.For<ISubscriptionExecuter>();
             _subscriptionExecuter.SubscribeAsync(null, null, null).ReturnsForAnyArgs(
-                new SubscriptionExecutionResult());
+                new SubscriptionExecutionResult()
+                {
+                    Streams = new Dictionary<string, IObservable<ExecutionResult>>()
+                    {
+                        {"1", Substitute.For<IObservable<ExecutionResult>>()}
+                    }
+                });
             _subscriptionManager = new SubscriptionManager(_subscriptionExecuter);
             _sut = new SubscriptionServer(_transport, _subscriptionManager);
         }
