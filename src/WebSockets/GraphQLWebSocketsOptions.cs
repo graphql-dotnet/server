@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using GraphQL.Server.Transports.WebSockets.Messages;
 using GraphQL.Validation;
 using Microsoft.AspNetCore.Http;
 

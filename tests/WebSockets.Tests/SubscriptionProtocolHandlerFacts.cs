@@ -4,7 +4,6 @@ using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using GraphQL.Server.Transports.AspNetCore.Common;
 using GraphQL.Server.Transports.WebSockets.Abstractions;
-using GraphQL.Server.Transports.WebSockets.Messages;
 using GraphQL.Subscription;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;

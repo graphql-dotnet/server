@@ -1,7 +1,6 @@
 using System.Net.WebSockets;
 using System.Threading.Tasks;
 using GraphQL.Server.Transports.WebSockets.Abstractions;
-using GraphQL.Server.Transports.WebSockets.Messages;
 using NSubstitute;
 using Xunit;
 using Microsoft.Extensions.Logging;
