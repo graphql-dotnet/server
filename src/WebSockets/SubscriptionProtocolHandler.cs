@@ -95,6 +95,14 @@ namespace GraphQL.Server.Transports.WebSockets
                 UserContext = options?.BuildUserContext?.Invoke(context)
             };
 
+            if (options != null)
+            {
+                foreach (var listener in options.Listeners)
+                {
+                    exOptions.Listeners.Add(listener);
+                }
+            }
+
             var isSubscription = _determinator.IsSubscription(exOptions);
 
             if (isSubscription)
