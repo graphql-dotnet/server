@@ -76,6 +76,10 @@ namespace GraphQL.Server.Transports.AspNetCore
                 _.UserContext = userContext;
                 _.ExposeExceptions = _options.ExposeExceptions;
                 _.ValidationRules = _options.ValidationRules.Concat(DocumentValidator.CoreRules()).ToList();
+                foreach (var listener in _options.Listeners)
+                {
+                    _.Listeners.Add(listener);
+                }
             });
 
             await WriteResponseAsync(context, result);
