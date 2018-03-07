@@ -10,15 +10,23 @@ using Newtonsoft.Json;
 
 namespace GraphQL.Server.Transports.WebSockets
 {
-    public class WebSocketClient : IMessageTransport
+    public class WebSocketTransport : IMessageTransport
     {
         private readonly WebSocket _socket;
+        private ISourceBlock<string> _messageReader;
+        private ITargetBlock<OperationMessage> _messageWriter;
+        private JsonSerializerSettings _serializerSettings;
 
-        public WebSocketClient(WebSocket socket)
+        public WebSocketTransport(WebSocket socket)
         {
             _socket = socket;
             Reader = CreateReader();
             Writer = CreateWriter();
+            _serializerSettings = new JsonSerializerSettings()
+            {
+                DateFormatHandling = DateFormatHandling.IsoDateFormat,
+                DateFormatString = "yyyy'-'MM'-'dd'T'HH':'mm':'ss.FFFFFFF'Z'"
+            };
         }
 
 
@@ -30,15 +38,53 @@ namespace GraphQL.Server.Transports.WebSockets
 
         private ITargetBlock<OperationMessage> CreateWriter()
         {
+            var messageWriter = CreateMessageWriter();
+
+            var transformer = CreateWriterJsonTransformer();
+            var buffer = new BufferBlock<OperationMessage>();
+
+            buffer.LinkTo(transformer, new DataflowLinkOptions
+            {
+                PropagateCompletion = true
+            });
+
+            transformer.LinkTo(messageWriter, new DataflowLinkOptions
+            {
+                PropagateCompletion = true
+            });
+
+            _messageWriter = buffer;
+            return buffer;
+        }
+
+        private ITargetBlock<string> CreateMessageWriter()
+        {
+            var target = new ActionBlock<string>(
+                WriteMessageAsync, new ExecutionDataflowBlockOptions
+                {
+                    BoundedCapacity = 1,
+                    MaxDegreeOfParallelism = 1,
+                    EnsureOrdered = true
+                });
+
+            return target;
+        }
+
+        private Task WriteMessageAsync(string message)
+        {
+            if (CloseStatus.HasValue) return Task.CompletedTask;
+
+            var messageSegment = new ArraySegment<byte>(Encoding.UTF8.GetBytes(message));
+            return _socket.SendAsync(messageSegment, WebSocketMessageType.Text, true, CancellationToken.None);
         }
 
         private ISourceBlock<OperationMessage> CreateReader()
         {
-            var messageReader = CreateMessageReader();
+            _messageReader = CreateMessageReader();
             var jsonTransformer = CreateReaderJsonTransformer();
             var buffer = new BufferBlock<OperationMessage>();
 
-            messageReader.LinkTo(jsonTransformer, new DataflowLinkOptions
+            _messageReader.LinkTo(jsonTransformer, new DataflowLinkOptions
             {
                 PropagateCompletion = true
             });
@@ -50,10 +96,22 @@ namespace GraphQL.Server.Transports.WebSockets
             return buffer;
         }
 
+        protected IPropagatorBlock<OperationMessage, string> CreateWriterJsonTransformer()
+        {
+            var transformer = new TransformBlock<OperationMessage, string>(
+                input => JsonConvert.SerializeObject(input, _serializerSettings),
+                new ExecutionDataflowBlockOptions
+                {
+                    EnsureOrdered = true
+                });
+
+            return transformer;
+        }
+
         protected IPropagatorBlock<string, OperationMessage> CreateReaderJsonTransformer()
         {
             var transformer = new TransformBlock<string, OperationMessage>(
-                input => JsonConvert.DeserializeObject<OperationMessage>(input),
+                input => JsonConvert.DeserializeObject<OperationMessage>(input, _serializerSettings),
                 new ExecutionDataflowBlockOptions
                 {
                     EnsureOrdered = true
@@ -119,6 +177,9 @@ namespace GraphQL.Server.Transports.WebSockets
 
         public Task CloseAsync()
         {
+            _messageWriter.Complete();
+            _messageReader.Complete();
+
             if (_socket.State != WebSocketState.Open)
                 return Task.CompletedTask;
 
@@ -131,6 +192,8 @@ namespace GraphQL.Server.Transports.WebSockets
 
         private Task AbortAsync()
         {
+            _messageWriter.Complete();
+            _messageReader.Complete();
             _socket.Abort();
             return Task.CompletedTask;
         }

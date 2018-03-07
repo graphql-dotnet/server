@@ -25,7 +25,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         {
             /* Given */
             /* When */
-            var socket = await ConnectAsync(ConnectionContext.Protocol).ConfigureAwait(false);
+            var socket = await ConnectAsync("graphql-ws").ConfigureAwait(false);
 
             /* Then */
             Assert.Equal(WebSocketState.Open, socket.State);

@@ -1,5 +1,7 @@
+using System;
 using System.Net.WebSockets;
 using System.Threading.Tasks;
+using GraphQL.Server.Transports.Subscriptions.Abstractions;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
@@ -9,17 +11,18 @@ namespace GraphQL.Server.Transports.WebSockets
     public class GraphQLWebSocketsMiddleware<TSchema> where TSchema : ISchema
     {
         private readonly RequestDelegate _next;
+        private readonly WebSocketConnectionManager _connectionManager;
         private readonly GraphQLWebSocketsOptions _options;
-        private readonly GraphQLEndPoint<TSchema> _endpoint;
 
         public GraphQLWebSocketsMiddleware(
             RequestDelegate next,
-            IOptions<GraphQLWebSocketsOptions> options,
-            GraphQLEndPoint<TSchema> endpoint)
+            IGraphQLExecuterFactory executerFactory,
+            IOptions<GraphQLWebSocketsOptions> options)
         {
             _next = next;
+            _connectionManager = new WebSocketConnectionManager(
+                    new SubscriptionManager(executerFactory.Create<TSchema>()));
             _options = options.Value;
-            _endpoint = endpoint;
         }
 
         public async Task Invoke(HttpContext context)
@@ -51,22 +54,20 @@ namespace GraphQL.Server.Transports.WebSockets
         private async Task ExecuteAsync(HttpContext context)
         {
             var socket = await context.WebSockets
-                .AcceptWebSocketAsync(ConnectionContext.Protocol).ConfigureAwait(false);
+                .AcceptWebSocketAsync("graphql-ws").ConfigureAwait(false);
 
             if (!context.WebSockets.WebSocketRequestedProtocols
                 .Contains(socket.SubProtocol))
             {
                 await socket.CloseAsync(
                     WebSocketCloseStatus.ProtocolError,
-                    $"Server only supports {ConnectionContext.Protocol} protocol",
+                    $"Server only supports graphql-ws protocol",
                     context.RequestAborted).ConfigureAwait(false);
 
                 return;
             }
-            
-            var connection = new ConnectionContext(socket, context.Connection.Id, _options);
-            await _endpoint.OnConnectedAsync(connection).ConfigureAwait(false);
-            await _endpoint.CloseConnectionAsync(connection).ConfigureAwait(false);
+
+            await _connectionManager.Connect(socket, context.Connection.Id);
         }
     }
 }

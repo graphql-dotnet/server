@@ -11,14 +11,20 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Subscriptions\**" />
+    <EmbeddedResource Remove="Subscriptions\**" />
+    <None Remove="Subscriptions\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Castle.Core" Version="4.2.1" />
-    <PackageReference Include="GraphQL" Version="2.0.0-alpha-862" />
+    <PackageReference Include="GraphQL" Version="2.0.0-alpha-864" />
     <PackageReference Include="Microsoft.AspNetCore" Version="2.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.5" />
     <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="2.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.WebSockets" Version="2.0.1" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="2.0.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.6.0" />
     <PackageReference Include="NSubstitute" Version="3.1.0" />
     <PackageReference Include="xunit" Version="2.3.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
@@ -27,10 +33,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\AspNetCore\AspNetCore.csproj" />
     <ProjectReference Include="..\..\src\WebSockets\WebSockets.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Subscriptions\" />
   </ItemGroup>
 
 </Project>
