@@ -4,6 +4,13 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>GraphQL.Server.Transports.Subscriptions.Abstractions</AssemblyName>
     <RootNamespace>GraphQL.Server.Transports.Subscriptions.Abstractions</RootNamespace>
+    <Authors>Pekka Heikura</Authors>
+    <Company>graphql-dotnet</Company>
+    <Product>graphql-dotnet server</Product>
+    <Copyright>Pekka Heikura</Copyright>
+    <PackageProjectUrl>https://github.com/graphql-dotnet/server</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/graphql-dotnet/server</RepositoryUrl>
+    <PackageTags>graphql-dotnet graphql subscriptions</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

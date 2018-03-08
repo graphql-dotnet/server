@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using GraphQL.Subscription;
+using Newtonsoft.Json.Linq;
 
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 {
@@ -53,7 +54,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             {
                 Type = MessageType.GQL_DATA,
                 Id = Id,
-                Payload = value
+                Payload = JObject.FromObject(value)
             });
         }
 

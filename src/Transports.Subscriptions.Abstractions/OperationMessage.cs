@@ -1,3 +1,5 @@
+using Newtonsoft.Json.Linq;
+
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 {
     public class OperationMessage
@@ -15,6 +17,6 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         /// <summary>
         ///     Nullable payload
         /// </summary>
-        public dynamic Payload { get; set; }
+        public JObject Payload { get; set; }
     }
 }

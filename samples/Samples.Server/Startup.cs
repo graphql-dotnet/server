@@ -31,6 +31,11 @@ namespace GraphQL.Samples.Server
             services.AddSingleton<MessageInputType>();
 
             // subscriptions
+            services.Configure<ExecutionOptions<ChatSchema>>(options =>
+            {
+                options.EnableMetrics = true;
+                options.ExposeExceptions = true;
+            });
             services.AddGraphQLHttp();
             services.AddGraphQLWebSocket<ChatSchema>();
             services.AddMvc();

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
+using Newtonsoft.Json.Linq;
 
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 {
@@ -67,14 +68,14 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             {
                 Type = MessageType.GQL_CONNECTION_ERROR,
                 Id = message.Id,
-                Payload = new
+                Payload = JObject.FromObject(new
                 {
                     message.Id,
                     Errors = new ExecutionErrors
                     {
                         new ExecutionError($"Unexpected message type {message.Type}")
                     }
-                }
+                })
             });
         }
 
@@ -94,7 +95,8 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 
         private Task HandleStartAsync(OperationMessage message)
         {
-            if (!(message.Payload is OperationMessagePayload payload))
+            var payload = message.Payload.ToObject<OperationMessagePayload>();
+            if (payload == null)
                 throw new InvalidOperationException($"Could not get OperationMessagePayload from message.Payload");
 
             return Subscriptions.SubscribeAsync(

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using GraphQL.Server.Transports.Subscriptions.Abstractions;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace GraphQL.Server.Transports.WebSockets
 {
@@ -15,7 +16,7 @@ namespace GraphQL.Server.Transports.WebSockets
         private readonly WebSocket _socket;
         private ISourceBlock<string> _messageReader;
         private ITargetBlock<OperationMessage> _messageWriter;
-        private JsonSerializerSettings _serializerSettings;
+        private readonly JsonSerializerSettings _serializerSettings;
 
         public WebSocketTransport(WebSocket socket)
         {
@@ -25,7 +26,8 @@ namespace GraphQL.Server.Transports.WebSockets
             _serializerSettings = new JsonSerializerSettings()
             {
                 DateFormatHandling = DateFormatHandling.IsoDateFormat,
-                DateFormatString = "yyyy'-'MM'-'dd'T'HH':'mm':'ss.FFFFFFF'Z'"
+                DateFormatString = "yyyy'-'MM'-'dd'T'HH':'mm':'ss.FFFFFFF'Z'",
+                ContractResolver = new CamelCasePropertyNamesContractResolver()
             };
         }
 

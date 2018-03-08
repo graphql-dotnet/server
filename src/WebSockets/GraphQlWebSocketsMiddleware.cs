@@ -27,7 +27,7 @@ namespace GraphQL.Server.Transports.WebSockets
 
         public async Task Invoke(HttpContext context)
         {
-            if (!IsGraphQlRequest(context))
+            if (!IsGraphQLRequest(context))
             {
                 await _next(context);
                 return;
@@ -36,7 +36,7 @@ namespace GraphQL.Server.Transports.WebSockets
             await ExecuteAsync(context);
         }
 
-        private bool IsGraphQlRequest(HttpContext context)
+        private bool IsGraphQLRequest(HttpContext context)
         {
             if (!context.Request.Path.StartsWithSegments(_options.Path))
             {

@@ -1,30 +1,43 @@
-using System.Collections.Generic;
+using GraphQL.Server.Transports.AspNetCore;
 using GraphQL.Server.Transports.Subscriptions.Abstractions;
 using GraphQL.Types;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 
 namespace GraphQL.Server.Transports.WebSockets
 {
     public class ConfigurableExecuter<TSchema> : DefaultSchemaExecuter<TSchema> where TSchema : ISchema
     {
-        private readonly IEnumerable<IConfigureExecutionOptions<TSchema>> _configureExecutionOptions;
+        private readonly ExecutionOptions<TSchema> _options;
 
         public ConfigurableExecuter(
             IDocumentExecuter documentExecuter, 
             TSchema schema,
-            IEnumerable<IConfigureExecutionOptions<TSchema>> configureExecutionOptions) : base(documentExecuter, schema)
+            IOptions<ExecutionOptions<TSchema>> options) : base(documentExecuter, schema)
         {
-            _configureExecutionOptions = configureExecutionOptions;
+            _options = options.Value;
         }
 
         protected override ExecutionOptions GetOptions(string operationName, string query, JObject variables)
         {
             var options = base.GetOptions(operationName, query, variables);
 
-            foreach ( var configureExecutionOption in _configureExecutionOptions)
+            if (_options.Listeners != null)
             {
-                configureExecutionOption.Configure(Schema, options);
+                foreach (var listener in _options.Listeners)
+                {
+                    options.Listeners.Add(listener);
+                }
             }
+
+            options.EnableMetrics = _options.EnableMetrics;
+            options.ComplexityConfiguration = _options.ComplexityConfiguration;
+            options.ExposeExceptions = _options.ExposeExceptions;
+            options.FieldMiddleware = _options.FieldMiddleware;
+            options.FieldNameConverter = _options.FieldNameConverter;
+            options.SetFieldMiddleware = _options.SetFieldMiddleware;
+            options.UserContext = _options.UserContext;
+            options.ValidationRules = _options.ValidationRules;
 
             return options;
         }
