@@ -19,7 +19,6 @@ namespace GraphQL.Server.Transports.AspNetCore
         {
             services.TryAddSingleton<IDocumentWriter, DocumentWriter>();
             services.TryAddSingleton<IDocumentExecuter, DocumentExecuter>();
-            services.TryAddSingleton<ISubscriptionExecuter, SubscriptionExecuter>();
 
             return services;
         }

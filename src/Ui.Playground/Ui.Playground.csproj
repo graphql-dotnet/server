@@ -2,12 +2,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>netcoreapp2.0</TargetFramework>
+		<TargetFramework>netstandard2.0</TargetFramework>
 		<AssemblyName>GraphQL.Server.Ui.Playground</AssemblyName>
 		<RootNamespace>GraphQL.Server.Ui.Playground</RootNamespace>
 		<Product>GraphQL for .NET</Product>
-		<Company />
-		<Authors>Pekka Heikura</Authors>
+		<Company>graphql-dotnet</Company>
+		<Authors>pekkah</Authors>
 		<Description>GraphQL playground extension</Description>
 		<PackageProjectUrl>https://github.com/graphql-dotnet/server</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/graphql-dotnet/server</RepositoryUrl>
