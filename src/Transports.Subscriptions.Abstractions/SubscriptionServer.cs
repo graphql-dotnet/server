@@ -84,8 +84,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             foreach (var subscription in Subscriptions)
                 await Subscriptions.UnsubscribeAsync(subscription.Id);
 
-            Transport.Writer.Complete();
-            Transport.Reader.Complete();
+            Transport.Complete();
         }
 
         private Task HandleStopAsync(OperationMessage message)
@@ -115,7 +114,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 
         public Task ReceiveMessagesAsync()
         {
-            return _completion;
+            return Transport.Completion;
         }
     }
 }

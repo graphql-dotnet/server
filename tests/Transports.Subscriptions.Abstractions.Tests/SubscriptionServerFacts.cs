@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
 using GraphQL.Subscription;
 using Newtonsoft.Json.Linq;
 using NSubstitute;
@@ -40,7 +42,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
                 Type = MessageType.GQL_CONNECTION_INIT
             };
             _transport.AddMessageToRead(expected);
-            _transport.Complete();
+            AddTerminate();
 
             /* When */
             await _sut.ReceiveMessagesAsync();
@@ -48,6 +50,14 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             /* Then */
             Assert.Contains(_transport.WrittenMessages,
                 message => message.Type == MessageType.GQL_CONNECTION_ACK);
+        }
+
+        private void AddTerminate()
+        {
+            _transport.AddMessageToRead(new OperationMessage()
+            {
+                Type = MessageType.GQL_CONNECTION_TERMINATE
+            });
         }
 
         [Fact]
@@ -74,7 +84,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
                 })
             };
             _transport.AddMessageToRead(expected);
-            _transport.Complete();
+            AddTerminate();
 
             /* When */
             await _sut.ReceiveMessagesAsync();
@@ -108,7 +118,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
                 })
             };
             _transport.AddMessageToRead(expected);
-            _transport.Complete();
+            AddTerminate();
 
             /* When */
             await _sut.ReceiveMessagesAsync();
@@ -140,10 +150,11 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
                 })
             };
             _transport.AddMessageToRead(expected);
-            _transport.Complete();
 
             /* When */
-            await _sut.ReceiveMessagesAsync();
+            while (!_subscriptionManager.Any())
+            {
+            }
 
             /* Then */
             Assert.Single(_sut.Subscriptions, sub => sub.Id == expected.Id);
@@ -170,7 +181,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
                 Id = "1"
             };
             _transport.AddMessageToRead(unsubscribe);
-            _transport.Complete();
+            AddTerminate();
 
             /* When */
             await _sut.ReceiveMessagesAsync();
@@ -210,7 +221,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
                 Type = "x"
             };
             _transport.AddMessageToRead(expected);
-            _transport.Complete();
+            AddTerminate();
 
             /* When */
             await _sut.ReceiveMessagesAsync();

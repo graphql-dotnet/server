@@ -38,6 +38,14 @@ namespace GraphQL.Server.Transports.WebSockets
 
         public ITargetBlock<OperationMessage> Writer { get; }
 
+        public Task Completion => Task.WhenAll(Reader.Completion, Writer.Completion);
+
+        public void Complete()
+        {
+            Reader.Complete();
+            Writer.Complete();
+        }
+
         private ITargetBlock<OperationMessage> CreateWriter()
         {
             var messageWriter = CreateMessageWriter();

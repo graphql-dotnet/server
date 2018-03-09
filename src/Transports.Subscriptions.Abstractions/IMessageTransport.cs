@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions
@@ -7,5 +8,9 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         ISourceBlock<OperationMessage> Reader { get; }
 
         ITargetBlock<OperationMessage> Writer { get; }
+
+        Task Completion { get; }
+
+        void Complete();
     }
 }
