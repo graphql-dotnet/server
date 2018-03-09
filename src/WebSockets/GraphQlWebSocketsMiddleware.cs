@@ -11,8 +11,8 @@ namespace GraphQL.Server.Transports.WebSockets
     public class GraphQLWebSocketsMiddleware<TSchema> where TSchema : ISchema
     {
         private readonly RequestDelegate _next;
-        private readonly WebSocketConnectionManager _connectionManager;
         private readonly GraphQLWebSocketsOptions _options;
+        private readonly IGraphQLExecuter _executer;
 
         public GraphQLWebSocketsMiddleware(
             RequestDelegate next,
@@ -20,8 +20,7 @@ namespace GraphQL.Server.Transports.WebSockets
             IOptions<GraphQLWebSocketsOptions> options)
         {
             _next = next;
-            _connectionManager = new WebSocketConnectionManager(
-                    new SubscriptionManager(executerFactory.Create<TSchema>()));
+            _executer = executerFactory.Create<TSchema>();
             _options = options.Value;
         }
 
@@ -67,7 +66,13 @@ namespace GraphQL.Server.Transports.WebSockets
                 return;
             }
 
-            await _connectionManager.Connect(socket, context.Connection.Id);
+            var connection = new WebSocketConnection(
+                socket, 
+                context.Connection.Id,
+                new SubscriptionManager(_executer));
+
+            await connection.Connect();
+            await connection.Close();
         }
     }
 }

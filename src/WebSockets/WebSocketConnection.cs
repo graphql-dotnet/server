@@ -32,5 +32,13 @@ namespace GraphQL.Server.Transports.WebSockets
             _server = new SubscriptionServer(GetTransport(), _subscriptionManager);
             return _server.ReceiveMessagesAsync();
         }
+
+        public Task Close()
+        {
+            _server.Transport.Writer.Complete();
+            _server.Transport.Reader.Complete();
+
+            return Task.CompletedTask;
+        }
     }
 }
