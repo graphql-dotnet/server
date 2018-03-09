@@ -1,4 +1,3 @@
-using GraphQL.Server.Transports.AspNetCore;
 using GraphQL.Server.Transports.Subscriptions.Abstractions;
 using GraphQL.Types;
 using Microsoft.Extensions.Options;
@@ -11,7 +10,7 @@ namespace GraphQL.Server.Transports.WebSockets
         private readonly ExecutionOptions<TSchema> _options;
 
         public ConfigurableExecuter(
-            IDocumentExecuter documentExecuter, 
+            IDocumentExecuter documentExecuter,
             TSchema schema,
             IOptions<ExecutionOptions<TSchema>> options) : base(documentExecuter, schema)
         {
@@ -23,12 +22,8 @@ namespace GraphQL.Server.Transports.WebSockets
             var options = base.GetOptions(operationName, query, variables);
 
             if (_options.Listeners != null)
-            {
                 foreach (var listener in _options.Listeners)
-                {
                     options.Listeners.Add(listener);
-                }
-            }
 
             options.EnableMetrics = _options.EnableMetrics;
             options.ComplexityConfiguration = _options.ComplexityConfiguration;

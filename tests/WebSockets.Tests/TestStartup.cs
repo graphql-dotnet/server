@@ -1,4 +1,3 @@
-using GraphQL.Server.Transports.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,7 +9,6 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<TestSchema>();
-            services.AddGraphQLHttp();
             services.AddGraphQLWebSocket<TestSchema>();
         }
 

@@ -3,9 +3,10 @@ using GraphQL.Execution;
 using GraphQL.Types;
 using Microsoft.Extensions.Options;
 
-namespace GraphQL.Server.Transports.AspNetCore
+namespace GraphQL.Server.Transports.WebSockets
 {
-    public class PostConfigureExecutionOptions<TSchema>: IPostConfigureOptions<ExecutionOptions<TSchema>> where TSchema : ISchema
+    public class PostConfigureExecutionOptions<TSchema> : IPostConfigureOptions<ExecutionOptions<TSchema>>
+        where TSchema : ISchema
     {
         private readonly IEnumerable<IDocumentExecutionListener> _listeners;
 

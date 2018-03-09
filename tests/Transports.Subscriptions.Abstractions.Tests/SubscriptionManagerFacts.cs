@@ -1,34 +1,113 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using GraphQL.Subscription;
 using NSubstitute;
-using NSubstitute.ExceptionExtensions;
 using Xunit;
 
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
 {
     public class SubscriptionManagerFacts
     {
-        private SubscriptionManager _sut;
-        private IGraphQLExecuter _executer;
-        private ITargetBlock<OperationMessage> _writer;
-
         public SubscriptionManagerFacts()
         {
             _writer = Substitute.For<ITargetBlock<OperationMessage>>();
             _executer = Substitute.For<IGraphQLExecuter>();
             _executer.ExecuteAsync(null, null, null).ReturnsForAnyArgs(
-                new SubscriptionExecutionResult()
+                new SubscriptionExecutionResult
                 {
-                    Streams = new Dictionary<string, IObservable<ExecutionResult>>()
+                    Streams = new Dictionary<string, IObservable<ExecutionResult>>
                     {
                         {"1", Substitute.For<IObservable<ExecutionResult>>()}
                     }
                 });
             _sut = new SubscriptionManager(_executer);
+        }
+
+        private readonly SubscriptionManager _sut;
+        private readonly IGraphQLExecuter _executer;
+        private readonly ITargetBlock<OperationMessage> _writer;
+
+        [Fact]
+        public async Task Failed_Subscribe_does_not_add()
+        {
+            /* Given */
+            var id = "1";
+            var payload = new OperationMessagePayload();
+
+            _executer.ExecuteAsync(null, null, null).ReturnsForAnyArgs(
+                new SubscriptionExecutionResult
+                {
+                    Errors = new ExecutionErrors
+                    {
+                        new ExecutionError("error")
+                    }
+                });
+
+            /* When */
+            await _sut.SubscribeAsync(id, payload, _writer);
+
+            /* Then */
+            Assert.Empty(_sut);
+        }
+
+        [Fact]
+        public async Task Failed_Subscribe_with_null_stream()
+        {
+            /* Given */
+            var id = "1";
+            var payload = new OperationMessagePayload();
+
+            _executer.ExecuteAsync(null, null, null).ReturnsForAnyArgs(
+                new SubscriptionExecutionResult
+                {
+                    Streams = new Dictionary<string, IObservable<ExecutionResult>>
+                    {
+                        {"1", null}
+                    }
+                });
+
+            /* When */
+            await _sut.SubscribeAsync(id, payload, _writer);
+
+            /* Then */
+            _writer.Received().OfferMessage(
+                Arg.Any<DataflowMessageHeader>(),
+                Arg.Is<OperationMessage>(
+                    message => message.Id == id
+                               && message.Type == MessageType.GQL_ERROR),
+                Arg.Any<ISourceBlock<OperationMessage>>(),
+                Arg.Any<bool>());
+        }
+
+        [Fact]
+        public async Task Failed_Subscribe_writes_error()
+        {
+            /* Given */
+            var id = "1";
+            var payload = new OperationMessagePayload();
+
+            _executer.ExecuteAsync(null, null, null).ReturnsForAnyArgs(
+                new SubscriptionExecutionResult
+                {
+                    Errors = new ExecutionErrors
+                    {
+                        new ExecutionError("error")
+                    }
+                });
+
+            /* When */
+            await _sut.SubscribeAsync(id, payload, _writer);
+
+            /* Then */
+            _writer.Received().OfferMessage(
+                Arg.Any<DataflowMessageHeader>(),
+                Arg.Is<OperationMessage>(
+                    message => message.Id == id
+                               && message.Type == MessageType.GQL_ERROR),
+                Arg.Any<ISourceBlock<OperationMessage>>(),
+                Arg.Any<bool>());
         }
 
         [Fact]
@@ -57,90 +136,9 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
 
             /* Then */
             _executer.Received().ExecuteAsync(
-                Arg.Is<string>(payload.OperationName),
-                Arg.Is<string>(payload.Query),
+                Arg.Is(payload.OperationName),
+                Arg.Is(payload.Query),
                 Arg.Any<dynamic>());
-        }
-
-        [Fact]
-        public async Task Failed_Subscribe_writes_error()
-        {
-            /* Given */
-            var id = "1";
-            var payload = new OperationMessagePayload();
-
-            _executer.ExecuteAsync(null, null, null).ReturnsForAnyArgs(
-                new SubscriptionExecutionResult()
-                {
-                    Errors = new ExecutionErrors()
-                    {
-                        new ExecutionError("error")
-                    }
-                });
-
-            /* When */
-            await _sut.SubscribeAsync(id, payload, _writer);
-
-            /* Then */
-            _writer.Received().OfferMessage(
-                Arg.Any<DataflowMessageHeader>(),
-                Arg.Is<OperationMessage>(
-                    message => message.Id == id
-                    && message.Type == MessageType.GQL_ERROR),
-                Arg.Any<ISourceBlock<OperationMessage>>(),
-                Arg.Any<bool>());
-        }
-
-        [Fact]
-        public async Task Failed_Subscribe_with_null_stream()
-        {
-            /* Given */
-            var id = "1";
-            var payload = new OperationMessagePayload();
-
-            _executer.ExecuteAsync(null, null, null).ReturnsForAnyArgs(
-                new SubscriptionExecutionResult()
-                {
-                    Streams = new Dictionary<string, IObservable<ExecutionResult>>()
-                    {
-                        {"1", null}
-                    }
-                });
-
-            /* When */
-            await _sut.SubscribeAsync(id, payload, _writer);
-
-            /* Then */
-            _writer.Received().OfferMessage(
-                Arg.Any<DataflowMessageHeader>(),
-                Arg.Is<OperationMessage>(
-                    message => message.Id == id
-                               && message.Type == MessageType.GQL_ERROR),
-                Arg.Any<ISourceBlock<OperationMessage>>(),
-                Arg.Any<bool>());
-        }
-
-        [Fact]
-        public async Task Failed_Subscribe_does_not_add()
-        {
-            /* Given */
-            var id = "1";
-            var payload = new OperationMessagePayload();
-
-            _executer.ExecuteAsync(null, null, null).ReturnsForAnyArgs(
-                new SubscriptionExecutionResult()
-                {
-                    Errors = new ExecutionErrors()
-                    {
-                        new ExecutionError("error")
-                    }
-                });
-
-            /* When */
-            await _sut.SubscribeAsync(id, payload, _writer);
-
-            /* Then */
-            Assert.Empty(_sut);
         }
 
         [Fact]

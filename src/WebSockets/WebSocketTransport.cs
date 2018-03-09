@@ -13,17 +13,17 @@ namespace GraphQL.Server.Transports.WebSockets
 {
     public class WebSocketTransport : IMessageTransport
     {
+        private readonly JsonSerializerSettings _serializerSettings;
         private readonly WebSocket _socket;
         private ISourceBlock<string> _messageReader;
         private ITargetBlock<OperationMessage> _messageWriter;
-        private readonly JsonSerializerSettings _serializerSettings;
 
         public WebSocketTransport(WebSocket socket)
         {
             _socket = socket;
             Reader = CreateReader();
             Writer = CreateWriter();
-            _serializerSettings = new JsonSerializerSettings()
+            _serializerSettings = new JsonSerializerSettings
             {
                 DateFormatHandling = DateFormatHandling.IsoDateFormat,
                 DateFormatString = "yyyy'-'MM'-'dd'T'HH':'mm':'ss.FFFFFFF'Z'",

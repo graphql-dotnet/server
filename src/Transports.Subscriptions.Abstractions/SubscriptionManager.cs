@@ -58,8 +58,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             OperationMessagePayload payload,
             ITargetBlock<OperationMessage> writer)
         {
-
-            ExecutionResult result = await _executer.ExecuteAsync(
+            var result = await _executer.ExecuteAsync(
                 payload.OperationName,
                 payload.Query,
                 payload.Variables);
@@ -96,18 +95,18 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
                     payload,
                     subscriptionExecutionResult,
                     writer,
-                    completed: sub => _subscriptions.TryRemove(id, out var _));
+                    sub => _subscriptions.TryRemove(id, out _));
             }
 
             //is query or mutation
-            await writer.SendAsync(new OperationMessage()
+            await writer.SendAsync(new OperationMessage
             {
                 Type = MessageType.GQL_DATA,
                 Id = id,
                 Payload = JObject.FromObject(result)
             });
 
-            await writer.SendAsync(new OperationMessage()
+            await writer.SendAsync(new OperationMessage
             {
                 Type = MessageType.GQL_COMPLETE,
                 Id = id

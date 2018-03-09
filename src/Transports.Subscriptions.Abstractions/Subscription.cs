@@ -9,14 +9,14 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 {
     public class Subscription : IObserver<ExecutionResult>
     {
-        private readonly ITargetBlock<OperationMessage> _writer;
         private readonly Action<Subscription> _completed;
+        private readonly ITargetBlock<OperationMessage> _writer;
         private IDisposable _unsubscribe;
 
         public Subscription(string id,
             OperationMessagePayload payload,
             SubscriptionExecutionResult result,
-            ITargetBlock<OperationMessage> writer, 
+            ITargetBlock<OperationMessage> writer,
             Action<Subscription> completed)
         {
             _writer = writer;

@@ -6,7 +6,7 @@ using GraphQL.Types;
 using GraphQL.Validation;
 using GraphQL.Validation.Complexity;
 
-namespace GraphQL.Server.Transports.AspNetCore
+namespace GraphQL.Server.Transports.WebSockets
 {
     public class ExecutionOptions<TSchema> where TSchema : ISchema
     {
@@ -17,12 +17,12 @@ namespace GraphQL.Server.Transports.AspNetCore
         public object UserContext { get; set; }
 
         public IFieldMiddlewareBuilder FieldMiddleware { get; set; } =
-             new FieldMiddlewareBuilder();
+            new FieldMiddlewareBuilder();
 
         public ComplexityConfiguration ComplexityConfiguration { get; set; }
 
         public IFieldNameConverter FieldNameConverter { get; set; } =
-             new CamelCaseFieldNameConverter();
+            new CamelCaseFieldNameConverter();
 
         public bool ExposeExceptions { get; set; }
 

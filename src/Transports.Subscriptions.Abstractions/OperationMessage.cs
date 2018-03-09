@@ -10,7 +10,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         public string Id { get; set; }
 
         /// <summary>
-        ///     Type <see cref="MessageType"/>
+        ///     Type <see cref="MessageType" />
         /// </summary>
         public string Type { get; set; }
 

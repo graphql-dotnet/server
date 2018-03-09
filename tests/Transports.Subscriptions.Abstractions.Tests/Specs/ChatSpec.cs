@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Threading.Tasks.Dataflow;
 using GraphQL.Samples.Schemas.Chat;
 using Newtonsoft.Json.Linq;
 using Xunit;
@@ -11,11 +10,6 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
 {
     public class ChatSpec
     {
-        private readonly Chat _chat;
-        private readonly TestableSubscriptionTransport _transport;
-        private readonly SubscriptionManager _subscriptions;
-        private SubscriptionServer _server;
-
         public ChatSpec()
         {
             _chat = new Chat();
@@ -27,67 +21,28 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
             _server = new SubscriptionServer(
                 _transport,
                 _subscriptions
-                );
+            );
         }
 
-        [Fact]
-        public async Task Query_messages()
+        private readonly Chat _chat;
+        private readonly TestableSubscriptionTransport _transport;
+        private readonly SubscriptionManager _subscriptions;
+        private readonly SubscriptionServer _server;
+
+        private void AssertReceivedData(List<OperationMessage> writtenMessages, Predicate<JObject> predicate)
         {
-            /* Given */
-            _chat.AddMessage(new ReceivedMessage()
-            {
-                Content = "test",
-                FromId = "1",
-                SentAt = DateTime.Now
-            });
+            var dataMessages = writtenMessages.Where(m => m.Type == MessageType.GQL_DATA);
+            var results = dataMessages.Select(m => m.Payload["data"] as JObject)
+                .ToList();
 
-            var id = "1";
-            _transport.AddMessageToRead(new OperationMessage()
-            {
-                Id = id,
-                Type = MessageType.GQL_CONNECTION_INIT
-            });
-            _transport.AddMessageToRead(new OperationMessage()
-            {
-                Id = id,
-                Type = MessageType.GQL_START,
-                Payload = JObject.FromObject(new OperationMessagePayload()
-                {
-                    OperationName = "",
-                    Query = @"query AllMessages { 
-    messages {
-        content
-        sentAt
-        from {
-            id
-            displayName
-        }
-    }
-}"
-                })
-
-            });
-            _transport.AddMessageToRead(new OperationMessage()
-            {
-                Id = id,
-                Type = MessageType.GQL_CONNECTION_TERMINATE
-            });
-
-            /* When */
-            await _server.ReceiveMessagesAsync();
-
-            /* Then */
-            Assert.Contains(_transport.WrittenMessages, message => message.Type == MessageType.GQL_CONNECTION_ACK);
-            Assert.Contains(_transport.WrittenMessages, message => message.Type == MessageType.GQL_DATA);
-            Assert.Contains(_transport.WrittenMessages, message => message.Type == MessageType.GQL_COMPLETE);
-
+            Assert.Contains(results, predicate);
         }
 
         [Fact]
         public async Task Mutate_messages()
         {
             /* Given */
-            _chat.AddMessage(new ReceivedMessage()
+            _chat.AddMessage(new ReceivedMessage
             {
                 Content = "test",
                 FromId = "1",
@@ -95,16 +50,16 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
             });
 
             var id = "1";
-            _transport.AddMessageToRead(new OperationMessage()
+            _transport.AddMessageToRead(new OperationMessage
             {
                 Id = id,
                 Type = MessageType.GQL_CONNECTION_INIT
             });
-            _transport.AddMessageToRead(new OperationMessage()
+            _transport.AddMessageToRead(new OperationMessage
             {
                 Id = id,
                 Type = MessageType.GQL_START,
-                Payload = JObject.FromObject(new OperationMessagePayload()
+                Payload = JObject.FromObject(new OperationMessagePayload
                 {
                     OperationName = "",
                     Query = @"mutation AddMessage($message: MessageInputType!) {
@@ -123,9 +78,8 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
     }
 }")
                 })
-
             });
-            _transport.AddMessageToRead(new OperationMessage()
+            _transport.AddMessageToRead(new OperationMessage
             {
                 Id = id,
                 Type = MessageType.GQL_CONNECTION_TERMINATE
@@ -138,7 +92,57 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
             Assert.Contains(_transport.WrittenMessages, message => message.Type == MessageType.GQL_CONNECTION_ACK);
             Assert.Contains(_transport.WrittenMessages, message => message.Type == MessageType.GQL_DATA);
             Assert.Contains(_transport.WrittenMessages, message => message.Type == MessageType.GQL_COMPLETE);
+        }
 
+        [Fact]
+        public async Task Query_messages()
+        {
+            /* Given */
+            _chat.AddMessage(new ReceivedMessage
+            {
+                Content = "test",
+                FromId = "1",
+                SentAt = DateTime.Now
+            });
+
+            var id = "1";
+            _transport.AddMessageToRead(new OperationMessage
+            {
+                Id = id,
+                Type = MessageType.GQL_CONNECTION_INIT
+            });
+            _transport.AddMessageToRead(new OperationMessage
+            {
+                Id = id,
+                Type = MessageType.GQL_START,
+                Payload = JObject.FromObject(new OperationMessagePayload
+                {
+                    OperationName = "",
+                    Query = @"query AllMessages { 
+    messages {
+        content
+        sentAt
+        from {
+            id
+            displayName
+        }
+    }
+}"
+                })
+            });
+            _transport.AddMessageToRead(new OperationMessage
+            {
+                Id = id,
+                Type = MessageType.GQL_CONNECTION_TERMINATE
+            });
+
+            /* When */
+            await _server.ReceiveMessagesAsync();
+
+            /* Then */
+            Assert.Contains(_transport.WrittenMessages, message => message.Type == MessageType.GQL_CONNECTION_ACK);
+            Assert.Contains(_transport.WrittenMessages, message => message.Type == MessageType.GQL_DATA);
+            Assert.Contains(_transport.WrittenMessages, message => message.Type == MessageType.GQL_COMPLETE);
         }
 
         [Fact]
@@ -147,16 +151,16 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
             /* Given */
             // subscribe
             var id = "1";
-            _transport.AddMessageToRead(new OperationMessage()
+            _transport.AddMessageToRead(new OperationMessage
             {
                 Id = id,
                 Type = MessageType.GQL_CONNECTION_INIT
             });
-            _transport.AddMessageToRead(new OperationMessage()
+            _transport.AddMessageToRead(new OperationMessage
             {
                 Id = id,
                 Type = MessageType.GQL_START,
-                Payload = JObject.FromObject(new OperationMessagePayload()
+                Payload = JObject.FromObject(new OperationMessagePayload
                 {
                     OperationName = "",
                     Query = @"subscription MessageAdded {
@@ -167,23 +171,19 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
   }
 }"
                 })
-
             });
 
-            while (!_subscriptions.Any())
-            {
-                await Task.Delay(TimeSpan.FromMilliseconds(200));
-            }
+            while (!_subscriptions.Any()) await Task.Delay(TimeSpan.FromMilliseconds(200));
 
             // post message
-            _chat.AddMessage(new ReceivedMessage()
+            _chat.AddMessage(new ReceivedMessage
             {
                 FromId = "1",
                 Content = "content",
                 SentAt = DateTime.Now
             });
 
-            _chat.AddMessage(new ReceivedMessage()
+            _chat.AddMessage(new ReceivedMessage
             {
                 FromId = "2",
                 Content = "content",
@@ -192,7 +192,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
             /* When */
 
 
-            _transport.AddMessageToRead(new OperationMessage()
+            _transport.AddMessageToRead(new OperationMessage
             {
                 Id = id,
                 Type = MessageType.GQL_CONNECTION_TERMINATE
@@ -204,16 +204,6 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
             Assert.Contains(_transport.WrittenMessages, message => message.Type == MessageType.GQL_CONNECTION_ACK);
             AssertReceivedData(_transport.WrittenMessages, data => data.ContainsKey("messageAdded"));
             Assert.Contains(_transport.WrittenMessages, message => message.Type == MessageType.GQL_COMPLETE);
-
-        }
-
-        private void AssertReceivedData(List<OperationMessage> writtenMessages, Predicate<JObject> predicate)
-        {
-            var dataMessages = writtenMessages.Where(m => m.Type == MessageType.GQL_DATA);
-            var results = dataMessages.Select(m => m.Payload["data"] as JObject)
-                .ToList();
-
-            Assert.Contains(results, predicate);
         }
     }
 }

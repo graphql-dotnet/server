@@ -11,15 +11,22 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
 {
     public class WebSocketsConnectionFacts
     {
-        private readonly TestServer _server;
-
         public WebSocketsConnectionFacts()
         {
             _server = new TestServer(WebHost
                 .CreateDefaultBuilder()
                 .UseStartup<TestStartup>());
         }
-        
+
+        private readonly TestServer _server;
+
+        private Task<WebSocket> ConnectAsync(string protocol)
+        {
+            var client = _server.CreateWebSocketClient();
+            client.ConfigureRequest = request => { request.Headers.Add("Sec-WebSocket-Protocol", protocol); };
+            return client.ConnectAsync(new Uri("http://localhost/graphql"), CancellationToken.None);
+        }
+
         [Fact]
         public async Task should_accept_websocket_connection()
         {
@@ -42,16 +49,6 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
 
             /* Then */
             Assert.Equal(WebSocketCloseStatus.ProtocolError, received.CloseStatus);
-        }
-
-        private Task<WebSocket> ConnectAsync(string protocol)
-        {
-            var client = _server.CreateWebSocketClient();
-            client.ConfigureRequest = request =>
-            {
-                request.Headers.Add("Sec-WebSocket-Protocol", protocol);
-            };
-            return client.ConnectAsync(new Uri("http://localhost/graphql"), CancellationToken.None);
         }
     }
 }

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Threading.Tasks.Dataflow;
 using GraphQL.Subscription;
 using Newtonsoft.Json.Linq;
 using NSubstitute;
@@ -33,6 +32,14 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         private readonly ISubscriptionManager _subscriptionManager;
         private readonly IGraphQLExecuter _documentExecuter;
 
+        private void AddTerminate()
+        {
+            _transport.AddMessageToRead(new OperationMessage
+            {
+                Type = MessageType.GQL_CONNECTION_TERMINATE
+            });
+        }
+
         [Fact]
         public async Task Receive_init()
         {
@@ -50,14 +57,6 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             /* Then */
             Assert.Contains(_transport.WrittenMessages,
                 message => message.Type == MessageType.GQL_CONNECTION_ACK);
-        }
-
-        private void AddTerminate()
-        {
-            _transport.AddMessageToRead(new OperationMessage()
-            {
-                Type = MessageType.GQL_CONNECTION_TERMINATE
-            });
         }
 
         [Fact]

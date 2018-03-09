@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
@@ -26,6 +23,12 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
 
         public Task Completion => Task.WhenAll(_readBuffer.Completion, Writer.Completion);
 
+        public void Complete()
+        {
+            _readBuffer.Complete();
+            Writer.Complete();
+        }
+
         private ITargetBlock<OperationMessage> CreateWriter()
         {
             return new ActionBlock<OperationMessage>(message => { WrittenMessages.Add(message); });
@@ -40,12 +43,6 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         public bool AddMessageToRead(OperationMessage message)
         {
             return _readBuffer.Post(message);
-        }
-
-        public void Complete()
-        {
-            _readBuffer.Complete();
-            Writer.Complete();
         }
     }
 }

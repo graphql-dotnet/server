@@ -1,4 +1,3 @@
-using System;
 using System.Net.WebSockets;
 using System.Threading.Tasks;
 using GraphQL.Server.Transports.Subscriptions.Abstractions;
@@ -10,9 +9,9 @@ namespace GraphQL.Server.Transports.WebSockets
 {
     public class GraphQLWebSocketsMiddleware<TSchema> where TSchema : ISchema
     {
+        private readonly IGraphQLExecuter _executer;
         private readonly RequestDelegate _next;
         private readonly GraphQLWebSocketsOptions _options;
-        private readonly IGraphQLExecuter _executer;
 
         public GraphQLWebSocketsMiddleware(
             RequestDelegate next,
@@ -37,15 +36,9 @@ namespace GraphQL.Server.Transports.WebSockets
 
         private bool IsGraphQLRequest(HttpContext context)
         {
-            if (!context.Request.Path.StartsWithSegments(_options.Path))
-            {
-                return false;
-            }
+            if (!context.Request.Path.StartsWithSegments(_options.Path)) return false;
 
-            if (!context.WebSockets.IsWebSocketRequest)
-            {
-                return false;
-            }
+            if (!context.WebSockets.IsWebSocketRequest) return false;
 
             return true;
         }
@@ -67,7 +60,7 @@ namespace GraphQL.Server.Transports.WebSockets
             }
 
             var connection = new WebSocketConnection(
-                socket, 
+                socket,
                 context.Connection.Id,
                 new SubscriptionManager(_executer));
 
