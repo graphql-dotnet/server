@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using GraphQL.Subscription;
+using Newtonsoft.Json.Linq;
 using NSubstitute;
 using Xunit;
 
@@ -59,7 +60,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             {
                 Type = MessageType.GQL_START,
                 Id = "1",
-                Payload = new OperationMessagePayload
+                Payload = JObject.FromObject(new OperationMessagePayload
                 {
                     Query = @"mutation AddMessage($message: MessageInputType!) {
   addMessage(message: $message) {
@@ -70,7 +71,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
     content
   }
 }"
-                }
+                })
             };
             _transport.AddMessageToRead(expected);
             _transport.Complete();
@@ -96,7 +97,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             {
                 Type = MessageType.GQL_START,
                 Id = "1",
-                Payload = new OperationMessagePayload
+                Payload = JObject.FromObject(new OperationMessagePayload
                 {
                     Query = @"{
   human() {
@@ -104,7 +105,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         height
     }
 }"
-                }
+                })
             };
             _transport.AddMessageToRead(expected);
             _transport.Complete();
@@ -128,7 +129,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             {
                 Type = MessageType.GQL_START,
                 Id = "1",
-                Payload = new OperationMessagePayload
+                Payload = JObject.FromObject(new OperationMessagePayload
                 {
                     Query = @"subscription MessageAdded {
   messageAdded {
@@ -136,7 +137,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
     content
   }
 }"
-                }
+                })
             };
             _transport.AddMessageToRead(expected);
             _transport.Complete();
@@ -156,10 +157,10 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             {
                 Type = MessageType.GQL_START,
                 Id = "1",
-                Payload = new OperationMessagePayload
+                Payload = JObject.FromObject(new OperationMessagePayload
                 {
                     Query = "query"
-                }
+                })
             };
             _transport.AddMessageToRead(subscribe);
 
@@ -186,10 +187,10 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             {
                 Type = MessageType.GQL_CONNECTION_TERMINATE,
                 Id = "1",
-                Payload = new OperationMessagePayload
+                Payload = JObject.FromObject(new OperationMessagePayload
                 {
                     Query = "query"
-                }
+                })
             };
             _transport.AddMessageToRead(subscribe);
 

@@ -51,7 +51,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
             {
                 Id = id,
                 Type = MessageType.GQL_START,
-                Payload = new OperationMessagePayload()
+                Payload = JObject.FromObject(new OperationMessagePayload()
                 {
                     OperationName = "",
                     Query = @"query AllMessages { 
@@ -64,7 +64,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
         }
     }
 }"
-                }
+                })
 
             });
             _transport.AddMessageToRead(new OperationMessage()
@@ -104,7 +104,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
             {
                 Id = id,
                 Type = MessageType.GQL_START,
-                Payload = new OperationMessagePayload()
+                Payload = JObject.FromObject(new OperationMessagePayload()
                 {
                     OperationName = "",
                     Query = @"mutation AddMessage($message: MessageInputType!) {
@@ -122,7 +122,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
         ""fromId"": ""1""
     }
 }")
-                }
+                })
 
             });
             _transport.AddMessageToRead(new OperationMessage()
@@ -156,7 +156,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
             {
                 Id = id,
                 Type = MessageType.GQL_START,
-                Payload = new OperationMessagePayload()
+                Payload = JObject.FromObject(new OperationMessagePayload()
                 {
                     OperationName = "",
                     Query = @"subscription MessageAdded {
@@ -166,7 +166,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
     sentAt
   }
 }"
-                }
+                })
 
             });
 
@@ -207,12 +207,10 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
 
         }
 
-        private void AssertReceivedData(List<OperationMessage> writtenMessages, Predicate<IDictionary<string, object>> predicate)
+        private void AssertReceivedData(List<OperationMessage> writtenMessages, Predicate<JObject> predicate)
         {
             var dataMessages = writtenMessages.Where(m => m.Type == MessageType.GQL_DATA);
-            var results = dataMessages.Select(m => m.Payload)
-                .OfType<ExecutionResult>()
-                .Select(r => r.Data as IDictionary<string,object>)
+            var results = dataMessages.Select(m => m.Payload["data"] as JObject)
                 .ToList();
 
             Assert.Contains(results, predicate);

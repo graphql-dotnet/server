@@ -9,11 +9,11 @@ using Xunit;
 
 namespace GraphQL.Server.Transports.WebSockets.Tests
 {
-    public class WebSocketsTransportFacts
+    public class WebSocketsConnectionFacts
     {
         private readonly TestServer _server;
 
-        public WebSocketsTransportFacts()
+        public WebSocketsConnectionFacts()
         {
             _server = new TestServer(WebHost
                 .CreateDefaultBuilder()

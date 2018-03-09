@@ -20,12 +20,18 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         private readonly ITargetBlock<OperationMessage> _writer;
 
         [Fact]
-        public async Task Write_Complete_on_ubsubscribe()
+        public async Task Write_Complete_on_unsubscribe()
         {
             /* Given */
             var id = "1";
             var payload = new OperationMessagePayload();
-            var result = new SubscriptionExecutionResult();
+            var result = new SubscriptionExecutionResult()
+            {
+                Streams = new Dictionary<string, IObservable<ExecutionResult>>()
+                {
+                    {"1", Substitute.For<IObservable<ExecutionResult>>()}
+                }
+            };
 
             var sut = new Subscription(id, payload, result, _writer, null);
 
