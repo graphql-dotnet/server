@@ -12,10 +12,6 @@ test: off
 skip_tags: false
 skip_branch_with_pr: true
 
-cache:
-# - '%USERPROFILE%\.nuget\packages' <- slow builds
-- tools -> tools\packages.config
-
 on_failure:
   - ps: Update-AppveyorBuild -Version "$($env:appveyor_build_version)-$(Get-Date -format HHmmss)-failed"
   
