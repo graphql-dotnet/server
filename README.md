@@ -28,6 +28,13 @@ public void ConfigureServices(IServiceCollection services)
 
     // add http transport    
     services.AddGraphQLHttp();
+    
+    // setup execution options for ChatSchema
+    services.Configure<ExecutionOptions<ChatSchema>>(options =>
+            {
+                options.EnableMetrics = true;
+                options.ExposeExceptions = true;
+            });
 
     // add websocket transport for ChatSchema
     services.AddGraphQLWebSocket<ChatSchema>();
