@@ -1,16 +1,22 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 {
     public class SubscriptionServer
     {
+        private readonly ILogger<SubscriptionServer> _logger;
         private readonly Task _completion;
 
-        public SubscriptionServer(IMessageTransport transport, ISubscriptionManager subscriptions)
+        public SubscriptionServer(
+            IMessageTransport transport, 
+            ISubscriptionManager subscriptions, 
+            ILogger<SubscriptionServer> logger)
         {
+            _logger = logger;
             Subscriptions = subscriptions;
             Transport = transport;
             _completion = LinkToTransportReader();
@@ -22,6 +28,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 
         private Task LinkToTransportReader()
         {
+            _logger.LogDebug("Creating reader pipeline");
             var handler = new ActionBlock<OperationMessage>(HandleMessageAsync, new ExecutionDataflowBlockOptions
             {
                 EnsureOrdered = true
@@ -42,11 +49,13 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
                 PropagateCompletion = true
             });
 
+            _logger.LogDebug("Reader pipeline created");
             return handler.Completion;
         }
 
         private Task HandleMessageAsync(OperationMessage message)
         {
+            _logger.LogDebug("Handling message: {id} of type: {type}", message.Id, message.Type);
             switch (message.Type)
             {
                 case MessageType.GQL_CONNECTION_INIT:
@@ -58,12 +67,13 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
                 case MessageType.GQL_CONNECTION_TERMINATE:
                     return HandleTerminateAsync(message);
                 default:
-                    return WriteErrorAsync(message);
+                    return HandleUnknownAsync(message);
             }
         }
 
-        private Task WriteErrorAsync(OperationMessage message)
+        private Task HandleUnknownAsync(OperationMessage message)
         {
+            _logger.LogError($"Unexpected message type: {message.Type}");
             return Transport.Writer.SendAsync(new OperationMessage
             {
                 Type = MessageType.GQL_CONNECTION_ERROR,
@@ -81,6 +91,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 
         private async Task HandleTerminateAsync(OperationMessage message)
         {
+            _logger.LogInformation("Handle terminate");
             foreach (var subscription in Subscriptions)
                 await Subscriptions.UnsubscribeAsync(subscription.Id);
 
@@ -89,11 +100,13 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 
         private Task HandleStopAsync(OperationMessage message)
         {
+            _logger.LogInformation("Handle stop: {id}", message.Id);
             return Subscriptions.UnsubscribeAsync(message.Id);
         }
 
         private Task HandleStartAsync(OperationMessage message)
         {
+            _logger.LogInformation("Handle start: {id}", message.Id);
             var payload = message.Payload.ToObject<OperationMessagePayload>();
             if (payload == null)
                 throw new InvalidOperationException($"Could not get OperationMessagePayload from message.Payload");
@@ -106,15 +119,25 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 
         private Task HandleInitAsync(OperationMessage message)
         {
+            _logger.LogInformation("Handle init");
             return Transport.Writer.SendAsync(new OperationMessage
             {
                 Type = MessageType.GQL_CONNECTION_ACK
             });
         }
 
-        public Task ReceiveMessagesAsync()
+        public Task OnConnected()
         {
-            return Transport.Completion;
+            _logger.LogInformation("Serving...");
+            return Task.WhenAll(Transport.Completion, _completion).ContinueWith(
+                result =>
+                {
+                    if (result.Exception != null)
+                    {
+                        _logger.LogError("Server closed with error: {error}", result.Exception);
+                    }
+                    _logger.LogInformation("Server stopped");
+                });
         }
     }
 }

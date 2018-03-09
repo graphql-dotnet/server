@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using GraphQL.Samples.Schemas.Chat;
+using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json.Linq;
 using Xunit;
 
@@ -20,7 +21,8 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
                     new ChatSchema(_chat)));
             _server = new SubscriptionServer(
                 _transport,
-                _subscriptions
+                _subscriptions,
+                new NullLogger<SubscriptionServer>()
             );
         }
 
@@ -86,7 +88,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
             });
 
             /* When */
-            await _server.ReceiveMessagesAsync();
+            await _server.OnConnected();
 
             /* Then */
             Assert.Contains(_transport.WrittenMessages, message => message.Type == MessageType.GQL_CONNECTION_ACK);
@@ -137,7 +139,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
             });
 
             /* When */
-            await _server.ReceiveMessagesAsync();
+            await _server.OnConnected();
 
             /* Then */
             Assert.Contains(_transport.WrittenMessages, message => message.Type == MessageType.GQL_CONNECTION_ACK);
@@ -198,7 +200,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
                 Type = MessageType.GQL_CONNECTION_TERMINATE
             });
 
-            await _server.ReceiveMessagesAsync();
+            await _server.OnConnected();
 
             /* Then */
             Assert.Contains(_transport.WrittenMessages, message => message.Type == MessageType.GQL_CONNECTION_ACK);
