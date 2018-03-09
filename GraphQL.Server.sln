@@ -32,9 +32,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ui.Playground", "src\Ui.Pla
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ui.GraphiQL", "src\Ui.GraphiQL\Ui.GraphiQL.csproj", "{B83414A2-F9E3-44CC-982F-5D830F54BED3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Transports.Subscriptions.Abstractions", "src\Transports.Subscriptions.Abstractions\Transports.Subscriptions.Abstractions.csproj", "{008D98EF-04FA-4C90-A833-A46799DA0BE4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Transports.Subscriptions.Abstractions", "src\Transports.Subscriptions.Abstractions\Transports.Subscriptions.Abstractions.csproj", "{008D98EF-04FA-4C90-A833-A46799DA0BE4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Transports.Subscriptions.Abstractions.Tests", "tests\Transports.Subscriptions.Abstractions.Tests\Transports.Subscriptions.Abstractions.Tests.csproj", "{1D36AB04-82FD-4EDC-94C2-D1BA29E170EC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Transports.Subscriptions.Abstractions.Tests", "tests\Transports.Subscriptions.Abstractions.Tests\Transports.Subscriptions.Abstractions.Tests.csproj", "{1D36AB04-82FD-4EDC-94C2-D1BA29E170EC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -83,7 +83,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{EB56A378-89E5-4425-BFA6-6BA0F4A67432} = {DD6938E1-E98D-4BD4-9882-FE1CE79F7306}
 		{85FBD882-AC9F-419F-95ED-42BBBC199CC2} = {DD6938E1-E98D-4BD4-9882-FE1CE79F7306}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution

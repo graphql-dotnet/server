@@ -37,7 +37,8 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
             /* Given */
             /* When */
             var socket = await ConnectAsync("do-not-accept").ConfigureAwait(false);
-            var received = await socket.ReceiveAsync(ArraySegment<byte>.Empty, CancellationToken.None).ConfigureAwait(false);
+            var segment = new ArraySegment<byte>(new byte[1024]);
+            var received = await socket.ReceiveAsync(segment, CancellationToken.None).ConfigureAwait(false);
 
             /* Then */
             Assert.Equal(WebSocketCloseStatus.ProtocolError, received.CloseStatus);
