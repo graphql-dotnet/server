@@ -131,7 +131,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         }
 
         [Fact]
-        public async Task Receive_start_subscription()
+        public void Receive_start_subscription()
         {
             /* Given */
             var expected = new OperationMessage

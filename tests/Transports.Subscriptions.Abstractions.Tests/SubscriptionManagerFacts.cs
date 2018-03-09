@@ -135,7 +135,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             await _sut.SubscribeAsync(id, payload, _writer);
 
             /* Then */
-            _executer.Received().ExecuteAsync(
+            await _executer.Received().ExecuteAsync(
                 Arg.Is(payload.OperationName),
                 Arg.Is(payload.Query),
                 Arg.Any<dynamic>());
