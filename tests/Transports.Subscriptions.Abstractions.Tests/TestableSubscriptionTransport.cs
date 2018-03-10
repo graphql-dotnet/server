@@ -6,39 +6,30 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
 {
     public class TestableSubscriptionTransport : IMessageTransport
     {
-        private BufferBlock<OperationMessage> _readBuffer;
+        private readonly BufferBlock<OperationMessage> _readBuffer;
 
         public TestableSubscriptionTransport()
         {
-            Writer = CreateWriter();
-            Reader = CreateReader();
             WrittenMessages = new List<OperationMessage>();
+            _readBuffer = new BufferBlock<OperationMessage>();
         }
 
         public List<OperationMessage> WrittenMessages { get; }
 
-        public ISourceBlock<OperationMessage> Reader { get; set; }
-
-        public ITargetBlock<OperationMessage> Writer { get; set; }
-
-        public Task Completion => Task.WhenAll(_readBuffer.Completion, Writer.Completion);
-
         public Task CloseAsync()
         {
             _readBuffer.Complete();
-            Writer.Complete();
-
             return Task.CompletedTask;
         }
 
-        private ITargetBlock<OperationMessage> CreateWriter()
+        public ITargetBlock<OperationMessage> CreateWriter()
         {
-            return new ActionBlock<OperationMessage>(message => { WrittenMessages.Add(message); });
+            var handler = new ActionBlock<OperationMessage>(message => { WrittenMessages.Add(message); });
+            return handler;
         }
 
-        private ISourceBlock<OperationMessage> CreateReader()
-        {
-            _readBuffer = new BufferBlock<OperationMessage>();
+        public ISourceBlock<OperationMessage> CreateReader()
+        { 
             return _readBuffer;
         }
 

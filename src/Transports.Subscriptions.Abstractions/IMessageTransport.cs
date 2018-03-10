@@ -5,11 +5,9 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 {
     public interface IMessageTransport
     {
-        ISourceBlock<OperationMessage> Reader { get; }
+        ISourceBlock<OperationMessage> CreateReader();
 
-        ITargetBlock<OperationMessage> Writer { get; }
-
-        Task Completion { get; }
+        ITargetBlock<OperationMessage> CreateWriter();
 
         Task CloseAsync();
     }

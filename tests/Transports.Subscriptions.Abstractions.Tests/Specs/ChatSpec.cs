@@ -89,6 +89,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
                 Id = id,
                 Type = MessageType.GQL_CONNECTION_TERMINATE
             });
+            await _transport.CloseAsync();
 
             /* When */
             await _server.OnConnect();
@@ -140,6 +141,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
                 Id = id,
                 Type = MessageType.GQL_CONNECTION_TERMINATE
             });
+            await _transport.CloseAsync();
 
             /* When */
             await _server.OnConnect();
@@ -178,8 +180,6 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
                 })
             });
 
-            while (!_subscriptions.Any()) await Task.Delay(TimeSpan.FromMilliseconds(200));
-
             // post message
             _chat.AddMessage(new ReceivedMessage
             {
@@ -194,15 +194,15 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
                 Content = "content",
                 SentAt = DateTime.Now
             });
+
             /* When */
-
-
             _transport.AddMessageToRead(new OperationMessage
             {
                 Id = id,
                 Type = MessageType.GQL_CONNECTION_TERMINATE
             });
 
+            await _transport.CloseAsync();
             await _server.OnConnect();
 
             /* Then */

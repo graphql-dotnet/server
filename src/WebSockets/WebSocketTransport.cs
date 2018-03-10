@@ -15,14 +15,10 @@ namespace GraphQL.Server.Transports.WebSockets
     {
         private readonly JsonSerializerSettings _serializerSettings;
         private readonly WebSocket _socket;
-        private ISourceBlock<string> _messageReader;
-        private ITargetBlock<OperationMessage> _messageWriter;
 
         public WebSocketTransport(WebSocket socket)
         {
             _socket = socket;
-            Reader = CreateReader();
-            Writer = CreateWriter();
             _serializerSettings = new JsonSerializerSettings
             {
                 DateFormatHandling = DateFormatHandling.IsoDateFormat,
@@ -34,17 +30,8 @@ namespace GraphQL.Server.Transports.WebSockets
 
         public WebSocketCloseStatus? CloseStatus => _socket.CloseStatus;
 
-        public ISourceBlock<OperationMessage> Reader { get; }
-
-        public ITargetBlock<OperationMessage> Writer { get; }
-
-        public Task Completion => Task.WhenAll(Reader.Completion, Writer.Completion);
-
         public Task CloseAsync()
         {
-            Writer.Complete();
-            Reader.Complete();
-
             if (_socket.State != WebSocketState.Open)
                 return Task.CompletedTask;
 
@@ -55,64 +42,30 @@ namespace GraphQL.Server.Transports.WebSockets
             return _socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closed", CancellationToken.None);
         }
 
-        private ITargetBlock<OperationMessage> CreateWriter()
+        public ITargetBlock<OperationMessage> CreateWriter()
         {
             var messageWriter = CreateMessageWriter();
-
             var transformer = CreateWriterJsonTransformer();
-            var buffer = new BufferBlock<OperationMessage>();
-
-            buffer.LinkTo(transformer, new DataflowLinkOptions
-            {
-                PropagateCompletion = true
-            });
 
             transformer.LinkTo(messageWriter, new DataflowLinkOptions
             {
                 PropagateCompletion = true
             });
 
-            _messageWriter = buffer;
-            return buffer;
+            return transformer;
         }
 
-        private ITargetBlock<string> CreateMessageWriter()
+        public ISourceBlock<OperationMessage> CreateReader()
         {
-            var target = new ActionBlock<string>(
-                WriteMessageAsync, new ExecutionDataflowBlockOptions
-                {
-                    BoundedCapacity = 1,
-                    MaxDegreeOfParallelism = 1,
-                    EnsureOrdered = true
-                });
-
-            return target;
-        }
-
-        private Task WriteMessageAsync(string message)
-        {
-            if (CloseStatus.HasValue) return Task.CompletedTask;
-
-            var messageSegment = new ArraySegment<byte>(Encoding.UTF8.GetBytes(message));
-            return _socket.SendAsync(messageSegment, WebSocketMessageType.Text, true, CancellationToken.None);
-        }
-
-        private ISourceBlock<OperationMessage> CreateReader()
-        {
-            _messageReader = CreateMessageReader();
+            var messageReader = CreateMessageReader();
             var jsonTransformer = CreateReaderJsonTransformer();
-            var buffer = new BufferBlock<OperationMessage>();
 
-            _messageReader.LinkTo(jsonTransformer, new DataflowLinkOptions
-            {
-                PropagateCompletion = true
-            });
-            jsonTransformer.LinkTo(buffer, new DataflowLinkOptions
+            messageReader.LinkTo(jsonTransformer, new DataflowLinkOptions
             {
                 PropagateCompletion = true
             });
 
-            return buffer;
+            return jsonTransformer;
         }
 
         protected IPropagatorBlock<OperationMessage, string> CreateWriterJsonTransformer()
@@ -156,6 +109,27 @@ namespace GraphQL.Server.Transports.WebSockets
             });
 
             return source;
+        }
+
+        private ITargetBlock<string> CreateMessageWriter()
+        {
+            var target = new ActionBlock<string>(
+                WriteMessageAsync, new ExecutionDataflowBlockOptions
+                {
+                    BoundedCapacity = 1,
+                    MaxDegreeOfParallelism = 1,
+                    EnsureOrdered = true
+                });
+
+            return target;
+        }
+
+        private Task WriteMessageAsync(string message)
+        {
+            if (CloseStatus.HasValue) return Task.CompletedTask;
+
+            var messageSegment = new ArraySegment<byte>(Encoding.UTF8.GetBytes(message));
+            return _socket.SendAsync(messageSegment, WebSocketMessageType.Text, true, CancellationToken.None);
         }
 
         private async Task ReadMessageAsync(ITargetBlock<string> target)

@@ -11,7 +11,8 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
     {
         private readonly IEnumerable<IOperationMessageListener> _operationMessageListeners;
         private readonly ILogger<SubscriptionServer> _logger;
-        private readonly Task _completion;
+        private ActionBlock<OperationMessage> _handler;
+        private ITargetBlock<OperationMessage> _writer;
 
         public SubscriptionServer(
             IMessageTransport transport, 
@@ -23,38 +24,28 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             _logger = logger;
             Subscriptions = subscriptions;
             Transport = transport;
-            _completion = LinkToTransportReader();
         }
 
         public IMessageTransport Transport { get; }
 
         public ISubscriptionManager Subscriptions { get; }
-
-        private Task LinkToTransportReader()
+        
+        private void LinkToTransportReader()
         {
             _logger.LogDebug("Creating reader pipeline");
+            var transportReader = Transport.CreateReader();
             var handler = new ActionBlock<OperationMessage>(HandleMessageAsync, new ExecutionDataflowBlockOptions
             {
                 EnsureOrdered = true
             });
 
-            var reader = new BufferBlock<OperationMessage>(new DataflowBlockOptions
-            {
-                EnsureOrdered = true
-            });
-
-            reader.LinkTo(handler, new DataflowLinkOptions
+            transportReader.LinkTo(handler, new DataflowLinkOptions()
             {
                 PropagateCompletion = true
             });
 
-            Transport.Reader.LinkTo(reader, new DataflowLinkOptions
-            {
-                PropagateCompletion = true
-            });
-
+            _handler = handler;
             _logger.LogDebug("Reader pipeline created");
-            return handler.Completion;
         }
 
         private async Task HandleMessageAsync(OperationMessage message)
@@ -99,7 +90,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         private Task HandleUnknownAsync(OperationMessage message)
         {
             _logger.LogError($"Unexpected message type: {message.Type}");
-            return Transport.Writer.SendAsync(new OperationMessage
+            return _writer.SendAsync(new OperationMessage
             {
                 Type = MessageType.GQL_CONNECTION_ERROR,
                 Id = message.Id,
@@ -144,13 +135,13 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             return Subscriptions.SubscribeAsync(
                 message.Id,
                 payload,
-                Transport.Writer);
+                _writer);
         }
 
         private Task HandleInitAsync(OperationMessage message)
         {
             _logger.LogInformation("Handle init");
-            return Transport.Writer.SendAsync(new OperationMessage
+            return _writer.SendAsync(new OperationMessage
             {
                 Type = MessageType.GQL_CONNECTION_ACK
             });
@@ -159,7 +150,10 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         public Task OnConnect()
         {
             _logger.LogInformation("Serving...");
-            return Task.WhenAll(Transport.Completion, _completion).ContinueWith(
+            LinkToTransportReader();
+            LinkToTransportWriter();
+
+            return Task.WhenAll(_handler.Completion).ContinueWith(
                 result =>
                 {
                     if (result.Exception != null)
@@ -168,6 +162,13 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
                     }
                     _logger.LogInformation("Server stopped");
                 });
+        }
+
+        private void LinkToTransportWriter()
+        {
+            _logger.LogDebug("Creating writer pipeline");
+            _writer = Transport.CreateWriter();
+            _logger.LogDebug("Writer pipeline created");
         }
 
         public Task OnDisconnect()

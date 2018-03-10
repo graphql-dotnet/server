@@ -39,14 +39,6 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         private readonly IGraphQLExecuter _documentExecuter;
         private readonly IOperationMessageListener _messageListener;
 
-        private void AddTerminate()
-        {
-            _transport.AddMessageToRead(new OperationMessage
-            {
-                Type = MessageType.GQL_CONNECTION_TERMINATE
-            });
-        }
-
         [Fact]
         public async Task Listener_Handle()
         {
@@ -56,7 +48,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
                 Type = MessageType.GQL_CONNECTION_INIT
             };
             _transport.AddMessageToRead(expected);
-            AddTerminate();
+            await _transport.CloseAsync();
 
             /* When */
             await _sut.OnConnect();
@@ -74,7 +66,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
                 Type = MessageType.GQL_CONNECTION_INIT
             };
             _transport.AddMessageToRead(expected);
-            AddTerminate();
+            await _transport.CloseAsync();
 
             /* When */
             await _sut.OnConnect();
@@ -92,7 +84,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
                 Type = MessageType.GQL_CONNECTION_INIT
             };
             _transport.AddMessageToRead(expected);
-            AddTerminate();
+            await _transport.CloseAsync();
 
             /* When */
             await _sut.OnConnect();
@@ -126,7 +118,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
                 })
             };
             _transport.AddMessageToRead(expected);
-            AddTerminate();
+            await _transport.CloseAsync();
 
             /* When */
             await _sut.OnConnect();
@@ -160,7 +152,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
                 })
             };
             _transport.AddMessageToRead(expected);
-            AddTerminate();
+            await _transport.CloseAsync();
 
             /* When */
             await _sut.OnConnect();
@@ -174,7 +166,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         }
 
         [Fact]
-        public void Receive_start_subscription()
+        public async Task Receive_start_subscription()
         {
             /* Given */
             var expected = new OperationMessage
@@ -192,11 +184,10 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
                 })
             };
             _transport.AddMessageToRead(expected);
+            await _transport.CloseAsync();
 
             /* When */
-            while (!_subscriptionManager.Any())
-            {
-            }
+            await _sut.OnConnect();
 
             /* Then */
             Assert.Single(_sut.Subscriptions, sub => sub.Id == expected.Id);
@@ -223,7 +214,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
                 Id = "1"
             };
             _transport.AddMessageToRead(unsubscribe);
-            AddTerminate();
+            await _transport.CloseAsync();
 
             /* When */
             await _sut.OnConnect();
@@ -246,6 +237,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
                 })
             };
             _transport.AddMessageToRead(subscribe);
+            await _transport.CloseAsync();
 
             /* When */
             await _sut.OnConnect();
@@ -263,7 +255,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
                 Type = "x"
             };
             _transport.AddMessageToRead(expected);
-            AddTerminate();
+            await _transport.CloseAsync();
 
             /* When */
             await _sut.OnConnect();
