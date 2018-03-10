@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using Microsoft.Extensions.Logging;
@@ -8,14 +9,17 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 {
     public class SubscriptionServer
     {
+        private readonly IEnumerable<IOperationMessageListener> _operationMessageListeners;
         private readonly ILogger<SubscriptionServer> _logger;
         private readonly Task _completion;
 
         public SubscriptionServer(
             IMessageTransport transport, 
             ISubscriptionManager subscriptions, 
+            IEnumerable<IOperationMessageListener> operationMessageListeners,
             ILogger<SubscriptionServer> logger)
         {
+            _operationMessageListeners = operationMessageListeners;
             _logger = logger;
             Subscriptions = subscriptions;
             Transport = transport;
@@ -53,22 +57,43 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             return handler.Completion;
         }
 
-        private Task HandleMessageAsync(OperationMessage message)
+        private async Task HandleMessageAsync(OperationMessage message)
         {
             _logger.LogDebug("Handling message: {id} of type: {type}", message.Id, message.Type);
+            await OnHandleMessageAsync(message);
+
             switch (message.Type)
             {
                 case MessageType.GQL_CONNECTION_INIT:
-                    return HandleInitAsync(message);
+                    await HandleInitAsync(message);
+                    break;
                 case MessageType.GQL_START:
-                    return HandleStartAsync(message);
+                    await HandleStartAsync(message);
+                    break;
                 case MessageType.GQL_STOP:
-                    return HandleStopAsync(message);
+                    await HandleStopAsync(message);
+                    break;
                 case MessageType.GQL_CONNECTION_TERMINATE:
-                    return HandleTerminateAsync(message);
+                    await HandleTerminateAsync(message);
+                    break;
                 default:
-                    return HandleUnknownAsync(message);
+                    await HandleUnknownAsync(message);
+                    break;
             }
+
+            await OnMessageHandledAsync(message);
+        }
+
+        private async Task OnHandleMessageAsync(OperationMessage message)
+        {
+            foreach (var listener in _operationMessageListeners)
+                await listener.OnHandleMessageAsync(Transport, message);
+        }
+
+        private async Task OnMessageHandledAsync(OperationMessage message)
+        {
+            foreach (var listener in _operationMessageListeners)
+                await listener.OnMessageHandledAsync(Transport, message);
         }
 
         private Task HandleUnknownAsync(OperationMessage message)

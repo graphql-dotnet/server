@@ -13,6 +13,7 @@ namespace GraphQL.Server.Transports.WebSockets
     {
         private readonly IGraphQLExecuter _executer;
         private readonly RequestDelegate _next;
+        private readonly IEnumerable<IOperationMessageListener> _messageListeners;
         private readonly ILoggerFactory _loggerFactory;
         private readonly GraphQLWebSocketsOptions _options;
         private readonly ILogger _logger;
@@ -21,9 +22,11 @@ namespace GraphQL.Server.Transports.WebSockets
             RequestDelegate next,
             IGraphQLExecuterFactory executerFactory,
             IOptions<GraphQLWebSocketsOptions> options,
+            IEnumerable<IOperationMessageListener> messageListeners,
             ILoggerFactory loggerFactory)
         {
             _next = next;
+            _messageListeners = messageListeners;
             _loggerFactory = loggerFactory;
             _executer = executerFactory.Create<TSchema>();
             _options = options.Value;
@@ -86,6 +89,7 @@ namespace GraphQL.Server.Transports.WebSockets
                     socket,
                     context.Connection.Id,
                     new SubscriptionManager(_executer, _loggerFactory),
+                    _messageListeners,
                     _loggerFactory);
 
                 await connection.Connect();

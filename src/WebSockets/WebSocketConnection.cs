@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.WebSockets;
 using System.Threading.Tasks;
 using GraphQL.Server.Transports.Subscriptions.Abstractions;
@@ -9,6 +11,7 @@ namespace GraphQL.Server.Transports.WebSockets
     {
         private readonly WebSocket _socket;
         private readonly ISubscriptionManager _subscriptionManager;
+        private readonly IEnumerable<IOperationMessageListener> _messageListeners;
         private readonly ILoggerFactory _loggerFactory;
         private SubscriptionServer _server;
         private readonly ILogger<WebSocketConnection> _logger;
@@ -17,11 +20,13 @@ namespace GraphQL.Server.Transports.WebSockets
             WebSocket socket,
             string connectionId,
             ISubscriptionManager subscriptionManager,
+            IEnumerable<IOperationMessageListener> messageListeners,
             ILoggerFactory loggerFactory)
         {
             ConnectionId = connectionId;
             _socket = socket;
             _subscriptionManager = subscriptionManager;
+            _messageListeners = messageListeners;
             _loggerFactory = loggerFactory;
             _logger = loggerFactory.CreateLogger<WebSocketConnection>();
         }
@@ -39,6 +44,7 @@ namespace GraphQL.Server.Transports.WebSockets
             _server = new SubscriptionServer(
                 CreateTransport(), 
                 _subscriptionManager,
+                _messageListeners,
                 _loggerFactory.CreateLogger<SubscriptionServer>());
 
             return _server.OnConnect();

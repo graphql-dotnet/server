@@ -14,6 +14,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
     {
         public SubscriptionServerFacts()
         {
+            _messageListener = Substitute.For<IOperationMessageListener>();
             _transport = new TestableSubscriptionTransport();
             _documentExecuter = Substitute.For<IGraphQLExecuter>();
             _documentExecuter.ExecuteAsync(null, null, null).ReturnsForAnyArgs(
@@ -25,13 +26,18 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
                     }
                 });
             _subscriptionManager = new SubscriptionManager(_documentExecuter, new NullLoggerFactory());
-            _sut = new SubscriptionServer(_transport, _subscriptionManager, new NullLogger<SubscriptionServer>());
+            _sut = new SubscriptionServer(
+                _transport,
+                _subscriptionManager,
+                new[] {_messageListener},
+                new NullLogger<SubscriptionServer>());
         }
 
         private readonly TestableSubscriptionTransport _transport;
         private readonly SubscriptionServer _sut;
         private readonly ISubscriptionManager _subscriptionManager;
         private readonly IGraphQLExecuter _documentExecuter;
+        private readonly IOperationMessageListener _messageListener;
 
         private void AddTerminate()
         {
@@ -39,6 +45,42 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             {
                 Type = MessageType.GQL_CONNECTION_TERMINATE
             });
+        }
+
+        [Fact]
+        public async Task Listener_Handle()
+        {
+            /* Given */
+            var expected = new OperationMessage
+            {
+                Type = MessageType.GQL_CONNECTION_INIT
+            };
+            _transport.AddMessageToRead(expected);
+            AddTerminate();
+
+            /* When */
+            await _sut.OnConnect();
+
+            /* Then */
+            await _messageListener.Received().OnHandleMessageAsync(_transport, expected);
+        }
+
+        [Fact]
+        public async Task Listener_Handled()
+        {
+            /* Given */
+            var expected = new OperationMessage
+            {
+                Type = MessageType.GQL_CONNECTION_INIT
+            };
+            _transport.AddMessageToRead(expected);
+            AddTerminate();
+
+            /* When */
+            await _sut.OnConnect();
+
+            /* Then */
+            await _messageListener.Received().OnMessageHandledAsync(_transport, expected);
         }
 
         [Fact]
