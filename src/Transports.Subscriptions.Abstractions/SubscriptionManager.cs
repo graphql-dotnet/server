@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
+using GraphQL.Server.Transports.Subscriptions.Abstractions.Internal;
 using GraphQL.Subscription;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions
@@ -12,13 +14,18 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
     public class SubscriptionManager : ISubscriptionManager
     {
         private readonly IGraphQLExecuter _executer;
+        private readonly ILoggerFactory _loggerFactory;
 
         private readonly ConcurrentDictionary<string, Subscription> _subscriptions =
             new ConcurrentDictionary<string, Subscription>();
 
-        public SubscriptionManager(IGraphQLExecuter executer)
+        private readonly ILogger<SubscriptionManager> _logger;
+
+        public SubscriptionManager(IGraphQLExecuter executer, ILoggerFactory loggerFactory)
         {
             _executer = executer;
+            _loggerFactory = loggerFactory;
+            _logger = loggerFactory.CreateLogger<SubscriptionManager>();
         }
 
         public Subscription this[string id] => _subscriptions[id];
@@ -45,6 +52,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             if (_subscriptions.TryRemove(id, out var removed))
                 return removed.UnsubscribeAsync();
 
+            _logger.LogInformation("Subscription: {subcriptionId} unsubscribed", id);
             return Task.CompletedTask;
         }
 
@@ -58,6 +66,10 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             OperationMessagePayload payload,
             ITargetBlock<OperationMessage> writer)
         {
+            _logger.LogDebug("Executing operation: {operationName} query: {query}",
+                payload.OperationName,
+                payload.Query);
+
             var result = await _executer.ExecuteAsync(
                 payload.OperationName,
                 payload.Query,
@@ -65,6 +77,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 
             if (result.Errors != null && result.Errors.Any())
             {
+                _logger.LogError("Execution errors: {errors}", ResultHelper.GetErrorString(result));
                 await writer.SendAsync(new OperationMessage
                 {
                     Type = MessageType.GQL_ERROR,
@@ -78,24 +91,30 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             // is sub
             if (result is SubscriptionExecutionResult subscriptionExecutionResult)
             {
-                if (subscriptionExecutionResult.Streams?.Values.SingleOrDefault() == null)
+                using (_logger.BeginScope("Subscribing to: {subscriptionId}", id))
                 {
-                    await writer.SendAsync(new OperationMessage
+                    if (subscriptionExecutionResult.Streams?.Values.SingleOrDefault() == null)
                     {
-                        Type = MessageType.GQL_ERROR,
-                        Id = id,
-                        Payload = JObject.FromObject(result)
-                    });
+                        _logger.LogError("Cannot subscribe as no result stream available");
+                        await writer.SendAsync(new OperationMessage
+                        {
+                            Type = MessageType.GQL_ERROR,
+                            Id = id,
+                            Payload = JObject.FromObject(result)
+                        });
 
-                    return null;
+                        return null;
+                    }
+
+                    _logger.LogInformation("Creating subscription");
+                    return new Subscription(
+                        id,
+                        payload,
+                        subscriptionExecutionResult,
+                        writer,
+                        sub => _subscriptions.TryRemove(id, out _),
+                        _loggerFactory.CreateLogger<Subscription>());
                 }
-
-                return new Subscription(
-                    id,
-                    payload,
-                    subscriptionExecutionResult,
-                    writer,
-                    sub => _subscriptions.TryRemove(id, out _));
             }
 
             //is query or mutation

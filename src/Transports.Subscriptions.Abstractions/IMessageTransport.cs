@@ -11,6 +11,6 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 
         Task Completion { get; }
 
-        void Complete();
+        Task CloseAsync();
     }
 }

@@ -24,7 +24,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
                         {"1", Substitute.For<IObservable<ExecutionResult>>()}
                     }
                 });
-            _subscriptionManager = new SubscriptionManager(_documentExecuter);
+            _subscriptionManager = new SubscriptionManager(_documentExecuter, new NullLoggerFactory());
             _sut = new SubscriptionServer(_transport, _subscriptionManager, new NullLogger<SubscriptionServer>());
         }
 
@@ -53,7 +53,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             AddTerminate();
 
             /* When */
-            await _sut.OnConnected();
+            await _sut.OnConnect();
 
             /* Then */
             Assert.Contains(_transport.WrittenMessages,
@@ -87,7 +87,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             AddTerminate();
 
             /* When */
-            await _sut.OnConnected();
+            await _sut.OnConnect();
 
             /* Then */
             Assert.Empty(_sut.Subscriptions);
@@ -121,7 +121,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             AddTerminate();
 
             /* When */
-            await _sut.OnConnected();
+            await _sut.OnConnect();
 
             /* Then */
             Assert.Empty(_sut.Subscriptions);
@@ -184,7 +184,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             AddTerminate();
 
             /* When */
-            await _sut.OnConnected();
+            await _sut.OnConnect();
 
             /* Then */
             Assert.Empty(_sut.Subscriptions);
@@ -206,7 +206,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             _transport.AddMessageToRead(subscribe);
 
             /* When */
-            await _sut.OnConnected();
+            await _sut.OnConnect();
 
             /* Then */
             Assert.Empty(_sut.Subscriptions);
@@ -224,7 +224,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             AddTerminate();
 
             /* When */
-            await _sut.OnConnected();
+            await _sut.OnConnect();
 
             /* Then */
             Assert.Contains(_transport.WrittenMessages,

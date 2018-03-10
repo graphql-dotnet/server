@@ -11,7 +11,7 @@ namespace GraphQL.Server.Transports.WebSockets
         private readonly ISubscriptionManager _subscriptionManager;
         private readonly ILoggerFactory _loggerFactory;
         private SubscriptionServer _server;
-        private ILogger<WebSocketConnection> _logger;
+        private readonly ILogger<WebSocketConnection> _logger;
 
         public WebSocketConnection(
             WebSocket socket,
@@ -28,7 +28,7 @@ namespace GraphQL.Server.Transports.WebSockets
 
         public string ConnectionId { get; }
 
-        protected IMessageTransport GetTransport()
+        protected IMessageTransport CreateTransport()
         {
             return new WebSocketTransport(_socket);
         }
@@ -37,19 +37,17 @@ namespace GraphQL.Server.Transports.WebSockets
         {
             _logger.LogInformation("Creating server for connection {connectionId}", ConnectionId);
             _server = new SubscriptionServer(
-                GetTransport(), 
+                CreateTransport(), 
                 _subscriptionManager,
                 _loggerFactory.CreateLogger<SubscriptionServer>());
 
-            return _server.OnConnected();
+            return _server.OnConnect();
         }
 
-        public Task Close()
+        public Task OnDisconnect()
         {
-            _server.Transport.Writer.Complete();
-            _server.Transport.Reader.Complete();
-
-            return Task.CompletedTask;
+            _logger.LogInformation("Disconnecting {connectionId}", ConnectionId);
+            return _server.OnDisconnect();
         }
     }
 }

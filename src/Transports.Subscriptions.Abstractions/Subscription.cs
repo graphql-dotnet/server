@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using GraphQL.Subscription;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions
@@ -10,6 +11,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
     public class Subscription : IObserver<ExecutionResult>
     {
         private readonly Action<Subscription> _completed;
+        private readonly ILogger<Subscription> _logger;
         private readonly ITargetBlock<OperationMessage> _writer;
         private IDisposable _unsubscribe;
 
@@ -17,10 +19,12 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             OperationMessagePayload payload,
             SubscriptionExecutionResult result,
             ITargetBlock<OperationMessage> writer,
-            Action<Subscription> completed)
+            Action<Subscription> completed, 
+            ILogger<Subscription> logger)
         {
             _writer = writer;
             _completed = completed;
+            _logger = logger;
             Id = id;
             OriginalPayload = payload;
 
@@ -33,6 +37,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 
         public void OnCompleted()
         {
+            _logger.LogInformation("Subscription: {subscriptionId} completing", Id);
             _writer.Post(new OperationMessage
             {
                 Type = MessageType.GQL_COMPLETE,
@@ -50,6 +55,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 
         public void OnNext(ExecutionResult value)
         {
+            _logger.LogDebug("Subscription: {subscriptionId} got data", Id);
             _writer.Post(new OperationMessage
             {
                 Type = MessageType.GQL_DATA,
@@ -62,10 +68,12 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         {
             var stream = result.Streams.Values.Single();
             _unsubscribe = stream.Subscribe(this);
+            _logger.LogInformation("Subscription: {subscriptionId} subscribed", Id);
         }
 
         public Task UnsubscribeAsync()
         {
+            _logger.LogInformation("Subscription: {subscriptionId} unsubscribing", Id);
             _unsubscribe.Dispose();
             return _writer.SendAsync(new OperationMessage
             {

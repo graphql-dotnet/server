@@ -18,7 +18,9 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
             _subscriptions = new SubscriptionManager(
                 new DefaultSchemaExecuter<ChatSchema>(
                     new DocumentExecuter(),
-                    new ChatSchema(_chat)));
+                    new ChatSchema(_chat)),
+                new NullLoggerFactory());
+
             _server = new SubscriptionServer(
                 _transport,
                 _subscriptions,
@@ -88,7 +90,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
             });
 
             /* When */
-            await _server.OnConnected();
+            await _server.OnConnect();
 
             /* Then */
             Assert.Contains(_transport.WrittenMessages, message => message.Type == MessageType.GQL_CONNECTION_ACK);
@@ -139,7 +141,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
             });
 
             /* When */
-            await _server.OnConnected();
+            await _server.OnConnect();
 
             /* Then */
             Assert.Contains(_transport.WrittenMessages, message => message.Type == MessageType.GQL_CONNECTION_ACK);
@@ -200,7 +202,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
                 Type = MessageType.GQL_CONNECTION_TERMINATE
             });
 
-            await _server.OnConnected();
+            await _server.OnConnect();
 
             /* Then */
             Assert.Contains(_transport.WrittenMessages, message => message.Type == MessageType.GQL_CONNECTION_ACK);

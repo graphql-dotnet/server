@@ -85,11 +85,11 @@ namespace GraphQL.Server.Transports.WebSockets
                 var connection = new WebSocketConnection(
                     socket,
                     context.Connection.Id,
-                    new SubscriptionManager(_executer),
+                    new SubscriptionManager(_executer, _loggerFactory),
                     _loggerFactory);
 
                 await connection.Connect();
-                await connection.Close();
+                await connection.OnDisconnect();
             }
         }
     }

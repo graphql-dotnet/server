@@ -4,6 +4,7 @@ using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using GraphQL.Subscription;
+using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using Xunit;
 
@@ -33,7 +34,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
                 }
             };
             var expected = new ExecutionResult();
-            var sut = new Subscription(id, payload, result, _writer, null);
+            var sut = new Subscription(id, payload, result, _writer, null, new NullLogger<Subscription>());
 
             /* When */
             stream.OnNext(expected);
@@ -65,7 +66,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             };
 
             var completed = Substitute.For<Action<Subscription>>();
-            var sut = new Subscription(id, payload, result, _writer, completed);
+            var sut = new Subscription(id, payload, result, _writer, completed, new NullLogger<Subscription>());
 
             /* When */
             stream.OnCompleted();
@@ -99,7 +100,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             };
 
             /* When */
-            var sut = new Subscription(id, payload, result, _writer, null);
+            var sut = new Subscription(id, payload, result, _writer, null, new NullLogger<Subscription>());
 
 
             /* Then */
@@ -122,7 +123,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
                     {"op", stream}
                 }
             };
-            var sut = new Subscription(id, payload, result, _writer, null);
+            var sut = new Subscription(id, payload, result, _writer, null, new NullLogger<Subscription>());
 
             /* When */
             await sut.UnsubscribeAsync();
@@ -146,7 +147,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
                 }
             };
 
-            var sut = new Subscription(id, payload, result, _writer, null);
+            var sut = new Subscription(id, payload, result, _writer, null, new NullLogger<Subscription>());
 
             /* When */
             await sut.UnsubscribeAsync();

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using GraphQL.Subscription;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using Xunit;
 
@@ -22,7 +24,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
                         {"1", Substitute.For<IObservable<ExecutionResult>>()}
                     }
                 });
-            _sut = new SubscriptionManager(_executer);
+            _sut = new SubscriptionManager(_executer, new NullLoggerFactory());
         }
 
         private readonly SubscriptionManager _sut;

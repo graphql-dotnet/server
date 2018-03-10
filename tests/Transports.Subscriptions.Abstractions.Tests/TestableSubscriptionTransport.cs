@@ -23,10 +23,12 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
 
         public Task Completion => Task.WhenAll(_readBuffer.Completion, Writer.Completion);
 
-        public void Complete()
+        public Task CloseAsync()
         {
             _readBuffer.Complete();
             Writer.Complete();
+
+            return Task.CompletedTask;
         }
 
         private ITargetBlock<OperationMessage> CreateWriter()

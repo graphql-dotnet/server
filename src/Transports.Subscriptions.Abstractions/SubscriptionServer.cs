@@ -92,10 +92,15 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         private async Task HandleTerminateAsync(OperationMessage message)
         {
             _logger.LogInformation("Handle terminate");
+            await Terminate();
+        }
+
+        private async Task Terminate()
+        {
             foreach (var subscription in Subscriptions)
                 await Subscriptions.UnsubscribeAsync(subscription.Id);
 
-            Transport.Complete();
+            await Transport.CloseAsync();
         }
 
         private Task HandleStopAsync(OperationMessage message)
@@ -126,7 +131,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             });
         }
 
-        public Task OnConnected()
+        public Task OnConnect()
         {
             _logger.LogInformation("Serving...");
             return Task.WhenAll(Transport.Completion, _completion).ContinueWith(
@@ -138,6 +143,11 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
                     }
                     _logger.LogInformation("Server stopped");
                 });
+        }
+
+        public Task OnDisconnect()
+        {
+            return Terminate();
         }
     }
 }
