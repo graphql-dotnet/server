@@ -93,7 +93,6 @@ namespace GraphQL.Server.Transports.WebSockets
                     _loggerFactory);
 
                 await connection.Connect();
-                await connection.OnDisconnect();
             }
         }
     }

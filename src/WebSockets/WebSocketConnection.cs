@@ -38,7 +38,7 @@ namespace GraphQL.Server.Transports.WebSockets
             return new WebSocketTransport(_socket);
         }
 
-        public Task Connect()
+        public async Task Connect()
         {
             _logger.LogInformation("Creating server for connection {connectionId}", ConnectionId);
             _server = new SubscriptionServer(
@@ -47,13 +47,9 @@ namespace GraphQL.Server.Transports.WebSockets
                 _messageListeners,
                 _loggerFactory.CreateLogger<SubscriptionServer>());
 
-            return _server.OnConnect();
+            await _server.OnConnect();
+            await _server.OnDisconnect();
         }
 
-        public Task OnDisconnect()
-        {
-            _logger.LogInformation("Disconnecting {connectionId}", ConnectionId);
-            return _server.OnDisconnect();
-        }
     }
 }
