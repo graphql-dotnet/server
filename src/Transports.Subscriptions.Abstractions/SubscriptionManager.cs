@@ -36,8 +36,10 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             return _subscriptions.Values.GetEnumerator();
         }
 
-        public async Task SubscribeAsync(string id, OperationMessagePayload payload,
-            ITargetBlock<OperationMessage> writer)
+        public async Task SubscribeAsync(
+            string id, 
+            OperationMessagePayload payload,
+            IWriterPipeline writer)
         {
             var subscription = await ExecuteAsync(id, payload, writer);
 
@@ -64,7 +66,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         private async Task<Subscription> ExecuteAsync(
             string id,
             OperationMessagePayload payload,
-            ITargetBlock<OperationMessage> writer)
+            IWriterPipeline writer)
         {
             _logger.LogDebug("Executing operation: {operationName} query: {query}",
                 payload.OperationName,

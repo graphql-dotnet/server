@@ -14,7 +14,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
     {
         public SubscriptionManagerFacts()
         {
-            _writer = Substitute.For<ITargetBlock<OperationMessage>>();
+            _writer = Substitute.For<IWriterPipeline>();
             _executer = Substitute.For<IGraphQLExecuter>();
             _executer.ExecuteAsync(null, null, null).ReturnsForAnyArgs(
                 new SubscriptionExecutionResult
@@ -29,7 +29,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
 
         private readonly SubscriptionManager _sut;
         private readonly IGraphQLExecuter _executer;
-        private readonly ITargetBlock<OperationMessage> _writer;
+        private readonly IWriterPipeline _writer;
 
         [Fact]
         public async Task Failed_Subscribe_does_not_add()
@@ -74,13 +74,10 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             await _sut.SubscribeAsync(id, payload, _writer);
 
             /* Then */
-            _writer.Received().OfferMessage(
-                Arg.Any<DataflowMessageHeader>(),
+            await _writer.Received().SendAsync(
                 Arg.Is<OperationMessage>(
                     message => message.Id == id
-                               && message.Type == MessageType.GQL_ERROR),
-                Arg.Any<ISourceBlock<OperationMessage>>(),
-                Arg.Any<bool>());
+                               && message.Type == MessageType.GQL_ERROR));
         }
 
         [Fact]
@@ -103,13 +100,10 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             await _sut.SubscribeAsync(id, payload, _writer);
 
             /* Then */
-            _writer.Received().OfferMessage(
-                Arg.Any<DataflowMessageHeader>(),
+            await _writer.Received().SendAsync(
                 Arg.Is<OperationMessage>(
                     message => message.Id == id
-                               && message.Type == MessageType.GQL_ERROR),
-                Arg.Any<ISourceBlock<OperationMessage>>(),
-                Arg.Any<bool>());
+                               && message.Type == MessageType.GQL_ERROR));
         }
 
         [Fact]
@@ -170,13 +164,10 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             await _sut.UnsubscribeAsync(id);
 
             /* Then */
-            _writer.Received().OfferMessage(
-                Arg.Any<DataflowMessageHeader>(),
+            await _writer.Received().SendAsync(
                 Arg.Is<OperationMessage>(
                     message => message.Id == id
-                               && message.Type == MessageType.GQL_COMPLETE),
-                Arg.Any<ISourceBlock<OperationMessage>>(),
-                Arg.Any<bool>());
+                               && message.Type == MessageType.GQL_COMPLETE));
         }
     }
 }

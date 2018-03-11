@@ -1,10 +1,6 @@
-using System;
-using System.IO;
 using System.Net.WebSockets;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Threading.Tasks.Dataflow;
 using GraphQL.Server.Transports.Subscriptions.Abstractions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -13,18 +9,20 @@ namespace GraphQL.Server.Transports.WebSockets
 {
     public class WebSocketTransport : IMessageTransport
     {
-        private readonly JsonSerializerSettings _serializerSettings;
         private readonly WebSocket _socket;
 
         public WebSocketTransport(WebSocket socket)
         {
             _socket = socket;
-            _serializerSettings = new JsonSerializerSettings
+            var serializerSettings = new JsonSerializerSettings
             {
                 DateFormatHandling = DateFormatHandling.IsoDateFormat,
                 DateFormatString = "yyyy'-'MM'-'dd'T'HH':'mm':'ss.FFFFFFF'Z'",
                 ContractResolver = new CamelCasePropertyNamesContractResolver()
             };
+
+            Reader = new WebSocketReaderPipeline(_socket, serializerSettings);
+            Writer = new WebSocketWriterPipeline(_socket, serializerSettings);
         }
 
 
@@ -42,136 +40,13 @@ namespace GraphQL.Server.Transports.WebSockets
             return _socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closed", CancellationToken.None);
         }
 
-        public ITargetBlock<OperationMessage> CreateWriter()
-        {
-            var messageWriter = CreateMessageWriter();
-            var transformer = CreateWriterJsonTransformer();
-
-            transformer.LinkTo(messageWriter, new DataflowLinkOptions
-            {
-                PropagateCompletion = true
-            });
-
-            return transformer;
-        }
-
-        public ISourceBlock<OperationMessage> CreateReader()
-        {
-            var messageReader = CreateMessageReader();
-            var jsonTransformer = CreateReaderJsonTransformer();
-
-            messageReader.LinkTo(jsonTransformer, new DataflowLinkOptions
-            {
-                PropagateCompletion = true
-            });
-
-            return jsonTransformer;
-        }
-
-        protected IPropagatorBlock<OperationMessage, string> CreateWriterJsonTransformer()
-        {
-            var transformer = new TransformBlock<OperationMessage, string>(
-                input => JsonConvert.SerializeObject(input, _serializerSettings),
-                new ExecutionDataflowBlockOptions
-                {
-                    EnsureOrdered = true
-                });
-
-            return transformer;
-        }
-
-        protected IPropagatorBlock<string, OperationMessage> CreateReaderJsonTransformer()
-        {
-            var transformer = new TransformBlock<string, OperationMessage>(
-                input => JsonConvert.DeserializeObject<OperationMessage>(input, _serializerSettings),
-                new ExecutionDataflowBlockOptions
-                {
-                    EnsureOrdered = true
-                });
-
-            return transformer;
-        }
-
-        protected ISourceBlock<string> CreateMessageReader()
-        {
-            IPropagatorBlock<string, string> source = new BufferBlock<string>(
-                new ExecutionDataflowBlockOptions
-                {
-                    EnsureOrdered = true,
-                    BoundedCapacity = 1,
-                    MaxDegreeOfParallelism = 1
-                });
-
-            Task.Run(async () =>
-            {
-                while (!source.Completion.IsCompleted || !source.Completion.IsCanceled || !_socket.CloseStatus.HasValue)
-                    await ReadMessageAsync(source);
-            });
-
-            return source;
-        }
-
-        private ITargetBlock<string> CreateMessageWriter()
-        {
-            var target = new ActionBlock<string>(
-                WriteMessageAsync, new ExecutionDataflowBlockOptions
-                {
-                    BoundedCapacity = 1,
-                    MaxDegreeOfParallelism = 1,
-                    EnsureOrdered = true
-                });
-
-            return target;
-        }
-
-        private Task WriteMessageAsync(string message)
-        {
-            if (CloseStatus.HasValue) return Task.CompletedTask;
-
-            var messageSegment = new ArraySegment<byte>(Encoding.UTF8.GetBytes(message));
-            return _socket.SendAsync(messageSegment, WebSocketMessageType.Text, true, CancellationToken.None);
-        }
-
-        private async Task ReadMessageAsync(ITargetBlock<string> target)
-        {
-            string message = null;
-            var buffer = new byte[1024 * 4];
-            var segment = new ArraySegment<byte>(buffer);
-
-            using (var memoryStream = new MemoryStream())
-            {
-                try
-                {
-                    WebSocketReceiveResult receiveResult;
-
-                    do
-                    {
-                        receiveResult = await _socket.ReceiveAsync(segment, CancellationToken.None);
-
-                        if (receiveResult.CloseStatus.HasValue)
-                            target.Complete();
-
-                        if (receiveResult.Count == 0)
-                            continue;
-
-                        await memoryStream.WriteAsync(segment.Array, segment.Offset, receiveResult.Count);
-                    } while (!receiveResult.EndOfMessage || memoryStream.Length == 0);
-
-                    message = Encoding.UTF8.GetString(memoryStream.ToArray());
-                }
-                catch (Exception x)
-                {
-                    target.Fault(x);
-                }
-            }
-
-            await target.SendAsync(message);
-        }
-
         private Task AbortAsync()
         {
             _socket.Abort();
             return Task.CompletedTask;
         }
+
+        public IReaderPipeline Reader { get; }
+        public IWriterPipeline Writer { get; }
     }
 }

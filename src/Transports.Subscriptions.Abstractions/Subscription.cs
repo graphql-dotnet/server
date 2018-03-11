@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Threading.Tasks.Dataflow;
 using GraphQL.Subscription;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
@@ -12,14 +11,14 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
     {
         private readonly Action<Subscription> _completed;
         private readonly ILogger<Subscription> _logger;
-        private readonly ITargetBlock<OperationMessage> _writer;
+        private readonly IWriterPipeline _writer;
         private IDisposable _unsubscribe;
 
         public Subscription(string id,
             OperationMessagePayload payload,
             SubscriptionExecutionResult result,
-            ITargetBlock<OperationMessage> writer,
-            Action<Subscription> completed, 
+            IWriterPipeline writer,
+            Action<Subscription> completed,
             ILogger<Subscription> logger)
         {
             _writer = writer;

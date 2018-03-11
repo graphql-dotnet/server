@@ -6,7 +6,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 {
     public interface ISubscriptionManager : IEnumerable<Subscription>
     {
-        Task SubscribeAsync(string id, OperationMessagePayload payload, ITargetBlock<OperationMessage> writer);
+        Task SubscribeAsync(string id, OperationMessagePayload payload, IWriterPipeline writer);
 
         Task UnsubscribeAsync(string id);
     }

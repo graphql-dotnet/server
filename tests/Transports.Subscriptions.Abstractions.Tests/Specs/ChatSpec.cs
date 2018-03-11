@@ -15,6 +15,8 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
         {
             _chat = new Chat();
             _transport = new TestableSubscriptionTransport();
+            _transportReader = _transport.Reader as TestableReader;
+            _transportWriter = _transport.Writer as TestableWriter;
             _subscriptions = new SubscriptionManager(
                 new DefaultSchemaExecuter<ChatSchema>(
                     new DocumentExecuter(),
@@ -33,6 +35,8 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
         private readonly TestableSubscriptionTransport _transport;
         private readonly SubscriptionManager _subscriptions;
         private readonly SubscriptionServer _server;
+        private TestableReader _transportReader;
+        private TestableWriter _transportWriter;
 
         private void AssertReceivedData(List<OperationMessage> writtenMessages, Predicate<JObject> predicate)
         {
@@ -55,12 +59,12 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
             });
 
             var id = "1";
-            _transport.AddMessageToRead(new OperationMessage
+            _transportReader.AddMessageToRead(new OperationMessage
             {
                 Id = id,
                 Type = MessageType.GQL_CONNECTION_INIT
             });
-            _transport.AddMessageToRead(new OperationMessage
+            _transportReader.AddMessageToRead(new OperationMessage
             {
                 Id = id,
                 Type = MessageType.GQL_START,
@@ -84,20 +88,19 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
 }")
                 })
             });
-            _transport.AddMessageToRead(new OperationMessage
+            _transportReader.AddMessageToRead(new OperationMessage
             {
                 Id = id,
                 Type = MessageType.GQL_CONNECTION_TERMINATE
             });
-            await _transport.CloseAsync();
 
             /* When */
             await _server.OnConnect();
 
             /* Then */
-            Assert.Contains(_transport.WrittenMessages, message => message.Type == MessageType.GQL_CONNECTION_ACK);
-            Assert.Contains(_transport.WrittenMessages, message => message.Type == MessageType.GQL_DATA);
-            Assert.Contains(_transport.WrittenMessages, message => message.Type == MessageType.GQL_COMPLETE);
+            Assert.Contains(_transportWriter.WrittenMessages, message => message.Type == MessageType.GQL_CONNECTION_ACK);
+            Assert.Contains(_transportWriter.WrittenMessages, message => message.Type == MessageType.GQL_DATA);
+            Assert.Contains(_transportWriter.WrittenMessages, message => message.Type == MessageType.GQL_COMPLETE);
         }
 
         [Fact]
@@ -112,12 +115,12 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
             });
 
             var id = "1";
-            _transport.AddMessageToRead(new OperationMessage
+            _transportReader.AddMessageToRead(new OperationMessage
             {
                 Id = id,
                 Type = MessageType.GQL_CONNECTION_INIT
             });
-            _transport.AddMessageToRead(new OperationMessage
+            _transportReader.AddMessageToRead(new OperationMessage
             {
                 Id = id,
                 Type = MessageType.GQL_START,
@@ -136,20 +139,19 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
 }"
                 })
             });
-            _transport.AddMessageToRead(new OperationMessage
+            _transportReader.AddMessageToRead(new OperationMessage
             {
                 Id = id,
                 Type = MessageType.GQL_CONNECTION_TERMINATE
             });
-            await _transport.CloseAsync();
 
             /* When */
             await _server.OnConnect();
 
             /* Then */
-            Assert.Contains(_transport.WrittenMessages, message => message.Type == MessageType.GQL_CONNECTION_ACK);
-            Assert.Contains(_transport.WrittenMessages, message => message.Type == MessageType.GQL_DATA);
-            Assert.Contains(_transport.WrittenMessages, message => message.Type == MessageType.GQL_COMPLETE);
+            Assert.Contains(_transportWriter.WrittenMessages, message => message.Type == MessageType.GQL_CONNECTION_ACK);
+            Assert.Contains(_transportWriter.WrittenMessages, message => message.Type == MessageType.GQL_DATA);
+            Assert.Contains(_transportWriter.WrittenMessages, message => message.Type == MessageType.GQL_COMPLETE);
         }
 
         [Fact]
@@ -158,12 +160,12 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
             /* Given */
             // subscribe
             var id = "1";
-            _transport.AddMessageToRead(new OperationMessage
+            _transportReader.AddMessageToRead(new OperationMessage
             {
                 Id = id,
                 Type = MessageType.GQL_CONNECTION_INIT
             });
-            _transport.AddMessageToRead(new OperationMessage
+            _transportReader.AddMessageToRead(new OperationMessage
             {
                 Id = id,
                 Type = MessageType.GQL_START,
@@ -188,27 +190,19 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
                 SentAt = DateTime.Now
             });
 
-            _chat.AddMessage(new ReceivedMessage
-            {
-                FromId = "2",
-                Content = "content",
-                SentAt = DateTime.Now
-            });
-
             /* When */
-            _transport.AddMessageToRead(new OperationMessage
+            _transportReader.AddMessageToRead(new OperationMessage
             {
                 Id = id,
                 Type = MessageType.GQL_CONNECTION_TERMINATE
             });
 
-            await _transport.CloseAsync();
             await _server.OnConnect();
 
             /* Then */
-            Assert.Contains(_transport.WrittenMessages, message => message.Type == MessageType.GQL_CONNECTION_ACK);
-            AssertReceivedData(_transport.WrittenMessages, data => data.ContainsKey("messageAdded"));
-            Assert.Contains(_transport.WrittenMessages, message => message.Type == MessageType.GQL_COMPLETE);
+            Assert.Contains(_transportWriter.WrittenMessages, message => message.Type == MessageType.GQL_CONNECTION_ACK);
+            AssertReceivedData(_transportWriter.WrittenMessages, data => data.ContainsKey("messageAdded"));
+            Assert.Contains(_transportWriter.WrittenMessages, message => message.Type == MessageType.GQL_COMPLETE);
         }
     }
 }

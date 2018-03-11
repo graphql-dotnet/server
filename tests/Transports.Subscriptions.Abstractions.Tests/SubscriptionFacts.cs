@@ -14,10 +14,10 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
     {
         public SubscriptionFacts()
         {
-            _writer = Substitute.For<ITargetBlock<OperationMessage>>();
+            _writer = Substitute.For<IWriterPipeline>();
         }
 
-        private readonly ITargetBlock<OperationMessage> _writer;
+        private readonly IWriterPipeline _writer;
 
         [Fact]
         public void On_data_from_stream()
@@ -41,13 +41,10 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
 
 
             /* Then */
-            _writer.Received().OfferMessage(
-                Arg.Any<DataflowMessageHeader>(),
+            _writer.Received().Post(
                 Arg.Is<OperationMessage>(
                     message => message.Id == id
-                               && message.Type == MessageType.GQL_DATA),
-                Arg.Any<ISourceBlock<OperationMessage>>(),
-                Arg.Any<bool>());
+                               && message.Type == MessageType.GQL_DATA));
         }
 
         [Fact]
@@ -75,13 +72,10 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             /* Then */
             Assert.False(stream.HasObservers);
             completed.Received().Invoke(sut);
-            _writer.Received().OfferMessage(
-                Arg.Any<DataflowMessageHeader>(),
+            _writer.Received().Post(
                 Arg.Is<OperationMessage>(
                     message => message.Id == id
-                               && message.Type == MessageType.GQL_COMPLETE),
-                Arg.Any<ISourceBlock<OperationMessage>>(),
-                Arg.Any<bool>());
+                               && message.Type == MessageType.GQL_COMPLETE));
         }
 
         [Fact]
@@ -154,13 +148,10 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
 
 
             /* Then */
-            _writer.Received().OfferMessage(
-                Arg.Any<DataflowMessageHeader>(),
+            await _writer.Received().SendAsync(
                 Arg.Is<OperationMessage>(
                     message => message.Id == id
-                               && message.Type == MessageType.GQL_COMPLETE),
-                Arg.Any<ISourceBlock<OperationMessage>>(),
-                Arg.Any<bool>());
+                               && message.Type == MessageType.GQL_COMPLETE));
         }
     }
 }

@@ -18,5 +18,10 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         ///     Nullable payload
         /// </summary>
         public JObject Payload { get; set; }
+
+        public override string ToString()
+        {
+            return $"Type: {Type} Id: {Id} Payload: {Payload}";
+        }
     }
 }

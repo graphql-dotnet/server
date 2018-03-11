@@ -13,7 +13,6 @@ namespace GraphQL.Server.Transports.WebSockets
         private readonly ISubscriptionManager _subscriptionManager;
         private readonly IEnumerable<IOperationMessageListener> _messageListeners;
         private readonly ILoggerFactory _loggerFactory;
-        private SubscriptionServer _server;
         private readonly ILogger<WebSocketConnection> _logger;
 
         public WebSocketConnection(
@@ -33,22 +32,19 @@ namespace GraphQL.Server.Transports.WebSockets
 
         public string ConnectionId { get; }
 
-        protected IMessageTransport CreateTransport()
-        {
-            return new WebSocketTransport(_socket);
-        }
-
         public async Task Connect()
         {
             _logger.LogInformation("Creating server for connection {connectionId}", ConnectionId);
-            _server = new SubscriptionServer(
-                CreateTransport(), 
+            var transport = new WebSocketTransport(_socket);
+            var server = new SubscriptionServer(
+                transport, 
                 _subscriptionManager,
                 _messageListeners,
                 _loggerFactory.CreateLogger<SubscriptionServer>());
 
-            await _server.OnConnect();
-            await _server.OnDisconnect();
+            await server.OnConnect();
+            await server.OnDisconnect();
+            await transport.CloseAsync();
         }
 
     }
