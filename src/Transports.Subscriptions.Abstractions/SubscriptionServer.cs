@@ -148,10 +148,9 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 
         public async Task OnConnect()
         {
-            _logger.LogInformation("Serving...");
-            LinkToTransportReader();
+            _logger.LogInformation("Connected...");
             LinkToTransportWriter();
-
+            LinkToTransportReader();
 
             await _handler.Completion;
             await TransportWriter.Complete();
