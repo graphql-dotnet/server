@@ -7,6 +7,9 @@ using Newtonsoft.Json.Linq;
 
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 {
+    /// <summary>
+    ///     Internal obsercer of the subsciption
+    /// </summary>
     public class Subscription : IObserver<ExecutionResult>
     {
         private readonly Action<Subscription> _completed;
@@ -63,13 +66,6 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             });
         }
 
-        private void Subscribe(SubscriptionExecutionResult result)
-        {
-            var stream = result.Streams.Values.Single();
-            _unsubscribe = stream.Subscribe(this);
-            _logger.LogInformation("Subscription: {subscriptionId} subscribed", Id);
-        }
-
         public Task UnsubscribeAsync()
         {
             _logger.LogInformation("Subscription: {subscriptionId} unsubscribing", Id);
@@ -79,6 +75,13 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
                 Type = MessageType.GQL_COMPLETE,
                 Id = Id
             });
+        }
+
+        private void Subscribe(SubscriptionExecutionResult result)
+        {
+            var stream = result.Streams.Values.Single();
+            _unsubscribe = stream.Subscribe(this);
+            _logger.LogInformation("Subscription: {subscriptionId} subscribed", Id);
         }
     }
 }

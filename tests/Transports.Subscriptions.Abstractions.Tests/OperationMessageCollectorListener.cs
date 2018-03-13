@@ -9,13 +9,13 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
 
         public ConcurrentBag<OperationMessage> HandledMessages { get; } = new ConcurrentBag<OperationMessage>();
 
-        public Task OnHandleMessageAsync(IReaderPipeline reader, IWriterPipeline writer, OperationMessage message)
+        public Task OnBeforeHandleAsync(IReaderPipeline reader, IWriterPipeline writer, OperationMessage message)
         {
             HandleMessages.Add(message);
             return Task.CompletedTask;
         }
 
-        public Task OnMessageHandledAsync(IReaderPipeline reader, IWriterPipeline writer, OperationMessage message)
+        public Task OnAfterHandleAsync(IReaderPipeline reader, IWriterPipeline writer, OperationMessage message)
         {
             HandledMessages.Add(message);
             return Task.CompletedTask;

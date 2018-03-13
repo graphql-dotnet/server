@@ -12,13 +12,13 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             _logger = logger;
         }
 
-        public Task OnHandleMessageAsync(IReaderPipeline reader, IWriterPipeline writer, OperationMessage message)
+        public Task OnBeforeHandleAsync(IReaderPipeline reader, IWriterPipeline writer, OperationMessage message)
         {
             _logger.LogDebug("Received message: {message}", message);
             return Task.CompletedTask;
         }
 
-        public Task OnMessageHandledAsync(IReaderPipeline reader, IWriterPipeline writer, OperationMessage message)
+        public Task OnAfterHandleAsync(IReaderPipeline reader, IWriterPipeline writer, OperationMessage message)
         {
             return Task.CompletedTask;
         }

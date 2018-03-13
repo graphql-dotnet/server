@@ -2,6 +2,9 @@ using Newtonsoft.Json.Linq;
 
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 {
+    /// <summary>
+    ///     GraphQL operation messages
+    /// </summary>
     public class OperationMessage
     {
         /// <summary>
@@ -19,6 +22,8 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         /// </summary>
         public JObject Payload { get; set; }
 
+
+        /// <inheritdoc />
         public override string ToString()
         {
             return $"Type: {Type} Id: {Id} Payload: {Payload}";

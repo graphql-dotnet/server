@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Threading.Tasks.Dataflow;
 using GraphQL.Server.Transports.Subscriptions.Abstractions.Internal;
 using GraphQL.Subscription;
 using Microsoft.Extensions.Logging;
@@ -11,15 +10,16 @@ using Newtonsoft.Json.Linq;
 
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 {
+    /// <inheritdoc />
     public class SubscriptionManager : ISubscriptionManager
     {
         private readonly IGraphQLExecuter _executer;
+
+        private readonly ILogger<SubscriptionManager> _logger;
         private readonly ILoggerFactory _loggerFactory;
 
         private readonly ConcurrentDictionary<string, Subscription> _subscriptions =
             new ConcurrentDictionary<string, Subscription>();
-
-        private readonly ILogger<SubscriptionManager> _logger;
 
         public SubscriptionManager(IGraphQLExecuter executer, ILoggerFactory loggerFactory)
         {
@@ -30,14 +30,14 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 
         public Subscription this[string id] => _subscriptions[id];
 
-
         public IEnumerator<Subscription> GetEnumerator()
         {
             return _subscriptions.Values.GetEnumerator();
         }
 
-        public async Task SubscribeAsync(
-            string id, 
+        /// <inheritdoc />
+        public async Task SubscribeOrExecuteAsync(
+            string id,
             OperationMessagePayload payload,
             IWriterPipeline writer)
         {
@@ -49,6 +49,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             _subscriptions[id] = subscription;
         }
 
+        /// <inheritdoc />
         public Task UnsubscribeAsync(string id)
         {
             if (_subscriptions.TryRemove(id, out var removed))
@@ -92,7 +93,6 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 
             // is sub
             if (result is SubscriptionExecutionResult subscriptionExecutionResult)
-            {
                 using (_logger.BeginScope("Subscribing to: {subscriptionId}", id))
                 {
                     if (subscriptionExecutionResult.Streams?.Values.SingleOrDefault() == null)
@@ -117,7 +117,6 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
                         sub => _subscriptions.TryRemove(id, out _),
                         _loggerFactory.CreateLogger<Subscription>());
                 }
-            }
 
             //is query or mutation
             await writer.SendAsync(new OperationMessage

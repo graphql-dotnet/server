@@ -6,8 +6,8 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 {
     public class DefaultSchemaExecuter<TSchema> : IGraphQLExecuter where TSchema : ISchema
     {
-        private readonly IDocumentExecuter _documentExecuter;
         protected readonly TSchema Schema;
+        private readonly IDocumentExecuter _documentExecuter;
 
         public DefaultSchemaExecuter(
             IDocumentExecuter documentExecuter,

@@ -7,6 +7,10 @@ using Newtonsoft.Json.Linq;
 
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 {
+    /// <summary>
+    ///     Subscription server
+    ///     Acts as a message pump reading, handling and writing messages
+    /// </summary>
     public class SubscriptionServer
     {
         private readonly ILogger<SubscriptionServer> _logger;
@@ -33,6 +37,22 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 
         public IWriterPipeline TransportWriter { get; set; }
 
+        public async Task OnConnect()
+        {
+            _logger.LogInformation("Connected...");
+            LinkToTransportWriter();
+            LinkToTransportReader();
+
+            await _handler.Completion;
+            await TransportWriter.Complete();
+            await TransportWriter.Completion;
+        }
+
+        public Task OnDisconnect()
+        {
+            return Terminate();
+        }
+
         private void LinkToTransportReader()
         {
             _logger.LogDebug("Creating reader pipeline");
@@ -50,8 +70,9 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         private async Task HandleMessageAsync(OperationMessage message)
         {
             _logger.LogDebug("Handling message: {id} of type: {type}", message.Id, message.Type);
-            await OnHandleMessageAsync(message);
+            await OnBeforeHandleAsync(message);
 
+            //todo(pekka): should this be changed into message listener?
             switch (message.Type)
             {
                 case MessageType.GQL_CONNECTION_INIT:
@@ -71,19 +92,19 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
                     break;
             }
 
-            await OnMessageHandledAsync(message);
+            await OnAfterHandleAsync(message);
         }
 
-        private async Task OnHandleMessageAsync(OperationMessage message)
+        private async Task OnBeforeHandleAsync(OperationMessage message)
         {
             foreach (var listener in _operationMessageListeners)
-                await listener.OnHandleMessageAsync(TransportReader, TransportWriter, message);
+                await listener.OnBeforeHandleAsync(TransportReader, TransportWriter, message);
         }
 
-        private async Task OnMessageHandledAsync(OperationMessage message)
+        private async Task OnAfterHandleAsync(OperationMessage message)
         {
             foreach (var listener in _operationMessageListeners)
-                await listener.OnMessageHandledAsync(TransportReader, TransportWriter, message);
+                await listener.OnAfterHandleAsync(TransportReader, TransportWriter, message);
         }
 
         private Task HandleUnknownAsync(OperationMessage message)
@@ -131,7 +152,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             if (payload == null)
                 throw new InvalidOperationException($"Could not get OperationMessagePayload from message.Payload");
 
-            return Subscriptions.SubscribeAsync(
+            return Subscriptions.SubscribeOrExecuteAsync(
                 message.Id,
                 payload,
                 TransportWriter);
@@ -146,27 +167,11 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             });
         }
 
-        public async Task OnConnect()
-        {
-            _logger.LogInformation("Connected...");
-            LinkToTransportWriter();
-            LinkToTransportReader();
-
-            await _handler.Completion;
-            await TransportWriter.Complete();
-            await TransportWriter.Completion;
-        }
-
         private void LinkToTransportWriter()
         {
             _logger.LogDebug("Creating writer pipeline");
             TransportWriter = Transport.Writer;
             _logger.LogDebug("Writer pipeline created");
-        }
-
-        public Task OnDisconnect()
-        {
-            return Terminate();
         }
     }
 }

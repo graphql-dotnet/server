@@ -28,6 +28,9 @@ namespace GraphQL.Server.Transports.WebSockets
 
         public WebSocketCloseStatus? CloseStatus => _socket.CloseStatus;
 
+        public IReaderPipeline Reader { get; }
+        public IWriterPipeline Writer { get; }
+
         public Task CloseAsync()
         {
             if (_socket.State != WebSocketState.Open)
@@ -45,8 +48,5 @@ namespace GraphQL.Server.Transports.WebSockets
             _socket.Abort();
             return Task.CompletedTask;
         }
-
-        public IReaderPipeline Reader { get; }
-        public IWriterPipeline Writer { get; }
     }
 }

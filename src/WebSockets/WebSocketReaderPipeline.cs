@@ -12,7 +12,7 @@ namespace GraphQL.Server.Transports.WebSockets
 {
     public class WebSocketReaderPipeline : IReaderPipeline
     {
-        private IPropagatorBlock<string, OperationMessage> _endBlock;
+        private readonly IPropagatorBlock<string, OperationMessage> _endBlock;
         private readonly JsonSerializerSettings _serializerSettings;
         private readonly WebSocket _socket;
         private readonly ISourceBlock<string> _startBlock;
@@ -45,6 +45,37 @@ namespace GraphQL.Server.Transports.WebSockets
         }
 
         public Task Completion => _endBlock.Completion;
+
+        protected IPropagatorBlock<string, OperationMessage> CreateReaderJsonTransformer()
+        {
+            var transformer = new TransformBlock<string, OperationMessage>(
+                input => JsonConvert.DeserializeObject<OperationMessage>(input, _serializerSettings),
+                new ExecutionDataflowBlockOptions
+                {
+                    EnsureOrdered = true
+                });
+
+            return transformer;
+        }
+
+        protected ISourceBlock<string> CreateMessageReader()
+        {
+            IPropagatorBlock<string, string> source = new BufferBlock<string>(
+                new ExecutionDataflowBlockOptions
+                {
+                    EnsureOrdered = true,
+                    BoundedCapacity = 1,
+                    MaxDegreeOfParallelism = 1
+                });
+
+            Task.Run(async () =>
+            {
+                while (!source.Completion.IsCompleted || !source.Completion.IsCanceled || !_socket.CloseStatus.HasValue)
+                    await ReadMessageAsync(source);
+            });
+
+            return source;
+        }
 
         private async Task ReadMessageAsync(ITargetBlock<string> target)
         {
@@ -80,37 +111,6 @@ namespace GraphQL.Server.Transports.WebSockets
             }
 
             await target.SendAsync(message);
-        }
-
-        protected IPropagatorBlock<string, OperationMessage> CreateReaderJsonTransformer()
-        {
-            var transformer = new TransformBlock<string, OperationMessage>(
-                input => JsonConvert.DeserializeObject<OperationMessage>(input, _serializerSettings),
-                new ExecutionDataflowBlockOptions
-                {
-                    EnsureOrdered = true
-                });
-
-            return transformer;
-        }
-
-        protected ISourceBlock<string> CreateMessageReader()
-        {
-            IPropagatorBlock<string, string> source = new BufferBlock<string>(
-                new ExecutionDataflowBlockOptions
-                {
-                    EnsureOrdered = true,
-                    BoundedCapacity = 1,
-                    MaxDegreeOfParallelism = 1
-                });
-
-            Task.Run(async () =>
-            {
-                while (!source.Completion.IsCompleted || !source.Completion.IsCanceled || !_socket.CloseStatus.HasValue)
-                    await ReadMessageAsync(source);
-            });
-
-            return source;
         }
     }
 }

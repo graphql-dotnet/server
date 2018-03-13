@@ -59,7 +59,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             await _sut.OnConnect();
 
             /* Then */
-            await _messageListener.Received().OnHandleMessageAsync(_transportReader, _transportWriter, expected);
+            await _messageListener.Received().OnBeforeHandleAsync(_transportReader, _transportWriter, expected);
         }
 
         [Fact]
@@ -77,7 +77,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             await _sut.OnConnect();
 
             /* Then */
-            await _messageListener.Received().OnMessageHandledAsync(_transportReader, _transportWriter, expected);
+            await _messageListener.Received().OnAfterHandleAsync(_transportReader, _transportWriter, expected);
         }
 
         [Fact]

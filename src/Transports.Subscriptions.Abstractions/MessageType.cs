@@ -2,6 +2,10 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 {
+    /// <summary>
+    ///     Protocol message types defined in
+    ///     https://github.com/apollographql/subscriptions-transport-ws/blob/master/PROTOCOL.md
+    /// </summary>
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     public class MessageType
     {

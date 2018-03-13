@@ -12,11 +12,11 @@ namespace GraphQL.Server.Transports.WebSockets
     public class GraphQLWebSocketsMiddleware<TSchema> where TSchema : ISchema
     {
         private readonly IGraphQLExecuter _executer;
-        private readonly RequestDelegate _next;
-        private readonly IEnumerable<IOperationMessageListener> _messageListeners;
-        private readonly ILoggerFactory _loggerFactory;
-        private readonly GraphQLWebSocketsOptions _options;
         private readonly ILogger _logger;
+        private readonly ILoggerFactory _loggerFactory;
+        private readonly IEnumerable<IOperationMessageListener> _messageListeners;
+        private readonly RequestDelegate _next;
+        private readonly GraphQLWebSocketsOptions _options;
 
         public GraphQLWebSocketsMiddleware(
             RequestDelegate next,
@@ -35,7 +35,8 @@ namespace GraphQL.Server.Transports.WebSockets
 
         public async Task Invoke(HttpContext context)
         {
-            using (_logger.BeginScope(new Dictionary<string, object>() {
+            using (_logger.BeginScope(new Dictionary<string, object>
+            {
                 ["ConnectionId"] = context.Connection.Id,
                 ["Request"] = context.Request
             }))
