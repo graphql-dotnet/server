@@ -5,6 +5,10 @@ using Microsoft.Extensions.Options;
 
 namespace GraphQL.Server.Transports.WebSockets
 {
+    /// <summary>
+    ///     Configure <see cref="IDocumentExecutionListener"/> from container
+    /// </summary>
+    /// <typeparam name="TSchema"></typeparam>
     public class PostConfigureExecutionOptions<TSchema> : IPostConfigureOptions<ExecutionOptions<TSchema>>
         where TSchema : ISchema
     {

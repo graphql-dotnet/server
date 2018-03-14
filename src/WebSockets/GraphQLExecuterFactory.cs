@@ -5,6 +5,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace GraphQL.Server.Transports.WebSockets
 {
+    /// <summary>
+    ///     Factory wihch creates and <see cref="IGraphQLExecuter"/> for TSchema
+    /// </summary>
     public class GraphQLExecuterFactory : IGraphQLExecuterFactory
     {
         private readonly IServiceProvider _services;

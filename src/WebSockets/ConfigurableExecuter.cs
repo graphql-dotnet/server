@@ -5,6 +5,10 @@ using Newtonsoft.Json.Linq;
 
 namespace GraphQL.Server.Transports.WebSockets
 {
+    /// <summary>
+    ///     Executer that can be configured with <see cref="ExecutionOptions"/>
+    /// </summary>
+    /// <typeparam name="TSchema"></typeparam>
     public class ConfigurableExecuter<TSchema> : DefaultSchemaExecuter<TSchema> where TSchema : ISchema
     {
         private readonly ExecutionOptions<TSchema> _options;

@@ -8,6 +8,10 @@ using GraphQL.Validation.Complexity;
 
 namespace GraphQL.Server.Transports.WebSockets
 {
+    /// <summary>
+    ///     GraphQL execution options for TSchema
+    /// </summary>
+    /// <typeparam name="TSchema"></typeparam>
     public class ExecutionOptions<TSchema> where TSchema : ISchema
     {
         public IEnumerable<IDocumentExecutionListener> Listeners { get; set; }
