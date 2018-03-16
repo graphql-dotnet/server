@@ -2,11 +2,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<Description>A GraphiQL Integration for AspNetCore</Description>
-		<TargetFramework>netcoreapp2.0</TargetFramework>
+		<TargetFramework>netstandard2.0</TargetFramework>
 		<PackageId>GraphQL.Server.Ui.GraphiQL</PackageId>
-		<Authors />
-		<Company />
-		<Product>https://github.com/graphql-dotnet/server</Product>
+		<Authors>pekkah</Authors>
+		<Company>graphql-dotnet</Company>
+		<Product>graphql-dotnet server</Product>
 		<PackageProjectUrl>https://github.com/graphql-dotnet/server</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/graphql-dotnet/server</RepositoryUrl>
 		<RepositoryType />

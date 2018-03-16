@@ -1,13 +1,14 @@
 using GraphQL.Samples.Schemas.Chat;
 using GraphQL.Server.Transports.AspNetCore;
+using GraphQL.Server.Transports.Subscriptions.Abstractions;
 using GraphQL.Server.Transports.WebSockets;
-using GraphQL.Server.Transports.WebSockets.Events;
 using GraphQL.Server.Ui.GraphiQL;
 using GraphQL.Server.Ui.Playground;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MessageType = GraphQL.Samples.Schemas.Chat.MessageType;
 
 namespace GraphQL.Samples.Server
 {
@@ -31,10 +32,16 @@ namespace GraphQL.Samples.Server
             services.AddSingleton<MessageType>();
             services.AddSingleton<MessageInputType>();
 
-            // subscriptions
-            services.AddSingleton<IEventAggregator, SimpleEventAggregator>();
-
+            // http
             services.AddGraphQLHttp();
+
+            // subscriptions
+            services.Configure<ExecutionOptions<ChatSchema>>(options =>
+            {
+                options.EnableMetrics = true;
+                options.ExposeExceptions = true;
+            });
+            services.AddSingleton<IOperationMessageListener, LogMessagesListener>();
             services.AddGraphQLWebSocket<ChatSchema>();
             services.AddMvc();
         }
