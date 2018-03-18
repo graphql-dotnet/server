@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{DD6938E1-E98D-4BD4-9882-FE1CE79F7306}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebSockets", "src\WebSockets\WebSockets.csproj", "{4DF1CB8E-30AA-4281-9056-D49FDBF4C496}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Transports.Subscriptions.WebSockets", "src\Transports.Subscriptions.WebSockets\Transports.Subscriptions.WebSockets.csproj", "{4DF1CB8E-30AA-4281-9056-D49FDBF4C496}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples.Schemas.Chat", "samples\Samples.Schemas.Chat\Samples.Schemas.Chat.csproj", "{EB56A378-89E5-4425-BFA6-6BA0F4A67432}"
 EndProject
@@ -25,9 +25,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspNetCore", "src\AspNetCore\AspNetCore.csproj", "{77231A45-EB53-4548-A9A6-D2F6891E32F9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Transports.AspNetCore", "src\Transports.AspNetCore\Transports.AspNetCore.csproj", "{77231A45-EB53-4548-A9A6-D2F6891E32F9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebSockets.Tests", "tests\WebSockets.Tests\WebSockets.Tests.csproj", "{63AF8BD1-95F4-4443-9C30-891E3DBEB7AE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Transports.Subscriptions.WebSockets.Tests", "tests\Transports.Subscriptions.WebSockets.Tests\Transports.Subscriptions.WebSockets.Tests.csproj", "{63AF8BD1-95F4-4443-9C30-891E3DBEB7AE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ui.Playground", "src\Ui.Playground\Ui.Playground.csproj", "{C6DA4A1C-867A-4633-B15B-12A2EEE9F405}"
 EndProject

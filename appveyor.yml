@@ -9,8 +9,6 @@ artifacts:
     name: Packages
 
 test: off
-skip_tags: false
-skip_branch_with_pr: true
 
 on_failure:
   - ps: Update-AppveyorBuild -Version "$($env:appveyor_build_version)-$(Get-Date -format HHmmss)-failed"
@@ -23,4 +21,14 @@ deploy:
     skip_symbols: true
     on:
       branch:
+        - develop
         - master
+
+for:
+
+-
+  branches:
+    only:
+      - master
+
+  skip_non_tags: true
