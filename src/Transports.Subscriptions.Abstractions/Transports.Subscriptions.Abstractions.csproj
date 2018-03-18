@@ -14,8 +14,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="GraphQL" Version="2.0.0-alpha-864" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="2.0.0" />
+    <PackageReference Include="GraphQL" Version="[2.0.0-alpha-868, 2.1)" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="2.0.1" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.1" />
     <PackageReference Include="System.Threading.Tasks.Dataflow" Version="4.8.0" />
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.4.0" />
