@@ -18,12 +18,12 @@
 
   <ItemGroup>
     <PackageReference Include="Castle.Core" Version="4.2.1" />
-    <PackageReference Include="GraphQL" Version="2.0.0-alpha-864" />
-    <PackageReference Include="Microsoft.AspNetCore" Version="2.0.1" />
-    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="2.0.1" />
-    <PackageReference Include="Microsoft.AspNetCore.WebSockets" Version="2.0.1" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="2.0.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.6.0" />
+    <PackageReference Include="GraphQL" Version="[2.0.0-alpha-868, 2.1)" />
+    <PackageReference Include="Microsoft.AspNetCore" Version="2.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="2.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.WebSockets" Version="2.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="2.0.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.6.1" />
     <PackageReference Include="NSubstitute" Version="3.1.0" />
     <PackageReference Include="xunit" Version="2.3.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />

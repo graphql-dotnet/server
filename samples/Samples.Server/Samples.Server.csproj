@@ -11,9 +11,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="GraphQL" Version="2.0.0-alpha-864" />
-    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.5" />
-    <PackageReference Include="Microsoft.AspNetCore.WebSockets" Version="2.0.1" />
+    <PackageReference Include="GraphQL" Version="[2.0.0-alpha-868, 2.1)" />
+    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.6" />
+    <PackageReference Include="Microsoft.AspNetCore.WebSockets" Version="2.0.2" />
     <PackageReference Include="Serilog" Version="2.6.0" />
     <PackageReference Include="Serilog.AspNetCore" Version="2.1.1" />
     <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
