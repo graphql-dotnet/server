@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using GraphQL.Subscription;
 using Microsoft.Extensions.Logging;
@@ -80,7 +81,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         private void Subscribe(SubscriptionExecutionResult result)
         {
             var stream = result.Streams.Values.Single();
-            _unsubscribe = stream.Subscribe(this);
+            _unsubscribe = stream.Synchronize().Subscribe(this);
             _logger.LogInformation("Subscription: {subscriptionId} subscribed", Id);
         }
     }

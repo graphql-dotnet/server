@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
@@ -84,7 +85,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             /* Given */
             var id = "1";
             var payload = new OperationMessagePayload();
-            var stream = Substitute.For<IObservable<ExecutionResult>>();
+            var stream = new Subject<ExecutionResult>();
             var result = new SubscriptionExecutionResult
             {
                 Streams = new Dictionary<string, IObservable<ExecutionResult>>
@@ -96,9 +97,30 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             /* When */
             var sut = new Subscription(id, payload, result, _writer, null, new NullLogger<Subscription>());
 
-
             /* Then */
-            stream.Received().Subscribe(Arg.Is<Subscription>(sub => sub.Id == id));
+            Assert.True(stream.HasObservers);
+        }
+
+        [Fact]
+        public void Subscribe_to_completed_stream_should_not_throw()
+        {
+            /* Given */
+            var id = "1";
+            var payload = new OperationMessagePayload();
+            var subject = new Subject<ExecutionResult>();
+            subject.OnCompleted();
+            var stream = subject;
+            var result = new SubscriptionExecutionResult
+            {
+                Streams = new Dictionary<string, IObservable<ExecutionResult>>
+                {
+                    {"op", stream}
+                }
+            };
+
+            /* When */
+            /* Then */
+            var sut = new Subscription(id, payload, result, _writer, null, new NullLogger<Subscription>()); 
         }
 
         [Fact]
