@@ -23,4 +23,14 @@ deploy:
     skip_symbols: true
     on:
       branch:
+        - develop
         - master
+
+for:
+
+-
+  branches:
+    only:
+      - master
+
+  skip_non_tags: true
