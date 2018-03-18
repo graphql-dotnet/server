@@ -8,8 +8,8 @@ var framework = Argument<string>("framework", "netstandard2.0");
 var runtime = Argument<string>("runtime", "win-x64");
 var sln = "./GraphQL.Server.Transports.sln";
 var projectFiles = new [] {
-  "./src/AspNetCore/AspNetCore.csproj",
-  "./src/WebSockets/WebSockets.csproj",
+  "./src/Transports.AspNetCore/Transports.AspNetCore.csproj",
+  "./src/Transports.Subscriptions.WebSockets/Transports.Subscriptions.WebSockets.csproj",
   "./src/Ui.Playground/Ui.Playground.csproj",
   "./src/Ui.GraphiQL/Ui.GraphiQL.csproj"
   };
@@ -99,11 +99,11 @@ Task("SetVersion")
         var versionInfo = GitVersion(new GitVersionSettings {
             RepositoryPath = "."
         });
-        version = versionInfo.SemVer;
-        Information($"Version: {version}, FullSemVer: {versionInfo.SemVer}");
+        version = versionInfo.NuGetVersion;
+        Information($"Version: {version}, FullSemVer: {versionInfo.FullSemVer}");
 
         if(AppVeyor.IsRunningOnAppVeyor) {
-            AppVeyor.UpdateBuildVersion(versionInfo.FullSemVer);
+            AppVeyor.UpdateBuildVersion(version);
         }
     });
 
