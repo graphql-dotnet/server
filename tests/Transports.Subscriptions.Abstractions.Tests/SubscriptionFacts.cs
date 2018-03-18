@@ -102,6 +102,30 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         }
 
         [Fact]
+        public void Subscribe_to_completed_stream()
+        {
+            /* Given */
+            var id = "1";
+            var payload = new OperationMessagePayload();
+            var subject = new Subject<ExecutionResult>();
+            subject.OnCompleted();
+            var stream = subject;
+            var result = new SubscriptionExecutionResult
+            {
+                Streams = new Dictionary<string, IObservable<ExecutionResult>>
+                {
+                    {"op", stream}
+                }
+            };
+
+            /* When */
+            var sut = new Subscription(id, payload, result, _writer, null, new NullLogger<Subscription>());
+
+            /* Then */
+            stream.Received().Subscribe(Arg.Is<Subscription>(sub => sub.Id == id));
+        }
+
+        [Fact]
         public async Task Unsubscribe_from_stream()
         {
             /* Given */
