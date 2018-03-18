@@ -6,7 +6,7 @@
     <RootNamespace>GraphQL.Server.Transports.AspNetCore</RootNamespace>
     <Product>graphql-dotnet server</Product>
     <Company>graphql-dotnet</Company>
-    <Authors>pekkah</Authors>
+    <Authors>Pekka Heikura</Authors>
     <Description>HTTP middleware for graphql</Description>
     <PackageProjectUrl>https://github.com/graphql-dotnet/server</PackageProjectUrl>
     <RepositoryUrl>https://github.com/graphql-dotnet/server</RepositoryUrl>

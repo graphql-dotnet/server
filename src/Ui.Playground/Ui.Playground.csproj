@@ -7,7 +7,7 @@
 		<RootNamespace>GraphQL.Server.Ui.Playground</RootNamespace>
 		<Product>GraphQL for .NET</Product>
 		<Company>graphql-dotnet</Company>
-		<Authors>pekkah</Authors>
+		<Authors>Pekka Heikura</Authors>
 		<Description>GraphQL playground extension</Description>
 		<PackageProjectUrl>https://github.com/graphql-dotnet/server</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/graphql-dotnet/server</RepositoryUrl>

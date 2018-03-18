@@ -4,7 +4,7 @@
 		<Description>A GraphiQL Integration for AspNetCore</Description>
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<PackageId>GraphQL.Server.Ui.GraphiQL</PackageId>
-		<Authors>pekkah</Authors>
+		<Authors>Pekka Heikura</Authors>
 		<Company>graphql-dotnet</Company>
 		<Product>graphql-dotnet server</Product>
 		<PackageProjectUrl>https://github.com/graphql-dotnet/server</PackageProjectUrl>
