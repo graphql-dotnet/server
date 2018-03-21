@@ -8,21 +8,15 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
     public interface IOperationMessageListener
     {
         /// <summary>
-        ///     Called before message is handled
+        ///     Called to handle message
         /// </summary>
-        /// <param name="reader"></param>
-        /// <param name="writer"></param>
-        /// <param name="message"></param>
         /// <returns></returns>
-        Task OnBeforeHandleAsync(IReaderPipeline reader, IWriterPipeline writer, OperationMessage message);
+        Task HandleAsync(MessageHandlingContext context);
 
         /// <summary>
-        ///     Called after message has been handled according to the protocol
+        ///     Called after message has been handled
         /// </summary>
-        /// <param name="reader"></param>
-        /// <param name="writer"></param>
-        /// <param name="message"></param>
         /// <returns></returns>
-        Task OnAfterHandleAsync(IReaderPipeline reader, IWriterPipeline writer, OperationMessage message);
+        Task AfterHandleAsync(MessageHandlingContext context);
     }
 }

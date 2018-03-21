@@ -26,7 +26,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
             _server = new SubscriptionServer(
                 _transport,
                 _subscriptions,
-                Enumerable.Empty<IOperationMessageListener>(),
+                new []{ new ProtocolMessageListener(new NullLogger<ProtocolMessageListener>())},
                 new NullLogger<SubscriptionServer>()
             );
         }

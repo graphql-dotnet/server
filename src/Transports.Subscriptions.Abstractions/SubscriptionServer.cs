@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
 
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 {
@@ -14,16 +13,16 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
     public class SubscriptionServer
     {
         private readonly ILogger<SubscriptionServer> _logger;
-        private readonly IEnumerable<IOperationMessageListener> _operationMessageListeners;
+        private readonly IEnumerable<IOperationMessageListener> _messageListeners;
         private ActionBlock<OperationMessage> _handler;
 
         public SubscriptionServer(
             IMessageTransport transport,
             ISubscriptionManager subscriptions,
-            IEnumerable<IOperationMessageListener> operationMessageListeners,
+            IEnumerable<IOperationMessageListener> messageListeners,
             ILogger<SubscriptionServer> logger)
         {
-            _operationMessageListeners = operationMessageListeners;
+            _messageListeners = messageListeners;
             _logger = logger;
             Subscriptions = subscriptions;
             Transport = transport;
@@ -43,7 +42,12 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             LinkToTransportWriter();
             LinkToTransportReader();
 
+            LogServerInformation();
+
+            // when transport reader is completed it should propagate here
             await _handler.Completion;
+
+            // complete write buffer
             await TransportWriter.Complete();
             await TransportWriter.Completion;
         }
@@ -51,6 +55,26 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         public Task OnDisconnect()
         {
             return Terminate();
+        }
+
+        public async Task Terminate()
+        {
+            foreach (var subscription in Subscriptions)
+                await Subscriptions.UnsubscribeAsync(subscription.Id);
+
+            // this should propagate to handler completion
+            await TransportReader.Complete();
+        }
+
+        private void LogServerInformation()
+        {
+            // list listeners
+            var builder = new StringBuilder();
+            builder.AppendLine("Message listeners:");
+            foreach (var listener in _messageListeners)
+                builder.AppendLine(listener.GetType().FullName);
+
+            _logger.LogInformation(builder.ToString());
         }
 
         private void LinkToTransportReader()
@@ -70,101 +94,26 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         private async Task HandleMessageAsync(OperationMessage message)
         {
             _logger.LogDebug("Handling message: {id} of type: {type}", message.Id, message.Type);
-            await OnBeforeHandleAsync(message);
-
-            //todo(pekka): should this be changed into message listener?
-            switch (message.Type)
-            {
-                case MessageType.GQL_CONNECTION_INIT:
-                    await HandleInitAsync(message);
-                    break;
-                case MessageType.GQL_START:
-                    await HandleStartAsync(message);
-                    break;
-                case MessageType.GQL_STOP:
-                    await HandleStopAsync(message);
-                    break;
-                case MessageType.GQL_CONNECTION_TERMINATE:
-                    await HandleTerminateAsync(message);
-                    break;
-                default:
-                    await HandleUnknownAsync(message);
-                    break;
-            }
-
-            await OnAfterHandleAsync(message);
+            var context = await BuildMessageHandlingContext(message);
+            await OnHandleAsync(context);
+            await OnAfterHandleAsync(context);
         }
 
-        private async Task OnBeforeHandleAsync(OperationMessage message)
+        private Task<MessageHandlingContext> BuildMessageHandlingContext(OperationMessage message)
         {
-            foreach (var listener in _operationMessageListeners)
-                await listener.OnBeforeHandleAsync(TransportReader, TransportWriter, message);
+            return Task.FromResult(new MessageHandlingContext(this, message));
         }
 
-        private async Task OnAfterHandleAsync(OperationMessage message)
+        private async Task OnHandleAsync(MessageHandlingContext context)
         {
-            foreach (var listener in _operationMessageListeners)
-                await listener.OnAfterHandleAsync(TransportReader, TransportWriter, message);
+            foreach (var listener in _messageListeners)
+                await listener.HandleAsync(context);
         }
 
-        private Task HandleUnknownAsync(OperationMessage message)
+        private async Task OnAfterHandleAsync(MessageHandlingContext context)
         {
-            _logger.LogError($"Unexpected message type: {message.Type}");
-            return TransportWriter.SendAsync(new OperationMessage
-            {
-                Type = MessageType.GQL_CONNECTION_ERROR,
-                Id = message.Id,
-                Payload = JObject.FromObject(new
-                {
-                    message.Id,
-                    Errors = new ExecutionErrors
-                    {
-                        new ExecutionError($"Unexpected message type {message.Type}")
-                    }
-                })
-            });
-        }
-
-        private async Task HandleTerminateAsync(OperationMessage message)
-        {
-            _logger.LogInformation("Handle terminate");
-            await Terminate();
-        }
-
-        private async Task Terminate()
-        {
-            foreach (var subscription in Subscriptions)
-                await Subscriptions.UnsubscribeAsync(subscription.Id);
-
-            await TransportReader.Complete();
-        }
-
-        private Task HandleStopAsync(OperationMessage message)
-        {
-            _logger.LogInformation("Handle stop: {id}", message.Id);
-            return Subscriptions.UnsubscribeAsync(message.Id);
-        }
-
-        private Task HandleStartAsync(OperationMessage message)
-        {
-            _logger.LogInformation("Handle start: {id}", message.Id);
-            var payload = message.Payload.ToObject<OperationMessagePayload>();
-            if (payload == null)
-                throw new InvalidOperationException($"Could not get OperationMessagePayload from message.Payload");
-
-            return Subscriptions.SubscribeOrExecuteAsync(
-                message.Id,
-                payload,
-                TransportWriter);
-        }
-
-        private Task HandleInitAsync(OperationMessage message)
-        {
-            _logger.LogInformation("Handle init");
-            return TransportWriter.SendAsync(new OperationMessage
-            {
-                Type = MessageType.GQL_CONNECTION_ACK
-            });
+            foreach (var listener in _messageListeners)
+                await listener.AfterHandleAsync(context);
         }
 
         private void LinkToTransportWriter()
