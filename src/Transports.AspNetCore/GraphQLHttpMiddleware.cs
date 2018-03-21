@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -49,13 +48,13 @@ namespace GraphQL.Server.Transports.AspNetCore
 
         private bool IsGraphQlRequest(HttpContext context)
         {
-            return context.Request.Path.StartsWithSegments(_options.Path);
+            return HttpMethods.IsPost(context.Request.Method) && context.Request.Path.StartsWithSegments(_options.Path);
         }
 
         private async Task ExecuteAsync(HttpContext context, ISchema schema)
         {
             var request = Deserialize<GraphQLQuery>(context.Request.Body);
-            
+
             object userContext = null;
             var userContextBuilder = context.RequestServices.GetService<IUserContextBuilder>();
             if (userContextBuilder != null)
@@ -66,7 +65,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             {
                 userContext = _options.BuildUserContext?.Invoke(context);
             }
-            
+
             var result = await _executer.ExecuteAsync(_ =>
             {
                 _.Schema = schema;
