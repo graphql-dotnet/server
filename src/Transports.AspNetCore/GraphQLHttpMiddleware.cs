@@ -48,7 +48,7 @@ namespace GraphQL.Server.Transports.AspNetCore
 
         private bool IsGraphQlRequest(HttpContext context)
         {
-            return context.Request.Method.Equals("POST") && context.Request.Path.StartsWithSegments(_options.Path);
+            return HttpMethods.IsPost(context.Request.Method) && context.Request.Path.StartsWithSegments(_options.Path);
         }
 
         private async Task ExecuteAsync(HttpContext context, ISchema schema)
