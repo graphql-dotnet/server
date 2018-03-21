@@ -4,6 +4,7 @@ using GraphQL.Server.Transports.Subscriptions.Abstractions;
 using GraphQL.Server.Transports.WebSockets;
 using GraphQL.Server.Ui.GraphiQL;
 using GraphQL.Server.Ui.Playground;
+using GraphQL.Server.Ui.Voyager;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -70,6 +71,11 @@ namespace GraphQL.Samples.Server
             {
                 GraphiQLPath = "/ui/graphiql",
                 GraphQLEndPoint = "/graphql"
+            });
+            app.UseGraphQLVoyager(new GraphQLVoyagerOptions()
+            {
+                GraphQLEndPoint = "/graphql",
+                Path = "/ui/voyager"
             });
             app.UseMvc();
         }
