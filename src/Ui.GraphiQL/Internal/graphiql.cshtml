@@ -113,7 +113,7 @@
 		function graphQLFetcher(graphQLParams) {
 			// This example expects a GraphQL server at the path /graphql.
 			// Change this to point wherever you host your GraphQL server.
-			return fetch('@Model.GraphQLEndPoint', {
+			return fetch(window.location.protocol + "//" + window.location.host + '@Model.GraphQLEndPoint', {
 				method: 'post',
 				headers: {
 					'Accept': 'application/json',
@@ -133,7 +133,7 @@
 		}
 
 		// Enable Subscriptions via WebSocket
-		var subscriptionsClient = new window.SubscriptionsTransportWs.SubscriptionClient("ws://" + window.location.host + "@Model.GraphQLEndPoint", { reconnect: true });
+		var subscriptionsClient = new window.SubscriptionsTransportWs.SubscriptionClient((window.location.protocol === "http:" ? "ws://" : "wss://") + window.location.host + "@Model.GraphQLEndPoint", { reconnect: true });
     	var subscriptionsFetcher = window.GraphiQLSubscriptionsFetcher.graphQLFetcher(subscriptionsClient, graphQLFetcher);
 
 		// Render <GraphiQL /> into the body.
