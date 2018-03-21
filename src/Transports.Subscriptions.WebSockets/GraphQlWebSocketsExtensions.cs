@@ -1,3 +1,4 @@
+using GraphQL.Server.Transports.Subscriptions.Abstractions;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,6 +14,7 @@ namespace GraphQL.Server.Transports.WebSockets
         {
             services.TryAddSingleton<IDocumentExecuter, DocumentExecuter>();
             services.TryAddSingleton<IGraphQLExecuterFactory, GraphQLExecuterFactory>();
+            services.AddSingleton<IOperationMessageListener, ProtocolMessageListener>();
             services.TryAddSingleton<ConfigurableExecuter<TSchema>>();
 
             return services;
