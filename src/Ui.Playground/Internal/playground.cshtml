@@ -51,8 +51,8 @@
       GraphQLPlayground.init(document.getElementById('root'),
         {
           setTitle: true,
-          endpoint: "http://" + window.location.host + "@Model.GraphQLEndPoint",
-          subscriptionEndpoint: "ws://" + window.location.host + "@Model.GraphQLEndPoint"
+          endpoint: window.location.protocol + "//" + window.location.host + "@Model.GraphQLEndPoint",
+          subscriptionEndpoint: (window.location.protocol === "http:" ? "ws://" : "wss://") + window.location.host + "@Model.GraphQLEndPoint"
         });
     })
   </script>
