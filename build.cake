@@ -12,7 +12,8 @@ var projectFiles = new [] {
   "./src/Transports.Subscriptions.Abstractions/Transports.Subscriptions.Abstractions.csproj",
   "./src/Transports.Subscriptions.WebSockets/Transports.Subscriptions.WebSockets.csproj",
   "./src/Ui.Playground/Ui.Playground.csproj",
-  "./src/Ui.GraphiQL/Ui.GraphiQL.csproj"
+  "./src/Ui.GraphiQL/Ui.GraphiQL.csproj",
+  "./src/Ui.Voyager/Ui.Voyager.csproj"
   };
 
 var version = "0.0.0-dev";
