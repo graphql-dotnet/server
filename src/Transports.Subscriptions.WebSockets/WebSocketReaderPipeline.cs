@@ -70,7 +70,7 @@ namespace GraphQL.Server.Transports.WebSockets
 
             Task.Run(async () =>
             {
-                while (!source.Completion.IsCompleted || !source.Completion.IsCanceled || !_socket.CloseStatus.HasValue)
+                while (!source.Completion.IsCompleted && !source.Completion.IsCanceled && !_socket.CloseStatus.HasValue)
                     await ReadMessageAsync(source);
             });
 
