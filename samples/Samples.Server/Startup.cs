@@ -43,9 +43,6 @@ namespace GraphQL.Samples.Server
                 options.ExposeExceptions = true;
             });
             
-            // this will be called before the protocol listener
-            services.AddSingleton<IOperationMessageListener, LogMessagesListener>();
-
             // register default services for web socket. This will also add the protocol handler.
             services.AddGraphQLWebSocket<ChatSchema>();
             services.AddMvc();

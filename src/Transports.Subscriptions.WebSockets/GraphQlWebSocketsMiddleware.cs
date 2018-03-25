@@ -20,16 +20,16 @@ namespace GraphQL.Server.Transports.WebSockets
 
         public GraphQLWebSocketsMiddleware(
             RequestDelegate next,
-            IGraphQLExecuterFactory executerFactory,
-            IOptions<GraphQLWebSocketsOptions> options,
-            IEnumerable<IOperationMessageListener> messageListeners,
+            IOptions<ExecutionOptions<TSchema>> executionOptions,
+            IOptions<GraphQLWebSocketsOptions> middlewareOptions,
             ILoggerFactory loggerFactory)
         {
             _next = next;
-            _messageListeners = messageListeners;
+            _messageListeners = executionOptions.Value.MessageListeners;
+            _executer = executionOptions.Value.ExecuterFactory.Create();
+            _options = middlewareOptions.Value;
+
             _loggerFactory = loggerFactory;
-            _executer = executerFactory.Create<TSchema>();
-            _options = options.Value;
             _logger = loggerFactory.CreateLogger<GraphQLWebSocketsMiddleware<TSchema>>();
         }
 
