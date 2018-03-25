@@ -9,6 +9,7 @@ artifacts:
     name: Packages
 
 test: off
+skip_branch_with_pr: true
 
 on_failure:
   - ps: Update-AppveyorBuild -Version "$($env:appveyor_build_version)-$(Get-Date -format HHmmss)-failed"
