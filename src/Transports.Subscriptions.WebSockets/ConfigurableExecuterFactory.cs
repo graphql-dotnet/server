@@ -6,19 +6,19 @@ using Microsoft.Extensions.DependencyInjection;
 namespace GraphQL.Server.Transports.WebSockets
 {
     /// <summary>
-    ///     Factory wihch creates and <see cref="IGraphQLExecuter"/> for TSchema
+    ///     Factory wihch creates and <see cref="IGraphQLExecuter" /> for TSchema
     /// </summary>
-    public class GraphQLExecuterFactory : IGraphQLExecuterFactory
+    public class ConfigurableExecuterFactory<TSchema> : IGraphQLExecuterFactory<TSchema> where TSchema : ISchema
     {
         private readonly IServiceProvider _services;
 
-        public GraphQLExecuterFactory(
+        public ConfigurableExecuterFactory(
             IServiceProvider services)
         {
             _services = services;
         }
 
-        public IGraphQLExecuter Create<TSchema>() where TSchema : ISchema
+        public IGraphQLExecuter Create()
         {
             //todo: this feels wrong...
             return _services.GetRequiredService<ConfigurableExecuter<TSchema>>();

@@ -6,13 +6,13 @@ namespace GraphQL.Server.Transports.WebSockets
     /// <summary>
     ///     Factory for creating <see cref="IGraphQLExecuter"/> for given TSchema
     /// </summary>
-    public interface IGraphQLExecuterFactory
+    public interface IGraphQLExecuterFactory<TSchema> where TSchema: ISchema
     {
         /// <summary>
         ///     Create executer
         /// </summary>
         /// <typeparam name="TSchema"></typeparam>
         /// <returns></returns>
-        IGraphQLExecuter Create<TSchema>() where TSchema : ISchema;
+        IGraphQLExecuter Create();
     }
 }

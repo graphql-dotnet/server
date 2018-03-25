@@ -1,10 +1,6 @@
 ﻿using System.Collections.Generic;
-using GraphQL.Conversion;
-using GraphQL.Execution;
-using GraphQL.Instrumentation;
+using GraphQL.Server.Transports.Subscriptions.Abstractions;
 using GraphQL.Types;
-using GraphQL.Validation;
-using GraphQL.Validation.Complexity;
 
 namespace GraphQL.Server.Transports.WebSockets
 {
@@ -12,26 +8,15 @@ namespace GraphQL.Server.Transports.WebSockets
     ///     GraphQL execution options for TSchema
     /// </summary>
     /// <typeparam name="TSchema"></typeparam>
-    public class ExecutionOptions<TSchema> where TSchema : ISchema
+    public class ExecutionOptions<TSchema> : ExecutionOptions where TSchema : ISchema
     {
-        public IEnumerable<IDocumentExecutionListener> Listeners { get; set; }
+        public ExecutionOptions()
+        {
+            MessageListeners = new List<IOperationMessageListener>();
+        }
 
-        public IEnumerable<IValidationRule> ValidationRules { get; set; }
+        public List<IOperationMessageListener> MessageListeners { get; set; }
 
-        public object UserContext { get; set; }
-
-        public IFieldMiddlewareBuilder FieldMiddleware { get; set; } =
-            new FieldMiddlewareBuilder();
-
-        public ComplexityConfiguration ComplexityConfiguration { get; set; }
-
-        public IFieldNameConverter FieldNameConverter { get; set; } =
-            new CamelCaseFieldNameConverter();
-
-        public bool ExposeExceptions { get; set; }
-
-        public bool EnableMetrics { get; set; } = true;
-
-        public bool SetFieldMiddleware { get; set; } = true;
+        public IGraphQLExecuterFactory<TSchema> ExecuterFactory { get; set; }
     }
 }
