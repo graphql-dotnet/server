@@ -18,6 +18,9 @@ namespace GraphQL.Server.Transports.AspNetCore
 {
     public class GraphQLHttpMiddleware<TSchema> where TSchema : ISchema
     {
+        private const string JsonContentType = "application/json";
+        private const string GraphQLContentType = "application/graphql";
+
         private readonly RequestDelegate _next;
         private readonly GraphQLHttpOptions _options;
         private readonly IDocumentExecuter _executer;
@@ -58,21 +61,21 @@ namespace GraphQL.Server.Transports.AspNetCore
         {
             // Handle requests as per recommendation at http://graphql.org/learn/serving-over-http/
             var request = new GraphQLQuery();
-            if (context.Request.Method.Equals("GET", StringComparison.OrdinalIgnoreCase))
+            if (HttpMethods.IsGet(context.Request.Method))
             {
                 var qs = context.Request.Query;
-                request.Query = qs.TryGetValue("query", out StringValues queryValues) ? queryValues[0] : null;
-                request.Variables = qs.TryGetValue("variables", out StringValues variablesValues) ? JObject.Parse(variablesValues[0]) : null;
-                request.OperationName = qs.TryGetValue("operationName", out StringValues operationNameValues) ? operationNameValues[0] : null;
+                request.Query = qs.TryGetValue(GraphQLQuery.QueryKey, out StringValues queryValues) ? queryValues[0] : null;
+                request.Variables = qs.TryGetValue(GraphQLQuery.VariablesKey, out StringValues variablesValues) ? JObject.Parse(variablesValues[0]) : null;
+                request.OperationName = qs.TryGetValue(GraphQLQuery.OperationNameKey, out StringValues operationNameValues) ? operationNameValues[0] : null;
             }
-            else if (context.Request.Method.Equals("POST", StringComparison.OrdinalIgnoreCase))
+            else if (HttpMethods.IsPost(context.Request.Method))
             {
                 switch (context.Request.ContentType)
                 {
-                    case "application/json":
+                    case JsonContentType:
                         request = Deserialize<GraphQLQuery>(context.Request.Body);
                         break;
-                    case "application/graphql":
+                    case GraphQLContentType:
                         request.Query = await ReadAsStringAsync(context.Request.Body);
                         break;
                 }                
