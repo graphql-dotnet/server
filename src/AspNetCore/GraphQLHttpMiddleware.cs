@@ -10,7 +10,9 @@ using GraphQL.Validation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace GraphQL.Server.Transports.AspNetCore
 {
@@ -54,7 +56,30 @@ namespace GraphQL.Server.Transports.AspNetCore
 
         private async Task ExecuteAsync(HttpContext context, ISchema schema)
         {
-            var request = Deserialize<GraphQLQuery>(context.Request.Body);
+            // Handle requests as per recommendation at http://graphql.org/learn/serving-over-http/
+            GraphQLQuery request = null;
+            if (context.Request.Method.Equals("GET", StringComparison.OrdinalIgnoreCase))
+            {
+                var q = context.Request.Query;
+                request = new GraphQLQuery()
+                {
+                    Query = q.TryGetValue("query", out StringValues queryValues) ? queryValues[0] : null,
+                    Variables = q.TryGetValue("variables", out StringValues variablesValues) ? JObject.Parse(variablesValues[0]) : null,
+                    OperationName = q.TryGetValue("operationName", out StringValues operationNameValues) ? operationNameValues[0] : null
+                };
+            }
+            else if (context.Request.Method.Equals("POST", StringComparison.OrdinalIgnoreCase))
+            {
+                switch (context.Request.ContentType)
+                {
+                    case "application/json":
+                        request = Deserialize<GraphQLQuery>(context.Request.Body);
+                        break;
+                    case "application/graphql":
+                        request.Query = await ReadAsStringAsync(context.Request.Body);
+                        break;
+                }                
+            }
             
             object userContext = null;
             var userContextBuilder = context.RequestServices.GetService<IUserContextBuilder>();
@@ -96,8 +121,15 @@ namespace GraphQL.Server.Transports.AspNetCore
             using (var reader = new StreamReader(s))
             using (var jsonReader = new JsonTextReader(reader))
             {
-                var ser = new JsonSerializer();
-                return ser.Deserialize<T>(jsonReader);
+                return new JsonSerializer().Deserialize<T>(jsonReader);
+            }
+        }
+
+        private static async Task<string> ReadAsStringAsync(Stream s)
+        {
+            using (var reader = new StreamReader(s))
+            {
+                return await reader.ReadToEndAsync();
             }
         }
     }
