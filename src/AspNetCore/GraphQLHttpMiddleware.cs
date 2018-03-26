@@ -57,16 +57,13 @@ namespace GraphQL.Server.Transports.AspNetCore
         private async Task ExecuteAsync(HttpContext context, ISchema schema)
         {
             // Handle requests as per recommendation at http://graphql.org/learn/serving-over-http/
-            GraphQLQuery request = null;
+            var request = new GraphQLQuery();
             if (context.Request.Method.Equals("GET", StringComparison.OrdinalIgnoreCase))
             {
-                var q = context.Request.Query;
-                request = new GraphQLQuery()
-                {
-                    Query = q.TryGetValue("query", out StringValues queryValues) ? queryValues[0] : null,
-                    Variables = q.TryGetValue("variables", out StringValues variablesValues) ? JObject.Parse(variablesValues[0]) : null,
-                    OperationName = q.TryGetValue("operationName", out StringValues operationNameValues) ? operationNameValues[0] : null
-                };
+                var qs = context.Request.Query;
+                request.Query = qs.TryGetValue("query", out StringValues queryValues) ? queryValues[0] : null;
+                request.Variables = qs.TryGetValue("variables", out StringValues variablesValues) ? JObject.Parse(variablesValues[0]) : null;
+                request.OperationName = qs.TryGetValue("operationName", out StringValues operationNameValues) ? operationNameValues[0] : null;
             }
             else if (context.Request.Method.Equals("POST", StringComparison.OrdinalIgnoreCase))
             {
