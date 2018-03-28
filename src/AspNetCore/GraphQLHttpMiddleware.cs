@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using GraphQL.Http;
 using GraphQL.Server.Transports.AspNetCore.Common;
@@ -60,25 +61,29 @@ namespace GraphQL.Server.Transports.AspNetCore
         private async Task ExecuteAsync(HttpContext context, ISchema schema)
         {
             // Handle requests as per recommendation at http://graphql.org/learn/serving-over-http/
-            var request = new GraphQLQuery();
-            if (HttpMethods.IsGet(context.Request.Method))
+            var httpRequest = context.Request;
+            var gqlRequest = new GraphQLRequest();
+            if (HttpMethods.IsGet(httpRequest.Method))
             {
-                var qs = context.Request.Query;
-                request.Query = qs.TryGetValue(GraphQLQuery.QueryKey, out StringValues queryValues) ? queryValues[0] : null;
-                request.Variables = qs.TryGetValue(GraphQLQuery.VariablesKey, out StringValues variablesValues) ? JObject.Parse(variablesValues[0]) : null;
-                request.OperationName = qs.TryGetValue(GraphQLQuery.OperationNameKey, out StringValues operationNameValues) ? operationNameValues[0] : null;
+                var qs = httpRequest.Query;
+                gqlRequest.Query = qs.TryGetValue(GraphQLRequest.QueryKey, out StringValues queryValues) ? queryValues[0] : null;
+                gqlRequest.Variables = qs.TryGetValue(GraphQLRequest.VariablesKey, out StringValues variablesValues) ? JObject.Parse(variablesValues[0]) : null;
+                gqlRequest.OperationName = qs.TryGetValue(GraphQLRequest.OperationNameKey, out StringValues operationNameValues) ? operationNameValues[0] : null;
             }
-            else if (HttpMethods.IsPost(context.Request.Method))
+            else if (HttpMethods.IsPost(httpRequest.Method))
             {
-                switch (context.Request.ContentType)
+                if (MediaTypeHeaderValue.TryParse(httpRequest.ContentType, out MediaTypeHeaderValue mediaTypeHeader))
                 {
-                    case JsonContentType:
-                        request = Deserialize<GraphQLQuery>(context.Request.Body);
-                        break;
-                    case GraphQLContentType:
-                        request.Query = await ReadAsStringAsync(context.Request.Body);
-                        break;
-                }                
+                    switch (mediaTypeHeader.MediaType)
+                    {
+                        case JsonContentType:
+                            gqlRequest = Deserialize<GraphQLRequest>(httpRequest.Body);
+                            break;
+                        case GraphQLContentType:
+                            gqlRequest.Query = await ReadAsStringAsync(httpRequest.Body);
+                            break;
+                    }
+                }
             }
             
             object userContext = null;
@@ -95,9 +100,9 @@ namespace GraphQL.Server.Transports.AspNetCore
             var result = await _executer.ExecuteAsync(_ =>
             {
                 _.Schema = schema;
-                _.Query = request.Query;
-                _.OperationName = request.OperationName;
-                _.Inputs = request.Variables.ToInputs();
+                _.Query = gqlRequest.Query;
+                _.OperationName = gqlRequest.OperationName;
+                _.Inputs = gqlRequest.Variables.ToInputs();
                 _.UserContext = userContext;
                 _.ExposeExceptions = _options.ExposeExceptions;
                 _.ValidationRules = _options.ValidationRules.Concat(DocumentValidator.CoreRules()).ToList();

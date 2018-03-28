@@ -4,7 +4,7 @@ using Newtonsoft.Json.Linq;
 
 namespace GraphQL.Server.Transports.AspNetCore.Common
 {
-    public class GraphQLQuery
+    public class GraphQLRequest
     {
         public const string QueryKey = "query";
         public const string VariablesKey = "variables";
