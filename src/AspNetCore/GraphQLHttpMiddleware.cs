@@ -65,14 +65,15 @@ namespace GraphQL.Server.Transports.AspNetCore
             var gqlRequest = new GraphQLRequest();
             if (HttpMethods.IsGet(httpRequest.Method))
             {
-                var qs = httpRequest.Query;
-                gqlRequest.Query = qs.TryGetValue(GraphQLRequest.QueryKey, out StringValues queryValues) ? queryValues[0] : null;
-                gqlRequest.Variables = qs.TryGetValue(GraphQLRequest.VariablesKey, out StringValues variablesValues) ? JObject.Parse(variablesValues[0]) : null;
-                gqlRequest.OperationName = qs.TryGetValue(GraphQLRequest.OperationNameKey, out StringValues operationNameValues) ? operationNameValues[0] : null;
+                ExtractGraphQLRequest(httpRequest, gqlRequest);
             }
             else if (HttpMethods.IsPost(httpRequest.Method))
             {
-                if (MediaTypeHeaderValue.TryParse(httpRequest.ContentType, out MediaTypeHeaderValue mediaTypeHeader))
+                if (httpRequest.Query.ContainsKey(GraphQLRequest.QueryKey))
+                {
+                    ExtractGraphQLRequest(httpRequest, gqlRequest);
+                }
+                else if (MediaTypeHeaderValue.TryParse(httpRequest.ContentType, out MediaTypeHeaderValue mediaTypeHeader))
                 {
                     switch (mediaTypeHeader.MediaType)
                     {
@@ -109,6 +110,14 @@ namespace GraphQL.Server.Transports.AspNetCore
             });
 
             await WriteResponseAsync(context, result);
+        }
+
+        private static void ExtractGraphQLRequest(HttpRequest httpRequest, GraphQLRequest gqlRequest)
+        {
+            var qs = httpRequest.Query;
+            gqlRequest.Query = qs.TryGetValue(GraphQLRequest.QueryKey, out StringValues queryValues) ? queryValues[0] : null;
+            gqlRequest.Variables = qs.TryGetValue(GraphQLRequest.VariablesKey, out StringValues variablesValues) ? JObject.Parse(variablesValues[0]) : null;
+            gqlRequest.OperationName = qs.TryGetValue(GraphQLRequest.OperationNameKey, out StringValues operationNameValues) ? operationNameValues[0] : null;
         }
 
         private async Task WriteResponseAsync(HttpContext context, ExecutionResult result)
