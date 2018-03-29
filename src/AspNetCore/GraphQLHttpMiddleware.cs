@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using GraphQL.Http;
 using GraphQL.Server.Transports.AspNetCore.Common;
@@ -10,12 +11,17 @@ using GraphQL.Validation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace GraphQL.Server.Transports.AspNetCore
 {
     public class GraphQLHttpMiddleware<TSchema> where TSchema : ISchema
     {
+        private const string JsonContentType = "application/json";
+        private const string GraphQLContentType = "application/graphql";
+
         private readonly RequestDelegate _next;
         private readonly GraphQLHttpOptions _options;
         private readonly IDocumentExecuter _executer;
@@ -38,7 +44,7 @@ namespace GraphQL.Server.Transports.AspNetCore
 
         public async Task Invoke(HttpContext context)
         {
-            if (!IsGraphQlRequest(context))
+            if (!IsGraphQLRequest(context))
             {
                 await _next(context);
                 return;
@@ -47,14 +53,49 @@ namespace GraphQL.Server.Transports.AspNetCore
             await ExecuteAsync(context, _schema);
         }
 
-        private bool IsGraphQlRequest(HttpContext context)
+        private bool IsGraphQLRequest(HttpContext context)
         {
             return context.Request.Path.StartsWithSegments(_options.Path);
         }
 
         private async Task ExecuteAsync(HttpContext context, ISchema schema)
         {
-            var request = Deserialize<GraphQLQuery>(context.Request.Body);
+            // Handle requests as per recommendation at http://graphql.org/learn/serving-over-http/
+            var httpRequest = context.Request;
+            var gqlRequest = new GraphQLRequest();
+
+            if (HttpMethods.IsGet(httpRequest.Method))
+            {
+                ExtractGraphQLRequest(httpRequest, gqlRequest);
+            }
+            else if (HttpMethods.IsPost(httpRequest.Method))
+            {
+                if (httpRequest.Query.ContainsKey(GraphQLRequest.QueryKey))
+                {
+                    ExtractGraphQLRequest(httpRequest, gqlRequest);
+                }
+                else
+                {
+                    if (!MediaTypeHeaderValue.TryParse(httpRequest.ContentType, out MediaTypeHeaderValue mediaTypeHeader))
+                    {
+                        await WriteResponseAsync(context, HttpStatusCode.BadRequest, $"Invalid 'Content-Type' header: value '{httpRequest.ContentType}' could not be parsed.");
+                        return;
+                    }
+
+                    switch (mediaTypeHeader.MediaType)
+                    {
+                        case JsonContentType:
+                            gqlRequest = Deserialize<GraphQLRequest>(httpRequest.Body);
+                            break;
+                        case GraphQLContentType:
+                            gqlRequest.Query = await ReadAsStringAsync(httpRequest.Body);
+                            break;
+                        default:
+                            await WriteResponseAsync(context, HttpStatusCode.BadRequest, $"Invalid 'Content-Type' header: non-supported media type. Must be of '{JsonContentType}' or '{GraphQLContentType}'. See: http://graphql.org/learn/serving-over-http/.");
+                            return;
+                    }
+                }
+            }
             
             object userContext = null;
             var userContextBuilder = context.RequestServices.GetService<IUserContextBuilder>();
@@ -70,13 +111,24 @@ namespace GraphQL.Server.Transports.AspNetCore
             var result = await _executer.ExecuteAsync(_ =>
             {
                 _.Schema = schema;
-                _.Query = request.Query;
-                _.OperationName = request.OperationName;
-                _.Inputs = request.Variables.ToInputs();
+                _.Query = gqlRequest.Query;
+                _.OperationName = gqlRequest.OperationName;
+                _.Inputs = gqlRequest.Variables.ToInputs();
                 _.UserContext = userContext;
                 _.ExposeExceptions = _options.ExposeExceptions;
                 _.ValidationRules = _options.ValidationRules.Concat(DocumentValidator.CoreRules()).ToList();
             });
+
+            await WriteResponseAsync(context, result);
+        }
+
+        private async Task WriteResponseAsync(HttpContext context, HttpStatusCode statusCode, string errorMessage)
+        {
+            var result = new ExecutionResult()
+            {
+                Errors = new ExecutionErrors()
+            };
+            result.Errors.Add(new ExecutionError(errorMessage));
 
             await WriteResponseAsync(context, result);
         }
@@ -96,9 +148,24 @@ namespace GraphQL.Server.Transports.AspNetCore
             using (var reader = new StreamReader(s))
             using (var jsonReader = new JsonTextReader(reader))
             {
-                var ser = new JsonSerializer();
-                return ser.Deserialize<T>(jsonReader);
+                return new JsonSerializer().Deserialize<T>(jsonReader);
             }
+        }
+
+        private static async Task<string> ReadAsStringAsync(Stream s)
+        {
+            using (var reader = new StreamReader(s))
+            {
+                return await reader.ReadToEndAsync();
+            }
+        }
+
+        private static void ExtractGraphQLRequest(HttpRequest httpRequest, GraphQLRequest gqlRequest)
+        {
+            var qs = httpRequest.Query;
+            gqlRequest.Query = qs.TryGetValue(GraphQLRequest.QueryKey, out StringValues queryValues) ? queryValues[0] : null;
+            gqlRequest.Variables = qs.TryGetValue(GraphQLRequest.VariablesKey, out StringValues variablesValues) ? JObject.Parse(variablesValues[0]) : null;
+            gqlRequest.OperationName = qs.TryGetValue(GraphQLRequest.OperationNameKey, out StringValues operationNameValues) ? operationNameValues[0] : null;
         }
     }
 }
