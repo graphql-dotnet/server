@@ -1,18 +1,21 @@
-using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace GraphQL.Server.Transports.AspNetCore.Common
 {
-    public class GraphQLQuery
+    public class GraphQLRequest
     {
-        [JsonProperty("query")]
+        public const string QueryKey = "query";
+        public const string VariablesKey = "variables";
+        public const string OperationNameKey = "operationName";
+
+        [JsonProperty(QueryKey)]
         public string Query { get; set; }
 
-        [JsonProperty("variables")]
+        [JsonProperty(VariablesKey)]
         public JObject Variables { get; set; }
 
-        [JsonProperty("operationName")]
+        [JsonProperty(OperationNameKey)]
         public string OperationName { get; set; }
 
         public Inputs GetInputs()
