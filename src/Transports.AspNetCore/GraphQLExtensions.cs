@@ -38,11 +38,17 @@ namespace GraphQL.Server.Transports.AspNetCore
             return services;
         }
 
+        /// <summary>
+        /// Use the GraphQLHttp middleware with the provided options
+        /// </summary>
+        /// <typeparam name="TSchema">The implementation of <see cref="ISchema"/> to use</typeparam>
+        /// <param name="builder">The <see cref="IApplicationBuilder"/> to use the middleware on</param>
+        /// <returns>The <see cref="IApplicationBuilder"/> recieved as parameter</returns>
         public static IApplicationBuilder UseGraphQLHttp<TSchema>(this IApplicationBuilder builder,
-            GraphQLHttpOptions schemaOptions)
+            GraphQLHttpOptions graphQLHttpOptions)
             where TSchema : ISchema
         {
-            builder.UseMiddleware<GraphQLHttpMiddleware<TSchema>>(Options.Create(schemaOptions));
+            builder.UseMiddleware<GraphQLHttpMiddleware<TSchema>>(Options.Create(graphQLHttpOptions));
 
             return builder;
         }
