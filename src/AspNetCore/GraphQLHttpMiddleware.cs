@@ -44,7 +44,7 @@ namespace GraphQL.Server.Transports.AspNetCore
 
         public async Task Invoke(HttpContext context)
         {
-            if (!IsGraphQlRequest(context))
+            if (!IsGraphQLRequest(context))
             {
                 await _next(context);
                 return;
@@ -53,7 +53,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             await ExecuteAsync(context, _schema);
         }
 
-        private bool IsGraphQlRequest(HttpContext context)
+        private bool IsGraphQLRequest(HttpContext context)
         {
             return context.Request.Path.StartsWithSegments(_options.Path);
         }
@@ -63,6 +63,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             // Handle requests as per recommendation at http://graphql.org/learn/serving-over-http/
             var httpRequest = context.Request;
             var gqlRequest = new GraphQLRequest();
+
             if (HttpMethods.IsGet(httpRequest.Method))
             {
                 ExtractGraphQLRequest(httpRequest, gqlRequest);
@@ -73,8 +74,14 @@ namespace GraphQL.Server.Transports.AspNetCore
                 {
                     ExtractGraphQLRequest(httpRequest, gqlRequest);
                 }
-                else if (MediaTypeHeaderValue.TryParse(httpRequest.ContentType, out MediaTypeHeaderValue mediaTypeHeader))
+                else
                 {
+                    if (!MediaTypeHeaderValue.TryParse(httpRequest.ContentType, out MediaTypeHeaderValue mediaTypeHeader))
+                    {
+                        await WriteResponseAsync(context, HttpStatusCode.BadRequest, $"Invalid 'Content-Type' header: value '{httpRequest.ContentType}' could not be parsed.");
+                        return;
+                    }
+
                     switch (mediaTypeHeader.MediaType)
                     {
                         case JsonContentType:
@@ -83,6 +90,9 @@ namespace GraphQL.Server.Transports.AspNetCore
                         case GraphQLContentType:
                             gqlRequest.Query = await ReadAsStringAsync(httpRequest.Body);
                             break;
+                        default:
+                            await WriteResponseAsync(context, HttpStatusCode.BadRequest, $"Invalid 'Content-Type' header: non-supported media type. Must be of '{JsonContentType}' or '{GraphQLContentType}'. See: http://graphql.org/learn/serving-over-http/.");
+                            return;
                     }
                 }
             }
@@ -112,12 +122,15 @@ namespace GraphQL.Server.Transports.AspNetCore
             await WriteResponseAsync(context, result);
         }
 
-        private static void ExtractGraphQLRequest(HttpRequest httpRequest, GraphQLRequest gqlRequest)
+        private async Task WriteResponseAsync(HttpContext context, HttpStatusCode statusCode, string errorMessage)
         {
-            var qs = httpRequest.Query;
-            gqlRequest.Query = qs.TryGetValue(GraphQLRequest.QueryKey, out StringValues queryValues) ? queryValues[0] : null;
-            gqlRequest.Variables = qs.TryGetValue(GraphQLRequest.VariablesKey, out StringValues variablesValues) ? JObject.Parse(variablesValues[0]) : null;
-            gqlRequest.OperationName = qs.TryGetValue(GraphQLRequest.OperationNameKey, out StringValues operationNameValues) ? operationNameValues[0] : null;
+            var result = new ExecutionResult()
+            {
+                Errors = new ExecutionErrors()
+            };
+            result.Errors.Add(new ExecutionError(errorMessage));
+
+            await WriteResponseAsync(context, result);
         }
 
         private async Task WriteResponseAsync(HttpContext context, ExecutionResult result)
@@ -145,6 +158,14 @@ namespace GraphQL.Server.Transports.AspNetCore
             {
                 return await reader.ReadToEndAsync();
             }
+        }
+
+        private static void ExtractGraphQLRequest(HttpRequest httpRequest, GraphQLRequest gqlRequest)
+        {
+            var qs = httpRequest.Query;
+            gqlRequest.Query = qs.TryGetValue(GraphQLRequest.QueryKey, out StringValues queryValues) ? queryValues[0] : null;
+            gqlRequest.Variables = qs.TryGetValue(GraphQLRequest.VariablesKey, out StringValues variablesValues) ? JObject.Parse(variablesValues[0]) : null;
+            gqlRequest.OperationName = qs.TryGetValue(GraphQLRequest.OperationNameKey, out StringValues operationNameValues) ? operationNameValues[0] : null;
         }
     }
 }
