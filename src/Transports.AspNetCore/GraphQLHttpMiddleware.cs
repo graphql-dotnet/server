@@ -65,7 +65,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             
             if (HttpMethods.IsGet(httpRequest.Method) || (HttpMethods.IsPost(httpRequest.Method) && httpRequest.Query.ContainsKey(GraphQLRequest.QueryKey)))
             {
-                ExtractGraphQLRequestFromUrl(httpRequest, gqlRequest);
+                ExtractGraphQLRequestFromQueryString(httpRequest.Query, gqlRequest);
             }
             else if (HttpMethods.IsPost(httpRequest.Method))
             {
@@ -152,9 +152,8 @@ namespace GraphQL.Server.Transports.AspNetCore
             }
         }
 
-        private static void ExtractGraphQLRequestFromUrl(HttpRequest httpRequest, GraphQLRequest gqlRequest)
+        private static void ExtractGraphQLRequestFromQueryString(IQueryCollection qs, GraphQLRequest gqlRequest)
         {
-            var qs = httpRequest.Query;
             gqlRequest.Query = qs.TryGetValue(GraphQLRequest.QueryKey, out StringValues queryValues) ? queryValues[0] : null;
             gqlRequest.Variables = qs.TryGetValue(GraphQLRequest.VariablesKey, out StringValues variablesValues) ? JObject.Parse(variablesValues[0]) : null;
             gqlRequest.OperationName = qs.TryGetValue(GraphQLRequest.OperationNameKey, out StringValues operationNameValues) ? operationNameValues[0] : null;
