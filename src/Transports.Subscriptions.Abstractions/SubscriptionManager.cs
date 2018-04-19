@@ -39,9 +39,9 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         public async Task SubscribeOrExecuteAsync(
             string id,
             OperationMessagePayload payload,
-            IWriterPipeline writer)
+            MessageHandlingContext context)
         {
-            var subscription = await ExecuteAsync(id, payload, writer);
+            var subscription = await ExecuteAsync(id, payload, context);
 
             if (subscription == null)
                 return;
@@ -67,8 +67,9 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         private async Task<Subscription> ExecuteAsync(
             string id,
             OperationMessagePayload payload,
-            IWriterPipeline writer)
+            MessageHandlingContext context)
         {
+            var writer = context.Writer;
             _logger.LogDebug("Executing operation: {operationName} query: {query}",
                 payload.OperationName,
                 payload.Query);
@@ -76,7 +77,8 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             var result = await _executer.ExecuteAsync(
                 payload.OperationName,
                 payload.Query,
-                payload.Variables);
+                payload.Variables, 
+                context);
 
             if (result.Errors != null && result.Errors.Any())
             {

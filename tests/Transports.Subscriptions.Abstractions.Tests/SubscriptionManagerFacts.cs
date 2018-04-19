@@ -16,7 +16,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         {
             _writer = Substitute.For<IWriterPipeline>();
             _executer = Substitute.For<IGraphQLExecuter>();
-            _executer.ExecuteAsync(null, null, null).ReturnsForAnyArgs(
+            _executer.ExecuteAsync(null, null, null, null).ReturnsForAnyArgs(
                 new SubscriptionExecutionResult
                 {
                     Streams = new Dictionary<string, IObservable<ExecutionResult>>
@@ -38,7 +38,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             var id = "1";
             var payload = new OperationMessagePayload();
 
-            _executer.ExecuteAsync(null, null, null).ReturnsForAnyArgs(
+            _executer.ExecuteAsync(null, null, null, null).ReturnsForAnyArgs(
                 new SubscriptionExecutionResult
                 {
                     Errors = new ExecutionErrors
@@ -48,7 +48,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
                 });
 
             /* When */
-            await _sut.SubscribeOrExecuteAsync(id, payload, _writer);
+            await _sut.SubscribeOrExecuteAsync(id, payload, null);
 
             /* Then */
             Assert.Empty(_sut);
@@ -61,7 +61,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             var id = "1";
             var payload = new OperationMessagePayload();
 
-            _executer.ExecuteAsync(null, null, null).ReturnsForAnyArgs(
+            _executer.ExecuteAsync(null, null, null, null).ReturnsForAnyArgs(
                 new SubscriptionExecutionResult
                 {
                     Streams = new Dictionary<string, IObservable<ExecutionResult>>
@@ -71,7 +71,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
                 });
 
             /* When */
-            await _sut.SubscribeOrExecuteAsync(id, payload, _writer);
+            await _sut.SubscribeOrExecuteAsync(id, payload, null);
 
             /* Then */
             await _writer.Received().SendAsync(
@@ -87,7 +87,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             var id = "1";
             var payload = new OperationMessagePayload();
 
-            _executer.ExecuteAsync(null, null, null).ReturnsForAnyArgs(
+            _executer.ExecuteAsync(null, null, null, null).ReturnsForAnyArgs(
                 new SubscriptionExecutionResult
                 {
                     Errors = new ExecutionErrors
@@ -97,7 +97,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
                 });
 
             /* When */
-            await _sut.SubscribeOrExecuteAsync(id, payload, _writer);
+            await _sut.SubscribeOrExecuteAsync(id, payload, null);
 
             /* Then */
             await _writer.Received().SendAsync(
@@ -114,7 +114,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             var payload = new OperationMessagePayload();
 
             /* When */
-            await _sut.SubscribeOrExecuteAsync(id, payload, _writer);
+            await _sut.SubscribeOrExecuteAsync(id, payload, null);
 
             /* Then */
             Assert.Single(_sut, sub => sub.Id == id);
@@ -128,13 +128,14 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             var payload = new OperationMessagePayload();
 
             /* When */
-            await _sut.SubscribeOrExecuteAsync(id, payload, _writer);
+            await _sut.SubscribeOrExecuteAsync(id, payload, null);
 
             /* Then */
             await _executer.Received().ExecuteAsync(
                 Arg.Is(payload.OperationName),
                 Arg.Is(payload.Query),
-                Arg.Any<dynamic>());
+                Arg.Any<dynamic>(), 
+                null);
         }
 
         [Fact]
@@ -143,7 +144,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             /* Given */
             var id = "1";
             var payload = new OperationMessagePayload();
-            await _sut.SubscribeOrExecuteAsync(id, payload, _writer);
+            await _sut.SubscribeOrExecuteAsync(id, payload, null);
 
             /* When */
             await _sut.UnsubscribeAsync(id);
@@ -158,7 +159,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             /* Given */
             var id = "1";
             var payload = new OperationMessagePayload();
-            await _sut.SubscribeOrExecuteAsync(id, payload, _writer);
+            await _sut.SubscribeOrExecuteAsync(id, payload, null);
 
             /* When */
             await _sut.UnsubscribeAsync(id);

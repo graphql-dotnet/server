@@ -14,7 +14,9 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         /// <param name="operationName"></param>
         /// <param name="query"></param>
         /// <param name="variables"></param>
+        /// <param name="context"></param>
         /// <returns></returns>
-        Task<ExecutionResult> ExecuteAsync(string operationName, string query, JObject variables);
+        Task<ExecutionResult> ExecuteAsync(string operationName, string query, JObject variables,
+            MessageHandlingContext context);
     }
 }

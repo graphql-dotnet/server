@@ -85,7 +85,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             return context.Subscriptions.SubscribeOrExecuteAsync(
                 message.Id,
                 payload,
-                context.Writer);
+                context);
         }
 
         private Task HandleInitAsync(MessageHandlingContext context)
