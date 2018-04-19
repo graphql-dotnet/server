@@ -10,7 +10,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
     ///     Subscription server
     ///     Acts as a message pump reading, handling and writing messages
     /// </summary>
-    public class SubscriptionServer
+    public class SubscriptionServer : IServerOperations
     {
         private readonly ILogger<SubscriptionServer> _logger;
         private readonly IEnumerable<IOperationMessageListener> _messageListeners;

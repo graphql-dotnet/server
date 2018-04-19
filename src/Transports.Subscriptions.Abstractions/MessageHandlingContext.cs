@@ -7,11 +7,10 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 {
     public class MessageHandlingContext : IDisposable
     {
-        private readonly SubscriptionServer _server;
-
+        private readonly IServerOperations _server;
 
         public MessageHandlingContext(
-            SubscriptionServer server,
+            IServerOperations server,
             OperationMessage message)
         {
             _server = server;
