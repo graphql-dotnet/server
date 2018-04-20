@@ -96,8 +96,22 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             _logger.LogDebug("Handling message: {id} of type: {type}", message.Id, message.Type);
             using (var context = await BuildMessageHandlingContext(message))
             {
+                await OnBeforeHandleAsync(context);
                 await OnHandleAsync(context);
                 await OnAfterHandleAsync(context);
+            }
+        }
+
+        private async Task OnBeforeHandleAsync(MessageHandlingContext context)
+        {
+            foreach (var listener in _messageListeners)
+            {
+                var continueProcessing = await listener.BeforeHandleAsync(context);
+
+                if (!continueProcessing)
+                {
+                    break;
+                }
             }
         }
 

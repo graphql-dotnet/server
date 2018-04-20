@@ -11,7 +11,7 @@ namespace GraphQL.Samples.Schemas.Chat
 
         Message AddMessage(Message message);
 
-        IObservable<Message> Messages();
+        IObservable<Message> Messages(string user);
 
         Message AddMessage(ReceivedMessage message);
     }
@@ -61,9 +61,15 @@ namespace GraphQL.Samples.Schemas.Chat
             return message;
         }
 
-        public IObservable<Message> Messages()
+        public IObservable<Message> Messages(string user)
         {
-            return _messageStream.AsObservable();
+            return _messageStream
+                .Select(message =>
+                {
+                    message.Sub = user;
+                    return message;
+                })
+                .AsObservable();
         }
 
         public void AddError(Exception exception)

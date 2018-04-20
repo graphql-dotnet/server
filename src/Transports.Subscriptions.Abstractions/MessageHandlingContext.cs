@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
-using GraphQL.Validation;
 
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 {
@@ -31,6 +30,13 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         public ConcurrentDictionary<string, object> Properties { get; protected set; } =
             new ConcurrentDictionary<string, object>();
 
+        public void Dispose()
+        {
+            foreach (var property in Properties)
+                if (property.Value is IDisposable disposable)
+                    disposable.Dispose();
+        }
+
         public T Get<T>(string key)
         {
             if (!Properties.TryGetValue(key, out var value)) return default(T);
@@ -39,15 +45,6 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
                 return variable;
 
             return default(T);
-        }
-
-        public void Dispose()
-        {
-            foreach (var property in Properties)
-            {
-                if (property.Value is IDisposable disposable)
-                    disposable.Dispose();
-            }
         }
 
         public Task Terminate()
