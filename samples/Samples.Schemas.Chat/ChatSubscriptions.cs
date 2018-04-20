@@ -28,7 +28,7 @@ namespace GraphQL.Samples.Schemas.Chat
             {
                 Name = "messageAddedByUser",
                 Arguments = new QueryArguments(
-                    new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "id" }
+                    new QueryArgument<NonNullGraphType<StringGraphType>> {Name = "id"}
                 ),
                 Type = typeof(MessageType),
                 Resolver = new FuncFieldResolver<Message>(ResolveMessage),
@@ -40,8 +40,12 @@ namespace GraphQL.Samples.Schemas.Chat
         {
             var messageContext = context.UserContext.As<MessageHandlingContext>();
             var user = messageContext.Get<ClaimsPrincipal>("user");
-            var sub = user.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;    
-            var messages =  _chat.Messages(sub);
+
+            var sub = "Anonymous";
+            if (user != null)
+                sub = user.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
+
+            var messages = _chat.Messages(sub);
 
             var id = context.GetArgument<string>("id");
             return messages.Where(message => message.From.Id == id);
@@ -58,7 +62,10 @@ namespace GraphQL.Samples.Schemas.Chat
         {
             var messageContext = context.UserContext.As<MessageHandlingContext>();
             var user = messageContext.Get<ClaimsPrincipal>("user");
-            var sub = user.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
+
+            var sub = "Anonymous";
+            if (user != null)
+                sub = user.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
 
             return _chat.Messages(sub);
         }
