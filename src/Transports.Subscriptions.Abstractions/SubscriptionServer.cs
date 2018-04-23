@@ -10,7 +10,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
     ///     Subscription server
     ///     Acts as a message pump reading, handling and writing messages
     /// </summary>
-    public class SubscriptionServer
+    public class SubscriptionServer : IServerOperations
     {
         private readonly ILogger<SubscriptionServer> _logger;
         private readonly IEnumerable<IOperationMessageListener> _messageListeners;
@@ -96,8 +96,21 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             _logger.LogDebug("Handling message: {id} of type: {type}", message.Id, message.Type);
             using (var context = await BuildMessageHandlingContext(message))
             {
+                await OnBeforeHandleAsync(context);
+
+                if (context.Terminated)
+                    return;
+
                 await OnHandleAsync(context);
                 await OnAfterHandleAsync(context);
+            }
+        }
+
+        private async Task OnBeforeHandleAsync(MessageHandlingContext context)
+        {
+            foreach (var listener in _messageListeners)
+            {
+                await listener.BeforeHandleAsync(context);
             }
         }
 
@@ -109,13 +122,17 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         private async Task OnHandleAsync(MessageHandlingContext context)
         {
             foreach (var listener in _messageListeners)
+            {
                 await listener.HandleAsync(context);
+            }
         }
 
         private async Task OnAfterHandleAsync(MessageHandlingContext context)
         {
             foreach (var listener in _messageListeners)
+            {
                 await listener.AfterHandleAsync(context);
+            }
         }
 
         private void LinkToTransportWriter()

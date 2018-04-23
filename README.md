@@ -21,6 +21,7 @@ For the UI middleware/s:
 >`dotnet add package GraphQL.Server.Ui.Playground`
 >`dotnet add package GraphQL.Server.Ui.Voyager`
 
+
 ### Configure
 
 ``` csharp
@@ -36,6 +37,7 @@ public void ConfigureServices(IServiceCollection services)
             {
                 options.EnableMetrics = true;
                 options.ExposeExceptions = true;
+                options.UserContext = "something";
             });
 
     // add websocket transport for ChatSchema
@@ -64,6 +66,15 @@ public void Configure(IApplicationBuilder app, IHostingEnvironment env)
 }
 
 ```
+
+### UserContext and resolvers
+
+`UserContext` of your resolver will be type of `MessageHandlingContext`. You can
+access the properties including your actual `UserContext` by using the
+`Get<YourContextType>("UserContext")` method. This will read the context from the properties of
+`MessageHandlingContext`. You can add any other properties as to the context in
+`IOperationMessageListeners`. See the sample for example of injecting `ClaimsPrincipal`.
+
 
 ## Sample
 

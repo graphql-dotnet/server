@@ -1,15 +1,17 @@
+using System.Linq;
+using System.Threading.Tasks;
 using GraphQL.Samples.Schemas.Chat;
 using GraphQL.Server.Transports.AspNetCore;
-using GraphQL.Server.Transports.Subscriptions.Abstractions;
 using GraphQL.Server.Transports.WebSockets;
 using GraphQL.Server.Ui.GraphiQL;
 using GraphQL.Server.Ui.Playground;
 using GraphQL.Server.Ui.Voyager;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using MessageType = GraphQL.Samples.Schemas.Chat.MessageType;
+using Microsoft.Extensions.Options;
 
 namespace GraphQL.Samples.Server
 {
@@ -25,6 +27,8 @@ namespace GraphQL.Samples.Server
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
             services.AddSingleton<IChat, Chat>();
             services.AddSingleton<ChatSchema>();
             services.AddSingleton<ChatQuery>();
@@ -42,6 +46,9 @@ namespace GraphQL.Samples.Server
                 options.EnableMetrics = true;
                 options.ExposeExceptions = true;
             });
+
+            services.AddSingleton<ITokenListener, TokenListener>();
+            services.AddSingleton<IPostConfigureOptions<ExecutionOptions<ChatSchema>>, AddAuthenticator>();
             
             // register default services for web socket. This will also add the protocol handler.
             services.AddGraphQLWebSocket<ChatSchema>();

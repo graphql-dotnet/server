@@ -1,17 +1,15 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
-using GraphQL.Validation;
 
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 {
     public class MessageHandlingContext : IDisposable
     {
-        private readonly SubscriptionServer _server;
-
+        private readonly IServerOperations _server;
 
         public MessageHandlingContext(
-            SubscriptionServer server,
+            IServerOperations server,
             OperationMessage message)
         {
             _server = server;
@@ -32,6 +30,15 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         public ConcurrentDictionary<string, object> Properties { get; protected set; } =
             new ConcurrentDictionary<string, object>();
 
+        public bool Terminated { get; set; }
+
+        public void Dispose()
+        {
+            foreach (var property in Properties)
+                if (property.Value is IDisposable disposable)
+                    disposable.Dispose();
+        }
+
         public T Get<T>(string key)
         {
             if (!Properties.TryGetValue(key, out var value)) return default(T);
@@ -42,17 +49,9 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             return default(T);
         }
 
-        public void Dispose()
-        {
-            foreach (var property in Properties)
-            {
-                if (property.Value is IDisposable disposable)
-                    disposable.Dispose();
-            }
-        }
-
         public Task Terminate()
         {
+            Terminated = true;
             return _server.Terminate();
         }
     }

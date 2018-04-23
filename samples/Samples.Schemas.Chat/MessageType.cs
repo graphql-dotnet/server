@@ -8,6 +8,7 @@ namespace GraphQL.Samples.Schemas.Chat
         {
             Field(o => o.Content);
             Field(o => o.SentAt);
+            Field(o => o.Sub);
             Field(o => o.From, false, typeof(MessageFromType)).Resolve(ResolveFrom);
         }
 

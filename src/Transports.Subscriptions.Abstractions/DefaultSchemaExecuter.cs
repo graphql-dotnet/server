@@ -17,20 +17,23 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             Schema = schema;
         }
 
-        public virtual Task<ExecutionResult> ExecuteAsync(string operationName, string query, JObject variables)
+        public virtual Task<ExecutionResult> ExecuteAsync(string operationName, string query, JObject variables,
+            MessageHandlingContext context)
         {
-            var options = GetOptions(operationName, query, variables);
+            var options = GetOptions(operationName, query, variables, context);
             return _documentExecuter.ExecuteAsync(options);
         }
 
-        protected virtual ExecutionOptions GetOptions(string operationName, string query, JObject variables)
+        protected virtual ExecutionOptions GetOptions(string operationName, string query, JObject variables,
+            MessageHandlingContext context)
         {
             var options = new ExecutionOptions
             {
                 Schema = Schema,
                 OperationName = operationName,
                 Query = query,
-                Inputs = variables.ToInputs()
+                Inputs = variables.ToInputs(),
+                UserContext = context
             };
             return options;
         }

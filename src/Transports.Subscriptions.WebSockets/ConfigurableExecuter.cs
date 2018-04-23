@@ -21,9 +21,10 @@ namespace GraphQL.Server.Transports.WebSockets
             _options = options.Value;
         }
 
-        protected override ExecutionOptions GetOptions(string operationName, string query, JObject variables)
+        protected override ExecutionOptions GetOptions(string operationName, string query, JObject variables,
+            MessageHandlingContext context)
         {
-            var options = base.GetOptions(operationName, query, variables);
+            var options = base.GetOptions(operationName, query, variables, context);
 
             if (_options.Listeners != null)
                 foreach (var listener in _options.Listeners)
@@ -35,8 +36,10 @@ namespace GraphQL.Server.Transports.WebSockets
             options.FieldMiddleware = _options.FieldMiddleware;
             options.FieldNameConverter = _options.FieldNameConverter;
             options.SetFieldMiddleware = _options.SetFieldMiddleware;
-            options.UserContext = _options.UserContext;
             options.ValidationRules = _options.ValidationRules;
+
+            // add customer UserContext as property to MessageHandlingContext
+            context.Properties["UserContext"] = _options.UserContext;
 
             return options;
         }

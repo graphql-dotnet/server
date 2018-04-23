@@ -38,10 +38,13 @@ namespace GraphQL.Server.Transports.WebSockets
             });
         }
 
-        public Task Complete()
+        public async Task Complete()
         {
+            await _socket.CloseOutputAsync(
+                WebSocketCloseStatus.NormalClosure,
+                "Completed",
+                CancellationToken.None);
             _startBlock.Complete();
-            return Task.CompletedTask;
         }
 
         public Task Completion => _endBlock.Completion;
@@ -68,49 +71,48 @@ namespace GraphQL.Server.Transports.WebSockets
                     MaxDegreeOfParallelism = 1
                 });
 
-            Task.Run(async () =>
-            {
-                while (!source.Completion.IsCompleted && !source.Completion.IsCanceled && !_socket.CloseStatus.HasValue)
-                    await ReadMessageAsync(source);
-            });
+            Task.Run(async () => { await ReadMessageAsync(source); });
 
             return source;
         }
 
         private async Task ReadMessageAsync(ITargetBlock<string> target)
         {
-            string message = null;
-            var buffer = new byte[1024 * 4];
-            var segment = new ArraySegment<byte>(buffer);
-
-            using (var memoryStream = new MemoryStream())
+            while (!_socket.CloseStatus.HasValue)
             {
-                try
-                {
-                    WebSocketReceiveResult receiveResult;
+                string message = null;
+                var buffer = new byte[1024 * 4];
+                var segment = new ArraySegment<byte>(buffer);
 
-                    do
+                using (var memoryStream = new MemoryStream())
+                {
+                    try
                     {
-                        receiveResult = await _socket.ReceiveAsync(segment, CancellationToken.None);
+                        WebSocketReceiveResult receiveResult;
 
-                        if (receiveResult.CloseStatus.HasValue)
-                            target.Complete();
+                        do
+                        {
+                            receiveResult = await _socket.ReceiveAsync(segment, CancellationToken.None);
 
-                        if (receiveResult.Count == 0)
-                            continue;
+                            if (receiveResult.CloseStatus.HasValue)
+                                target.Complete();
 
-                        await memoryStream.WriteAsync(segment.Array, segment.Offset, receiveResult.Count);
-                    } while (!receiveResult.EndOfMessage || memoryStream.Length == 0);
+                            if (receiveResult.Count == 0)
+                                continue;
 
-                    message = Encoding.UTF8.GetString(memoryStream.ToArray());
+                            await memoryStream.WriteAsync(segment.Array, segment.Offset, receiveResult.Count);
+                        } while (!receiveResult.EndOfMessage || memoryStream.Length == 0);
+
+                        message = Encoding.UTF8.GetString(memoryStream.ToArray());
+                    }
+                    catch (Exception x)
+                    {
+                        target.Fault(x);
+                    }
                 }
-                catch (Exception x)
-                {
-                    target.Fault(x);
-                }
+
+                await target.SendAsync(message);
             }
-
-            await target.SendAsync(message);
         }
     }
 }
