@@ -15,13 +15,16 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         }
 
 
-        public Task<bool> BeforeHandleAsync(MessageHandlingContext context)
+        public Task BeforeHandleAsync(MessageHandlingContext context)
         {
-            return Task.FromResult(true);
+            return Task.CompletedTask;
         }
 
         public async Task HandleAsync(MessageHandlingContext context)
         {
+            if (context.Terminated)
+                return;
+
             var message = context.Message;
             switch (message.Type)
             {

@@ -38,7 +38,7 @@ namespace GraphQL.Samples.Server
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public Task<bool> BeforeHandleAsync(MessageHandlingContext context)
+        public Task BeforeHandleAsync(MessageHandlingContext context)
         {
             if (context.Message.Type == MessageType.GQL_CONNECTION_INIT)
             {

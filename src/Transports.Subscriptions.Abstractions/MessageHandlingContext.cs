@@ -30,6 +30,8 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         public ConcurrentDictionary<string, object> Properties { get; protected set; } =
             new ConcurrentDictionary<string, object>();
 
+        public bool Terminated { get; set; }
+
         public void Dispose()
         {
             foreach (var property in Properties)
@@ -49,6 +51,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 
         public Task Terminate()
         {
+            Terminated = true;
             return _server.Terminate();
         }
     }

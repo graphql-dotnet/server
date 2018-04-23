@@ -7,7 +7,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
     /// </summary>
     public interface IOperationMessageListener
     {
-        Task<bool> BeforeHandleAsync(MessageHandlingContext context);
+        Task BeforeHandleAsync(MessageHandlingContext context);
 
         /// <summary>
         ///     Called to handle message

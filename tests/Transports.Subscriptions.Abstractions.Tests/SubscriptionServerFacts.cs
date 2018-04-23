@@ -41,6 +41,29 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         private readonly TestableReader _transportReader;
         private readonly TestableWriter _transportWriter;
 
+
+        [Fact]
+        public async Task Listener_BeforeHandle()
+        {
+            /* Given */
+            var expected = new OperationMessage
+            {
+                Type = MessageType.GQL_CONNECTION_INIT
+            };
+            _transportReader.AddMessageToRead(expected);
+            await _transportReader.Complete();
+
+            /* When */
+            await _sut.OnConnect();
+
+            /* Then */
+            await _messageListener.Received().BeforeHandleAsync(Arg.Is<MessageHandlingContext>(context =>
+                context.Writer == _transportWriter
+                && context.Reader == _transportReader
+                && context.Subscriptions == _subscriptionManager
+                && context.Message == expected));
+        }
+
         [Fact]
         public async Task Listener_Handle()
         {
@@ -64,7 +87,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         }
 
         [Fact]
-        public async Task Listener_Handled()
+        public async Task Listener_AfterHandle()
         {
             /* Given */
             var expected = new OperationMessage

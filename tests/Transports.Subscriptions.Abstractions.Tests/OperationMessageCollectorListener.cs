@@ -9,9 +9,9 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
 
         public ConcurrentBag<OperationMessage> HandledMessages { get; } = new ConcurrentBag<OperationMessage>();
 
-        public Task<bool> BeforeHandleAsync(MessageHandlingContext context)
+        public Task BeforeHandleAsync(MessageHandlingContext context)
         {
-            return Task.FromResult(true);
+            return Task.CompletedTask;
         }
 
         public Task HandleAsync(MessageHandlingContext context)

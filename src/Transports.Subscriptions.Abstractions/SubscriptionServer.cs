@@ -97,6 +97,10 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             using (var context = await BuildMessageHandlingContext(message))
             {
                 await OnBeforeHandleAsync(context);
+
+                if (context.Terminated)
+                    return;
+
                 await OnHandleAsync(context);
                 await OnAfterHandleAsync(context);
             }
@@ -106,12 +110,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         {
             foreach (var listener in _messageListeners)
             {
-                var continueProcessing = await listener.BeforeHandleAsync(context);
-
-                if (!continueProcessing)
-                {
-                    break;
-                }
+                await listener.BeforeHandleAsync(context);
             }
         }
 
@@ -123,13 +122,17 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         private async Task OnHandleAsync(MessageHandlingContext context)
         {
             foreach (var listener in _messageListeners)
+            {
                 await listener.HandleAsync(context);
+            }
         }
 
         private async Task OnAfterHandleAsync(MessageHandlingContext context)
         {
             foreach (var listener in _messageListeners)
+            {
                 await listener.AfterHandleAsync(context);
+            }
         }
 
         private void LinkToTransportWriter()
