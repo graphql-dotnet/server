@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{DD6938E1-E98D-4BD4-9882-FE1CE79F7306}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Transports.Subscriptions.WebSockets", "src\Transports.Subscriptions.WebSockets\Transports.Subscriptions.WebSockets.csproj", "{4DF1CB8E-30AA-4281-9056-D49FDBF4C496}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples.Schemas.Chat", "samples\Samples.Schemas.Chat\Samples.Schemas.Chat.csproj", "{EB56A378-89E5-4425-BFA6-6BA0F4A67432}"
@@ -37,7 +35,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Transports.Subscriptions.Ab
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Transports.Subscriptions.Abstractions.Tests", "tests\Transports.Subscriptions.Abstractions.Tests\Transports.Subscriptions.Abstractions.Tests.csproj", "{1D36AB04-82FD-4EDC-94C2-D1BA29E170EC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ui.Voyager", "src\Ui.Voyager\Ui.Voyager.csproj", "{B2C278E4-6A1A-4F83-AE53-C9469B4056EE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ui.Voyager", "src\Ui.Voyager\Ui.Voyager.csproj", "{B2C278E4-6A1A-4F83-AE53-C9469B4056EE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -88,9 +86,6 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{85FBD882-AC9F-419F-95ED-42BBBC199CC2} = {DD6938E1-E98D-4BD4-9882-FE1CE79F7306}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3FC7FA59-E938-453C-8C4A-9D5635A9489A}
