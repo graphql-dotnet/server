@@ -71,7 +71,7 @@ public void Configure(IApplicationBuilder app, IHostingEnvironment env)
 
 `UserContext` of your resolver will be type of `MessageHandlingContext`. You can
 access the properties including your actual `UserContext` by using the
-`Get<YourContextType>` method. This will read the context from the properties of
+`Get<YourContextType>("UserContext")` method. This will read the context from the properties of
 `MessageHandlingContext`. You can add any other properties as to the context in
 `IOperationMessageListeners`. See the sample for example of injecting `ClaimsPrincipal`.
 
