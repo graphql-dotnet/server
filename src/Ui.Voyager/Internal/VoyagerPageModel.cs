@@ -7,7 +7,7 @@ namespace GraphQL.Server.Ui.Voyager.Internal
     // https://docs.microsoft.com/en-us/aspnet/core/mvc/razor-pages/?tabs=netcore-cli
     internal class VoyagerPageModel
     {
-        private static string voyagerCSHtml;
+        private string voyagerCSHtml;
 
         private readonly GraphQLVoyagerOptions settings;
 

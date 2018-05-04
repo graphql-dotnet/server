@@ -7,7 +7,7 @@ namespace GraphQL.Server.Ui.GraphiQL.Internal {
 	// https://docs.microsoft.com/en-us/aspnet/core/mvc/razor-pages/?tabs=netcore-cli
 	internal class GraphiQLPageModel {
 
-		private static string graphiQLCSHtml;
+		private string graphiQLCSHtml;
 
 		private readonly GraphiQLOptions settings;
 

@@ -7,7 +7,7 @@ namespace GraphQL.Server.Ui.Playground.Internal {
 	// https://docs.microsoft.com/en-us/aspnet/core/mvc/razor-pages/?tabs=netcore-cli
 	internal class PlaygroundPageModel {
 
-		private static string playgroundCSHtml;
+		private string playgroundCSHtml;
 
 		private readonly GraphQLPlaygroundOptions settings;
 

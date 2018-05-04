@@ -17,7 +17,12 @@ namespace GraphQL.Server.Ui.GraphiQL {
         /// The Next Middleware
         /// </summary>
         private readonly RequestDelegate nextMiddleware;
-
+        
+        /// <summary>
+        /// The page model used to render GraphiQL
+        /// </summary>
+        private GraphiQLPageModel _pageModel;
+        
         /// <summary>
         /// Create a new GraphiQLMiddleware
         /// </summary>
@@ -53,9 +58,11 @@ namespace GraphQL.Server.Ui.GraphiQL {
 			httpResponse.ContentType = "text/html";
 			httpResponse.StatusCode = 200;
 
-			var graphiQLPageModel = new GraphiQLPageModel(this.settings);
+		    // Initilize page model if null
+		    if (_pageModel == null)
+		        _pageModel = new GraphiQLPageModel(this.settings);
 
-			var data = Encoding.UTF8.GetBytes(graphiQLPageModel.Render());
+            var data = Encoding.UTF8.GetBytes(_pageModel.Render());
 			await httpResponse.Body.WriteAsync(data, 0, data.Length).ConfigureAwait(false);
 		}
 
