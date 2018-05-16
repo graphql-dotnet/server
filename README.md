@@ -30,7 +30,7 @@ public void ConfigureServices(IServiceCollection services)
     services.AddGraphQLHttp();
     
     // setup execution options for ChatSchema
-    services.Configure<ExecutionOptions<ChatSchema>>(options =>
+    services.Configure<ExecutionOptions>(options =>
             {
                 options.EnableMetrics = true;
                 options.ExposeExceptions = true;
