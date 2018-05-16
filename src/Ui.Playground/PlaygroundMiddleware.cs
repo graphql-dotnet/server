@@ -19,6 +19,11 @@ namespace GraphQL.Server.Ui.Playground {
         private readonly RequestDelegate nextMiddleware;
 
         /// <summary>
+        /// The page model used to render Playground
+        /// </summary>
+        private PlaygroundPageModel _pageModel;
+
+        /// <summary>
         /// Create a new PlaygroundMiddleware
         /// </summary>
         /// <param name="nextMiddleware">The Next Middleware</param>
@@ -53,9 +58,11 @@ namespace GraphQL.Server.Ui.Playground {
             httpResponse.ContentType = "text/html";
             httpResponse.StatusCode = 200;
 
-            var playgroundPageModel = new PlaygroundPageModel(this.settings);
+            // Initilize page model if null
+            if (_pageModel == null)
+                _pageModel = new PlaygroundPageModel(this.settings);
 
-            var data = Encoding.UTF8.GetBytes(playgroundPageModel.Render());
+            var data = Encoding.UTF8.GetBytes(_pageModel.Render());
             await httpResponse.Body.WriteAsync(data, 0, data.Length).ConfigureAwait(false);
         }
 

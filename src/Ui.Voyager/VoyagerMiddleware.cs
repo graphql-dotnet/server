@@ -19,6 +19,11 @@ namespace GraphQL.Server.Ui.Voyager
         private readonly RequestDelegate nextMiddleware;
 
         /// <summary>
+        /// The page model used to render Voyager
+        /// </summary>
+        private VoyagerPageModel _pageModel;
+
+        /// <summary>
         /// Create a new VoyagerMiddleware
         /// </summary>
         /// <param name="nextMiddleware">The Next Middleware</param>
@@ -57,9 +62,11 @@ namespace GraphQL.Server.Ui.Voyager
             httpResponse.ContentType = "text/html";
             httpResponse.StatusCode = 200;
 
-            var playgroundPageModel = new VoyagerPageModel(this._settings);
+            // Initilize page model if null
+            if (_pageModel == null)
+                _pageModel = new VoyagerPageModel(this._settings);
 
-            var data = Encoding.UTF8.GetBytes(playgroundPageModel.Render());
+            var data = Encoding.UTF8.GetBytes(_pageModel.Render());
             await httpResponse.Body.WriteAsync(data, 0, data.Length).ConfigureAwait(false);
         }
     }
