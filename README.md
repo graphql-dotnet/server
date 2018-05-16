@@ -17,8 +17,10 @@ For the WebSocket subscription protocol (depends on above) middleware:
 >`dotnet add package GraphQL.Server.Transports.WebSockets`
 
 For the UI middleware/s:
->`dotnet add package GraphQL.Server.Ui.GraphiQL`
->`dotnet add package GraphQL.Server.Ui.Playground`
+>`dotnet add package GraphQL.Server.Ui.GraphiQL` 
+
+>`dotnet add package GraphQL.Server.Ui.Playground` 
+
 >`dotnet add package GraphQL.Server.Ui.Voyager`
 
 
@@ -33,7 +35,7 @@ public void ConfigureServices(IServiceCollection services)
     services.AddGraphQLHttp();
     
     // setup execution options for ChatSchema
-    services.Configure<ExecutionOptions<ChatSchema>>(options =>
+    services.Configure<ExecutionOptions>(options =>
             {
                 options.EnableMetrics = true;
                 options.ExposeExceptions = true;
