@@ -38,13 +38,30 @@ namespace GraphQL.Server.Transports.WebSockets
             });
         }
 
-        public async Task Complete()
+        public async Task Complete() => await Complete(WebSocketCloseStatus.NormalClosure, "Completed");
+        public async Task Complete(WebSocketCloseStatus closeStatus, string statusDescription)
         {
-            await _socket.CloseOutputAsync(
-                WebSocketCloseStatus.NormalClosure,
-                "Completed",
-                CancellationToken.None);
-            _startBlock.Complete();
+            if (_socket.State != WebSocketState.Closed && _socket.State != WebSocketState.CloseSent)
+            {
+                if (closeStatus == WebSocketCloseStatus.NormalClosure)
+                {
+                    // If nothing went wrong, close connection with handshakes.
+                    await _socket.CloseOutputAsync(
+                           closeStatus,
+                           statusDescription,
+                           CancellationToken.None);
+                }
+                else
+                {
+                    // Something went wrong, so don't wait for answer from the other side, just close the connection.
+                    await _socket.CloseAsync(
+                           closeStatus,
+                           statusDescription,
+                           CancellationToken.None);
+                }
+
+                _startBlock.Complete();
+            }
         }
 
         public Task Completion => _endBlock.Completion;
@@ -105,9 +122,38 @@ namespace GraphQL.Server.Transports.WebSockets
 
                         message = Encoding.UTF8.GetString(memoryStream.ToArray());
                     }
+                    catch (WebSocketException wx)
+                    {
+                        WebSocketCloseStatus closeStatus;
+
+                        switch (wx.WebSocketErrorCode)
+                        {
+                            case WebSocketError.ConnectionClosedPrematurely:
+                            case WebSocketError.HeaderError:
+                            case WebSocketError.UnsupportedProtocol:
+                            case WebSocketError.UnsupportedVersion:
+                            case WebSocketError.NotAWebSocket:
+                                closeStatus = WebSocketCloseStatus.ProtocolError;
+                                break;
+                            case WebSocketError.InvalidMessageType:
+                                closeStatus = WebSocketCloseStatus.InvalidMessageType;
+                                break;
+                            case WebSocketError.Success:
+                            case WebSocketError.NativeError:
+                            case WebSocketError.InvalidState:
+                            case WebSocketError.Faulted:
+                            default:
+                                closeStatus = WebSocketCloseStatus.InternalServerError;
+                                break;
+                        }
+
+                        await Complete(closeStatus, $"Closing socket connection due to {wx.WebSocketErrorCode}.");
+                        break;
+                    }
                     catch (Exception x)
                     {
                         target.Fault(x);
+                        continue;
                     }
                 }
 
