@@ -1,11 +1,10 @@
 using GraphQL.Http;
+using GraphQL.Subscription;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 
 namespace GraphQL.Server.Transports.AspNetCore
 {
@@ -14,19 +13,11 @@ namespace GraphQL.Server.Transports.AspNetCore
         /// <summary>
         /// Adds the GraphQLHttp to services
         /// </summary>
-        /// <param name="services">The service collection to register the services on</param>
-        /// <returns>The <see cref="IServiceCollection"/> received as parameter</returns>
+        /// <param name="services">The servicecollection to registrer the services on</param>
+        /// <returns>The <see cref="IServiceCollection"/> recieved as parameter</returns>
         public static IServiceCollection AddGraphQLHttp(this IServiceCollection services)
         {
-            services.TryAddSingleton<IDocumentWriter>(
-                x =>
-                {
-                    var hostingEnvironment = x.GetRequiredService<IHostingEnvironment>();
-                    var jsonSerializerSettings = x.GetRequiredService<IOptions<JsonSerializerSettings>>();
-                    return new DocumentWriter(
-                        hostingEnvironment.IsDevelopment() ? Formatting.Indented : Formatting.None,
-                        jsonSerializerSettings.Value);
-                });
+            services.TryAddSingleton<IDocumentWriter, DocumentWriter>();
             services.TryAddSingleton<IDocumentExecuter, DocumentExecuter>();
 
             return services;
@@ -36,8 +27,8 @@ namespace GraphQL.Server.Transports.AspNetCore
         /// Adds the GraphQLHttp to services
         /// </summary>
         /// <typeparam name="TUserContextBuilder">The <see cref="IUserContextBuilder"/> to use for generating the userContext used for the GraphQL request</typeparam>
-        /// <param name="services">The service collection to register the services on</param>
-        /// <returns>The <see cref="IServiceCollection"/> received as parameter</returns>
+        /// <param name="services">The servicecollection to registrer the services on</param>
+        /// <returns>The <see cref="IServiceCollection"/> recieved as parameter</returns>
         public static IServiceCollection AddGraphQLHttp<TUserContextBuilder>(this IServiceCollection services)
             where TUserContextBuilder : class, IUserContextBuilder
         {
