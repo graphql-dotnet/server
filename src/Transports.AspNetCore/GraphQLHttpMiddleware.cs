@@ -62,7 +62,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             // Handle requests as per recommendation at http://graphql.org/learn/serving-over-http/
             var httpRequest = context.Request;
             var gqlRequest = new GraphQLRequest();
-            
+
             if (HttpMethods.IsGet(httpRequest.Method) || (HttpMethods.IsPost(httpRequest.Method) && httpRequest.Query.ContainsKey(GraphQLRequest.QueryKey)))
             {
                 ExtractGraphQLRequestFromQueryString(httpRequest.Query, gqlRequest);
@@ -100,15 +100,18 @@ namespace GraphQL.Server.Transports.AspNetCore
                 userContext = _options.BuildUserContext?.Invoke(context);
             }
 
-            var result = await _executer.ExecuteAsync(_ =>
+            var result = await _executer.ExecuteAsync(x =>
             {
-                _.Schema = schema;
-                _.Query = gqlRequest.Query;
-                _.OperationName = gqlRequest.OperationName;
-                _.Inputs = gqlRequest.Variables.ToInputs();
-                _.UserContext = userContext;
-                _.ExposeExceptions = _options.ExposeExceptions;
-                _.ValidationRules = _options.ValidationRules.Concat(DocumentValidator.CoreRules()).ToList();
+                x.Schema = schema;
+                x.Query = gqlRequest.Query;
+                x.OperationName = gqlRequest.OperationName;
+                x.Inputs = gqlRequest.Variables.ToInputs();
+                x.UserContext = userContext;
+                x.ComplexityConfiguration = _options.ComplexityConfiguration;
+                x.EnableMetrics = _options.EnableMetrics;
+                x.ExposeExceptions = _options.ExposeExceptions;
+                x.SetFieldMiddleware = _options.SetFieldMiddleware;
+                x.ValidationRules = _options.ValidationRules.Concat(DocumentValidator.CoreRules()).ToList();
             });
 
             await WriteResponseAsync(context, result);
