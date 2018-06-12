@@ -112,6 +112,11 @@ namespace GraphQL.Server.Transports.AspNetCore
                 x.ExposeExceptions = _options.ExposeExceptions;
                 x.SetFieldMiddleware = _options.SetFieldMiddleware;
                 x.ValidationRules = _options.ValidationRules.Concat(DocumentValidator.CoreRules()).ToList();
+
+                foreach (var listener in _options.Listeners)
+                {
+                    x.Listeners.Add(listener);
+                }
             });
 
             await WriteResponseAsync(context, result);
