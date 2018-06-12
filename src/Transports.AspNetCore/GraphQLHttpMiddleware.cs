@@ -1,8 +1,10 @@
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using GraphQL.Execution;
 using GraphQL.Http;
 using GraphQL.Server.Transports.AspNetCore.Common;
 using GraphQL.Types;
@@ -26,6 +28,12 @@ namespace GraphQL.Server.Transports.AspNetCore
         private readonly IDocumentExecuter _executer;
         private readonly IDocumentWriter _writer;
         private readonly TSchema _schema;
+
+        public virtual ExecutionOptions CreateDefaultExecutionOptions() => new ExecutionOptions
+        {
+            EnableMetrics = true,
+            SetFieldMiddleware = true,
+        };
 
         public GraphQLHttpMiddleware(
             RequestDelegate next,
@@ -89,30 +97,38 @@ namespace GraphQL.Server.Transports.AspNetCore
                 }
             }
 
-            object userContext = null;
+            var opts = CreateDefaultExecutionOptions();
+            opts.Schema = schema;
+            opts.Query = gqlRequest.Query;
+            opts.OperationName = gqlRequest.OperationName;
+            opts.Inputs = gqlRequest.Variables.ToInputs();
+
             var userContextBuilder = context.RequestServices.GetService<IUserContextBuilder>();
-            if (userContextBuilder != null)
-            {
-                userContext = await userContextBuilder.BuildUserContext(context);
-            }
-            else
-            {
-                userContext = _options.BuildUserContext?.Invoke(context);
+            if (userContextBuilder != null) {
+                opts.UserContext = await userContextBuilder.BuildUserContext(context);
             }
 
-            var result = await _executer.ExecuteAsync(x =>
+            if (opts.ValidationRules == null)
             {
-                x.Schema = schema;
-                x.Query = gqlRequest.Query;
-                x.OperationName = gqlRequest.OperationName;
-                x.Inputs = gqlRequest.Variables.ToInputs();
-                x.UserContext = userContext;
-                x.ComplexityConfiguration = _options.ComplexityConfiguration;
-                x.EnableMetrics = _options.EnableMetrics;
-                x.ExposeExceptions = _options.ExposeExceptions;
-                x.SetFieldMiddleware = _options.SetFieldMiddleware;
-                x.ValidationRules = _options.ValidationRules.Concat(DocumentValidator.CoreRules()).ToList();
-            });
+                opts.ValidationRules = context.RequestServices.GetService<IEnumerable<IValidationRule>>();
+            }
+
+            var listeners = context.RequestServices.GetService<IEnumerable<IDocumentExecutionListener>>();
+            if (listeners != null)
+            {
+                foreach (var listener in listeners)
+                {
+                    opts.Listeners.Add(listener);
+                }
+            }
+
+            var configure = _options.ConfigureAsync;
+            if (configure != null)
+            {
+                await configure(opts, context);
+            }
+
+            var result = await _executer.ExecuteAsync(opts);
 
             await WriteResponseAsync(context, result);
         }
