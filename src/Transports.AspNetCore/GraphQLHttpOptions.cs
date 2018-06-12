@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using GraphQL.Execution;
 using GraphQL.Validation;
 using GraphQL.Validation.Complexity;
 using Microsoft.AspNetCore.Http;
@@ -21,5 +22,7 @@ namespace GraphQL.Server.Transports.AspNetCore
         public bool SetFieldMiddleware { get; set; } = true;
 
         public IList<IValidationRule> ValidationRules { get; } = new List<IValidationRule>();
+
+        public IList<IDocumentExecutionListener> Listeners { get; } = new List<IDocumentExecutionListener>();
     }
 }
