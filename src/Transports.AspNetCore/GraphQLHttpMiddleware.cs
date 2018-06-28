@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using GraphQL.Http;
 using GraphQL.Server.Transports.AspNetCore.Common;
 using GraphQL.Types;
-using GraphQL.Validation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -26,19 +25,22 @@ namespace GraphQL.Server.Transports.AspNetCore
         private readonly IDocumentExecuter _executer;
         private readonly IDocumentWriter _writer;
         private readonly TSchema _schema;
+        private readonly IExecutionOptionsFactory _executionOptionsFactory;
 
         public GraphQLHttpMiddleware(
             RequestDelegate next,
             IOptions<GraphQLHttpOptions> options,
             IDocumentExecuter executer,
             IDocumentWriter writer,
-            TSchema schema)
+            TSchema schema,
+            IExecutionOptionsFactory executionOptionsFactory)
         {
             _next = next;
             _options = options.Value;
             _executer = executer;
             _writer = writer;
             _schema = schema;
+            _executionOptionsFactory = executionOptionsFactory;
         }
 
         public async Task Invoke(HttpContext context)
@@ -89,30 +91,25 @@ namespace GraphQL.Server.Transports.AspNetCore
                 }
             }
 
-            object userContext = null;
+            var opts = await _executionOptionsFactory.CreateExecutionOptionsAsync();
+
+            opts.Schema = schema;
+            opts.Query = gqlRequest.Query;
+            opts.OperationName = gqlRequest.OperationName;
+            opts.Inputs = gqlRequest.Variables.ToInputs();
+
             var userContextBuilder = context.RequestServices.GetService<IUserContextBuilder>();
-            if (userContextBuilder != null)
-            {
-                userContext = await userContextBuilder.BuildUserContext(context);
-            }
-            else
-            {
-                userContext = _options.BuildUserContext?.Invoke(context);
+            if (userContextBuilder != null) {
+                opts.UserContext = await userContextBuilder.BuildUserContext(context);
             }
 
-            var result = await _executer.ExecuteAsync(x =>
+            var configure = _options.ConfigureAsync;
+            if (configure != null)
             {
-                x.Schema = schema;
-                x.Query = gqlRequest.Query;
-                x.OperationName = gqlRequest.OperationName;
-                x.Inputs = gqlRequest.Variables.ToInputs();
-                x.UserContext = userContext;
-                x.ComplexityConfiguration = _options.ComplexityConfiguration;
-                x.EnableMetrics = _options.EnableMetrics;
-                x.ExposeExceptions = _options.ExposeExceptions;
-                x.SetFieldMiddleware = _options.SetFieldMiddleware;
-                x.ValidationRules = _options.ValidationRules.Concat(DocumentValidator.CoreRules()).ToList();
-            });
+                await configure(opts, context);
+            }
+
+            var result = await _executer.ExecuteAsync(opts);
 
             await WriteResponseAsync(context, result);
         }
