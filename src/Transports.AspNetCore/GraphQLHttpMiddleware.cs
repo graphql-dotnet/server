@@ -1,14 +1,11 @@
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using GraphQL.Execution;
 using GraphQL.Http;
 using GraphQL.Server.Transports.AspNetCore.Common;
 using GraphQL.Types;
-using GraphQL.Validation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -28,25 +25,22 @@ namespace GraphQL.Server.Transports.AspNetCore
         private readonly IDocumentExecuter _executer;
         private readonly IDocumentWriter _writer;
         private readonly TSchema _schema;
-
-        public virtual ExecutionOptions CreateDefaultExecutionOptions() => new ExecutionOptions
-        {
-            EnableMetrics = true,
-            SetFieldMiddleware = true,
-        };
+        private readonly IExecutionOptionsFactory _executionOptionsFactory;
 
         public GraphQLHttpMiddleware(
             RequestDelegate next,
             IOptions<GraphQLHttpOptions> options,
             IDocumentExecuter executer,
             IDocumentWriter writer,
-            TSchema schema)
+            TSchema schema,
+            IExecutionOptionsFactory executionOptionsFactory)
         {
             _next = next;
             _options = options.Value;
             _executer = executer;
             _writer = writer;
             _schema = schema;
+            _executionOptionsFactory = executionOptionsFactory;
         }
 
         public async Task Invoke(HttpContext context)
@@ -97,7 +91,8 @@ namespace GraphQL.Server.Transports.AspNetCore
                 }
             }
 
-            var opts = CreateDefaultExecutionOptions();
+            var opts = await _executionOptionsFactory.CreateExecutionOptionsAsync();
+
             opts.Schema = schema;
             opts.Query = gqlRequest.Query;
             opts.OperationName = gqlRequest.OperationName;
@@ -106,20 +101,6 @@ namespace GraphQL.Server.Transports.AspNetCore
             var userContextBuilder = context.RequestServices.GetService<IUserContextBuilder>();
             if (userContextBuilder != null) {
                 opts.UserContext = await userContextBuilder.BuildUserContext(context);
-            }
-
-            if (opts.ValidationRules == null)
-            {
-                opts.ValidationRules = context.RequestServices.GetService<IEnumerable<IValidationRule>>();
-            }
-
-            var listeners = context.RequestServices.GetService<IEnumerable<IDocumentExecutionListener>>();
-            if (listeners != null)
-            {
-                foreach (var listener in listeners)
-                {
-                    opts.Listeners.Add(listener);
-                }
             }
 
             var configure = _options.ConfigureAsync;
