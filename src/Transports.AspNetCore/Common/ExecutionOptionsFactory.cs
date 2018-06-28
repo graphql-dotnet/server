@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using GraphQL.Execution;
 using GraphQL.Validation;
@@ -15,7 +16,7 @@ namespace GraphQL.Server.Transports.AspNetCore.Common
             IEnumerable<IDocumentExecutionListener> documentListeners
             )
         {
-            _validationRules = validationRules;
+            _validationRules = DocumentValidator.CoreRules().Concat(validationRules);
             _documentListeners = documentListeners;
         }
 
