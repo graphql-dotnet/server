@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
+using GraphQL.Server.Core;
 using GraphQL.Subscription;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;

@@ -1,10 +1,10 @@
 using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
+using GraphQL.Types;
 
-namespace GraphQL.Server.Transports.Subscriptions.Abstractions
+namespace GraphQL.Server.Core
 {
     /// <summary>
-    ///     GraphQL query,mutation and subscription executer
+    ///     GraphQL query, mutation and subscription executer
     /// </summary>
     public interface IGraphQLExecuter
     {
@@ -16,7 +16,12 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         /// <param name="variables"></param>
         /// <param name="context"></param>
         /// <returns></returns>
-        Task<ExecutionResult> ExecuteAsync(string operationName, string query, JObject variables,
-            MessageHandlingContext context);
+        Task<ExecutionResult> ExecuteAsync(string operationName, string query, Inputs variables, object context);
+    }
+    
+    public interface IGraphQLExecuter<TSchema> : IGraphQLExecuter
+        where TSchema : ISchema
+    {
+        TSchema Schema { get; }
     }
 }

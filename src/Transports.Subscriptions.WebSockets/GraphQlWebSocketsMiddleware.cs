@@ -1,39 +1,35 @@
 using System.Collections.Generic;
 using System.Net.WebSockets;
 using System.Threading.Tasks;
+using GraphQL.Server.Core;
 using GraphQL.Server.Transports.Subscriptions.Abstractions;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace GraphQL.Server.Transports.WebSockets
 {
-    public class GraphQLWebSocketsMiddleware<TSchema> where TSchema : ISchema
+    public class GraphQLWebSocketsMiddleware<TSchema> : IMiddleware
+        where TSchema : ISchema
     {
-        private readonly IGraphQLExecuter _executer;
-        private readonly ILogger _logger;
-        private readonly ILoggerFactory _loggerFactory;
         private readonly IEnumerable<IOperationMessageListener> _messageListeners;
-        private readonly RequestDelegate _next;
-        private readonly GraphQLWebSocketsOptions _options;
+        private readonly IGraphQLExecuter<TSchema> _executer;
+        private readonly ILoggerFactory _loggerFactory;
+        private readonly ILogger _logger;
 
         public GraphQLWebSocketsMiddleware(
-            RequestDelegate next,
-            IOptions<ExecutionOptions<TSchema>> executionOptions,
-            IOptions<GraphQLWebSocketsOptions> middlewareOptions,
+            IEnumerable<IOperationMessageListener> messageListeners,
+            IGraphQLExecuter<TSchema> executer,
             ILoggerFactory loggerFactory)
         {
-            _next = next;
-            _messageListeners = executionOptions.Value.MessageListeners;
-            _executer = executionOptions.Value.ExecuterFactory.Create();
-            _options = middlewareOptions.Value;
+            _messageListeners = messageListeners;
+            _executer = executer;
 
             _loggerFactory = loggerFactory;
             _logger = loggerFactory.CreateLogger<GraphQLWebSocketsMiddleware<TSchema>>();
         }
 
-        public async Task Invoke(HttpContext context)
+        public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
             using (_logger.BeginScope(new Dictionary<string, object>
             {
@@ -41,28 +37,16 @@ namespace GraphQL.Server.Transports.WebSockets
                 ["Request"] = context.Request
             }))
             {
-                if (!IsGraphQLRequest(context))
+                if (!context.WebSockets.IsWebSocketRequest)
                 {
                     _logger.LogInformation("Request is not a valid  websocket request");
-                    await _next(context);
+                    await next(context);
                     return;
                 }
 
                 _logger.LogInformation("Connection is a valid websocket request");
                 await ExecuteAsync(context);
             }
-        }
-
-        private bool IsGraphQLRequest(HttpContext context)
-        {
-            var path = context.Request.Path;
-            if (!path.StartsWithSegments(_options.Path))
-                return false;
-
-            if (!context.WebSockets.IsWebSocketRequest)
-                return false;
-
-            return true;
         }
 
         private async Task ExecuteAsync(HttpContext context)

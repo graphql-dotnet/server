@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using GraphQL.Server.Core;
 using GraphQL.Subscription;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;

@@ -4,61 +4,42 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using GraphQL.Http;
+using GraphQL.Server.Core;
 using GraphQL.Server.Transports.AspNetCore.Common;
 using GraphQL.Types;
-using GraphQL.Validation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace GraphQL.Server.Transports.AspNetCore
 {
-    public class GraphQLHttpMiddleware<TSchema> where TSchema : ISchema
+    public class GraphQLHttpMiddleware<TSchema> : IMiddleware
+        where TSchema : ISchema
     {
         private const string JsonContentType = "application/json";
         private const string GraphQLContentType = "application/graphql";
 
-        private readonly RequestDelegate _next;
-        private readonly GraphQLHttpOptions _options;
-        private readonly IDocumentExecuter _executer;
+        private readonly IGraphQLExecuter<TSchema> _executer;
         private readonly IDocumentWriter _writer;
-        private readonly TSchema _schema;
 
         public GraphQLHttpMiddleware(
-            RequestDelegate next,
-            IOptions<GraphQLHttpOptions> options,
-            IDocumentExecuter executer,
-            IDocumentWriter writer,
-            TSchema schema)
+            IGraphQLExecuter<TSchema> executer,
+            IDocumentWriter writer)
         {
-            _next = next;
-            _options = options.Value;
             _executer = executer;
             _writer = writer;
-            _schema = schema;
         }
 
-        public async Task Invoke(HttpContext context)
+        public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
-            if (!IsGraphQLRequest(context))
+            if (context.WebSockets.IsWebSocketRequest)
             {
-                await _next(context);
+                await next(context);
                 return;
             }
 
-            await ExecuteAsync(context, _schema);
-        }
-
-        private bool IsGraphQLRequest(HttpContext context)
-        {
-            return HttpMethods.IsPost(context.Request.Method) && context.Request.Path.StartsWithSegments(_options.Path);
-        }
-
-        private async Task ExecuteAsync(HttpContext context, ISchema schema)
-        {
             // Handle requests as per recommendation at http://graphql.org/learn/serving-over-http/
             var httpRequest = context.Request;
             var gqlRequest = new GraphQLRequest();
@@ -89,30 +70,14 @@ namespace GraphQL.Server.Transports.AspNetCore
                 }
             }
 
-            object userContext = null;
             var userContextBuilder = context.RequestServices.GetService<IUserContextBuilder>();
-            if (userContextBuilder != null)
-            {
-                userContext = await userContextBuilder.BuildUserContext(context);
-            }
-            else
-            {
-                userContext = _options.BuildUserContext?.Invoke(context);
-            }
+            object userContext = await userContextBuilder?.BuildUserContext(context);
 
-            var result = await _executer.ExecuteAsync(x =>
-            {
-                x.Schema = schema;
-                x.Query = gqlRequest.Query;
-                x.OperationName = gqlRequest.OperationName;
-                x.Inputs = gqlRequest.Variables.ToInputs();
-                x.UserContext = userContext;
-                x.ComplexityConfiguration = _options.ComplexityConfiguration;
-                x.EnableMetrics = _options.EnableMetrics;
-                x.ExposeExceptions = _options.ExposeExceptions;
-                x.SetFieldMiddleware = _options.SetFieldMiddleware;
-                x.ValidationRules = _options.ValidationRules.Concat(DocumentValidator.CoreRules()).ToList();
-            });
+            var result = await _executer.ExecuteAsync(
+                gqlRequest.OperationName,
+                gqlRequest.Query,
+                gqlRequest.GetInputs(),
+                userContext);
 
             await WriteResponseAsync(context, result);
         }

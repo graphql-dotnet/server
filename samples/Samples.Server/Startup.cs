@@ -37,21 +37,17 @@ namespace GraphQL.Samples.Server
             services.AddSingleton<MessageType>();
             services.AddSingleton<MessageInputType>();
 
-            // http
-            services.AddGraphQLHttp();
-
-            // subscriptions
-            services.Configure<ExecutionOptions<ChatSchema>>(options =>
+            services.AddGraphQL(options =>
             {
                 options.EnableMetrics = true;
                 options.ExposeExceptions = true;
-            });
+            })
+            .AddWebSockets()
+            .AddDataLoader();
 
-            services.AddSingleton<ITokenListener, TokenListener>();
-            services.AddSingleton<IPostConfigureOptions<ExecutionOptions<ChatSchema>>, AddAuthenticator>();
+            //services.AddSingleton<ITokenListener, TokenListener>();
+            //services.AddSingleton<IPostConfigureOptions<ExecutionOptions<ChatSchema>>, AddAuthenticator>();
             
-            // register default services for web socket. This will also add the protocol handler.
-            services.AddGraphQLWebSocket<ChatSchema>();
             services.AddMvc();
         }
 
@@ -65,8 +61,8 @@ namespace GraphQL.Samples.Server
             app.UseStaticFiles();
 
             app.UseWebSockets();
-            app.UseGraphQLWebSocket<ChatSchema>(new GraphQLWebSocketsOptions());
-            app.UseGraphQLHttp<ChatSchema>(new GraphQLHttpOptions());
+            app.UseGraphQLWebSocket<ChatSchema>("/graphql");
+            app.UseGraphQL<ChatSchema>("/graphql");
             app.UseGraphQLPlayground(new GraphQLPlaygroundOptions()
             {
                 Path = "/ui/playground"
