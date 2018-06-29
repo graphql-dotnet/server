@@ -9,29 +9,23 @@ using Microsoft.Extensions.Logging;
 
 namespace GraphQL.Server.Transports.WebSockets
 {
-    public class GraphQLWebSocketsMiddleware<TSchema> : IMiddleware
+    public class GraphQLWebSocketsMiddleware<TSchema>
         where TSchema : ISchema
     {
-        private readonly IEnumerable<IOperationMessageListener> _messageListeners;
-        private readonly IGraphQLExecuter<TSchema> _executer;
-        private readonly ILoggerFactory _loggerFactory;
-        private readonly ILogger _logger;
-
-        public GraphQLWebSocketsMiddleware(
-            IEnumerable<IOperationMessageListener> messageListeners,
-            IGraphQLExecuter<TSchema> executer,
-            ILoggerFactory loggerFactory)
+        private readonly RequestDelegate _next;
+ 
+        public GraphQLWebSocketsMiddleware(RequestDelegate next)
         {
-            _messageListeners = messageListeners;
-            _executer = executer;
-
-            _loggerFactory = loggerFactory;
-            _logger = loggerFactory.CreateLogger<GraphQLWebSocketsMiddleware<TSchema>>();
+            _next = next;
         }
 
-        public async Task InvokeAsync(HttpContext context, RequestDelegate next)
+        public async Task InvokeAsync(HttpContext context, 
+            IEnumerable<IOperationMessageListener> messageListeners,
+            IGraphQLExecuter<TSchema> executer,
+            ILoggerFactory loggerFactory,
+            ILogger<GraphQLWebSocketsMiddleware<TSchema>> logger)
         {
-            using (_logger.BeginScope(new Dictionary<string, object>
+            using (logger.BeginScope(new Dictionary<string, object>
             {
                 ["ConnectionId"] = context.Connection.Id,
                 ["Request"] = context.Request
@@ -39,45 +33,41 @@ namespace GraphQL.Server.Transports.WebSockets
             {
                 if (!context.WebSockets.IsWebSocketRequest)
                 {
-                    _logger.LogInformation("Request is not a valid  websocket request");
-                    await next(context);
+                    logger.LogInformation("Request is not a valid  websocket request");
+                    await _next(context);
+
                     return;
                 }
 
-                _logger.LogInformation("Connection is a valid websocket request");
-                await ExecuteAsync(context);
-            }
-        }
+                logger.LogInformation("Connection is a valid websocket request");
+                var socket = await context.WebSockets
+                    .AcceptWebSocketAsync("graphql-ws").ConfigureAwait(false);
 
-        private async Task ExecuteAsync(HttpContext context)
-        {
-            var socket = await context.WebSockets
-                .AcceptWebSocketAsync("graphql-ws").ConfigureAwait(false);
+                if (!context.WebSockets.WebSocketRequestedProtocols
+                    .Contains(socket.SubProtocol))
+                {
+                    logger.LogError(
+                        "Websocket connection does not have correct protocol: graphql-ws. Request protocols: {protocols}",
+                        context.WebSockets.WebSocketRequestedProtocols);
+                    await socket.CloseAsync(
+                        WebSocketCloseStatus.ProtocolError,
+                        $"Server only supports graphql-ws protocol",
+                        context.RequestAborted).ConfigureAwait(false);
 
-            if (!context.WebSockets.WebSocketRequestedProtocols
-                .Contains(socket.SubProtocol))
-            {
-                _logger.LogError(
-                    "Websocket connection does not have correct protocol: graphql-ws. Request protocols: {protocols}",
-                    context.WebSockets.WebSocketRequestedProtocols);
-                await socket.CloseAsync(
-                    WebSocketCloseStatus.ProtocolError,
-                    $"Server only supports graphql-ws protocol",
-                    context.RequestAborted).ConfigureAwait(false);
+                    return;
+                }
 
-                return;
-            }
+                using (logger.BeginScope($"GraphQL websocket connection: {context.Connection.Id}"))
+                {
+                    var connection = new WebSocketConnection(
+                        socket,
+                        context.Connection.Id,
+                        new SubscriptionManager(executer, loggerFactory),
+                        messageListeners,
+                        loggerFactory);
 
-            using (_logger.BeginScope($"GraphQL websocket connection: {context.Connection.Id}"))
-            {
-                var connection = new WebSocketConnection(
-                    socket,
-                    context.Connection.Id,
-                    new SubscriptionManager(_executer, _loggerFactory),
-                    _messageListeners,
-                    _loggerFactory);
-
-                await connection.Connect();
+                    await connection.Connect();
+                }
             }
         }
     }

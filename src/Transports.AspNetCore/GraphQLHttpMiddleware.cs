@@ -15,28 +15,26 @@ using Newtonsoft.Json.Linq;
 
 namespace GraphQL.Server.Transports.AspNetCore
 {
-    public class GraphQLHttpMiddleware<TSchema> : IMiddleware
+    public class GraphQLHttpMiddleware<TSchema>
         where TSchema : ISchema
     {
         private const string JsonContentType = "application/json";
         private const string GraphQLContentType = "application/graphql";
 
-        private readonly IGraphQLExecuter<TSchema> _executer;
-        private readonly IDocumentWriter _writer;
+        private readonly RequestDelegate _next;
 
-        public GraphQLHttpMiddleware(
+        public GraphQLHttpMiddleware(RequestDelegate next)
+        {
+            _next = next;
+        }
+
+        public async Task InvokeAsync(HttpContext context,
             IGraphQLExecuter<TSchema> executer,
             IDocumentWriter writer)
         {
-            _executer = executer;
-            _writer = writer;
-        }
-
-        public async Task InvokeAsync(HttpContext context, RequestDelegate next)
-        {
             if (context.WebSockets.IsWebSocketRequest)
             {
-                await next(context);
+                await _next(context);
                 return;
             }
 
@@ -52,7 +50,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             {
                 if (!MediaTypeHeaderValue.TryParse(httpRequest.ContentType, out MediaTypeHeaderValue mediaTypeHeader))
                 {
-                    await WriteResponseAsync(context, HttpStatusCode.BadRequest, $"Invalid 'Content-Type' header: value '{httpRequest.ContentType}' could not be parsed.");
+                    await WriteResponseAsync(context, writer, HttpStatusCode.BadRequest, $"Invalid 'Content-Type' header: value '{httpRequest.ContentType}' could not be parsed.");
                     return;
                 }
 
@@ -65,7 +63,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                         gqlRequest.Query = await ReadAsStringAsync(httpRequest.Body);
                         break;
                     default:
-                        await WriteResponseAsync(context, HttpStatusCode.BadRequest, $"Invalid 'Content-Type' header: non-supported media type. Must be of '{JsonContentType}' or '{GraphQLContentType}'. See: http://graphql.org/learn/serving-over-http/.");
+                        await WriteResponseAsync(context, writer, HttpStatusCode.BadRequest, $"Invalid 'Content-Type' header: non-supported media type. Must be of '{JsonContentType}' or '{GraphQLContentType}'. See: http://graphql.org/learn/serving-over-http/.");
                         return;
                 }
             }
@@ -73,16 +71,16 @@ namespace GraphQL.Server.Transports.AspNetCore
             var userContextBuilder = context.RequestServices.GetService<IUserContextBuilder>();
             object userContext = await userContextBuilder?.BuildUserContext(context);
 
-            var result = await _executer.ExecuteAsync(
+            var result = await executer.ExecuteAsync(
                 gqlRequest.OperationName,
                 gqlRequest.Query,
                 gqlRequest.GetInputs(),
                 userContext);
 
-            await WriteResponseAsync(context, result);
+            await WriteResponseAsync(context, writer, result);
         }
 
-        private async Task WriteResponseAsync(HttpContext context, HttpStatusCode statusCode, string errorMessage)
+        private async Task WriteResponseAsync(HttpContext context, IDocumentWriter writer, HttpStatusCode statusCode, string errorMessage)
         {
             var result = new ExecutionResult()
             {
@@ -90,12 +88,12 @@ namespace GraphQL.Server.Transports.AspNetCore
             };
             result.Errors.Add(new ExecutionError(errorMessage));
 
-            await WriteResponseAsync(context, result);
+            await WriteResponseAsync(context, writer, result);
         }
 
-        private async Task WriteResponseAsync(HttpContext context, ExecutionResult result)
+        private async Task WriteResponseAsync(HttpContext context, IDocumentWriter writer, ExecutionResult result)
         {
-            var json = _writer.Write(result);
+            var json = writer.Write(result);
 
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = result.Errors?.Any() == true ? (int)HttpStatusCode.BadRequest : (int)HttpStatusCode.OK;
