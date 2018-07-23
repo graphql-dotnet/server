@@ -73,14 +73,14 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         private Task HandleStopAsync(MessageHandlingContext context)
         {
             var message = context.Message;
-            _logger.LogInformation("Handle stop: {id}", message.Id);
+            _logger.LogDebug("Handle stop: {id}", message.Id);
             return context.Subscriptions.UnsubscribeAsync(message.Id);
         }
 
         private Task HandleStartAsync(MessageHandlingContext context)
         {
             var message = context.Message;
-            _logger.LogInformation("Handle start: {id}", message.Id);
+            _logger.LogDebug("Handle start: {id}", message.Id);
             var payload = message.Payload.ToObject<OperationMessagePayload>();
             if (payload == null)
                 throw new InvalidOperationException($"Could not get OperationMessagePayload from message.Payload");
@@ -93,7 +93,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 
         private Task HandleInitAsync(MessageHandlingContext context)
         {
-            _logger.LogInformation("Handle init");
+            _logger.LogDebug("Handle init");
             return context.Writer.SendAsync(new OperationMessage
             {
                 Type = MessageType.GQL_CONNECTION_ACK
@@ -102,7 +102,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 
         private async Task HandleTerminateAsync(MessageHandlingContext context)
         {
-            _logger.LogInformation("Handle terminate");
+            _logger.LogDebug("Handle terminate");
             await context.Terminate();
         }
     }

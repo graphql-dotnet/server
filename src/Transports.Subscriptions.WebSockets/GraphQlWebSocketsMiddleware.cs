@@ -43,12 +43,12 @@ namespace GraphQL.Server.Transports.WebSockets
             {
                 if (!IsGraphQLRequest(context))
                 {
-                    _logger.LogInformation("Request is not a valid  websocket request");
+                    _logger.LogDebug("Request is not a valid  websocket request");
                     await _next(context);
                     return;
                 }
 
-                _logger.LogInformation("Connection is a valid websocket request");
+                _logger.LogDebug("Connection is a valid websocket request");
                 await ExecuteAsync(context);
             }
         }
