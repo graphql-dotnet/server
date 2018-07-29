@@ -54,9 +54,12 @@ namespace GraphQL.Server.Transports.AspNetCore
         /// <param name="builder">The <see cref="IApplicationBuilder"/> to use the middleware on</param>
         /// <returns>The <see cref="IApplicationBuilder"/> received as parameter</returns>
         public static IApplicationBuilder UseGraphQLHttp<TSchema>(this IApplicationBuilder builder,
-            GraphQLHttpOptions graphQLHttpOptions)
+            GraphQLHttpOptions graphQLHttpOptions = null)
             where TSchema : ISchema
         {
+            if (graphQLHttpOptions == null)
+                graphQLHttpOptions = new GraphQLHttpOptions();
+
             builder.UseMiddleware<GraphQLHttpMiddleware<TSchema>>(Options.Create(graphQLHttpOptions));
 
             return builder;

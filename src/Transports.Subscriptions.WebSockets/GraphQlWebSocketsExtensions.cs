@@ -20,9 +20,12 @@ namespace GraphQL.Server.Transports.WebSockets
         }
 
         public static IApplicationBuilder UseGraphQLWebSocket<TSchema>(this IApplicationBuilder builder,
-            GraphQLWebSocketsOptions schemaOptions)
+            GraphQLWebSocketsOptions schemaOptions = null)
             where TSchema : ISchema
         {
+            if (schemaOptions == null)
+                schemaOptions = new GraphQLWebSocketsOptions();
+
             builder.UseMiddleware<GraphQLWebSocketsMiddleware<TSchema>>(Options.Create(schemaOptions));
             return builder;
         }
