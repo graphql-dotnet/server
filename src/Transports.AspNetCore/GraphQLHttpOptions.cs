@@ -20,6 +20,6 @@ namespace GraphQL.Server.Transports.AspNetCore
 
         public bool SetFieldMiddleware { get; set; } = true;
 
-        public IList<IValidationRule> ValidationRules { get; } = new List<IValidationRule>();
+        public IEnumerable<IValidationRule> ValidationRules { get; set; }
     }
 }
