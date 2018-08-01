@@ -33,7 +33,7 @@ namespace GraphQL.Server.Transports.WebSockets
 
         public async Task Connect()
         {
-            _logger.LogInformation("Creating server for connection {connectionId}", ConnectionId);
+            _logger.LogDebug("Creating server for connection {connectionId}", ConnectionId);
             var transport = new WebSocketTransport(_socket);
             var server = new SubscriptionServer(
                 transport,

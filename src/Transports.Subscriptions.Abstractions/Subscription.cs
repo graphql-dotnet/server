@@ -40,7 +40,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 
         public void OnCompleted()
         {
-            _logger.LogInformation("Subscription: {subscriptionId} completing", Id);
+            _logger.LogDebug("Subscription: {subscriptionId} completing", Id);
             _writer.Post(new OperationMessage
             {
                 Type = MessageType.GQL_COMPLETE,
@@ -69,7 +69,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 
         public Task UnsubscribeAsync()
         {
-            _logger.LogInformation("Subscription: {subscriptionId} unsubscribing", Id);
+            _logger.LogDebug("Subscription: {subscriptionId} unsubscribing", Id);
             _unsubscribe.Dispose();
             return _writer.SendAsync(new OperationMessage
             {
@@ -82,7 +82,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         {
             var stream = result.Streams.Values.Single();
             _unsubscribe = stream.Synchronize().Subscribe(this);
-            _logger.LogInformation("Subscription: {subscriptionId} subscribed", Id);
+            _logger.LogDebug("Subscription: {subscriptionId} subscribed", Id);
         }
     }
 }
