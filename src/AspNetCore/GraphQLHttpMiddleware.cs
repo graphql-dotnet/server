@@ -68,7 +68,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             }
 
             var validationRules = context.RequestServices.GetServices<IValidationRule>() ?? Enumerable.Empty<IValidationRule>();
-            validationRules.Concat(DocumentValidator.CoreRules());
+            validationRules.Concat(DocumentValidator.CoreRules()).ToList();
 
             var result = await _executer.ExecuteAsync(_ =>
             {
