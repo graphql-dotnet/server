@@ -55,7 +55,7 @@ namespace GraphQL.Server.Transports.AspNetCore
         private async Task ExecuteAsync(HttpContext context, ISchema schema)
         {
             var request = Deserialize<GraphQLQuery>(context.Request.Body);
-            
+
             object userContext = null;
             var userContextBuilder = context.RequestServices.GetService<IUserContextBuilder>();
             if (userContextBuilder != null)
@@ -66,7 +66,10 @@ namespace GraphQL.Server.Transports.AspNetCore
             {
                 userContext = _options.BuildUserContext?.Invoke(context);
             }
-            
+
+            var validationRules = context.RequestServices.GetServices<IValidationRule>() ?? Enumerable.Empty<IValidationRule>();
+            validationRules.Concat(DocumentValidator.CoreRules());
+
             var result = await _executer.ExecuteAsync(_ =>
             {
                 _.Schema = schema;
@@ -75,7 +78,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                 _.Inputs = request.Variables.ToInputs();
                 _.UserContext = userContext;
                 _.ExposeExceptions = _options.ExposeExceptions;
-                _.ValidationRules = _options.ValidationRules.Concat(DocumentValidator.CoreRules()).ToList();
+                _.ValidationRules = validationRules;
             });
 
             await WriteResponseAsync(context, result);
