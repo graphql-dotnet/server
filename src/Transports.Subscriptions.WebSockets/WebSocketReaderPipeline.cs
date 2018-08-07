@@ -97,7 +97,7 @@ namespace GraphQL.Server.Transports.WebSockets
         {
             while (!_socket.CloseStatus.HasValue)
             {
-                string message = null;
+                string message;
                 var buffer = new byte[1024 * 4];
                 var segment = new ArraySegment<byte>(buffer);
 

@@ -10,7 +10,6 @@ using GraphQL.Validation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -89,7 +88,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                 }
             }
 
-            object userContext = null;
+            object userContext;
             var userContextBuilder = context.RequestServices.GetService<IUserContextBuilder>();
             if (userContextBuilder != null)
             {
