@@ -60,7 +60,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             if (_subscriptions.TryRemove(id, out var removed))
                 return removed.UnsubscribeAsync();
 
-            _logger.LogDebug("Subscription: {subcriptionId} unsubscribed", id);
+            _logger.LogDebug("Subscription: {subscriptionId} unsubscribed", id);
             return Task.CompletedTask;
         }
 

@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
-using System.Threading.Tasks.Dataflow;
 using GraphQL.Subscription;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;

@@ -58,7 +58,7 @@ namespace GraphQL.Server.Ui.GraphiQL {
 			httpResponse.ContentType = "text/html";
 			httpResponse.StatusCode = 200;
 
-		    // Initilize page model if null
+		    // Initialize page model if null
 		    if (_pageModel == null)
 		        _pageModel = new GraphiQLPageModel(this.settings);
 

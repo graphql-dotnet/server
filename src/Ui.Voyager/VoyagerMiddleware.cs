@@ -62,7 +62,7 @@ namespace GraphQL.Server.Ui.Voyager
             httpResponse.ContentType = "text/html";
             httpResponse.StatusCode = 200;
 
-            // Initilize page model if null
+            // Initialize page model if null
             if (_pageModel == null)
                 _pageModel = new VoyagerPageModel(this._settings);
 

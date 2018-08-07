@@ -1,5 +1,3 @@
-using System.Linq;
-using System.Threading.Tasks;
 using GraphQL.Samples.Schemas.Chat;
 using GraphQL.Server.Transports.AspNetCore;
 using GraphQL.Server.Transports.WebSockets;

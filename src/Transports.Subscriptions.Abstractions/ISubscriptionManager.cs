@@ -9,7 +9,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
     public interface ISubscriptionManager : IEnumerable<Subscription>
     {
         /// <summary>
-        ///     Execute operation and subsribe if subscription
+        ///     Execute operation and subscribe if subscription
         /// </summary>
         /// <param name="id"></param>
         /// <param name="payload"></param>
