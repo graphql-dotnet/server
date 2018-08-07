@@ -20,29 +20,24 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             return Task.CompletedTask;
         }
 
-        public async Task HandleAsync(MessageHandlingContext context)
+        public Task HandleAsync(MessageHandlingContext context)
         {
             if (context.Terminated)
-                return;
+                return Task.CompletedTask;
 
             var message = context.Message;
             switch (message.Type)
             {
                 case MessageType.GQL_CONNECTION_INIT:
-                    await HandleInitAsync(context);
-                    break;
+                    return HandleInitAsync(context);
                 case MessageType.GQL_START:
-                    await HandleStartAsync(context);
-                    break;
+                    return HandleStartAsync(context);
                 case MessageType.GQL_STOP:
-                    await HandleStopAsync(context);
-                    break;
+                    return HandleStopAsync(context);
                 case MessageType.GQL_CONNECTION_TERMINATE:
-                    await HandleTerminateAsync(context);
-                    break;
+                    return HandleTerminateAsync(context);
                 default:
-                    await HandleUnknownAsync(context);
-                    break;
+                    return HandleUnknownAsync(context);
             }
         }
 
@@ -100,10 +95,10 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             });
         }
 
-        private async Task HandleTerminateAsync(MessageHandlingContext context)
+        private Task HandleTerminateAsync(MessageHandlingContext context)
         {
             _logger.LogDebug("Handle terminate");
-            await context.Terminate();
+            return context.Terminate();
         }
     }
 }

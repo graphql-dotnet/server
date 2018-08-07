@@ -40,15 +40,14 @@ namespace GraphQL.Server.Transports.AspNetCore
             _schema = schema;
         }
 
-        public async Task Invoke(HttpContext context)
+        public Task Invoke(HttpContext context)
         {
             if (!IsGraphQLRequest(context))
             {
-                await _next(context);
-                return;
+                return _next(context);
             }
 
-            await ExecuteAsync(context, _schema);
+            return ExecuteAsync(context, _schema);
         }
 
         private bool IsGraphQLRequest(HttpContext context)
@@ -116,7 +115,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             await WriteResponseAsync(context, result);
         }
 
-        private async Task WriteResponseAsync(HttpContext context, HttpStatusCode statusCode, string errorMessage)
+        private Task WriteResponseAsync(HttpContext context, HttpStatusCode statusCode, string errorMessage)
         {
             var result = new ExecutionResult()
             {
@@ -124,17 +123,17 @@ namespace GraphQL.Server.Transports.AspNetCore
             };
             result.Errors.Add(new ExecutionError(errorMessage));
 
-            await WriteResponseAsync(context, result);
+            return WriteResponseAsync(context, result);
         }
 
-        private async Task WriteResponseAsync(HttpContext context, ExecutionResult result)
+        private Task WriteResponseAsync(HttpContext context, ExecutionResult result)
         {
             var json = _writer.Write(result);
 
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = result.Errors?.Any() == true ? (int)HttpStatusCode.BadRequest : (int)HttpStatusCode.OK;
 
-            await context.Response.WriteAsync(json);
+            return context.Response.WriteAsync(json);
         }
 
         private static T Deserialize<T>(Stream s)

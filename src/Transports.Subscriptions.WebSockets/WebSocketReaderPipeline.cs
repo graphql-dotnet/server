@@ -38,7 +38,8 @@ namespace GraphQL.Server.Transports.WebSockets
             });
         }
 
-        public async Task Complete() => await Complete(WebSocketCloseStatus.NormalClosure, "Completed");
+        public Task Complete() => Complete(WebSocketCloseStatus.NormalClosure, "Completed");
+
         public async Task Complete(WebSocketCloseStatus closeStatus, string statusDescription)
         {
             if (_socket.State != WebSocketState.Closed && _socket.State != WebSocketState.CloseSent)
