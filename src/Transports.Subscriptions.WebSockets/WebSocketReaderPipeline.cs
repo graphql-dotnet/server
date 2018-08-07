@@ -139,10 +139,6 @@ namespace GraphQL.Server.Transports.WebSockets
                             case WebSocketError.InvalidMessageType:
                                 closeStatus = WebSocketCloseStatus.InvalidMessageType;
                                 break;
-                            case WebSocketError.Success:
-                            case WebSocketError.NativeError:
-                            case WebSocketError.InvalidState:
-                            case WebSocketError.Faulted:
                             default:
                                 closeStatus = WebSocketCloseStatus.InternalServerError;
                                 break;
