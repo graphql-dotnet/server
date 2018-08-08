@@ -1,4 +1,3 @@
-using System;
 using GraphQL.Server.Ui.GraphiQL;
 
 namespace Microsoft.AspNetCore.Builder {
@@ -14,8 +13,10 @@ namespace Microsoft.AspNetCore.Builder {
 		/// <param name="applicationBuilder"></param>
 		/// <param name="settings">The settings of the Middleware</param>
 		/// <returns></returns>
-		public static IApplicationBuilder UseGraphiQLServer(this IApplicationBuilder applicationBuilder, GraphiQLOptions settings) {
-			if (settings == null) { throw new ArgumentNullException(nameof(settings)); }
+		public static IApplicationBuilder UseGraphiQLServer(this IApplicationBuilder applicationBuilder, GraphiQLOptions settings)
+		{
+		    if (settings == null)
+		        settings = new GraphiQLOptions();
 
 			applicationBuilder.UseMiddleware<GraphiQLMiddleware>(settings);
 			return applicationBuilder;

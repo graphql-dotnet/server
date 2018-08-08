@@ -19,7 +19,7 @@ namespace GraphQL.Server.Transports.WebSockets
             _next = next;
         }
 
-        public async Task InvokeAsync(HttpContext context, 
+        public async Task InvokeAsync(HttpContext context,
             IEnumerable<IOperationMessageListener> messageListeners,
             IGraphQLExecuter<TSchema> executer,
             ILoggerFactory loggerFactory,
@@ -33,13 +33,14 @@ namespace GraphQL.Server.Transports.WebSockets
             {
                 if (!context.WebSockets.IsWebSocketRequest)
                 {
-                    logger.LogInformation("Request is not a valid  websocket request");
+                    logger.LogDebug("Request is not a valid websocket request");
                     await _next(context);
 
                     return;
                 }
 
-                logger.LogInformation("Connection is a valid websocket request");
+                logger.LogDebug("Connection is a valid websocket request");
+
                 var socket = await context.WebSockets
                     .AcceptWebSocketAsync("graphql-ws").ConfigureAwait(false);
 

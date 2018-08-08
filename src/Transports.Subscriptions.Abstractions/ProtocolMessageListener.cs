@@ -20,29 +20,24 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             return Task.CompletedTask;
         }
 
-        public async Task HandleAsync(MessageHandlingContext context)
+        public Task HandleAsync(MessageHandlingContext context)
         {
             if (context.Terminated)
-                return;
+                return Task.CompletedTask;
 
             var message = context.Message;
             switch (message.Type)
             {
                 case MessageType.GQL_CONNECTION_INIT:
-                    await HandleInitAsync(context);
-                    break;
+                    return HandleInitAsync(context);
                 case MessageType.GQL_START:
-                    await HandleStartAsync(context);
-                    break;
+                    return HandleStartAsync(context);
                 case MessageType.GQL_STOP:
-                    await HandleStopAsync(context);
-                    break;
+                    return HandleStopAsync(context);
                 case MessageType.GQL_CONNECTION_TERMINATE:
-                    await HandleTerminateAsync(context);
-                    break;
+                    return HandleTerminateAsync(context);
                 default:
-                    await HandleUnknownAsync(context);
-                    break;
+                    return HandleUnknownAsync(context);
             }
         }
 
@@ -73,14 +68,14 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         private Task HandleStopAsync(MessageHandlingContext context)
         {
             var message = context.Message;
-            _logger.LogInformation("Handle stop: {id}", message.Id);
+            _logger.LogDebug("Handle stop: {id}", message.Id);
             return context.Subscriptions.UnsubscribeAsync(message.Id);
         }
 
         private Task HandleStartAsync(MessageHandlingContext context)
         {
             var message = context.Message;
-            _logger.LogInformation("Handle start: {id}", message.Id);
+            _logger.LogDebug("Handle start: {id}", message.Id);
             var payload = message.Payload.ToObject<OperationMessagePayload>();
             if (payload == null)
                 throw new InvalidOperationException($"Could not get OperationMessagePayload from message.Payload");
@@ -93,17 +88,17 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 
         private Task HandleInitAsync(MessageHandlingContext context)
         {
-            _logger.LogInformation("Handle init");
+            _logger.LogDebug("Handle init");
             return context.Writer.SendAsync(new OperationMessage
             {
                 Type = MessageType.GQL_CONNECTION_ACK
             });
         }
 
-        private async Task HandleTerminateAsync(MessageHandlingContext context)
+        private Task HandleTerminateAsync(MessageHandlingContext context)
         {
-            _logger.LogInformation("Handle terminate");
-            await context.Terminate();
+            _logger.LogDebug("Handle terminate");
+            return context.Terminate();
         }
     }
 }

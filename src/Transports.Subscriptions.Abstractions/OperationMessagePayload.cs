@@ -8,7 +8,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
     public class OperationMessagePayload
     {
         /// <summary>
-        ///     Query, mutation or subsciption query
+        ///     Query, mutation or subscription query
         /// </summary>
         public string Query { get; set; }
 

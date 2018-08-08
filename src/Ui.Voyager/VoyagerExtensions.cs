@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 
 namespace GraphQL.Server.Ui.Voyager
 {
@@ -7,7 +6,8 @@ namespace GraphQL.Server.Ui.Voyager
     {
         public static IApplicationBuilder UseGraphQLVoyager(this IApplicationBuilder app, GraphQLVoyagerOptions options)
         {
-            if (options == null) { throw new ArgumentNullException(nameof(options)); }
+            if (options == null)
+                options = new GraphQLVoyagerOptions();
 
             app.UseMiddleware<VoyagerMiddleware>(options);
             return app;

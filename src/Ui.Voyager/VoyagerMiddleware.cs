@@ -39,17 +39,16 @@ namespace GraphQL.Server.Ui.Voyager
         /// </summary>
         /// <param name="httpContext">The HttpContext</param>
         /// <returns></returns>
-        public async Task Invoke(HttpContext httpContext)
+        public Task Invoke(HttpContext httpContext)
         {
             if (httpContext == null) { throw new ArgumentNullException(nameof(httpContext)); }
 
-            if (this.IsVoyagerRequest(httpContext.Request))
+            if (IsVoyagerRequest(httpContext.Request))
             {
-                await this.InvokeVoyager(httpContext.Response).ConfigureAwait(false);
-                return;
+                return InvokeVoyager(httpContext.Response);
             }
 
-            await this.nextMiddleware(httpContext).ConfigureAwait(false);
+            return nextMiddleware(httpContext);
         }
 
         private bool IsVoyagerRequest(HttpRequest httpRequest)
@@ -57,17 +56,17 @@ namespace GraphQL.Server.Ui.Voyager
             return HttpMethods.IsGet(httpRequest.Method) && httpRequest.Path.StartsWithSegments(this._settings.Path);
         }
 
-        private async Task InvokeVoyager(HttpResponse httpResponse)
+        private Task InvokeVoyager(HttpResponse httpResponse)
         {
             httpResponse.ContentType = "text/html";
             httpResponse.StatusCode = 200;
 
-            // Initilize page model if null
+            // Initialize page model if null
             if (_pageModel == null)
-                _pageModel = new VoyagerPageModel(this._settings);
+                _pageModel = new VoyagerPageModel(_settings);
 
             var data = Encoding.UTF8.GetBytes(_pageModel.Render());
-            await httpResponse.Body.WriteAsync(data, 0, data.Length).ConfigureAwait(false);
+            return httpResponse.Body.WriteAsync(data, 0, data.Length);
         }
     }
 }
