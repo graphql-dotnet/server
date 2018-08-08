@@ -1,4 +1,3 @@
-using System;
 using GraphQL.Server.Ui.GraphiQL;
 
 namespace Microsoft.AspNetCore.Builder {
@@ -17,8 +16,8 @@ namespace Microsoft.AspNetCore.Builder {
 		public static IApplicationBuilder UseGraphiQLServer(this IApplicationBuilder applicationBuilder, GraphiQLOptions settings)
 		{
 		    if (settings == null)
-		        settings = new GraphiQLOptions();	    
-                
+		        settings = new GraphiQLOptions();
+
 			applicationBuilder.UseMiddleware<GraphiQLMiddleware>(settings);
 			return applicationBuilder;
 		}

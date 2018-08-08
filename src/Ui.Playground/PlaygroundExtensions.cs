@@ -1,4 +1,3 @@
-using System;
 using Microsoft.AspNetCore.Builder;
 
 namespace GraphQL.Server.Ui.Playground {
@@ -13,7 +12,5 @@ namespace GraphQL.Server.Ui.Playground {
             app.UseMiddleware<PlaygroundMiddleware>(options);
             return app;
         }
-
     }
-
 }

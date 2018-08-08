@@ -45,7 +45,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             if (id == null) throw new ArgumentNullException(nameof(id));
             if (payload == null) throw new ArgumentNullException(nameof(payload));
             if (context == null) throw new ArgumentNullException(nameof(context));
-            
+
             var subscription = await ExecuteAsync(id, payload, context);
 
             if (subscription == null)
@@ -60,7 +60,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             if (_subscriptions.TryRemove(id, out var removed))
                 return removed.UnsubscribeAsync();
 
-            _logger.LogDebug("Subscription: {subcriptionId} unsubscribed", id);
+            _logger.LogDebug("Subscription: {subscriptionId} unsubscribed", id);
             return Task.CompletedTask;
         }
 
@@ -82,7 +82,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             var result = await _executer.ExecuteAsync(
                 payload.OperationName,
                 payload.Query,
-                payload.Variables, 
+                payload.Variables,
                 context);
 
             if (result.Errors != null && result.Errors.Any())

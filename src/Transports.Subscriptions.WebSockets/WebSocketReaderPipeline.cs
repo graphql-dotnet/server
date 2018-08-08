@@ -38,7 +38,8 @@ namespace GraphQL.Server.Transports.WebSockets
             });
         }
 
-        public async Task Complete() => await Complete(WebSocketCloseStatus.NormalClosure, "Completed");
+        public Task Complete() => Complete(WebSocketCloseStatus.NormalClosure, "Completed");
+
         public async Task Complete(WebSocketCloseStatus closeStatus, string statusDescription)
         {
             if (_socket.State != WebSocketState.Closed && _socket.State != WebSocketState.CloseSent)
@@ -97,7 +98,7 @@ namespace GraphQL.Server.Transports.WebSockets
         {
             while (!_socket.CloseStatus.HasValue)
             {
-                string message = null;
+                string message;
                 var buffer = new byte[1024 * 4];
                 var segment = new ArraySegment<byte>(buffer);
 
@@ -138,10 +139,6 @@ namespace GraphQL.Server.Transports.WebSockets
                             case WebSocketError.InvalidMessageType:
                                 closeStatus = WebSocketCloseStatus.InvalidMessageType;
                                 break;
-                            case WebSocketError.Success:
-                            case WebSocketError.NativeError:
-                            case WebSocketError.InvalidState:
-                            case WebSocketError.Faulted:
                             default:
                                 closeStatus = WebSocketCloseStatus.InternalServerError;
                                 break;

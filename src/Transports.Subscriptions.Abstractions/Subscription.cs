@@ -9,7 +9,7 @@ using Newtonsoft.Json.Linq;
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 {
     /// <summary>
-    ///     Internal obsercer of the subsciption
+    ///     Internal observer of the subscription
     /// </summary>
     public class Subscription : IObserver<ExecutionResult>
     {

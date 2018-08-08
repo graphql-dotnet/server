@@ -10,7 +10,6 @@ using GraphQL.Validation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -41,15 +40,14 @@ namespace GraphQL.Server.Transports.AspNetCore
             _schema = schema;
         }
 
-        public async Task Invoke(HttpContext context)
+        public Task Invoke(HttpContext context)
         {
             if (!IsGraphQLRequest(context))
             {
-                await _next(context);
-                return;
+                return _next(context);
             }
 
-            await ExecuteAsync(context, _schema);
+            return ExecuteAsync(context, _schema);
         }
 
         private bool IsGraphQLRequest(HttpContext context)
@@ -69,7 +67,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             }
             else if (HttpMethods.IsPost(httpRequest.Method))
             {
-                if (!MediaTypeHeaderValue.TryParse(httpRequest.ContentType, out MediaTypeHeaderValue mediaTypeHeader))
+                if (!MediaTypeHeaderValue.TryParse(httpRequest.ContentType, out var mediaTypeHeader))
                 {
                     await WriteResponseAsync(context, HttpStatusCode.BadRequest, $"Invalid 'Content-Type' header: value '{httpRequest.ContentType}' could not be parsed.");
                     return;
@@ -89,7 +87,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                 }
             }
 
-            object userContext = null;
+            object userContext;
             var userContextBuilder = context.RequestServices.GetService<IUserContextBuilder>();
             if (userContextBuilder != null)
             {
@@ -117,7 +115,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             await WriteResponseAsync(context, result);
         }
 
-        private async Task WriteResponseAsync(HttpContext context, HttpStatusCode statusCode, string errorMessage)
+        private Task WriteResponseAsync(HttpContext context, HttpStatusCode statusCode, string errorMessage)
         {
             var result = new ExecutionResult()
             {
@@ -125,17 +123,17 @@ namespace GraphQL.Server.Transports.AspNetCore
             };
             result.Errors.Add(new ExecutionError(errorMessage));
 
-            await WriteResponseAsync(context, result);
+            return WriteResponseAsync(context, result);
         }
 
-        private async Task WriteResponseAsync(HttpContext context, ExecutionResult result)
+        private Task WriteResponseAsync(HttpContext context, ExecutionResult result)
         {
             var json = _writer.Write(result);
 
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = result.Errors?.Any() == true ? (int)HttpStatusCode.BadRequest : (int)HttpStatusCode.OK;
 
-            await context.Response.WriteAsync(json);
+            return context.Response.WriteAsync(json);
         }
 
         private static T Deserialize<T>(Stream s)
@@ -157,9 +155,9 @@ namespace GraphQL.Server.Transports.AspNetCore
 
         private static void ExtractGraphQLRequestFromQueryString(IQueryCollection qs, GraphQLRequest gqlRequest)
         {
-            gqlRequest.Query = qs.TryGetValue(GraphQLRequest.QueryKey, out StringValues queryValues) ? queryValues[0] : null;
-            gqlRequest.Variables = qs.TryGetValue(GraphQLRequest.VariablesKey, out StringValues variablesValues) ? JObject.Parse(variablesValues[0]) : null;
-            gqlRequest.OperationName = qs.TryGetValue(GraphQLRequest.OperationNameKey, out StringValues operationNameValues) ? operationNameValues[0] : null;
+            gqlRequest.Query = qs.TryGetValue(GraphQLRequest.QueryKey, out var queryValues) ? queryValues[0] : null;
+            gqlRequest.Variables = qs.TryGetValue(GraphQLRequest.VariablesKey, out var variablesValues) ? JObject.Parse(variablesValues[0]) : null;
+            gqlRequest.OperationName = qs.TryGetValue(GraphQLRequest.OperationNameKey, out var operationNameValues) ? operationNameValues[0] : null;
         }
     }
 }

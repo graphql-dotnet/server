@@ -59,7 +59,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         public const string GQL_START = "start";
 
         /// <summary>
-        ///     The server sends this message to transfter the GraphQL execution result from the server to the client, this message
+        ///     The server sends this message to transfer the GraphQL execution result from the server to the client, this message
         ///     is a response for GQL_START message.
         ///     For each GraphQL operation send with GQL_START, the server will respond with at least one GQL_DATA message.
         ///     id: string : ID of the operation that was successfully set up
