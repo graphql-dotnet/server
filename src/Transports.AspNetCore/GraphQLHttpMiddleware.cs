@@ -4,7 +4,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using GraphQL.Http;
-using GraphQL.Server.Core;
+using GraphQL.Server.Internal;
 using GraphQL.Server.Transports.AspNetCore.Common;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Http;
@@ -27,9 +27,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             _next = next;
         }
 
-        public async Task InvokeAsync(HttpContext context,
-            IGraphQLExecuter<TSchema> executer,
-            IDocumentWriter writer)
+        public async Task InvokeAsync(HttpContext context)
         {
             if (context.WebSockets.IsWebSocketRequest)
             {
@@ -41,6 +39,8 @@ namespace GraphQL.Server.Transports.AspNetCore
             var httpRequest = context.Request;
             var gqlRequest = new GraphQLRequest();
 
+            var writer = context.RequestServices.GetRequiredService<IDocumentWriter>();
+
             if (HttpMethods.IsGet(httpRequest.Method) || (HttpMethods.IsPost(httpRequest.Method) && httpRequest.Query.ContainsKey(GraphQLRequest.QueryKey)))
             {
                 ExtractGraphQLRequestFromQueryString(httpRequest.Query, gqlRequest);
@@ -49,7 +49,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             {
                 if (!MediaTypeHeaderValue.TryParse(httpRequest.ContentType, out var mediaTypeHeader))
                 {
-                    await WriteResponseAsync(context, writer, HttpStatusCode.BadRequest, $"Invalid 'Content-Type' header: value '{httpRequest.ContentType}' could not be parsed.");
+                    await WriteErrorResponseAsync(context, writer, $"Invalid 'Content-Type' header: value '{httpRequest.ContentType}' could not be parsed.");
                     return;
                 }
 
@@ -62,32 +62,42 @@ namespace GraphQL.Server.Transports.AspNetCore
                         gqlRequest.Query = await ReadAsStringAsync(httpRequest.Body);
                         break;
                     default:
-                        await WriteResponseAsync(context, writer, HttpStatusCode.BadRequest, $"Invalid 'Content-Type' header: non-supported media type. Must be of '{JsonContentType}' or '{GraphQLContentType}'. See: http://graphql.org/learn/serving-over-http/.");
+                        await WriteErrorResponseAsync(context, writer, $"Invalid 'Content-Type' header: non-supported media type. Must be of '{JsonContentType}' or '{GraphQLContentType}'. See: http://graphql.org/learn/serving-over-http/.");
                         return;
                 }
             }
 
+            object userContext = null;
             var userContextBuilder = context.RequestServices.GetService<IUserContextBuilder>();
-            object userContext = await userContextBuilder?.BuildUserContext(context);
+
+            if (userContextBuilder != null)
+            {
+                userContext = await userContextBuilder.BuildUserContext(context);
+            }
+
+            var executer = context.RequestServices.GetRequiredService<IGraphQLExecuter<TSchema>>();
 
             var result = await executer.ExecuteAsync(
                 gqlRequest.OperationName,
                 gqlRequest.Query,
                 gqlRequest.GetInputs(),
-                userContext);
+                userContext,
+                context.RequestAborted);
 
             await WriteResponseAsync(context, writer, result);
         }
 
-        private async Task WriteResponseAsync(HttpContext context, IDocumentWriter writer, HttpStatusCode statusCode, string errorMessage)
+        private Task WriteErrorResponseAsync(HttpContext context, IDocumentWriter writer, string errorMessage)
         {
             var result = new ExecutionResult()
             {
                 Errors = new ExecutionErrors()
+                {
+                    new ExecutionError(errorMessage)
+                }
             };
-            result.Errors.Add(new ExecutionError(errorMessage));
 
-            await WriteResponseAsync(context, writer, result);
+            return WriteResponseAsync(context, writer, result);
         }
 
         private Task WriteResponseAsync(HttpContext context, IDocumentWriter writer, ExecutionResult result)

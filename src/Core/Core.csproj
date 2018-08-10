@@ -3,7 +3,7 @@
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0</TargetFrameworks>
         <AssemblyName>GraphQL.Server.Core</AssemblyName>
-        <RootNamespace>GraphQL.Server.Core</RootNamespace>
+        <RootNamespace>GraphQL.Server</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>

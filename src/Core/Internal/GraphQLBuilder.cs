@@ -1,11 +1,11 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace GraphQL.Server.Core
+namespace GraphQL.Server.Internal
 {
-    internal class GraphQLBuilder : IGraphQLBuilder
+    public class GraphQLBuilder : IGraphQLBuilder
     {
         public IServiceCollection Services { get; }
-        
+
         public GraphQLBuilder(IServiceCollection services)
         {
             Services = services;

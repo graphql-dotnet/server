@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace GraphQL.Server.Core
+namespace GraphQL.Server
 {
     public interface IGraphQLBuilder
     {

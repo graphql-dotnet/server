@@ -10,6 +10,8 @@ using MessageType = GraphQL.Server.Transports.Subscriptions.Abstractions.Message
 
 namespace GraphQL.Samples.Server
 {
+    // Note: Working on a solution to integrate with ASP.NET Core authorization policies
+
     //public class AddAuthenticator : IPostConfigureOptions<ExecutionOptions<ChatSchema>>
     //{
     //    private readonly IOperationMessageListener _authenticator;

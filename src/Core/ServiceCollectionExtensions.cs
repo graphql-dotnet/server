@@ -1,22 +1,26 @@
 ﻿using System;
-using GraphQL;
-using GraphQL.DataLoader;
-using GraphQL.Execution;
 using GraphQL.Http;
-using GraphQL.Server.Core;
+using GraphQL.Server.Internal;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
-namespace Microsoft.Extensions.DependencyInjection
+namespace GraphQL.Server
 {
     public static class ServiceCollectionExtensions
     {
+        /// <summary>
+        /// Add required services for GraphQL
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="options"></param>
+        /// <returns></returns>
         public static IGraphQLBuilder AddGraphQL(this IServiceCollection services, GraphQLOptions options)
         {
-            services.AddSingleton<IDocumentExecuter, DocumentExecuter>();
-            services.AddTransient(typeof(IGraphQLExecuter<>), typeof(DefaultSchemaExecuter<>));
-            services.AddSingleton(Options.Options.Create(options));
+            services.TryAddSingleton<IDocumentExecuter, DocumentExecuter>();
+            services.AddTransient(typeof(IGraphQLExecuter<>), typeof(DefaultGraphQLExecuter<>));
+            services.AddSingleton(Options.Create(options));
 
             services.TryAddSingleton<IDocumentWriter>(x =>
             {
@@ -27,25 +31,31 @@ namespace Microsoft.Extensions.DependencyInjection
             return new GraphQLBuilder(services);
         }
 
+        /// <summary>
+        /// Add required services for GraphQL
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="configureOptions"></param>
+        /// <returns></returns>
         public static IGraphQLBuilder AddGraphQL(this IServiceCollection services, Action<GraphQLOptions> configureOptions)
         {
+            if (configureOptions == null)
+                throw new ArgumentNullException(nameof(configureOptions));
+
             var options = new GraphQLOptions();
             configureOptions(options);
 
             return services.AddGraphQL(options);
         }
 
+        /// <summary>
+        /// Add required services for GraphQL
+        /// </summary>
+        /// <param name="services"></param>
+        /// <returns></returns>
         public static IGraphQLBuilder AddGraphQL(this IServiceCollection services)
         {
             return services.AddGraphQL(new GraphQLOptions());
-        }
-
-        public static IGraphQLBuilder AddDataLoader(this IGraphQLBuilder builder)
-        {
-            builder.Services.AddSingleton<IDataLoaderContextAccessor, DataLoaderContextAccessor>();
-            builder.Services.AddSingleton<IDocumentExecutionListener, DataLoaderDocumentListener>();
-
-            return builder;
         }
     }
 }

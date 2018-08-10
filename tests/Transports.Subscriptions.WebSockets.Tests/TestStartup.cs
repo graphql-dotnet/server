@@ -16,7 +16,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             app.UseWebSockets();
-            app.UseGraphQLWebSocket<TestSchema>("/graphql");
+            app.UseGraphQLWebSockets<TestSchema>("/graphql");
         }
     }
 }

@@ -1,14 +1,15 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using GraphQL.Execution;
 using GraphQL.Types;
 using GraphQL.Validation;
 using Microsoft.Extensions.Options;
 
-namespace GraphQL.Server.Core
+namespace GraphQL.Server.Internal
 {
-    public class DefaultSchemaExecuter<TSchema> : IGraphQLExecuter<TSchema>
+    public class DefaultGraphQLExecuter<TSchema> : IGraphQLExecuter<TSchema>
         where TSchema : ISchema
     {
         public TSchema Schema { get; }
@@ -18,7 +19,7 @@ namespace GraphQL.Server.Core
         private readonly IEnumerable<IDocumentExecutionListener> _listeners;
         private readonly IEnumerable<IValidationRule> _validationRules;
 
-        public DefaultSchemaExecuter(
+        public DefaultGraphQLExecuter(
             TSchema schema,
             IDocumentExecuter documentExecuter,
             IOptions<GraphQLOptions> options,
@@ -33,13 +34,13 @@ namespace GraphQL.Server.Core
             _validationRules = validationRules;
         }
 
-        public virtual Task<ExecutionResult> ExecuteAsync(string operationName, string query, Inputs variables, object context)
+        public virtual Task<ExecutionResult> ExecuteAsync(string operationName, string query, Inputs variables, object context, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var options = GetOptions(operationName, query, variables, context);
+            var options = GetOptions(operationName, query, variables, context, cancellationToken);
             return _documentExecuter.ExecuteAsync(options);
         }
 
-        protected virtual ExecutionOptions GetOptions(string operationName, string query, Inputs variables, object context)
+        protected virtual ExecutionOptions GetOptions(string operationName, string query, Inputs variables, object context, CancellationToken cancellationToken)
         {
             var opts = new ExecutionOptions()
             {
@@ -48,6 +49,7 @@ namespace GraphQL.Server.Core
                 Query = query,
                 Inputs = variables,
                 UserContext = context,
+                CancellationToken = cancellationToken,
                 ComplexityConfiguration = _options.ComplexityConfiguration,
                 EnableMetrics = _options.EnableMetrics,
                 ExposeExceptions = _options.ExposeExceptions,

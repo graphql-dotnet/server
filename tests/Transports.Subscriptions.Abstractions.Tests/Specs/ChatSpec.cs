@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using GraphQL.Execution;
 using GraphQL.Samples.Schemas.Chat;
-using GraphQL.Server.Core;
+using GraphQL.Server.Internal;
 using GraphQL.Validation;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
@@ -22,7 +22,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
             _transportReader = _transport.Reader as TestableReader;
             _transportWriter = _transport.Writer as TestableWriter;
             _subscriptions = new SubscriptionManager(
-                new DefaultSchemaExecuter<ChatSchema>(
+                new DefaultGraphQLExecuter<ChatSchema>(
                     new ChatSchema(_chat),
                     new DocumentExecuter(),
                     Options.Create(new GraphQLOptions()),

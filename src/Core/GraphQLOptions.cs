@@ -1,6 +1,6 @@
 using GraphQL.Validation.Complexity;
 
-namespace GraphQL.Server.Core
+namespace GraphQL.Server
 {
     public class GraphQLOptions
     {
