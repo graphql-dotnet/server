@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System;
+using GraphQL.Server.Ui.Voyager;
+using Microsoft.AspNetCore.Builder;
 
-namespace GraphQL.Server.Ui.Voyager
+namespace GraphQL.Server
 {
     public static class VoyagerExtensions
     {
@@ -11,6 +13,22 @@ namespace GraphQL.Server.Ui.Voyager
 
             app.UseMiddleware<VoyagerMiddleware>(options);
             return app;
+        }
+
+        public static IApplicationBuilder UseGraphQLVoyager(this IApplicationBuilder app)
+        {
+            return app.UseGraphQLVoyager(new GraphQLVoyagerOptions());
+        }
+
+        public static IApplicationBuilder UseGraphQLVoyager(this IApplicationBuilder app, Action<GraphQLVoyagerOptions> configure)
+        {
+            if (configure == null)
+                throw new ArgumentNullException(nameof(configure));
+
+            var options = new GraphQLVoyagerOptions();
+            configure(options);
+
+            return app.UseGraphQLVoyager(options);
         }
     }
 }

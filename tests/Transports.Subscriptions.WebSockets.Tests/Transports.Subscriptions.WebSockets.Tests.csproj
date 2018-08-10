@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>netcoreapp2.0;net471</TargetFrameworks>
@@ -18,7 +18,7 @@
 
   <ItemGroup>
     <PackageReference Include="Castle.Core" Version="4.2.1" />
-    <PackageReference Include="GraphQL" Version="[2.0.0, 2.1)" />
+    <PackageReference Include="GraphQL" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore" Version="2.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="2.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.WebSockets" Version="2.0.2" />
@@ -31,6 +31,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Transports.Subscriptions.WebSockets\Transports.Subscriptions.WebSockets.csproj" />
+    <ProjectReference Include="..\..\tests\Tests.Common\Tests.Common.csproj" />
   </ItemGroup>
 
 </Project>

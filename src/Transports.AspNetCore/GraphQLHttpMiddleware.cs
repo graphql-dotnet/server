@@ -1,9 +1,9 @@
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using GraphQL.Http;
+using GraphQL.Server.AspNetCore.Authorization;
 using GraphQL.Server.Internal;
 using GraphQL.Server.Transports.AspNetCore.Common;
 using GraphQL.Types;
@@ -21,27 +21,40 @@ namespace GraphQL.Server.Transports.AspNetCore
         private const string GraphQLContentType = "application/graphql";
 
         private readonly RequestDelegate _next;
-        private readonly PathString _path;
+        private readonly GraphQLHttpMiddlewareOptions _options;
 
-        public GraphQLHttpMiddleware(RequestDelegate next, PathString path)
+        public GraphQLHttpMiddleware(RequestDelegate next, GraphQLHttpMiddlewareOptions options)
         {
             _next = next;
-            _path = path;
+            _options = options;
         }
 
         public async Task InvokeAsync(HttpContext context)
         {
-            if (context.WebSockets.IsWebSocketRequest || !context.Request.Path.StartsWithSegments(_path))
+            if (context.WebSockets.IsWebSocketRequest || !context.Request.Path.StartsWithSegments(_options.Path))
             {
                 await _next(context);
                 return;
             }
 
+            // Authorize request
+            if (!await HttpAuthorizationHelper.AuthorizeAsync(context, _options.AuthorizationPolicyName))
+            {
+                return;
+            }
+
             // Handle requests as per recommendation at http://graphql.org/learn/serving-over-http/
             var httpRequest = context.Request;
-            var gqlRequest = new GraphQLRequest();
 
-            var writer = context.RequestServices.GetRequiredService<IDocumentWriter>();
+            if (!HttpMethods.IsGet(httpRequest.Method) && !HttpMethods.IsPost(httpRequest.Method))
+            {
+                context.Response.Headers.Add("Allow", "GET, POST");
+                context.Response.StatusCode = 405; // Method Not Allowed
+
+                return;
+            }
+
+            var gqlRequest = new GraphQLRequest();
 
             if (HttpMethods.IsGet(httpRequest.Method) || (HttpMethods.IsPost(httpRequest.Method) && httpRequest.Query.ContainsKey(GraphQLRequest.QueryKey)))
             {
@@ -51,7 +64,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             {
                 if (!MediaTypeHeaderValue.TryParse(httpRequest.ContentType, out var mediaTypeHeader))
                 {
-                    await WriteBadRequestResponseAsync(context, writer, $"Invalid 'Content-Type' header: value '{httpRequest.ContentType}' could not be parsed.");
+                    await WriteErrorResponseAsync(context, $"Invalid 'Content-Type' header: value '{httpRequest.ContentType}' could not be parsed.", HttpStatusCode.BadRequest);
                     return;
                 }
 
@@ -64,7 +77,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                         gqlRequest.Query = await ReadAsStringAsync(httpRequest.Body);
                         break;
                     default:
-                        await WriteBadRequestResponseAsync(context, writer, $"Invalid 'Content-Type' header: non-supported media type. Must be of '{JsonContentType}' or '{GraphQLContentType}'. See: http://graphql.org/learn/serving-over-http/.");
+                        await WriteErrorResponseAsync(context, $"Invalid 'Content-Type' header: non-supported media type. Must be of '{JsonContentType}' or '{GraphQLContentType}'. See: http://graphql.org/learn/serving-over-http/.", HttpStatusCode.BadRequest);
                         return;
                 }
             }
@@ -86,11 +99,13 @@ namespace GraphQL.Server.Transports.AspNetCore
                 userContext,
                 context.RequestAborted);
 
-            await WriteResponseAsync(context, writer, result);
+            await WriteResponseAsync(context, result);
         }
 
-        private Task WriteBadRequestResponseAsync(HttpContext context, IDocumentWriter writer, string errorMessage)
+        private Task WriteErrorResponseAsync(HttpContext context, string errorMessage, HttpStatusCode statusCode)
         {
+            var writer = context.RequestServices.GetRequiredService<IDocumentWriter>();
+
             var result = new ExecutionResult()
             {
                 Errors = new ExecutionErrors()
@@ -102,13 +117,14 @@ namespace GraphQL.Server.Transports.AspNetCore
             var json = writer.Write(result);
 
             context.Response.ContentType = "application/json";
-            context.Response.StatusCode = 400; // Bad Request
+            context.Response.StatusCode = (int)statusCode;
 
             return context.Response.WriteAsync(json);
         }
 
-        private Task WriteResponseAsync(HttpContext context, IDocumentWriter writer, ExecutionResult result)
+        private Task WriteResponseAsync(HttpContext context, ExecutionResult result)
         {
+            var writer = context.RequestServices.GetRequiredService<IDocumentWriter>();
             var json = writer.Write(result);
 
             context.Response.ContentType = "application/json";

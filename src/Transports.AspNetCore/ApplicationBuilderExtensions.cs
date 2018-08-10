@@ -1,7 +1,7 @@
+using System;
 using GraphQL.Server.Transports.AspNetCore;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
 
 namespace GraphQL.Server
 {
@@ -12,12 +12,11 @@ namespace GraphQL.Server
         /// </summary>
         /// <typeparam name="TSchema">The implementation of <see cref="ISchema"/> to use</typeparam>
         /// <param name="builder">The application builder.</param>
-        /// <param name="path">The path to the GraphQL endpoint which defaults to '/graphql'</param>
         /// <returns>The <see cref="IApplicationBuilder"/> received as parameter</returns>
-        public static IApplicationBuilder UseGraphQL<TSchema>(this IApplicationBuilder builder, string path = "/graphql")
+        public static IApplicationBuilder UseGraphQL<TSchema>(this IApplicationBuilder builder)
             where TSchema : ISchema
         {
-            return builder.UseGraphQL<TSchema>(new PathString(path));
+            return builder.UseGraphQL<TSchema>(new GraphQLHttpMiddlewareOptions());
         }
 
         /// <summary>
@@ -25,12 +24,33 @@ namespace GraphQL.Server
         /// </summary>
         /// <typeparam name="TSchema">The implementation of <see cref="ISchema"/> to use</typeparam>
         /// <param name="builder">The application builder.</param>
-        /// <param name="path"></param>
+        /// <param name="options"></param>
         /// <returns>The <see cref="IApplicationBuilder"/> received as parameter</returns>
-        public static IApplicationBuilder UseGraphQL<TSchema>(this IApplicationBuilder builder, PathString path)
+        public static IApplicationBuilder UseGraphQL<TSchema>(this IApplicationBuilder builder,
+            GraphQLHttpMiddlewareOptions options)
             where TSchema : ISchema
         {
-            return builder.UseMiddleware<GraphQLHttpMiddleware<TSchema>>(path);
+            return builder.UseMiddleware<GraphQLHttpMiddleware<TSchema>>(options ?? new GraphQLHttpMiddlewareOptions());
+        }
+
+        /// <summary>
+        /// Add the GraphQL middleware to the request pipeline
+        /// </summary>
+        /// <typeparam name="TSchema">The implementation of <see cref="ISchema"/> to use</typeparam>
+        /// <param name="builder">The application builder.</param>
+        /// <param name="configure"></param>
+        /// <returns>The <see cref="IApplicationBuilder"/> received as parameter</returns>
+        public static IApplicationBuilder UseGraphQL<TSchema>(this IApplicationBuilder builder,
+            Action<GraphQLHttpMiddlewareOptions> configure)
+            where TSchema : ISchema
+        {
+            if (configure == null)
+                throw new ArgumentNullException(nameof(configure));
+
+            var options = new GraphQLHttpMiddlewareOptions();
+            configure(options);
+
+            return builder.UseGraphQL<TSchema>(options);
         }
     }
 }

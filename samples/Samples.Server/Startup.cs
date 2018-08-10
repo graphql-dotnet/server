@@ -1,8 +1,5 @@
 using GraphQL.Samples.Schemas.Chat;
 using GraphQL.Server;
-using GraphQL.Server.Ui.GraphiQL;
-using GraphQL.Server.Ui.Playground;
-using GraphQL.Server.Ui.Voyager;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -34,7 +31,6 @@ namespace GraphQL.Samples.Server
 
             services.AddGraphQL(options =>
             {
-                options.EnableMetrics = true;
                 options.ExposeExceptions = Environment.IsDevelopment();
             })
             .AddWebSockets()
@@ -53,22 +49,13 @@ namespace GraphQL.Samples.Server
             app.UseStaticFiles();
 
             app.UseWebSockets();
-            app.UseGraphQLWebSockets<ChatSchema>("/graphql");
-            app.UseGraphQL<ChatSchema>("/graphql");
-            app.UseGraphQLPlayground(new GraphQLPlaygroundOptions()
-            {
-                Path = "/ui/playground"
-            });
-            app.UseGraphiQLServer(new GraphiQLOptions
-            {
-                GraphiQLPath = "/ui/graphiql",
-                GraphQLEndPoint = "/graphql"
-            });
-            app.UseGraphQLVoyager(new GraphQLVoyagerOptions()
-            {
-                GraphQLEndPoint = "/graphql",
-                Path = "/ui/voyager"
-            });
+
+            app.UseGraphQLWebSockets<ChatSchema>();
+            app.UseGraphQL<ChatSchema>();
+            app.UseGraphQLPlayground();
+            app.UseGraphiQLServer();
+            app.UseGraphQLVoyager();
+
             app.UseMvc();
         }
     }

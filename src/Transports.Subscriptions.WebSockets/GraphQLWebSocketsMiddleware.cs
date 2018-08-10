@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Net.WebSockets;
 using System.Threading.Tasks;
+using GraphQL.Server.AspNetCore.Authorization;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,14 +13,14 @@ namespace GraphQL.Server.Transports.WebSockets
         where TSchema : ISchema
     {
         private readonly RequestDelegate _next;
-        private readonly PathString _path;
         private readonly ILogger<GraphQLWebSocketsMiddleware<TSchema>> _logger;
+        private readonly GraphQLWebSocketsMiddlewareOptions _options;
 
-        public GraphQLWebSocketsMiddleware(RequestDelegate next, PathString path, ILogger<GraphQLWebSocketsMiddleware<TSchema>> logger)
+        public GraphQLWebSocketsMiddleware(RequestDelegate next, ILogger<GraphQLWebSocketsMiddleware<TSchema>> logger, GraphQLWebSocketsMiddlewareOptions options)
         {
             _next = next;
-            _path = path;
             _logger = logger;
+            _options = options;
         }
 
         public async Task InvokeAsync(HttpContext context)
@@ -30,7 +31,7 @@ namespace GraphQL.Server.Transports.WebSockets
                 ["Request"] = context.Request
             }))
             {
-                if (!context.WebSockets.IsWebSocketRequest || !context.Request.Path.StartsWithSegments(_path))
+                if (!context.WebSockets.IsWebSocketRequest || !context.Request.Path.StartsWithSegments(_options.Path))
                 {
                     _logger.LogDebug("Request is not a valid websocket request");
                     await _next(context);
@@ -39,6 +40,12 @@ namespace GraphQL.Server.Transports.WebSockets
                 }
 
                 _logger.LogDebug("Connection is a valid websocket request");
+
+                // Authorize request
+                if (!await HttpAuthorizationHelper.AuthorizeAsync(context, _options.AuthorizationPolicyName))
+                {
+                    return;
+                }
 
                 var socket = await context.WebSockets.AcceptWebSocketAsync("graphql-ws")
                     .ConfigureAwait(false);

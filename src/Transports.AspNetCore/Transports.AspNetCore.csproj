@@ -24,6 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\AspNetCore.Authorization\AspNetCore.Authorization.csproj" />
     <ProjectReference Include="..\Core\Core.csproj" />
   </ItemGroup>
 

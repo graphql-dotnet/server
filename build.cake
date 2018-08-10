@@ -9,6 +9,7 @@ var runtime = Argument<string>("runtime", "win-x64");
 var sln = "./GraphQL.Server.Transports.sln";
 var projectFiles = new [] {
   "./src/Core/Core.csproj",
+  "./src/AspNetCore.Authorization/AspNetCore.Authorization.csproj",
   "./src/Transports.AspNetCore/Transports.AspNetCore.csproj",
   "./src/Transports.Subscriptions.Abstractions/Transports.Subscriptions.Abstractions.csproj",
   "./src/Transports.Subscriptions.WebSockets/Transports.Subscriptions.WebSockets.csproj",
