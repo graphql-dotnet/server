@@ -4,62 +4,42 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using GraphQL.Http;
+using GraphQL.Server.Internal;
 using GraphQL.Server.Transports.AspNetCore.Common;
 using GraphQL.Types;
-using GraphQL.Validation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace GraphQL.Server.Transports.AspNetCore
 {
-    public class GraphQLHttpMiddleware<TSchema> where TSchema : ISchema
+    public class GraphQLHttpMiddleware<TSchema>
+        where TSchema : ISchema
     {
         private const string JsonContentType = "application/json";
         private const string GraphQLContentType = "application/graphql";
 
         private readonly RequestDelegate _next;
-        private readonly GraphQLHttpOptions _options;
-        private readonly IDocumentExecuter _executer;
-        private readonly IDocumentWriter _writer;
-        private readonly TSchema _schema;
 
-        public GraphQLHttpMiddleware(
-            RequestDelegate next,
-            IOptions<GraphQLHttpOptions> options,
-            IDocumentExecuter executer,
-            IDocumentWriter writer,
-            TSchema schema)
+        public GraphQLHttpMiddleware(RequestDelegate next)
         {
             _next = next;
-            _options = options.Value;
-            _executer = executer;
-            _writer = writer;
-            _schema = schema;
         }
 
-        public Task Invoke(HttpContext context)
+        public async Task InvokeAsync(HttpContext context)
         {
-            if (!IsGraphQLRequest(context))
+            if (context.WebSockets.IsWebSocketRequest)
             {
-                return _next(context);
+                await _next(context);
+                return;
             }
 
-            return ExecuteAsync(context, _schema);
-        }
-
-        private bool IsGraphQLRequest(HttpContext context)
-        {
-            return HttpMethods.IsPost(context.Request.Method) && context.Request.Path.StartsWithSegments(_options.Path);
-        }
-
-        private async Task ExecuteAsync(HttpContext context, ISchema schema)
-        {
             // Handle requests as per recommendation at http://graphql.org/learn/serving-over-http/
             var httpRequest = context.Request;
             var gqlRequest = new GraphQLRequest();
+
+            var writer = context.RequestServices.GetRequiredService<IDocumentWriter>();
 
             if (HttpMethods.IsGet(httpRequest.Method) || (HttpMethods.IsPost(httpRequest.Method) && httpRequest.Query.ContainsKey(GraphQLRequest.QueryKey)))
             {
@@ -69,7 +49,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             {
                 if (!MediaTypeHeaderValue.TryParse(httpRequest.ContentType, out var mediaTypeHeader))
                 {
-                    await WriteResponseAsync(context, HttpStatusCode.BadRequest, $"Invalid 'Content-Type' header: value '{httpRequest.ContentType}' could not be parsed.");
+                    await WriteErrorResponseAsync(context, writer, $"Invalid 'Content-Type' header: value '{httpRequest.ContentType}' could not be parsed.");
                     return;
                 }
 
@@ -82,53 +62,47 @@ namespace GraphQL.Server.Transports.AspNetCore
                         gqlRequest.Query = await ReadAsStringAsync(httpRequest.Body);
                         break;
                     default:
-                        await WriteResponseAsync(context, HttpStatusCode.BadRequest, $"Invalid 'Content-Type' header: non-supported media type. Must be of '{JsonContentType}' or '{GraphQLContentType}'. See: http://graphql.org/learn/serving-over-http/.");
+                        await WriteErrorResponseAsync(context, writer, $"Invalid 'Content-Type' header: non-supported media type. Must be of '{JsonContentType}' or '{GraphQLContentType}'. See: http://graphql.org/learn/serving-over-http/.");
                         return;
                 }
             }
 
-            object userContext;
+            object userContext = null;
             var userContextBuilder = context.RequestServices.GetService<IUserContextBuilder>();
+
             if (userContextBuilder != null)
             {
                 userContext = await userContextBuilder.BuildUserContext(context);
             }
-            else
-            {
-                userContext = _options.BuildUserContext?.Invoke(context);
-            }
 
-            var result = await _executer.ExecuteAsync(x =>
-            {
-                x.Schema = schema;
-                x.Query = gqlRequest.Query;
-                x.OperationName = gqlRequest.OperationName;
-                x.Inputs = gqlRequest.Variables.ToInputs();
-                x.UserContext = userContext;
-                x.ComplexityConfiguration = _options.ComplexityConfiguration;
-                x.EnableMetrics = _options.EnableMetrics;
-                x.ExposeExceptions = _options.ExposeExceptions;
-                x.SetFieldMiddleware = _options.SetFieldMiddleware;
-                x.ValidationRules = DocumentValidator.CoreRules().Concat(_options.ValidationRules ?? Enumerable.Empty<IValidationRule>()).ToList();
-            });
+            var executer = context.RequestServices.GetRequiredService<IGraphQLExecuter<TSchema>>();
 
-            await WriteResponseAsync(context, result);
+            var result = await executer.ExecuteAsync(
+                gqlRequest.OperationName,
+                gqlRequest.Query,
+                gqlRequest.GetInputs(),
+                userContext,
+                context.RequestAborted);
+
+            await WriteResponseAsync(context, writer, result);
         }
 
-        private Task WriteResponseAsync(HttpContext context, HttpStatusCode statusCode, string errorMessage)
+        private Task WriteErrorResponseAsync(HttpContext context, IDocumentWriter writer, string errorMessage)
         {
             var result = new ExecutionResult()
             {
                 Errors = new ExecutionErrors()
+                {
+                    new ExecutionError(errorMessage)
+                }
             };
-            result.Errors.Add(new ExecutionError(errorMessage));
 
-            return WriteResponseAsync(context, result);
+            return WriteResponseAsync(context, writer, result);
         }
 
-        private Task WriteResponseAsync(HttpContext context, ExecutionResult result)
+        private Task WriteResponseAsync(HttpContext context, IDocumentWriter writer, ExecutionResult result)
         {
-            var json = _writer.Write(result);
+            var json = writer.Write(result);
 
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = result.Errors?.Any() == true ? (int)HttpStatusCode.BadRequest : (int)HttpStatusCode.OK;

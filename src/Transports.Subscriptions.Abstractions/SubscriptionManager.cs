@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using GraphQL.Server.Internal;
 using GraphQL.Server.Transports.Subscriptions.Abstractions.Internal;
 using GraphQL.Subscription;
 using Microsoft.Extensions.Logging;
@@ -82,7 +83,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             var result = await _executer.ExecuteAsync(
                 payload.OperationName,
                 payload.Query,
-                payload.Variables,
+                payload.Variables?.ToInputs(),
                 context);
 
             if (result.Errors != null && result.Errors.Any())
@@ -130,7 +131,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             {
                 Type = MessageType.GQL_DATA,
                 Id = id,
-                Payload = JObject.FromObject(result)
+                Payload = JObject.FromObject(result) 
             });
 
             await writer.SendAsync(new OperationMessage

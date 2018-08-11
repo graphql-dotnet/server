@@ -25,7 +25,7 @@ namespace GraphQL.Server.Transports.AspNetCore.Common
 
         public static Inputs GetInputs(JObject variables)
         {
-            return variables.ToInputs();
+            return variables?.ToInputs();
         }
     }
 }

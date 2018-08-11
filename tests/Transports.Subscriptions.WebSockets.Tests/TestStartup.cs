@@ -9,13 +9,14 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<TestSchema>();
-            services.AddGraphQLWebSocket<TestSchema>();
+            services.AddGraphQL()
+                .AddWebSockets();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             app.UseWebSockets();
-            app.UseGraphQLWebSocket<TestSchema>(new GraphQLWebSocketsOptions());
+            app.UseGraphQLWebSockets<TestSchema>("/graphql");
         }
     }
 }
