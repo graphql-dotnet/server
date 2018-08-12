@@ -21,15 +21,17 @@ namespace GraphQL.Server.Transports.AspNetCore
         private const string GraphQLContentType = "application/graphql";
 
         private readonly RequestDelegate _next;
+        private readonly PathString _path;
 
-        public GraphQLHttpMiddleware(RequestDelegate next)
+        public GraphQLHttpMiddleware(RequestDelegate next, PathString path)
         {
             _next = next;
+            _path = path;
         }
 
         public async Task InvokeAsync(HttpContext context)
         {
-            if (context.WebSockets.IsWebSocketRequest)
+            if (context.WebSockets.IsWebSocketRequest || !context.Request.Path.StartsWithSegments(_path))
             {
                 await _next(context);
                 return;

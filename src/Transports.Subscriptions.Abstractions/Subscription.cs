@@ -48,7 +48,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             });
 
             _completed?.Invoke(this);
-            _unsubscribe.Dispose();
+            _unsubscribe?.Dispose();
         }
 
         public void OnError(Exception error)
