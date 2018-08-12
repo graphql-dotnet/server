@@ -18,7 +18,7 @@ namespace GraphQL.Server
             PathString path)
             where TSchema : ISchema
         {
-            return builder.Map(path, x => x.UseMiddleware<GraphQLWebSocketsMiddleware<TSchema>>());
+            return builder.UseMiddleware<GraphQLWebSocketsMiddleware<TSchema>>(path);
         }
     }
 }

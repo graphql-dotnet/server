@@ -12,11 +12,13 @@ namespace GraphQL.Server.Transports.WebSockets
         where TSchema : ISchema
     {
         private readonly RequestDelegate _next;
+        private readonly PathString _path;
         private readonly ILogger<GraphQLWebSocketsMiddleware<TSchema>> _logger;
 
-        public GraphQLWebSocketsMiddleware(RequestDelegate next, ILogger<GraphQLWebSocketsMiddleware<TSchema>> logger)
+        public GraphQLWebSocketsMiddleware(RequestDelegate next, PathString path, ILogger<GraphQLWebSocketsMiddleware<TSchema>> logger)
         {
             _next = next;
+            _path = path;
             _logger = logger;
         }
 
@@ -28,7 +30,7 @@ namespace GraphQL.Server.Transports.WebSockets
                 ["Request"] = context.Request
             }))
             {
-                if (!context.WebSockets.IsWebSocketRequest)
+                if (!context.WebSockets.IsWebSocketRequest || !context.Request.Path.StartsWithSegments(_path))
                 {
                     _logger.LogDebug("Request is not a valid websocket request");
                     await _next(context);
