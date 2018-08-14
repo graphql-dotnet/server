@@ -51,7 +51,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             {
                 if (!MediaTypeHeaderValue.TryParse(httpRequest.ContentType, out var mediaTypeHeader))
                 {
-                    await WriteErrorResponseAsync(context, writer, $"Invalid 'Content-Type' header: value '{httpRequest.ContentType}' could not be parsed.");
+                    await WriteBadRequestResponseAsync(context, writer, $"Invalid 'Content-Type' header: value '{httpRequest.ContentType}' could not be parsed.");
                     return;
                 }
 
@@ -64,7 +64,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                         gqlRequest.Query = await ReadAsStringAsync(httpRequest.Body);
                         break;
                     default:
-                        await WriteErrorResponseAsync(context, writer, $"Invalid 'Content-Type' header: non-supported media type. Must be of '{JsonContentType}' or '{GraphQLContentType}'. See: http://graphql.org/learn/serving-over-http/.");
+                        await WriteBadRequestResponseAsync(context, writer, $"Invalid 'Content-Type' header: non-supported media type. Must be of '{JsonContentType}' or '{GraphQLContentType}'. See: http://graphql.org/learn/serving-over-http/.");
                         return;
                 }
             }
@@ -89,7 +89,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             await WriteResponseAsync(context, writer, result);
         }
 
-        private Task WriteErrorResponseAsync(HttpContext context, IDocumentWriter writer, string errorMessage)
+        private Task WriteBadRequestResponseAsync(HttpContext context, IDocumentWriter writer, string errorMessage)
         {
             var result = new ExecutionResult()
             {
@@ -99,7 +99,12 @@ namespace GraphQL.Server.Transports.AspNetCore
                 }
             };
 
-            return WriteResponseAsync(context, writer, result);
+            var json = writer.Write(result);
+
+            context.Response.ContentType = "application/json";
+            context.Response.StatusCode = 400; // Bad Request
+
+            return context.Response.WriteAsync(json);
         }
 
         private Task WriteResponseAsync(HttpContext context, IDocumentWriter writer, ExecutionResult result)
@@ -107,7 +112,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             var json = writer.Write(result);
 
             context.Response.ContentType = "application/json";
-            context.Response.StatusCode = result.Errors?.Any() == true ? (int)HttpStatusCode.BadRequest : (int)HttpStatusCode.OK;
+            context.Response.StatusCode = 200; // OK
 
             return context.Response.WriteAsync(json);
         }
