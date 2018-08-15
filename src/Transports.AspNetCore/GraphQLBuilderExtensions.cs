@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using GraphQL.Server.Transports.AspNetCore;
 using GraphQL.Server.Transports.AspNetCore.Internal;
+using GraphQL.Types.Relay;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -36,6 +37,22 @@ namespace GraphQL.Server
         {
             builder.Services.AddSingleton<IUserContextBuilder>(new UserContextBuilder<TUserContext>(creator));
 
+            return builder;
+        }
+
+        /// <summary>
+        /// Adds the GraphQL Relay types <see cref="ConnectionType<>"/>, <see cref="EdgeType<>"/>
+        /// and <see cref="PageInfoType"/>.
+        /// </summary>
+        /// <param name="builder">The application builder.</param>
+        /// <returns>The application builder.</returns>
+        public static IGraphQLBuilder AddRelayGraphTypes(this IGraphQLBuilder builder)
+        {
+            builder
+                .Services
+                .AddSingleton(typeof(ConnectionType<>))
+                .AddSingleton(typeof(EdgeType<>))
+                .AddSingleton<PageInfoType>();
             return builder;
         }
     }
