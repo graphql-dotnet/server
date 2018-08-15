@@ -16,6 +16,21 @@ namespace GraphQL.Server
         /// <param name="builder"></param>
         /// <param name="creator"></param>
         /// <returns></returns>
+        public static IGraphQLBuilder AddUserContextBuilder<TUserContextBuilder>(this IGraphQLBuilder builder)
+            where TUserContextBuilder : class, IUserContextBuilder
+        {
+            builder.Services.AddSingleton<IUserContextBuilder, TUserContextBuilder>();
+
+            return builder;
+        }
+
+        /// <summary>
+        /// Set up a delegate to create the UserContext for each GraphQL request
+        /// </summary>
+        /// <typeparam name="TUserContext"></typeparam>
+        /// <param name="builder"></param>
+        /// <param name="creator"></param>
+        /// <returns></returns>
         public static IGraphQLBuilder AddUserContextBuilder<TUserContext>(this IGraphQLBuilder builder, Func<HttpContext, TUserContext> creator)
             where TUserContext : class
         {
