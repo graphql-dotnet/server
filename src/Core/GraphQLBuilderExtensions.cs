@@ -3,6 +3,7 @@ using System.Reflection;
 using GraphQL.DataLoader;
 using GraphQL.Execution;
 using GraphQL.Types;
+using GraphQL.Types.Relay;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -48,6 +49,22 @@ namespace GraphQL.Server
                 builder.Services.TryAddTransient(type);
             }
 
+            return builder;
+        }
+
+        /// <summary>
+        /// Adds the GraphQL Relay types <see cref="ConnectionType<>"/>, <see cref="EdgeType<>"/>
+        /// and <see cref="PageInfoType"/>.
+        /// </summary>
+        /// <param name="builder">The application builder.</param>
+        /// <returns>The application builder.</returns>
+        public static IGraphQLBuilder AddRelayGraphTypes(this IGraphQLBuilder builder)
+        {
+            builder
+                .Services
+                .AddSingleton(typeof(ConnectionType<>))
+                .AddSingleton(typeof(EdgeType<>))
+                .AddSingleton<PageInfoType>();
             return builder;
         }
     }
