@@ -9,13 +9,13 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
     public interface ISubscriptionManager : IEnumerable<Subscription>
     {
         /// <summary>
-        ///     Execute operation and subsribe if subscription
+        ///     Execute operation and subscribe if subscription
         /// </summary>
         /// <param name="id"></param>
         /// <param name="payload"></param>
-        /// <param name="writer"></param>
+        /// <param name="context"></param>
         /// <returns></returns>
-        Task SubscribeOrExecuteAsync(string id, OperationMessagePayload payload, IWriterPipeline writer);
+        Task SubscribeOrExecuteAsync(string id, OperationMessagePayload payload, MessageHandlingContext context);
 
         /// <summary>
         ///     Unsubscribe subscription

@@ -10,14 +10,17 @@ Transport compatible with [Apollo](https://github.com/apollographql/subscription
 
 ## Getting started
 
-Add graphql-dotnet MyGet feed to your nuget.config
->https://myget.org/F/graphql-dotnet/api/v3/index.json
+For just the HTTP middleware:
+>`dotnet add package GraphQL.Server.Transports.AspNetCore`
 
-For just the ASP.NET Core middleware:
->`dotnet add GraphQL.Server.Transports.AspNetCore`
+For the WebSocket subscription protocol (depends on above) middleware:
+>`dotnet add package GraphQL.Server.Transports.WebSockets`
 
-For WebSocket subscription protocol (depends on above)
->`dotnet add GraphQL.Server.Transports.WebSockets`
+For the UI middleware/s:
+>`dotnet add package GraphQL.Server.Ui.GraphiQL`
+>`dotnet add package GraphQL.Server.Ui.Playground`
+>`dotnet add package GraphQL.Server.Ui.Voyager`
+
 
 ### Configure
 
@@ -26,18 +29,14 @@ public void ConfigureServices(IServiceCollection services)
 {
     services.AddSingleton<ChatSchema>();
 
-    // add http transport    
-    services.AddGraphQLHttp();
-    
-    // setup execution options for ChatSchema
-    services.Configure<ExecutionOptions<ChatSchema>>(options =>
-            {
-                options.EnableMetrics = true;
-                options.ExposeExceptions = true;
-            });
-
-    // add websocket transport for ChatSchema
-    services.AddGraphQLWebSocket<ChatSchema>();
+    // Add GraphQL services and configure options
+    services.AddGraphQL(options =>
+    {
+        options.EnableMetrics = true;
+        options.ExposeExceptions = this.Environment.IsDevelopment();
+    })
+    .AddWebSockets() // Add required services for web socket support
+    .AddDataLoader(); // Add required services for DataLoader support
 }
 
 public void Configure(IApplicationBuilder app, IHostingEnvironment env)
@@ -45,17 +44,32 @@ public void Configure(IApplicationBuilder app, IHostingEnvironment env)
     // this is required for websockets support
     app.UseWebSockets();
 
-    // add websocket for ChatSchema at default url /graphql
-    app.UseGraphQLWebSocket<ChatSchema>(new GraphQLWebSocketsOptions());
+    // use websocket middleware for ChatSchema at path /graphql
+    app.UseGraphQLWebSockets<ChatSchema>("/graphql");
 
-    // add http for ChatSchema at default url /graphql
-    app.UseGraphQLHttp<ChatSchema>(new GraphQLHttpOptions());
+    // use HTTP middleware for ChatSchema at path /graphql
+    app.UseGraphQL<ChatSchema>("/graphql");
 
-    // use graphql-playground at default url /ui/playground
+    // use graphiQL middleware at default url /graphiql
+    app.UseGraphiQLServer(new GraphiQLOptions());
+
+    // use graphql-playground middleware at default url /ui/playground
     app.UseGraphQLPlayground(new GraphQLPlaygroundOptions());
+    
+    // use voyager middleware at default url /ui/voyager
+    app.UseGraphQLVoyager(new GraphQLVoyagerOptions());
 }
 
 ```
+
+### UserContext and resolvers
+
+`UserContext` of your resolver will be type of `MessageHandlingContext`. You can
+access the properties including your actual `UserContext` by using the
+`Get<YourContextType>("UserContext")` method. This will read the context from the properties of
+`MessageHandlingContext`. You can add any other properties as to the context in
+`IOperationMessageListeners`. See the sample for example of injecting `ClaimsPrincipal`.
+
 
 ## Sample
 

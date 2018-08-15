@@ -44,8 +44,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         public const string GQL_CONNECTION_KEEP_ALIVE = "ka"; // Server -> Client
 
         /// <summary>
-        ///     Client sends this message in order to stop a running GraphQL operation execution (for example: unsubscribe)
-        ///     id: string : operation id
+        ///     Client sends this message to terminate the connection.
         /// </summary>
         public const string GQL_CONNECTION_TERMINATE = "connection_terminate"; // Client -> Server
 
@@ -60,7 +59,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         public const string GQL_START = "start";
 
         /// <summary>
-        ///     The server sends this message to transfter the GraphQL execution result from the server to the client, this message
+        ///     The server sends this message to transfer the GraphQL execution result from the server to the client, this message
         ///     is a response for GQL_START message.
         ///     For each GraphQL operation send with GQL_START, the server will respond with at least one GQL_DATA message.
         ///     id: string : ID of the operation that was successfully set up

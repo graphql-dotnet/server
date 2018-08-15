@@ -1,8 +1,10 @@
+using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using GraphQL.Server.Internal;
 using GraphQL.Server.Transports.Subscriptions.Abstractions.Internal;
 using GraphQL.Subscription;
 using Microsoft.Extensions.Logging;
@@ -39,9 +41,13 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         public async Task SubscribeOrExecuteAsync(
             string id,
             OperationMessagePayload payload,
-            IWriterPipeline writer)
+            MessageHandlingContext context)
         {
-            var subscription = await ExecuteAsync(id, payload, writer);
+            if (id == null) throw new ArgumentNullException(nameof(id));
+            if (payload == null) throw new ArgumentNullException(nameof(payload));
+            if (context == null) throw new ArgumentNullException(nameof(context));
+
+            var subscription = await ExecuteAsync(id, payload, context);
 
             if (subscription == null)
                 return;
@@ -55,7 +61,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             if (_subscriptions.TryRemove(id, out var removed))
                 return removed.UnsubscribeAsync();
 
-            _logger.LogInformation("Subscription: {subcriptionId} unsubscribed", id);
+            _logger.LogDebug("Subscription: {subscriptionId} unsubscribed", id);
             return Task.CompletedTask;
         }
 
@@ -67,8 +73,9 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         private async Task<Subscription> ExecuteAsync(
             string id,
             OperationMessagePayload payload,
-            IWriterPipeline writer)
+            MessageHandlingContext context)
         {
+            var writer = context.Writer;
             _logger.LogDebug("Executing operation: {operationName} query: {query}",
                 payload.OperationName,
                 payload.Query);
@@ -76,7 +83,8 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             var result = await _executer.ExecuteAsync(
                 payload.OperationName,
                 payload.Query,
-                payload.Variables);
+                payload.Variables?.ToInputs(),
+                context);
 
             if (result.Errors != null && result.Errors.Any())
             {
@@ -108,7 +116,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
                         return null;
                     }
 
-                    _logger.LogInformation("Creating subscription");
+                    _logger.LogDebug("Creating subscription");
                     return new Subscription(
                         id,
                         payload,
@@ -123,7 +131,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             {
                 Type = MessageType.GQL_DATA,
                 Id = id,
-                Payload = JObject.FromObject(result)
+                Payload = JObject.FromObject(result) 
             });
 
             await writer.SendAsync(new OperationMessage

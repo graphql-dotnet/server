@@ -9,7 +9,6 @@ artifacts:
     name: Packages
 
 test: off
-skip_tags: false
 skip_branch_with_pr: true
 
 on_failure:
@@ -23,4 +22,14 @@ deploy:
     skip_symbols: true
     on:
       branch:
+        - develop
         - master
+
+for:
+
+-
+  branches:
+    only:
+      - master
+
+  skip_non_tags: true

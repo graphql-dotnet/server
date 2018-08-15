@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using GraphQL.Subscription;
 using Microsoft.Extensions.Logging;
@@ -8,7 +9,7 @@ using Newtonsoft.Json.Linq;
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 {
     /// <summary>
-    ///     Internal obsercer of the subsciption
+    ///     Internal observer of the subscription
     /// </summary>
     public class Subscription : IObserver<ExecutionResult>
     {
@@ -39,7 +40,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 
         public void OnCompleted()
         {
-            _logger.LogInformation("Subscription: {subscriptionId} completing", Id);
+            _logger.LogDebug("Subscription: {subscriptionId} completing", Id);
             _writer.Post(new OperationMessage
             {
                 Type = MessageType.GQL_COMPLETE,
@@ -47,7 +48,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             });
 
             _completed?.Invoke(this);
-            _unsubscribe.Dispose();
+            _unsubscribe?.Dispose();
         }
 
         public void OnError(Exception error)
@@ -68,7 +69,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 
         public Task UnsubscribeAsync()
         {
-            _logger.LogInformation("Subscription: {subscriptionId} unsubscribing", Id);
+            _logger.LogDebug("Subscription: {subscriptionId} unsubscribing", Id);
             _unsubscribe.Dispose();
             return _writer.SendAsync(new OperationMessage
             {
@@ -80,8 +81,8 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         private void Subscribe(SubscriptionExecutionResult result)
         {
             var stream = result.Streams.Values.Single();
-            _unsubscribe = stream.Subscribe(this);
-            _logger.LogInformation("Subscription: {subscriptionId} subscribed", Id);
+            _unsubscribe = stream.Synchronize().Subscribe(this);
+            _logger.LogDebug("Subscription: {subscriptionId} subscribed", Id);
         }
     }
 }

@@ -6,10 +6,10 @@
     <RootNamespace>GraphQL.Samples.Schemas.Chat</RootNamespace>
   </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="GraphQL" Version="2.0.0-alpha-864" />
+        <PackageReference Include="GraphQL" Version="[2.0.0, 2.1)" />
         <PackageReference Include="System.Reactive" Version="3.1.1" />
     </ItemGroup>
     <ItemGroup>
-      <ProjectReference Include="..\..\src\WebSockets\WebSockets.csproj" />
+      <ProjectReference Include="..\..\src\Transports.Subscriptions.Abstractions\Transports.Subscriptions.Abstractions.csproj" />
     </ItemGroup>
 </Project>

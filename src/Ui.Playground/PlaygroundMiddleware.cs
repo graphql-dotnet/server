@@ -19,6 +19,11 @@ namespace GraphQL.Server.Ui.Playground {
         private readonly RequestDelegate nextMiddleware;
 
         /// <summary>
+        /// The page model used to render Playground
+        /// </summary>
+        private PlaygroundPageModel _pageModel;
+
+        /// <summary>
         /// Create a new PlaygroundMiddleware
         /// </summary>
         /// <param name="nextMiddleware">The Next Middleware</param>
@@ -32,16 +37,15 @@ namespace GraphQL.Server.Ui.Playground {
         /// Try to execute the logic of the middleware
         /// </summary>
         /// <param name="httpContext">The HttpContext</param>
-        /// <returns></returns>
-        public async Task Invoke(HttpContext httpContext) {
+        public Task Invoke(HttpContext httpContext) {
             if (httpContext == null) { throw new ArgumentNullException(nameof(httpContext)); }
 
-            if (this.IsPlaygroundRequest(httpContext.Request)) {
-                await this.InvokePlayground(httpContext.Response).ConfigureAwait(false);
-                return;
+            if (IsPlaygroundRequest(httpContext.Request))
+            {
+                return InvokePlayground(httpContext.Response);
             }
 
-            await this.nextMiddleware(httpContext).ConfigureAwait(false);
+            return nextMiddleware(httpContext);
         }
 
         private bool IsPlaygroundRequest(HttpRequest httpRequest) {
@@ -49,14 +53,16 @@ namespace GraphQL.Server.Ui.Playground {
                 && string.Equals(httpRequest.Method, HttpMethods.Get, StringComparison.OrdinalIgnoreCase);
         }
 
-        private async Task InvokePlayground(HttpResponse httpResponse) {
+        private Task InvokePlayground(HttpResponse httpResponse) {
             httpResponse.ContentType = "text/html";
             httpResponse.StatusCode = 200;
 
-            var playgroundPageModel = new PlaygroundPageModel(this.settings);
+            // Initialize page model if null
+            if (_pageModel == null)
+                _pageModel = new PlaygroundPageModel(this.settings);
 
-            var data = Encoding.UTF8.GetBytes(playgroundPageModel.Render());
-            await httpResponse.Body.WriteAsync(data, 0, data.Length).ConfigureAwait(false);
+            var data = Encoding.UTF8.GetBytes(_pageModel.Render());
+            return httpResponse.Body.WriteAsync(data, 0, data.Length);
         }
 
     }
