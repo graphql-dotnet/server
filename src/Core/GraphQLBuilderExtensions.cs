@@ -28,25 +28,32 @@ namespace GraphQL.Server
         /// Add all types that implement <seealso cref="IGraphType"/> in the calling assembly
         /// </summary>
         /// <param name="builder"></param>
+        /// <param name="serviceLifetime">The service lifetime to register the GraphQL types with</param>
         /// <returns></returns>
-        public static IGraphQLBuilder AddGraphTypes(this IGraphQLBuilder builder)
+        public static IGraphQLBuilder AddGraphTypes(
+            this IGraphQLBuilder builder,
+            ServiceLifetime serviceLifetime = ServiceLifetime.Singleton)
         {
-            return builder.AddGraphTypes(Assembly.GetCallingAssembly());
+            return builder.AddGraphTypes(Assembly.GetCallingAssembly(), serviceLifetime);
         }
 
         /// <summary>
         /// Add all types that implement <seealso cref="IGraphType"/> in the specified assembly
         /// </summary>
         /// <param name="builder"></param>
-        /// <param name="assembly"></param>
+        /// <param name="assembly">The assembly to register all GraphQL types from</param>
+        /// <param name="serviceLifetime">The service lifetime to register the GraphQL types with</param>
         /// <returns></returns>
-        public static IGraphQLBuilder AddGraphTypes(this IGraphQLBuilder builder, Assembly assembly)
+        public static IGraphQLBuilder AddGraphTypes(
+            this IGraphQLBuilder builder,
+            Assembly assembly,
+            ServiceLifetime serviceLifetime = ServiceLifetime.Singleton)
         {
             // Register all GraphQL types
             foreach (var type in assembly.GetTypes()
                 .Where(x => !x.IsAbstract && typeof(IGraphType).IsAssignableFrom(x)))
             {
-                builder.Services.TryAddTransient(type);
+                builder.Services.TryAdd(new ServiceDescriptor(type, type, serviceLifetime));
             }
 
             return builder;
