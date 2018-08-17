@@ -114,8 +114,15 @@ Task("SetVersion")
 Task("Test")
   .Does(()=> {
       var projectFiles = GetFiles("./tests/**/*.csproj");
+
       foreach(var file in projectFiles)
       {
+          // Skip Tests.Common library
+          if (file.FullPath.EndsWith("Tests.Common.csproj"))
+          {
+              continue;
+          }
+
           DotNetCoreTest(file.FullPath);
       }
     });
