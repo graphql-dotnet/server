@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Net.WebSockets;
 using System.Threading.Tasks;
-using GraphQL.Server.AspNetCore.Authorization;
+using GraphQL.Server.Core.Authorization;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;

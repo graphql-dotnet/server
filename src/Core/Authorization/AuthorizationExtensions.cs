@@ -2,7 +2,7 @@
 
 namespace GraphQL.Server
 {
-    public static class GraphQLBuilderExtensions
+    public static class AuthorizationExtensions
     {
         /// <summary>
         /// Add HTTP authorization services

@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Transports.Subscriptions.WebSockets", "src\Transports.Subscriptions.WebSockets\Transports.Subscriptions.WebSockets.csproj", "{4DF1CB8E-30AA-4281-9056-D49FDBF4C496}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Transports.Subscriptions.WebSockets", "src\Transports.Subscriptions.WebSockets\Transports.Subscriptions.WebSockets.csproj", "{4DF1CB8E-30AA-4281-9056-D49FDBF4C496}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples.Schemas.Chat", "samples\Samples.Schemas.Chat\Samples.Schemas.Chat.csproj", "{EB56A378-89E5-4425-BFA6-6BA0F4A67432}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Samples.Schemas.Chat", "samples\Samples.Schemas.Chat\Samples.Schemas.Chat.csproj", "{EB56A378-89E5-4425-BFA6-6BA0F4A67432}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples.Server", "samples\Samples.Server\Samples.Server.csproj", "{85FBD882-AC9F-419F-95ED-42BBBC199CC2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Samples.Server", "samples\Samples.Server\Samples.Server.csproj", "{85FBD882-AC9F-419F-95ED-42BBBC199CC2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{0FD61587-8BE6-4C62-9E3A-0B977AA42CA2}"
 	ProjectSection(SolutionItems) = preProject
@@ -23,27 +23,25 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Transports.AspNetCore", "src\Transports.AspNetCore\Transports.AspNetCore.csproj", "{77231A45-EB53-4548-A9A6-D2F6891E32F9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Transports.AspNetCore", "src\Transports.AspNetCore\Transports.AspNetCore.csproj", "{77231A45-EB53-4548-A9A6-D2F6891E32F9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Transports.Subscriptions.WebSockets.Tests", "tests\Transports.Subscriptions.WebSockets.Tests\Transports.Subscriptions.WebSockets.Tests.csproj", "{63AF8BD1-95F4-4443-9C30-891E3DBEB7AE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Transports.Subscriptions.WebSockets.Tests", "tests\Transports.Subscriptions.WebSockets.Tests\Transports.Subscriptions.WebSockets.Tests.csproj", "{63AF8BD1-95F4-4443-9C30-891E3DBEB7AE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ui.Playground", "src\Ui.Playground\Ui.Playground.csproj", "{C6DA4A1C-867A-4633-B15B-12A2EEE9F405}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ui.Playground", "src\Ui.Playground\Ui.Playground.csproj", "{C6DA4A1C-867A-4633-B15B-12A2EEE9F405}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ui.GraphiQL", "src\Ui.GraphiQL\Ui.GraphiQL.csproj", "{B83414A2-F9E3-44CC-982F-5D830F54BED3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ui.GraphiQL", "src\Ui.GraphiQL\Ui.GraphiQL.csproj", "{B83414A2-F9E3-44CC-982F-5D830F54BED3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Transports.Subscriptions.Abstractions", "src\Transports.Subscriptions.Abstractions\Transports.Subscriptions.Abstractions.csproj", "{008D98EF-04FA-4C90-A833-A46799DA0BE4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Transports.Subscriptions.Abstractions", "src\Transports.Subscriptions.Abstractions\Transports.Subscriptions.Abstractions.csproj", "{008D98EF-04FA-4C90-A833-A46799DA0BE4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Transports.Subscriptions.Abstractions.Tests", "tests\Transports.Subscriptions.Abstractions.Tests\Transports.Subscriptions.Abstractions.Tests.csproj", "{1D36AB04-82FD-4EDC-94C2-D1BA29E170EC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Transports.Subscriptions.Abstractions.Tests", "tests\Transports.Subscriptions.Abstractions.Tests\Transports.Subscriptions.Abstractions.Tests.csproj", "{1D36AB04-82FD-4EDC-94C2-D1BA29E170EC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ui.Voyager", "src\Ui.Voyager\Ui.Voyager.csproj", "{B2C278E4-6A1A-4F83-AE53-C9469B4056EE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ui.Voyager", "src\Ui.Voyager\Ui.Voyager.csproj", "{B2C278E4-6A1A-4F83-AE53-C9469B4056EE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "src\Core\Core.csproj", "{4872A0F3-FA1B-410B-834C-8A5653621E56}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "src\Core\Core.csproj", "{4872A0F3-FA1B-410B-834C-8A5653621E56}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Transports.AspNetCore.Tests", "tests\Transports.AspNetCore.Tests\Transports.AspNetCore.Tests.csproj", "{33356679-FF6D-4B35-B40E-FCEAB4A48E2B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Transports.AspNetCore.Tests", "tests\Transports.AspNetCore.Tests\Transports.AspNetCore.Tests.csproj", "{33356679-FF6D-4B35-B40E-FCEAB4A48E2B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{04E37153-D95D-43D2-B525-F737144AAE7B}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspNetCore.Authorization", "src\AspNetCore.Authorization\AspNetCore.Authorization.csproj", "{D80FD21B-6510-4B01-9FD5-51FDA7E6BF91}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests.Common", "tests\Tests.Common\Tests.Common.csproj", "{3163C256-C3BD-4EF7-A055-CA63E397021E}"
 EndProject
@@ -101,10 +99,6 @@ Global
 		{33356679-FF6D-4B35-B40E-FCEAB4A48E2B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{33356679-FF6D-4B35-B40E-FCEAB4A48E2B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{33356679-FF6D-4B35-B40E-FCEAB4A48E2B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D80FD21B-6510-4B01-9FD5-51FDA7E6BF91}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D80FD21B-6510-4B01-9FD5-51FDA7E6BF91}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D80FD21B-6510-4B01-9FD5-51FDA7E6BF91}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D80FD21B-6510-4B01-9FD5-51FDA7E6BF91}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3163C256-C3BD-4EF7-A055-CA63E397021E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3163C256-C3BD-4EF7-A055-CA63E397021E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3163C256-C3BD-4EF7-A055-CA63E397021E}.Release|Any CPU.ActiveCfg = Release|Any CPU

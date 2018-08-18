@@ -3,7 +3,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using GraphQL.Http;
-using GraphQL.Server.AspNetCore.Authorization;
+using GraphQL.Server.Core.Authorization;
 using GraphQL.Server.Internal;
 using GraphQL.Server.Transports.AspNetCore.Common;
 using GraphQL.Types;
@@ -49,7 +49,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             if (!HttpMethods.IsGet(httpRequest.Method) && !HttpMethods.IsPost(httpRequest.Method))
             {
                 context.Response.Headers.Add("Allow", "GET, POST");
-                context.Response.StatusCode = 405; // Method Not Allowed
+                context.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
 
                 return;
             }

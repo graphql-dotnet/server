@@ -1,11 +1,12 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Policy;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace GraphQL.Server.AspNetCore.Authorization
+namespace GraphQL.Server.Core.Authorization
 {
     public static class HttpAuthorizationHelper
     {
@@ -14,7 +15,10 @@ namespace GraphQL.Server.AspNetCore.Authorization
         /// </summary>
         /// <param name="context"></param>
         /// <param name="policyName"></param>
-        /// <returns>True if the user was authorized and the request should proceed; False if the request should be ended immediately.</returns>
+        /// <returns>
+        /// True if the user was authorized and the request should proceed.
+        /// False if the request should be ended immediately--a challenge or forbidden response has been issued.
+        /// </returns>
         public static async Task<bool> AuthorizeAsync(HttpContext context, string policyName)
         {
             if (policyName == null)
@@ -76,7 +80,7 @@ namespace GraphQL.Server.AspNetCore.Authorization
                 return false;
             }
 
-            return false;
+            throw new InvalidOperationException("Unexpected PolicyAuthorizationResult");
         }
     }
 }
