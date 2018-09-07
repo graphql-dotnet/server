@@ -9,6 +9,7 @@ using GraphQL.Server.Transports.AspNetCore.Common;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -20,11 +21,13 @@ namespace GraphQL.Server.Transports.AspNetCore
         private const string JsonContentType = "application/json";
         private const string GraphQLContentType = "application/graphql";
 
+        private readonly ILogger _logger;
         private readonly RequestDelegate _next;
         private readonly PathString _path;
 
-        public GraphQLHttpMiddleware(RequestDelegate next, PathString path)
+        public GraphQLHttpMiddleware(ILogger<GraphQLHttpMiddleware<TSchema>> logger, RequestDelegate next, PathString path)
         {
+            _logger = logger;
             _next = next;
             _path = path;
         }
@@ -85,6 +88,11 @@ namespace GraphQL.Server.Transports.AspNetCore
                 gqlRequest.GetInputs(),
                 userContext,
                 context.RequestAborted);
+
+            if (result.Errors != null)
+            {
+                _logger.LogError("GraphQL execution error(s): {Errors}", result.Errors);
+            }
 
             await WriteResponseAsync(context, writer, result);
         }
