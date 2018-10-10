@@ -26,6 +26,6 @@ namespace GraphQL.Server.Authorization.AspNetCore
         }
 
         public static List<string> GetPolicies(this IProvideMetadata type) =>
-            type.GetMetadata(PolicyKey, new List<string>());
+            type.GetMetadata<List<string>>(PolicyKey, null);
     }
 }
