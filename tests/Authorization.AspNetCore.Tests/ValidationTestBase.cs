@@ -7,6 +7,7 @@ using GraphQL.Http;
 using GraphQL.Types;
 using GraphQL.Validation;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Shouldly;
 
@@ -27,23 +28,24 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
             _rules.AddRange(rules);
         }
     }
-
-    public class GraphQLUserContext : IProvideClaimsPrincipal
+    public class GraphQLUserContext
     {
-        public ClaimsPrincipal User { get; set;}
+        public ClaimsPrincipal User { get; set; }
     }
-
     public class ValidationTestBase
     {
         private IDocumentExecuter _executor = new DocumentExecuter();
         private IDocumentWriter _writer = new DocumentWriter(indent: true);
 
+        protected HttpContext HttpContext { get; private set; }
+
         protected AuthorizationValidationRule Rule { get; private set; }
 
         protected void ConfigureAuthorizationOptions(Action<AuthorizationOptions> setupOptions)
         {
-            var authorizationService = BuildAuthorizationService(setupOptions);
-            Rule = new AuthorizationValidationRule(authorizationService);
+            var (authorizationService, httpContextAccessor) = BuildServices(setupOptions);
+            HttpContext = httpContextAccessor.HttpContext;
+            Rule = new AuthorizationValidationRule(authorizationService, httpContextAccessor);
         }
 
         protected void ShouldPassRule(Action<ValidationTestConfig> configure)
@@ -81,17 +83,23 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
             result.IsValid.ShouldBeFalse("Expected validation errors though there were none.");
         }
 
-        private IAuthorizationService BuildAuthorizationService(Action<AuthorizationOptions> setupOptions)
+        private (IAuthorizationService, IHttpContextAccessor) BuildServices(Action<AuthorizationOptions> setupOptions)
         {
             var services = new ServiceCollection();
             services.AddAuthorization(setupOptions);
             services.AddLogging();
             services.AddOptions();
-            return services.BuildServiceProvider().GetRequiredService<IAuthorizationService>();
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            var serviceProvider = services.BuildServiceProvider();
+            var authorizationService = serviceProvider.GetRequiredService<IAuthorizationService>();
+            var httpContextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
+            httpContextAccessor.HttpContext = new DefaultHttpContext();
+            return (authorizationService, httpContextAccessor);
         }
 
         private IValidationResult Validate(ValidationTestConfig config)
         {
+            this.HttpContext.User = config.User;
             var userContext = new GraphQLUserContext { User = config.User };
             var documentBuilder = new GraphQLDocumentBuilder();
             var document = documentBuilder.Build(config.Query);

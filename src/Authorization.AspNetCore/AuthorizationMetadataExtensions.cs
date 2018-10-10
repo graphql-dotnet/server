@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using GraphQL.Builders;
 using GraphQL.Types;
 
@@ -9,11 +8,15 @@ namespace GraphQL.Server.Authorization.AspNetCore
     {
         public const string PolicyKey = "Authorization__Policies";
 
-        public static bool RequiresAuthorization(this IProvideMetadata type) => GetPolicies(type).Any();
+        public static bool RequiresAuthorization(this IProvideMetadata type)
+        {
+            var policies = GetPolicies(type);
+            return policies != null && policies.Count > 0;
+        }
 
         public static void AuthorizeWith(this IProvideMetadata type, string policy)
         {
-            var list = GetPolicies(type);
+            var list = GetPolicies(type) ?? new List<string>();
             list.Fill(policy);
             type.Metadata[PolicyKey] = list;
         }

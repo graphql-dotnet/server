@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,22 +7,25 @@ using GraphQL.Types;
 using GraphQL.Validation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
+using Microsoft.AspNetCore.Http;
 
 namespace GraphQL.Server.Authorization.AspNetCore
 {
     public class AuthorizationValidationRule : IValidationRule
     {
         private readonly IAuthorizationService _authorizationService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public AuthorizationValidationRule(IAuthorizationService authorizationService)
+        public AuthorizationValidationRule(
+            IAuthorizationService authorizationService,
+            IHttpContextAccessor httpContextAccessor)
         {
             _authorizationService = authorizationService;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public INodeVisitor Validate(ValidationContext context)
         {
-            var userContext = context.UserContext as IProvideClaimsPrincipal;
-
             return new EnterLeaveListener(_ =>
             {
                 var operationType = OperationType.Query;
@@ -38,7 +40,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
                     operationType = astType.OperationType;
 
                     var type = context.TypeInfo.GetLastType();
-                    AuthorizeAsync(astType, type, userContext, context, operationType).GetAwaiter().GetResult();
+                    AuthorizeAsync(astType, type, context, operationType).GetAwaiter().GetResult();
                 });
 
                 _.Match<ObjectField>(objectFieldAst =>
@@ -50,7 +52,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
                     }
 
                     var fieldType = argumentType.GetField(objectFieldAst.Name);
-                    AuthorizeAsync(objectFieldAst, fieldType, userContext, context, operationType).GetAwaiter().GetResult();
+                    AuthorizeAsync(objectFieldAst, fieldType, context, operationType).GetAwaiter().GetResult();
                 });
 
                 _.Match<Field>(fieldAst =>
@@ -62,9 +64,9 @@ namespace GraphQL.Server.Authorization.AspNetCore
                     }
 
                     // check target field
-                    AuthorizeAsync(fieldAst, fieldDef, userContext, context, operationType).GetAwaiter().GetResult();
+                    AuthorizeAsync(fieldAst, fieldDef, context, operationType).GetAwaiter().GetResult();
                     // check returned graph type
-                    AuthorizeAsync(fieldAst, fieldDef.ResolvedType, userContext, context, operationType).GetAwaiter().GetResult();
+                    AuthorizeAsync(fieldAst, fieldDef.ResolvedType, context, operationType).GetAwaiter().GetResult();
                 });
             });
         }
@@ -72,17 +74,9 @@ namespace GraphQL.Server.Authorization.AspNetCore
         private async Task AuthorizeAsync(
             INode node,
             IProvideMetadata type,
-            IProvideClaimsPrincipal userContext,
             ValidationContext context,
             OperationType operationType)
         {
-            if (userContext == null)
-            {
-                throw new ArgumentNullException(
-                    nameof(userContext),
-                    $"You must register a user context that implements {nameof(IProvideClaimsPrincipal)}.");
-            }
-
             if (type == null || !type.RequiresAuthorization())
             {
                 return;
@@ -97,7 +91,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
             var tasks = new List<Task<AuthorizationResult>>(policyNames.Count);
             foreach (var policyName in policyNames)
             {
-                var task = _authorizationService.AuthorizeAsync(userContext?.User, policyName);
+                var task = _authorizationService.AuthorizeAsync(this._httpContextAccessor.HttpContext.User, policyName);
                 tasks.Add(task);
             }
             await Task.WhenAll(tasks);
