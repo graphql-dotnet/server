@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace GraphQL.Server
 {
-    public static class GraphQlBuilderExtensions
+    public static class GraphQLBuilderExtensions
     {
         /// <summary>
         /// Adds the GraphQL authorization.
