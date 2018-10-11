@@ -2,7 +2,9 @@
 using GraphQL.Server.Authorization.AspNetCore;
 using GraphQL.Validation;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace GraphQL.Server
 {
@@ -15,6 +17,7 @@ namespace GraphQL.Server
         /// <returns></returns>
         public static IGraphQLBuilder AddGraphQLAuthorization(this IGraphQLBuilder builder)
         {
+            builder.Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             builder
                 .Services
                 .AddTransient<IValidationRule, AuthorizationValidationRule>()
@@ -30,6 +33,7 @@ namespace GraphQL.Server
         /// <returns>The GraphQL builder.</returns>
         public static IGraphQLBuilder AddGraphQLAuthorization(this IGraphQLBuilder builder, Action<AuthorizationOptions> options)
         {
+            builder.Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             builder
                 .Services
                 .AddTransient<IValidationRule, AuthorizationValidationRule>()
