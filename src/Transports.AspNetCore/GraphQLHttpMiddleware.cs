@@ -107,22 +107,18 @@ namespace GraphQL.Server.Transports.AspNetCore
                 }
             };
 
-            var json = writer.Write(result);
-
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = 400; // Bad Request
 
-            return context.Response.WriteAsync(json);
+            return writer.WriteAsync(context.Response.Body, result);
         }
 
         private Task WriteResponseAsync(HttpContext context, IDocumentWriter writer, ExecutionResult result)
         {
-            var json = writer.Write(result);
-
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = 200; // OK
 
-            return context.Response.WriteAsync(json);
+            return writer.WriteAsync(context.Response.Body, result);
         }
 
         private static T Deserialize<T>(Stream s)
