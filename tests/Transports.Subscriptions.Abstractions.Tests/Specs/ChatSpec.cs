@@ -49,7 +49,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
         private void AssertReceivedData(List<OperationMessage> writtenMessages, Predicate<JObject> predicate)
         {
             var dataMessages = writtenMessages.Where(m => m.Type == MessageType.GQL_DATA);
-            var results = dataMessages.Select(m => m.Payload["data"] as JObject)
+            var results = dataMessages.Select(m => JObject.FromObject(((ExecutionResult)m.Payload).Data))
                 .ToList();
 
             Assert.Contains(results, predicate);
