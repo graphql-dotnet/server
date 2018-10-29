@@ -33,7 +33,7 @@ namespace GraphQL.Server.Transports.WebSockets
 
         public override int Read(byte[] buffer, int offset, int count)
         {
-            throw new System.NotImplementedException();
+            throw new System.NotSupportedException();
         }
 
         public override long Seek(long offset, SeekOrigin origin)
