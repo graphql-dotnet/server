@@ -47,7 +47,7 @@ namespace GraphQL.Server.Transports.WebSockets
                 if (closeStatus == WebSocketCloseStatus.NormalClosure)
                 {
                     // If nothing went wrong, close connection with handshakes.
-                    await _socket.CloseOutputAsync(
+                    await _socket.CloseAsync(
                            closeStatus,
                            statusDescription,
                            CancellationToken.None);
@@ -55,7 +55,7 @@ namespace GraphQL.Server.Transports.WebSockets
                 else
                 {
                     // Something went wrong, so don't wait for answer from the other side, just close the connection.
-                    await _socket.CloseAsync(
+                    await _socket.CloseOutputAsync(
                            closeStatus,
                            statusDescription,
                            CancellationToken.None);
