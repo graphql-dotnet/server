@@ -44,25 +44,30 @@ namespace GraphQL.Server.Transports.WebSockets
         {
             if (_socket.State != WebSocketState.Closed && _socket.State != WebSocketState.CloseSent)
             {
-                if (closeStatus == WebSocketCloseStatus.NormalClosure)
-                {
-                    // If nothing went wrong, close connection with handshakes.
-                    await _socket.CloseAsync(
-                           closeStatus,
-                           statusDescription,
-                           CancellationToken.None);
-                }
-                else
-                {
-                    // Something went wrong, so don't wait for answer from the other side, just close the connection.
-                    await _socket.CloseOutputAsync(
-                           closeStatus,
-                           statusDescription,
-                           CancellationToken.None);
-                }
-
-                _startBlock.Complete();
-            }
+							try
+							{
+								if (closeStatus == WebSocketCloseStatus.NormalClosure)
+								{
+									// If nothing went wrong, close connection with handshakes.
+									await _socket.CloseAsync(
+										closeStatus,
+										statusDescription,
+										CancellationToken.None);
+								}
+								else
+								{
+									// Something went wrong, so don't wait for answer from the other side, just close the connection.
+									await _socket.CloseOutputAsync(
+										closeStatus,
+										statusDescription,
+										CancellationToken.None);
+								}
+							}
+							finally
+							{
+								_startBlock.Complete();
+							}
+						}
         }
 
         public Task Completion => _endBlock.Completion;
