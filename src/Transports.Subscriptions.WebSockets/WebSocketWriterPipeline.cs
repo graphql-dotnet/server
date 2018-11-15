@@ -63,6 +63,7 @@ namespace GraphQL.Server.Transports.WebSockets
             finally
             {
                 await stream.FlushAsync();
+                stream.Dispose();
             }
         }
     }
