@@ -20,6 +20,7 @@ namespace GraphQL.Server.Transports.AspNetCore
     {
         private const string JsonContentType = "application/json";
         private const string GraphQLContentType = "application/graphql";
+        private const string FormUrlEncodedContentType = "application/x-www-form-urlencoded";
 
         private readonly ILogger _logger;
         private readonly RequestDelegate _next;
@@ -66,8 +67,12 @@ namespace GraphQL.Server.Transports.AspNetCore
                     case GraphQLContentType:
                         gqlRequest.Query = await ReadAsStringAsync(httpRequest.Body);
                         break;
+                    case FormUrlEncodedContentType:
+                        var formCollection = await httpRequest.ReadFormAsync();
+                        ExtractGraphQLRequestFromPostBody(formCollection, gqlRequest);
+                        break;
                     default:
-                        await WriteBadRequestResponseAsync(context, writer, $"Invalid 'Content-Type' header: non-supported media type. Must be of '{JsonContentType}' or '{GraphQLContentType}'. See: http://graphql.org/learn/serving-over-http/.");
+                        await WriteBadRequestResponseAsync(context, writer, $"Invalid 'Content-Type' header: non-supported media type. Must be of '{JsonContentType}', '{GraphQLContentType}', or '{FormUrlEncodedContentType}'. See: http://graphql.org/learn/serving-over-http/.");
                         return;
                 }
             }
@@ -143,6 +148,13 @@ namespace GraphQL.Server.Transports.AspNetCore
             gqlRequest.Query = qs.TryGetValue(GraphQLRequest.QueryKey, out var queryValues) ? queryValues[0] : null;
             gqlRequest.Variables = qs.TryGetValue(GraphQLRequest.VariablesKey, out var variablesValues) ? JObject.Parse(variablesValues[0]) : null;
             gqlRequest.OperationName = qs.TryGetValue(GraphQLRequest.OperationNameKey, out var operationNameValues) ? operationNameValues[0] : null;
+        }
+
+        private static void ExtractGraphQLRequestFromPostBody(IFormCollection fc, GraphQLRequest gqlRequest)
+        {
+            gqlRequest.Query = fc.TryGetValue(GraphQLRequest.QueryKey, out var queryValues) ? queryValues[0] : null;
+            gqlRequest.Variables = fc.TryGetValue(GraphQLRequest.VariablesKey, out var variablesValue) ? JObject.Parse(variablesValue[0]) : null;
+            gqlRequest.OperationName = fc.TryGetValue(GraphQLRequest.OperationNameKey, out var operationNameValues) ? operationNameValues[0] : null;
         }
     }
 }
