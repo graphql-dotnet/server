@@ -65,6 +65,9 @@ namespace GraphQL.Server.Internal
                 .Concat(DocumentValidator.CoreRules())
                 .ToList();
 
+            // add Schema FieldNameConverter to overrride default CamelCaseFieldNameConverter
+            opts.FieldNameConverter = Schema.FieldNameConverter;
+
             return opts;
         }
     }
