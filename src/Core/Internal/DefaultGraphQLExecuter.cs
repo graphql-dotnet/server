@@ -53,7 +53,8 @@ namespace GraphQL.Server.Internal
                 ComplexityConfiguration = _options.ComplexityConfiguration,
                 EnableMetrics = _options.EnableMetrics,
                 ExposeExceptions = _options.ExposeExceptions,
-                SetFieldMiddleware = _options.SetFieldMiddleware
+                SetFieldMiddleware = _options.SetFieldMiddleware,
+                FieldNameConverter = Schema.FieldNameConverter // add Schema FieldNameConverter to overrride default CamelCaseFieldNameConverter
             };
 
             foreach (var listener in _listeners)
@@ -63,11 +64,7 @@ namespace GraphQL.Server.Internal
 
             opts.ValidationRules = _validationRules
                 .Concat(DocumentValidator.CoreRules())
-                .ToList();
-
-            // add Schema FieldNameConverter to overrride default CamelCaseFieldNameConverter
-            opts.FieldNameConverter = Schema.FieldNameConverter;
-
+                .ToList();          
             return opts;
         }
     }
