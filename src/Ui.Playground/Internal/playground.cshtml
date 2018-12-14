@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
   <meta charset=utf-8 />
@@ -47,12 +47,15 @@
     </div>
   </div>
   <script>
-    window.addEventListener('load', function (event) {
+      window.addEventListener('load', function (event) {
+          var path = window.location.pathname;
+          var regex = new RegExp("@Model.Path" + "\/*");
+          path = path.replace(regex , '');
       GraphQLPlayground.init(document.getElementById('root'),
         {
-          setTitle: true,
-          endpoint: window.location.protocol + "//" + window.location.host + "@Model.GraphQLEndPoint",
-          subscriptionEndpoint: (window.location.protocol === "http:" ? "ws://" : "wss://") + window.location.host + "@Model.GraphQLEndPoint",
+            setTitle: true,
+            endpoint: window.location.protocol + "//" + window.location.host + path + "@Model.GraphQLEndPoint",
+            subscriptionEndpoint: (window.location.protocol === "http:" ? "ws://" : "wss://") + window.location.host + path + "@Model.GraphQLEndPoint",
           settings: {
             'tracing.hideTracingResponse': false
           }
