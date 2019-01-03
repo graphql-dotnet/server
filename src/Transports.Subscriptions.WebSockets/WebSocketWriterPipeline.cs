@@ -1,33 +1,23 @@
-using System;
 using System.Net.WebSockets;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
+using GraphQL.Http;
 using GraphQL.Server.Transports.Subscriptions.Abstractions;
-using Newtonsoft.Json;
 
 namespace GraphQL.Server.Transports.WebSockets
 {
     public class WebSocketWriterPipeline : IWriterPipeline
     {
-        private readonly ITargetBlock<string> _endBlock;
-        private readonly JsonSerializerSettings _serializerSettings;
         private readonly WebSocket _socket;
-        private readonly IPropagatorBlock<OperationMessage, string> _startBlock;
+        private readonly IDocumentWriter _documentWriter;
+        private readonly ITargetBlock<OperationMessage> _startBlock;
 
-        public WebSocketWriterPipeline(WebSocket socket, JsonSerializerSettings serializerSettings)
+        public WebSocketWriterPipeline(WebSocket socket, IDocumentWriter documentWriter)
         {
             _socket = socket;
-            _serializerSettings = serializerSettings;
+            _documentWriter = documentWriter;
 
-            _endBlock = CreateMessageWriter();
-            _startBlock = CreateWriterJsonTransformer();
-
-            _startBlock.LinkTo(_endBlock, new DataflowLinkOptions
-            {
-                PropagateCompletion = true
-            });
+            _startBlock = CreateMessageWriter();
         }
 
         public bool Post(OperationMessage message)
@@ -40,7 +30,7 @@ namespace GraphQL.Server.Transports.WebSockets
             return _startBlock.SendAsync(message);
         }
 
-        public Task Completion => _endBlock.Completion;
+        public Task Completion => _startBlock.Completion;
 
         public Task Complete()
         {
@@ -48,21 +38,9 @@ namespace GraphQL.Server.Transports.WebSockets
             return Task.CompletedTask;
         }
 
-        protected IPropagatorBlock<OperationMessage, string> CreateWriterJsonTransformer()
+        private ITargetBlock<OperationMessage> CreateMessageWriter()
         {
-            var transformer = new TransformBlock<OperationMessage, string>(
-                input => JsonConvert.SerializeObject(input, _serializerSettings),
-                new ExecutionDataflowBlockOptions
-                {
-                    EnsureOrdered = true
-                });
-
-            return transformer;
-        }
-
-        private ITargetBlock<string> CreateMessageWriter()
-        {
-            var target = new ActionBlock<string>(
+            var target = new ActionBlock<OperationMessage>(
                 WriteMessageAsync, new ExecutionDataflowBlockOptions
                 {
                     BoundedCapacity = 1,
@@ -73,12 +51,20 @@ namespace GraphQL.Server.Transports.WebSockets
             return target;
         }
 
-        private Task WriteMessageAsync(string message)
+        private async Task WriteMessageAsync(OperationMessage message)
         {
-            if (_socket.CloseStatus.HasValue) return Task.CompletedTask;
+            if (_socket.CloseStatus.HasValue) return;
 
-            var messageSegment = new ArraySegment<byte>(Encoding.UTF8.GetBytes(message));
-            return _socket.SendAsync(messageSegment, WebSocketMessageType.Text, true, CancellationToken.None);
+            var stream = new WebsocketWriterStream(_socket);
+            try
+            {
+                await _documentWriter.WriteAsync(stream, message);
+            }
+            finally
+            {
+                await stream.FlushAsync();
+                stream.Dispose();
+            }
         }
     }
 }

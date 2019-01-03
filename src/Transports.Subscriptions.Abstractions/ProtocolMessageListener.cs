@@ -54,14 +54,13 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             {
                 Type = MessageType.GQL_CONNECTION_ERROR,
                 Id = message.Id,
-                Payload = JObject.FromObject(new
+                Payload = new ExecutionResult
                 {
-                    message.Id,
                     Errors = new ExecutionErrors
                     {
                         new ExecutionError($"Unexpected message type {message.Type}")
                     }
-                })
+                }
             });
         }
 
@@ -76,7 +75,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         {
             var message = context.Message;
             _logger.LogDebug("Handle start: {id}", message.Id);
-            var payload = message.Payload.ToObject<OperationMessagePayload>();
+            var payload = ((JObject)message.Payload).ToObject<OperationMessagePayload>();
             if (payload == null)
                 throw new InvalidOperationException($"Could not get OperationMessagePayload from message.Payload");
 

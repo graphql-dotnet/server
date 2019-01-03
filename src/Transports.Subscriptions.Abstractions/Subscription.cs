@@ -63,7 +63,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             {
                 Type = MessageType.GQL_DATA,
                 Id = Id,
-                Payload = JObject.FromObject(value)
+                Payload = value
             });
         }
 
