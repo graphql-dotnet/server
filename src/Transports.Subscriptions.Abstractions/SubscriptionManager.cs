@@ -93,7 +93,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
                 {
                     Type = MessageType.GQL_ERROR,
                     Id = id,
-                    Payload = JObject.FromObject(result)
+                    Payload = result
                 });
 
                 return null;
@@ -110,7 +110,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
                         {
                             Type = MessageType.GQL_ERROR,
                             Id = id,
-                            Payload = JObject.FromObject(result)
+                            Payload = result
                         });
 
                         return null;
@@ -131,7 +131,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             {
                 Type = MessageType.GQL_DATA,
                 Id = id,
-                Payload = JObject.FromObject(result) 
+                Payload = result
             });
 
             await writer.SendAsync(new OperationMessage

@@ -1,5 +1,3 @@
-using Newtonsoft.Json.Linq;
-
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 {
     /// <summary>
@@ -20,7 +18,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         /// <summary>
         ///     Nullable payload
         /// </summary>
-        public JObject Payload { get; set; }
+        public object Payload { get; set; }
 
 
         /// <inheritdoc />

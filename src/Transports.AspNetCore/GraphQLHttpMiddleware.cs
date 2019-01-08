@@ -9,6 +9,7 @@ using GraphQL.Server.Transports.AspNetCore.Common;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -19,12 +20,15 @@ namespace GraphQL.Server.Transports.AspNetCore
     {
         private const string JsonContentType = "application/json";
         private const string GraphQLContentType = "application/graphql";
+        private const string FormUrlEncodedContentType = "application/x-www-form-urlencoded";
 
+        private readonly ILogger _logger;
         private readonly RequestDelegate _next;
         private readonly PathString _path;
 
-        public GraphQLHttpMiddleware(RequestDelegate next, PathString path)
+        public GraphQLHttpMiddleware(ILogger<GraphQLHttpMiddleware<TSchema>> logger, RequestDelegate next, PathString path)
         {
+            _logger = logger;
             _next = next;
             _path = path;
         }
@@ -63,8 +67,12 @@ namespace GraphQL.Server.Transports.AspNetCore
                     case GraphQLContentType:
                         gqlRequest.Query = await ReadAsStringAsync(httpRequest.Body);
                         break;
+                    case FormUrlEncodedContentType:
+                        var formCollection = await httpRequest.ReadFormAsync();
+                        ExtractGraphQLRequestFromPostBody(formCollection, gqlRequest);
+                        break;
                     default:
-                        await WriteBadRequestResponseAsync(context, writer, $"Invalid 'Content-Type' header: non-supported media type. Must be of '{JsonContentType}' or '{GraphQLContentType}'. See: http://graphql.org/learn/serving-over-http/.");
+                        await WriteBadRequestResponseAsync(context, writer, $"Invalid 'Content-Type' header: non-supported media type. Must be of '{JsonContentType}', '{GraphQLContentType}', or '{FormUrlEncodedContentType}'. See: http://graphql.org/learn/serving-over-http/.");
                         return;
                 }
             }
@@ -86,6 +94,11 @@ namespace GraphQL.Server.Transports.AspNetCore
                 userContext,
                 context.RequestAborted);
 
+            if (result.Errors != null)
+            {
+                _logger.LogError("GraphQL execution error(s): {Errors}", result.Errors);
+            }
+
             await WriteResponseAsync(context, writer, result);
         }
 
@@ -99,22 +112,18 @@ namespace GraphQL.Server.Transports.AspNetCore
                 }
             };
 
-            var json = writer.Write(result);
-
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = 400; // Bad Request
 
-            return context.Response.WriteAsync(json);
+            return writer.WriteAsync(context.Response.Body, result);
         }
 
         private Task WriteResponseAsync(HttpContext context, IDocumentWriter writer, ExecutionResult result)
         {
-            var json = writer.Write(result);
-
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = 200; // OK
 
-            return context.Response.WriteAsync(json);
+            return writer.WriteAsync(context.Response.Body, result);
         }
 
         private static T Deserialize<T>(Stream s)
@@ -139,6 +148,13 @@ namespace GraphQL.Server.Transports.AspNetCore
             gqlRequest.Query = qs.TryGetValue(GraphQLRequest.QueryKey, out var queryValues) ? queryValues[0] : null;
             gqlRequest.Variables = qs.TryGetValue(GraphQLRequest.VariablesKey, out var variablesValues) ? JObject.Parse(variablesValues[0]) : null;
             gqlRequest.OperationName = qs.TryGetValue(GraphQLRequest.OperationNameKey, out var operationNameValues) ? operationNameValues[0] : null;
+        }
+
+        private static void ExtractGraphQLRequestFromPostBody(IFormCollection fc, GraphQLRequest gqlRequest)
+        {
+            gqlRequest.Query = fc.TryGetValue(GraphQLRequest.QueryKey, out var queryValues) ? queryValues[0] : null;
+            gqlRequest.Variables = fc.TryGetValue(GraphQLRequest.VariablesKey, out var variablesValue) ? JObject.Parse(variablesValue[0]) : null;
+            gqlRequest.OperationName = fc.TryGetValue(GraphQLRequest.OperationNameKey, out var operationNameValues) ? operationNameValues[0] : null;
         }
     }
 }

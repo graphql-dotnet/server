@@ -1,6 +1,7 @@
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
+using GraphQL.Http;
 using GraphQL.Server.Transports.Subscriptions.Abstractions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -11,7 +12,7 @@ namespace GraphQL.Server.Transports.WebSockets
     {
         private readonly WebSocket _socket;
 
-        public WebSocketTransport(WebSocket socket)
+        public WebSocketTransport(WebSocket socket, IDocumentWriter documentWriter)
         {
             _socket = socket;
             var serializerSettings = new JsonSerializerSettings
@@ -22,7 +23,7 @@ namespace GraphQL.Server.Transports.WebSockets
             };
 
             Reader = new WebSocketReaderPipeline(_socket, serializerSettings);
-            Writer = new WebSocketWriterPipeline(_socket, serializerSettings);
+            Writer = new WebSocketWriterPipeline(_socket, documentWriter);
         }
 
 

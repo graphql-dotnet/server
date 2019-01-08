@@ -37,7 +37,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Transports.Subscriptions.Ab
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ui.Voyager", "src\Ui.Voyager\Ui.Voyager.csproj", "{B2C278E4-6A1A-4F83-AE53-C9469B4056EE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "src\Core\Core.csproj", "{4872A0F3-FA1B-410B-834C-8A5653621E56}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "src\Core\Core.csproj", "{4872A0F3-FA1B-410B-834C-8A5653621E56}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Authorization.AspNetCore", "src\Authorization.AspNetCore\Authorization.AspNetCore.csproj", "{7A71AF0D-FE5F-4607-A6F6-960FD98CF840}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Authorization.AspNetCore.Tests", "tests\Authorization.AspNetCore.Tests\Authorization.AspNetCore.Tests.csproj", "{741DEEE6-FD0B-4F99-8A6F-43584B3E8D5F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -89,6 +93,14 @@ Global
 		{4872A0F3-FA1B-410B-834C-8A5653621E56}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4872A0F3-FA1B-410B-834C-8A5653621E56}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4872A0F3-FA1B-410B-834C-8A5653621E56}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7A71AF0D-FE5F-4607-A6F6-960FD98CF840}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A71AF0D-FE5F-4607-A6F6-960FD98CF840}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A71AF0D-FE5F-4607-A6F6-960FD98CF840}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A71AF0D-FE5F-4607-A6F6-960FD98CF840}.Release|Any CPU.Build.0 = Release|Any CPU
+		{741DEEE6-FD0B-4F99-8A6F-43584B3E8D5F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{741DEEE6-FD0B-4F99-8A6F-43584B3E8D5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{741DEEE6-FD0B-4F99-8A6F-43584B3E8D5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{741DEEE6-FD0B-4F99-8A6F-43584B3E8D5F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

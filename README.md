@@ -17,9 +17,9 @@ For the WebSocket subscription protocol (depends on above) middleware:
 >`dotnet add package GraphQL.Server.Transports.WebSockets`
 
 For the UI middleware/s:
->`dotnet add package GraphQL.Server.Ui.GraphiQL`
->`dotnet add package GraphQL.Server.Ui.Playground`
->`dotnet add package GraphQL.Server.Ui.Voyager`
+>`dotnet add package GraphQL.Server.Ui.GraphiQL`  
+>`dotnet add package GraphQL.Server.Ui.Playground`  
+>`dotnet add package GraphQL.Server.Ui.Voyager`  
 
 
 ### Configure
