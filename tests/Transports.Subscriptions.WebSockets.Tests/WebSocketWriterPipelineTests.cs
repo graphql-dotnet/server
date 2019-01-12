@@ -13,18 +13,12 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
 {
     public class WebSocketWriterPipelineFacts
     {
-        private readonly WebSocketWriterPipeline _webSocketWriterPipeline;
         private readonly TestWebSocket _testWebSocket;
 
         public WebSocketWriterPipelineFacts()
         {
             _testWebSocket = new TestWebSocket();
-            _webSocketWriterPipeline = new WebSocketWriterPipeline(_testWebSocket, new DocumentWriter(Formatting.None,
-                new JsonSerializerSettings
-                {
-                    ContractResolver = new CamelCasePropertyNamesContractResolver(),
-                    NullValueHandling = NullValueHandling.Ignore
-                }));
+
         }
 
         public static IEnumerable<object[]> TestData =>
@@ -113,6 +107,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         [Fact]
         public async Task should_post_single_message()
         {
+            var webSocketWriterPipeline = CreateWebSocketWriterPipeline(new CamelCasePropertyNamesContractResolver());
             var message = new OperationMessage
             {
                 Payload = new ExecutionResult
@@ -124,9 +119,9 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
                     }
                 }
             };
-            Assert.True(_webSocketWriterPipeline.Post(message));
-            await _webSocketWriterPipeline.Complete();
-            await _webSocketWriterPipeline.Completion;
+            Assert.True(webSocketWriterPipeline.Post(message));
+            await webSocketWriterPipeline.Complete();
+            await webSocketWriterPipeline.Completion;
             Assert.Single(_testWebSocket.Messages);
 
             var resultingJson = Encoding.UTF8.GetString(_testWebSocket.Messages.First().ToArray());
@@ -138,6 +133,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         [Fact]
         public async Task should_post_array_of_10_messages()
         {
+            var webSocketWriterPipeline = CreateWebSocketWriterPipeline(new CamelCasePropertyNamesContractResolver());
             var message = new OperationMessage
             {
                 Payload = new ExecutionResult
@@ -149,9 +145,9 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
                     }, 10)
                 }
             };
-            Assert.True(_webSocketWriterPipeline.Post(message));
-            await _webSocketWriterPipeline.Complete();
-            await _webSocketWriterPipeline.Completion;
+            Assert.True(webSocketWriterPipeline.Post(message));
+            await webSocketWriterPipeline.Complete();
+            await webSocketWriterPipeline.Completion;
             Assert.Single(_testWebSocket.Messages);
 
             var resultingJson = Encoding.UTF8.GetString(_testWebSocket.Messages.First().ToArray());
@@ -172,9 +168,10 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         [MemberData(nameof(TestData))]
         public async Task should_post_for_any_message_length(OperationMessage message, long expectedLength)
         {
-            Assert.True(_webSocketWriterPipeline.Post(message));
-            await _webSocketWriterPipeline.Complete();
-            await _webSocketWriterPipeline.Completion;
+            var webSocketWriterPipeline = CreateWebSocketWriterPipeline(new CamelCasePropertyNamesContractResolver());
+            Assert.True(webSocketWriterPipeline.Post(message));
+            await webSocketWriterPipeline.Complete();
+            await webSocketWriterPipeline.Completion;
             Assert.Single(_testWebSocket.Messages);
             Assert.Equal(expectedLength, _testWebSocket.Messages.First().Length);
         }
@@ -183,11 +180,50 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         [MemberData(nameof(TestData))]
         public async Task should_send_for_any_message_length(OperationMessage message, long expectedLength)
         {
-            await _webSocketWriterPipeline.SendAsync(message);
-            await _webSocketWriterPipeline.Complete();
-            await _webSocketWriterPipeline.Completion;
+            var webSocketWriterPipeline = CreateWebSocketWriterPipeline(new CamelCasePropertyNamesContractResolver());
+            await webSocketWriterPipeline.SendAsync(message);
+            await webSocketWriterPipeline.Complete();
+            await webSocketWriterPipeline.Completion;
             Assert.Single(_testWebSocket.Messages);
             Assert.Equal(expectedLength, _testWebSocket.Messages.First().Length);
+        }
+
+        [Fact]
+        public async Task should_support_correct_case()
+        {
+            var webSocketWriterPipeline = CreateWebSocketWriterPipeline(new DefaultContractResolver());
+            var operationMessage = new OperationMessage
+            {
+                Id = "78F15F13-CA90-4BA6-AFF5-990C23FA882A",
+                Type = "Type",
+                Payload = new ExecutionResult
+                {
+                    Data = new TestMessage
+                    {
+                        Content = "Hello world",
+                        SentAt = new DateTimeOffset(2018, 12, 12, 10, 0, 0, TimeSpan.Zero)
+                    }
+                }
+            };
+
+            await webSocketWriterPipeline.SendAsync(operationMessage);
+            await webSocketWriterPipeline.Complete();
+            await webSocketWriterPipeline.Completion;
+            Assert.Single(_testWebSocket.Messages);
+            var resultingJson = Encoding.UTF8.GetString(_testWebSocket.Messages.First().ToArray());
+            Assert.Equal(
+                "{\"id\":\"78F15F13-CA90-4BA6-AFF5-990C23FA882A\",\"type\":\"Type\",\"payload\":{\"data\":{\"Content\":\"Hello world\",\"SentAt\":\"2018-12-12T10:00:00+00:00\"}}}",
+                resultingJson);
+        }
+
+        private WebSocketWriterPipeline CreateWebSocketWriterPipeline(IContractResolver contractResolver)
+        {
+            return new WebSocketWriterPipeline(_testWebSocket, new DocumentWriter(Formatting.None,
+                new JsonSerializerSettings
+                {
+                    ContractResolver = contractResolver,
+                    NullValueHandling = NullValueHandling.Ignore
+                }));
         }
     }
 }
