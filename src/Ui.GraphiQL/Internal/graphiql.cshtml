@@ -105,13 +105,6 @@
             return currentPathName;
         }
 
-        function stripGraphQLUiEndPointFromPathName(graphQlEndpoint) {
-            var currentPathName = window.location.pathname;
-            var regex = new RegExp(graphQlEndpoint + "\/*");
-            currentPathName = currentPathName.replace(regex, '');
-            return currentPathName;
-        }
-
         var strippedCurrentPathName = stripGraphQLUiEndPointFromPathName("@Model.GraphiQLPath");
 
 		// Defines a GraphQL fetcher using the fetch API. You're not required to
