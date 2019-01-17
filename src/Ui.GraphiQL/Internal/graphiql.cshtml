@@ -105,6 +105,16 @@
             return currentPathName;
         }
 
+        function updateURL() {
+            var newSearch = '?' + Object.keys(parameters).filter(function (key) {
+                return Boolean(parameters[key]);
+            }).map(function (key) {
+                return encodeURIComponent(key) + '=' +
+                    encodeURIComponent(parameters[key]);
+            }).join('&');
+            history.replaceState(null, null, newSearch);
+        }
+
         var strippedCurrentPathName = stripGraphQLUiEndPointFromPathName("@Model.GraphiQLPath");
 
 		// Defines a GraphQL fetcher using the fetch API. You're not required to

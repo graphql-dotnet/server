@@ -50,17 +50,6 @@
       window.addEventListener('load', function (event) {
           var strippedCurrentPathName = stripGraphQLUiEndPointFromPathName("@Model.PlaygroundPath");
 
-      GraphQLPlayground.init(document.getElementById('root'),
-        {
-          setTitle: true,
-            endpoint: window.location.protocol + "//" + window.location.host + strippedCurrentPathName + "@Model.GraphQLEndPoint",
-            subscriptionEndpoint: (window.location.protocol === "http:" ? "ws://" : "wss://") + strippedCurrentPathName + "@Model.GraphQLEndPoint",
-          settings: {
-            'tracing.hideTracingResponse': false
-          }
-        });
-      })
-
       function updateURL() {
 			var newSearch = '?' + Object.keys(parameters).filter(function (key) {
 				return Boolean(parameters[key]);
