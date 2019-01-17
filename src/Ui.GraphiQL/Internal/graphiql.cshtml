@@ -96,13 +96,6 @@
 		function onEditOperationName(newOperationName) {
 			parameters.operationName = newOperationName;
 			updateURL();
-		}
-
-        function stripGraphQLUiEndPointFromPathName(graphQlUiEndpoint) {
-            var currentPathName = window.location.pathname;
-            var regex = new RegExp(graphQlUiEndpoint + "\/*");
-            currentPathName = currentPathName.replace(regex, '');
-            return currentPathName;
         }
 
         function updateURL() {
@@ -113,6 +106,13 @@
                     encodeURIComponent(parameters[key]);
             }).join('&');
             history.replaceState(null, null, newSearch);
+        }
+
+        function stripGraphQLUiEndPointFromPathName(graphQlUiEndpoint) {
+            var currentPathName = window.location.pathname;
+            var regex = new RegExp(graphQlUiEndpoint + "\/*");
+            currentPathName = currentPathName.replace(regex, '');
+            return currentPathName;
         }
 
         var strippedCurrentPathName = stripGraphQLUiEndPointFromPathName("@Model.GraphiQLPath");
