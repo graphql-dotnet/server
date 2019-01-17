@@ -49,6 +49,7 @@
   <script>
       window.addEventListener('load', function (event) {
           var strippedCurrentPathName = stripGraphQLUiEndPointFromPathName("@Model.PlaygroundPath");
+
       GraphQLPlayground.init(document.getElementById('root'),
         {
           setTitle: true,
@@ -59,6 +60,16 @@
           }
         });
       })
+
+      function updateURL() {
+			var newSearch = '?' + Object.keys(parameters).filter(function (key) {
+				return Boolean(parameters[key]);
+			}).map(function (key) {
+				return encodeURIComponent(key) + '=' +
+					encodeURIComponent(parameters[key]);
+			}).join('&');
+			history.replaceState(null, null, newSearch);
+		}
 
       function stripGraphQLUiEndPointFromPathName(graphQlUiEndpoint) {
           var currentPathName = window.location.pathname;
