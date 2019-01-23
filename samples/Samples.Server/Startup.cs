@@ -57,7 +57,11 @@ namespace GraphQL.Samples.Server
             app.UseGraphQL<ChatSchema>("/graphql");
             app.UseGraphQLPlayground(new GraphQLPlaygroundOptions()
             {
-                Path = "/ui/playground"
+                Path = "/ui/playground",
+                PlaygroundSettings = @"{
+                    'editor.theme': 'light',
+                    'tracing.hideTracingResponse': false
+                }"
             });
             app.UseGraphiQLServer(new GraphiQLOptions
             {

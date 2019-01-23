@@ -9,10 +9,10 @@ namespace GraphQL.Server.Ui.Playground.Internal {
 
 		private string playgroundCSHtml;
 
-		private readonly GraphQLPlaygroundOptions settings;
+		private readonly GraphQLPlaygroundOptions options;
 
-		public PlaygroundPageModel(GraphQLPlaygroundOptions settings) {
-			this.settings = settings;
+		public PlaygroundPageModel(GraphQLPlaygroundOptions options) {
+			this.options = options;
 		}
 
 		public string Render() {
@@ -23,7 +23,12 @@ namespace GraphQL.Server.Ui.Playground.Internal {
             using (var manifestResourceStream = assembly.GetManifestResourceStream("GraphQL.Server.Ui.Playground.Internal.playground.cshtml")) {
                 using (var streamReader = new StreamReader(manifestResourceStream)) {
                     var builder = new StringBuilder(streamReader.ReadToEnd());
-                    builder.Replace("@Model.GraphQLEndPoint", this.settings.GraphQLEndPoint);
+                    builder.Replace("@Model.GraphQLEndPoint",
+                        options.GraphQLEndPoint);
+                    builder.Replace("@Model.GraphQLConfig",
+                        options.GraphQLConfig ?? "null");
+                    builder.Replace("@Model.PlaygroundSettings",
+                        options.PlaygroundSettings ?? "null");
                     playgroundCSHtml = builder.ToString();
                     return this.Render();
                 }
