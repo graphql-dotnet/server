@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Generic;
 
 namespace GraphQL.Samples.Server
 {
@@ -58,10 +59,10 @@ namespace GraphQL.Samples.Server
             app.UseGraphQLPlayground(new GraphQLPlaygroundOptions()
             {
                 Path = "/ui/playground",
-                PlaygroundSettings = @"{
-                    'editor.theme': 'light',
-                    'tracing.hideTracingResponse': false
-                }"
+                PlaygroundSettings = new Dictionary<string, object> {
+                    ["editor.theme"] = "light",
+                    ["tracing.hideTracingResponse"] = false
+                }
             });
             app.UseGraphiQLServer(new GraphiQLOptions
             {

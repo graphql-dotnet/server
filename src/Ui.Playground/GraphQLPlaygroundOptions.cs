@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http;
+using System.Collections.Generic;
 
 namespace GraphQL.Server.Ui.Playground {
 
@@ -12,14 +13,14 @@ namespace GraphQL.Server.Ui.Playground {
         public PathString GraphQLEndPoint { get; set; } = "/graphql";
 
         /// <summary>
-        /// The GraphQL Config (as JSON string)
+        /// The GraphQL Config
         /// </summary>
-        public string GraphQLConfig { get; set; } = null;
+        public Dictionary<string, object> GraphQLConfig { get; set; } = null;
 
         /// <summary>
-        /// The GraphQL Playground Settings (as JSON string)
+        /// The GraphQL Playground Settings
         /// </summary>
-        public string PlaygroundSettings { get; set; } = null;
+        public Dictionary<string, object> PlaygroundSettings { get; set; } = null;
 
     }
 

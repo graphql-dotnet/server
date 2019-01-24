@@ -1,6 +1,7 @@
 using System.IO;
 using System.Reflection;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace GraphQL.Server.Ui.Playground.Internal {
 
@@ -26,9 +27,9 @@ namespace GraphQL.Server.Ui.Playground.Internal {
                     builder.Replace("@Model.GraphQLEndPoint",
                         options.GraphQLEndPoint);
                     builder.Replace("@Model.GraphQLConfig",
-                        options.GraphQLConfig ?? "null");
+                        JsonConvert.SerializeObject(options.GraphQLConfig));
                     builder.Replace("@Model.PlaygroundSettings",
-                        options.PlaygroundSettings ?? "null");
+                        JsonConvert.SerializeObject(options.PlaygroundSettings));
                     playgroundCSHtml = builder.ToString();
                     return this.Render();
                 }
