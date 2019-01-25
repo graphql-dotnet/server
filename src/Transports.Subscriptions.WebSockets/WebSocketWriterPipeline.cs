@@ -43,7 +43,6 @@ namespace GraphQL.Server.Transports.WebSockets
             var target = new ActionBlock<OperationMessage>(
                 WriteMessageAsync, new ExecutionDataflowBlockOptions
                 {
-                    BoundedCapacity = 1,
                     MaxDegreeOfParallelism = 1,
                     EnsureOrdered = true
                 });
