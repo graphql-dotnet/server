@@ -1,6 +1,7 @@
 using System.IO;
 using System.Reflection;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace GraphQL.Server.Ui.Playground.Internal {
 
@@ -9,10 +10,10 @@ namespace GraphQL.Server.Ui.Playground.Internal {
 
 		private string playgroundCSHtml;
 
-		private readonly GraphQLPlaygroundOptions settings;
+		private readonly GraphQLPlaygroundOptions options;
 
-		public PlaygroundPageModel(GraphQLPlaygroundOptions settings) {
-			this.settings = settings;
+		public PlaygroundPageModel(GraphQLPlaygroundOptions options) {
+			this.options = options;
 		}
 
 		public string Render() {
@@ -23,7 +24,12 @@ namespace GraphQL.Server.Ui.Playground.Internal {
             using (var manifestResourceStream = assembly.GetManifestResourceStream("GraphQL.Server.Ui.Playground.Internal.playground.cshtml")) {
                 using (var streamReader = new StreamReader(manifestResourceStream)) {
                     var builder = new StringBuilder(streamReader.ReadToEnd());
-                    builder.Replace("@Model.GraphQLEndPoint", this.settings.GraphQLEndPoint);
+                    builder.Replace("@Model.GraphQLEndPoint",
+                        options.GraphQLEndPoint);
+                    builder.Replace("@Model.GraphQLConfig",
+                        JsonConvert.SerializeObject(options.GraphQLConfig));
+                    builder.Replace("@Model.PlaygroundSettings",
+                        JsonConvert.SerializeObject(options.PlaygroundSettings));
                     playgroundCSHtml = builder.ToString();
                     return this.Render();
                 }
