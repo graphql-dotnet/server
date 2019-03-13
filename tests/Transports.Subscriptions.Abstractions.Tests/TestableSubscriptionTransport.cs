@@ -23,7 +23,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
 
         public Task Complete()
         {
-           _readBuffer.Complete();
+            _readBuffer.Complete();
             return Task.CompletedTask;
         }
 

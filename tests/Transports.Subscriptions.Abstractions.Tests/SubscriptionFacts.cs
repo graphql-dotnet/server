@@ -38,7 +38,6 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             /* When */
             stream.OnNext(expected);
 
-
             /* Then */
             _writer.Received().Post(
                 Arg.Is<OperationMessage>(
@@ -66,7 +65,6 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
 
             /* When */
             stream.OnCompleted();
-
 
             /* Then */
             Assert.False(stream.HasObservers);
@@ -118,7 +116,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
 
             /* When */
             /* Then */
-            var sut = new Subscription(id, payload, result, _writer, null, new NullLogger<Subscription>()); 
+            var sut = new Subscription(id, payload, result, _writer, null, new NullLogger<Subscription>());
         }
 
         [Fact]
@@ -142,7 +140,6 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             /* When */
             await sut.UnsubscribeAsync();
 
-
             /* Then */
             unsubscribe.Received().Dispose();
         }
@@ -157,7 +154,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             {
                 Streams = new Dictionary<string, IObservable<ExecutionResult>>
                 {
-                    {"1", Substitute.For<IObservable<ExecutionResult>>()}
+                    { "1", Substitute.For<IObservable<ExecutionResult>>() }
                 }
             };
 
@@ -165,7 +162,6 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
 
             /* When */
             await sut.UnsubscribeAsync();
-
 
             /* Then */
             await _writer.Received().SendAsync(

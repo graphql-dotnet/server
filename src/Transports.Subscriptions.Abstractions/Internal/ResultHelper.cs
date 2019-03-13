@@ -18,8 +18,10 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Internal
 
                 builder.AppendLine($"Locations:");
                 if (error.Locations != null)
+                {
                     foreach (var location in error.Locations)
                         builder.AppendLine($"Line: {location.Line} Column: {location.Column}");
+                }
             }
 
             return builder.ToString();

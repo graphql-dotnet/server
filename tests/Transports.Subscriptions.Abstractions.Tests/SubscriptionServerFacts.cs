@@ -23,7 +23,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
                 {
                     Streams = new Dictionary<string, IObservable<ExecutionResult>>
                     {
-                        {"1", Substitute.For<IObservable<ExecutionResult>>()}
+                        { "1", Substitute.For<IObservable<ExecutionResult>>() }
                     }
                 });
             _subscriptionManager = new SubscriptionManager(_documentExecuter, new NullLoggerFactory());
@@ -41,7 +41,6 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         private readonly IOperationMessageListener _messageListener;
         private readonly TestableReader _transportReader;
         private readonly TestableWriter _transportWriter;
-
 
         [Fact]
         public async Task Listener_BeforeHandle()

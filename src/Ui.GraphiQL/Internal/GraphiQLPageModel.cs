@@ -2,34 +2,37 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 
-namespace GraphQL.Server.Ui.GraphiQL.Internal {
+namespace GraphQL.Server.Ui.GraphiQL.Internal
+{
+    // https://docs.microsoft.com/en-us/aspnet/core/mvc/razor-pages/?tabs=netcore-cli
+    internal class GraphiQLPageModel
+    {
+        private string _graphiQLCSHtml;
 
-	// https://docs.microsoft.com/en-us/aspnet/core/mvc/razor-pages/?tabs=netcore-cli
-	internal class GraphiQLPageModel {
+        private readonly GraphiQLOptions _settings;
 
-		private string graphiQLCSHtml;
+        public GraphiQLPageModel(GraphiQLOptions settings) => _settings = settings;
 
-		private readonly GraphiQLOptions settings;
+        public string Render()
+        {
+            if (_graphiQLCSHtml == null)
+            {
+                var assembly = typeof(GraphiQLPageModel).GetTypeInfo().Assembly;
 
-		public GraphiQLPageModel(GraphiQLOptions settings) {
-			this.settings = settings;
-		}
+                using (var manifestResourceStream = assembly.GetManifestResourceStream("GraphQL.Server.Ui.GraphiQL.Internal.graphiql.cshtml"))
+                {
+                    using (var streamReader = new StreamReader(manifestResourceStream))
+                    {
+                        var builder = new StringBuilder(streamReader.ReadToEnd());
 
-		public string Render() {
-			if (graphiQLCSHtml != null) {
-				return graphiQLCSHtml;
-			}
-			var assembly = typeof(GraphiQLPageModel).GetTypeInfo().Assembly;
-            using (var manifestResourceStream = assembly.GetManifestResourceStream("GraphQL.Server.Ui.GraphiQL.Internal.graphiql.cshtml")) {
-                using (var streamReader = new StreamReader(manifestResourceStream)) {
-                    var builder = new StringBuilder(streamReader.ReadToEnd());
-                    builder.Replace("@Model.GraphQLEndPoint", this.settings.GraphQLEndPoint);
-                    graphiQLCSHtml = builder.ToString();
-                    return this.Render();
+                        builder.Replace("@Model.GraphQLEndPoint", _settings.GraphQLEndPoint);
+
+                        _graphiQLCSHtml = builder.ToString();
+                    }
                 }
             }
-		}
 
-	}
-
+            return _graphiQLCSHtml;
+        }
+    }
 }

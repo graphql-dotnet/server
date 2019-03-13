@@ -34,8 +34,8 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
     }
     public class ValidationTestBase
     {
-        private IDocumentExecuter _executor = new DocumentExecuter();
-        private IDocumentWriter _writer = new DocumentWriter(indent: true);
+        private readonly IDocumentExecuter _executor = new DocumentExecuter();
+        private readonly IDocumentWriter _writer = new DocumentWriter(indent: true);
 
         protected HttpContext HttpContext { get; private set; }
 

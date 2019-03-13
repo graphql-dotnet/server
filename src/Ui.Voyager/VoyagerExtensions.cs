@@ -2,6 +2,9 @@
 
 namespace GraphQL.Server.Ui.Voyager
 {
+    /// <summary>
+    /// Extension methods for <see cref="VoyagerMiddleware"/>
+    /// </summary>
     public static class VoyagerExtensions
     {
         /// <summary> Adds middleware for GraphQL Voyager. </summary>

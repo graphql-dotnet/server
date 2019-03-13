@@ -35,8 +35,10 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         public void Dispose()
         {
             foreach (var property in Properties)
+            {
                 if (property.Value is IDisposable disposable)
                     disposable.Dispose();
+            }
         }
 
         public T Get<T>(string key)

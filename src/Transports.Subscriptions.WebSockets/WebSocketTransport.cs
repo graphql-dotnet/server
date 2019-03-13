@@ -26,7 +26,6 @@ namespace GraphQL.Server.Transports.WebSockets
             Writer = new WebSocketWriterPipeline(_socket, documentWriter);
         }
 
-
         public WebSocketCloseStatus? CloseStatus => _socket.CloseStatus;
 
         public IReaderPipeline Reader { get; }
@@ -38,8 +37,10 @@ namespace GraphQL.Server.Transports.WebSockets
                 return Task.CompletedTask;
 
             if (CloseStatus.HasValue)
+            {
                 if (CloseStatus != WebSocketCloseStatus.NormalClosure || CloseStatus != WebSocketCloseStatus.Empty)
                     return AbortAsync();
+            }
 
             return _socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closed", CancellationToken.None);
         }

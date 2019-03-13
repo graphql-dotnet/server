@@ -42,23 +42,25 @@ namespace GraphQL.Server.Transports.WebSockets
 
         public async Task Complete(WebSocketCloseStatus closeStatus, string statusDescription)
         {
-          if (_socket.State != WebSocketState.Closed && _socket.State != WebSocketState.CloseSent)
-            try
+            if (_socket.State != WebSocketState.Closed && _socket.State != WebSocketState.CloseSent)
             {
-              if (closeStatus == WebSocketCloseStatus.NormalClosure)
-                await _socket.CloseAsync(
-                  closeStatus,
-                  statusDescription,
-                  CancellationToken.None);
-              else
-                await _socket.CloseOutputAsync(
-                  closeStatus,
-                  statusDescription,
-                  CancellationToken.None);
-            }
-            finally
-            {
-              _startBlock.Complete();
+                try
+                {
+                    if (closeStatus == WebSocketCloseStatus.NormalClosure)
+                        await _socket.CloseAsync(
+                          closeStatus,
+                          statusDescription,
+                          CancellationToken.None);
+                    else
+                        await _socket.CloseOutputAsync(
+                          closeStatus,
+                          statusDescription,
+                          CancellationToken.None);
+                }
+                finally
+                {
+                    _startBlock.Complete();
+                }
             }
         }
 
@@ -116,7 +118,8 @@ namespace GraphQL.Server.Transports.WebSockets
                                 continue;
 
                             await memoryStream.WriteAsync(segment.Array, segment.Offset, receiveResult.Count);
-                        } while (!receiveResult.EndOfMessage || memoryStream.Length == 0);
+                        }
+                        while (!receiveResult.EndOfMessage || memoryStream.Length == 0);
 
                         message = Encoding.UTF8.GetString(memoryStream.ToArray());
                     }

@@ -2,6 +2,9 @@ using Microsoft.AspNetCore.Builder;
 
 namespace GraphQL.Server.Ui.Playground
 {
+    /// <summary>
+    /// Extension methods for <see cref="PlaygroundMiddleware"/>
+    /// </summary>
     public static class PlaygroundExtensions
     {
         /// <summary> Adds middleware for GraphQL Playground. </summary>
