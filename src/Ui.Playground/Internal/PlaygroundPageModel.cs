@@ -1,41 +1,41 @@
+using Newtonsoft.Json;
 using System.IO;
 using System.Reflection;
 using System.Text;
-using Newtonsoft.Json;
 
-namespace GraphQL.Server.Ui.Playground.Internal {
+namespace GraphQL.Server.Ui.Playground.Internal
+{
+    // https://docs.microsoft.com/en-us/aspnet/core/mvc/razor-pages/?tabs=netcore-cli
+    internal class PlaygroundPageModel
+    {
+		private string _playgroundCSHtml;
 
-	// https://docs.microsoft.com/en-us/aspnet/core/mvc/razor-pages/?tabs=netcore-cli
-	internal class PlaygroundPageModel {
+		private readonly GraphQLPlaygroundOptions _options;
 
-		private string playgroundCSHtml;
+        public PlaygroundPageModel(GraphQLPlaygroundOptions options) => _options = options;
 
-		private readonly GraphQLPlaygroundOptions options;
+        public string Render()
+        {
+            if (_playgroundCSHtml == null)
+            {
+                var assembly = typeof(PlaygroundPageModel).GetTypeInfo().Assembly;
 
-		public PlaygroundPageModel(GraphQLPlaygroundOptions options) {
-			this.options = options;
-		}
+                using (var manifestResourceStream = assembly.GetManifestResourceStream("GraphQL.Server.Ui.Playground.Internal.playground.cshtml"))
+                {
+                    using (var streamReader = new StreamReader(manifestResourceStream))
+                    {
+                        var builder = new StringBuilder(streamReader.ReadToEnd());
 
-		public string Render() {
-			if (playgroundCSHtml != null) {
-				return playgroundCSHtml;
-			}
-			var assembly = typeof(PlaygroundPageModel).GetTypeInfo().Assembly;
-            using (var manifestResourceStream = assembly.GetManifestResourceStream("GraphQL.Server.Ui.Playground.Internal.playground.cshtml")) {
-                using (var streamReader = new StreamReader(manifestResourceStream)) {
-                    var builder = new StringBuilder(streamReader.ReadToEnd());
-                    builder.Replace("@Model.GraphQLEndPoint",
-                        options.GraphQLEndPoint);
-                    builder.Replace("@Model.GraphQLConfig",
-                        JsonConvert.SerializeObject(options.GraphQLConfig));
-                    builder.Replace("@Model.PlaygroundSettings",
-                        JsonConvert.SerializeObject(options.PlaygroundSettings));
-                    playgroundCSHtml = builder.ToString();
-                    return this.Render();
+                        builder.Replace("@Model.GraphQLEndPoint", _options.GraphQLEndPoint);
+                        builder.Replace("@Model.GraphQLConfig", JsonConvert.SerializeObject(_options.GraphQLConfig));
+                        builder.Replace("@Model.PlaygroundSettings", JsonConvert.SerializeObject(_options.PlaygroundSettings));
+
+                        _playgroundCSHtml = builder.ToString();
+                    }
                 }
             }
+
+            return _playgroundCSHtml;
 		}
-
 	}
-
 }

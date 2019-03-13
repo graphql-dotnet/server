@@ -4,13 +4,9 @@ namespace GraphQL.Server.Ui.Voyager
 {
     public static class VoyagerExtensions
     {
-        public static IApplicationBuilder UseGraphQLVoyager(this IApplicationBuilder app, GraphQLVoyagerOptions options)
+        public static IApplicationBuilder UseGraphQLVoyager(this IApplicationBuilder app, GraphQLVoyagerOptions options = null)
         {
-            if (options == null)
-                options = new GraphQLVoyagerOptions();
-
-            app.UseMiddleware<VoyagerMiddleware>(options);
-            return app;
+            return app.UseMiddleware<VoyagerMiddleware>(options ?? new GraphQLVoyagerOptions());
         }
     }
 }

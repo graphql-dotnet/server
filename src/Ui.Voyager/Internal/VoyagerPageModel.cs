@@ -7,34 +7,32 @@ namespace GraphQL.Server.Ui.Voyager.Internal
     // https://docs.microsoft.com/en-us/aspnet/core/mvc/razor-pages/?tabs=netcore-cli
     internal class VoyagerPageModel
     {
-        private string voyagerCSHtml;
+        private string _voyagerCSHtml;
 
-        private readonly GraphQLVoyagerOptions settings;
+        private readonly GraphQLVoyagerOptions _settings;
 
-        public VoyagerPageModel(GraphQLVoyagerOptions settings)
-        {
-            this.settings = settings;
-        }
+        public VoyagerPageModel(GraphQLVoyagerOptions settings) => _settings = settings;
 
         public string Render()
         {
-            if (voyagerCSHtml != null)
+            if (_voyagerCSHtml == null)
             {
-                return voyagerCSHtml;
-            }
+                var assembly = typeof(VoyagerPageModel).GetTypeInfo().Assembly;
 
-            var assembly = typeof(VoyagerPageModel).GetTypeInfo().Assembly;
-
-            using (var manifestResourceStream = assembly.GetManifestResourceStream("GraphQL.Server.Ui.Voyager.Internal.voyager.cshtml"))
-            {
-                using (var streamReader = new StreamReader(manifestResourceStream))
+                using (var manifestResourceStream = assembly.GetManifestResourceStream("GraphQL.Server.Ui.Voyager.Internal.voyager.cshtml"))
                 {
-                    var builder = new StringBuilder(streamReader.ReadToEnd());
-                    builder.Replace("@Model.GraphQLEndPoint", this.settings.GraphQLEndPoint);
-                    voyagerCSHtml = builder.ToString();
-                    return this.Render();
+                    using (var streamReader = new StreamReader(manifestResourceStream))
+                    {
+                        var builder = new StringBuilder(streamReader.ReadToEnd());
+
+                        builder.Replace("@Model.GraphQLEndPoint", _settings.GraphQLEndPoint);
+
+                        _voyagerCSHtml = builder.ToString();
+                    }
                 }
             }
+
+            return _voyagerCSHtml;
         }
     }
 }
