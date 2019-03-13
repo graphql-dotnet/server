@@ -3,8 +3,14 @@ using System.Collections.Generic;
 
 namespace GraphQL.Server.Ui.Playground
 {
+    /// <summary>
+    /// Options to customize <see cref="PlaygroundMiddleware"/>
+    /// </summary>
     public class GraphQLPlaygroundOptions
     {
+        /// <summary>
+        /// The Playground EndPoint
+        /// </summary>
         public PathString Path { get; set; } = "/ui/playground";
 
         /// <summary>
