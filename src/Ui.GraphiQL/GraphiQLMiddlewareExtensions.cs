@@ -13,13 +13,9 @@ namespace Microsoft.AspNetCore.Builder {
 		/// <param name="applicationBuilder"></param>
 		/// <param name="settings">The settings of the Middleware</param>
 		/// <returns></returns>
-		public static IApplicationBuilder UseGraphiQLServer(this IApplicationBuilder applicationBuilder, GraphiQLOptions settings)
+		public static IApplicationBuilder UseGraphiQLServer(this IApplicationBuilder applicationBuilder, GraphiQLOptions settings = null)
 		{
-		    if (settings == null)
-		        settings = new GraphiQLOptions();
-
-			applicationBuilder.UseMiddleware<GraphiQLMiddleware>(settings);
-			return applicationBuilder;
+			return applicationBuilder.UseMiddleware<GraphiQLMiddleware>(settings ?? new GraphiQLOptions());
 		}
 
 	}

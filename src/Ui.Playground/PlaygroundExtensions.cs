@@ -4,13 +4,9 @@ namespace GraphQL.Server.Ui.Playground {
 
     public static class PlaygroundExtensions {
 
-        public static IApplicationBuilder UseGraphQLPlayground(this IApplicationBuilder app, GraphQLPlaygroundOptions options)
+        public static IApplicationBuilder UseGraphQLPlayground(this IApplicationBuilder app, GraphQLPlaygroundOptions options = null)
         {
-            if (options == null)
-                options = new GraphQLPlaygroundOptions();
-
-            app.UseMiddleware<PlaygroundMiddleware>(options);
-            return app;
+            return app.UseMiddleware<PlaygroundMiddleware>(options ?? new GraphQLPlaygroundOptions());
         }
     }
 }
