@@ -118,7 +118,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
 
             /* When */
             /* Then */
-            var sut = new Subscription(id, payload, result, _writer, null, new NullLogger<Subscription>()); 
+            var sut = new Subscription(id, payload, result, _writer, null, new NullLogger<Subscription>());
         }
 
         [Fact]

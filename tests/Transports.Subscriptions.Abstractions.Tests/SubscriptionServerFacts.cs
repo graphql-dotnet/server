@@ -42,7 +42,6 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         private readonly TestableReader _transportReader;
         private readonly TestableWriter _transportWriter;
 
-
         [Fact]
         public async Task Listener_BeforeHandle()
         {

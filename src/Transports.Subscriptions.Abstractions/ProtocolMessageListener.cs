@@ -14,7 +14,6 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             _logger = logger;
         }
 
-
         public Task BeforeHandleAsync(MessageHandlingContext context)
         {
             return Task.CompletedTask;

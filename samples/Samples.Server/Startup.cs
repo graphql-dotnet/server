@@ -59,7 +59,8 @@ namespace GraphQL.Samples.Server
             app.UseGraphQLPlayground(new GraphQLPlaygroundOptions()
             {
                 Path = "/ui/playground",
-                PlaygroundSettings = new Dictionary<string, object> {
+                PlaygroundSettings = new Dictionary<string, object>
+                {
                     ["editor.theme"] = "light",
                     ["tracing.hideTracingResponse"] = false
                 }
