@@ -1,8 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using GraphQL.Execution;
+using GraphQL.Instrumentation;
 using GraphQL.Types;
 using GraphQL.Validation;
 using Microsoft.Extensions.Options;
@@ -34,10 +36,17 @@ namespace GraphQL.Server.Internal
             _validationRules = validationRules;
         }
 
-        public virtual Task<ExecutionResult> ExecuteAsync(string operationName, string query, Inputs variables, object context, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual async Task<ExecutionResult> ExecuteAsync(string operationName, string query, Inputs variables, object context, CancellationToken cancellationToken = default(CancellationToken))
         {
             var options = GetOptions(operationName, query, variables, context, cancellationToken);
-            return _documentExecuter.ExecuteAsync(options);
+            var result = await _documentExecuter.ExecuteAsync(options);
+
+            if (options.EnableMetrics)
+            {
+                result.EnrichWithApolloTracing(DateTime.UtcNow);
+            }
+            
+            return result;
         }
 
         protected virtual ExecutionOptions GetOptions(string operationName, string query, Inputs variables, object context, CancellationToken cancellationToken)
