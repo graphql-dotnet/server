@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <GraphQLPackageVersion>3.0.0-preview-1149</GraphQLPackageVersion>
+  </PropertyGroup>
+</Project>
