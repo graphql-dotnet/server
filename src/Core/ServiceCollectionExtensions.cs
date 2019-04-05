@@ -19,7 +19,7 @@ namespace GraphQL.Server
         public static IGraphQLBuilder AddGraphQL(this IServiceCollection services, GraphQLOptions options)
         {
             services.TryAddSingleton<IDocumentExecuter, DocumentExecuter>();
-            services.AddTransient(typeof(IGraphQLExecuter<>), typeof(DefaultGraphQLExecuter<>));
+            services.AddTransient(typeof(IGraphQLExecuter<>), options.GraphQLExecuterType);
             services.AddSingleton(Options.Create(options));
 
             services.TryAddSingleton<IDocumentWriter>(x =>
