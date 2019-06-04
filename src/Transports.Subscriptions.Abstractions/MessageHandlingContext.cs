@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 {
-    public class MessageHandlingContext : IDisposable
+    public class MessageHandlingContext : Dictionary<string, object>, IDisposable
     {
         private readonly IServerOperations _server;
 
