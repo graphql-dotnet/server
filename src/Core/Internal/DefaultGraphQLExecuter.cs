@@ -34,13 +34,13 @@ namespace GraphQL.Server.Internal
             _validationRules = validationRules;
         }
 
-        public virtual Task<ExecutionResult> ExecuteAsync(string operationName, string query, Inputs variables, object context, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<ExecutionResult> ExecuteAsync(string operationName, string query, Inputs variables, IDictionary<string, object> context, CancellationToken cancellationToken = default(CancellationToken))
         {
             var options = GetOptions(operationName, query, variables, context, cancellationToken);
             return _documentExecuter.ExecuteAsync(options);
         }
 
-        protected virtual ExecutionOptions GetOptions(string operationName, string query, Inputs variables, object context, CancellationToken cancellationToken)
+        protected virtual ExecutionOptions GetOptions(string operationName, string query, Inputs variables, IDictionary<string, object> context, CancellationToken cancellationToken)
         {
             var opts = new ExecutionOptions()
             {
