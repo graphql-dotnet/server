@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace GraphQL.Server
 {
-    public static class ApplicationBuilderExtensions
+    public static class GraphQLWebSocketsExtensions
     {
         /// <summary>
         /// Add GraphQL web sockets middleware to the request pipeline
