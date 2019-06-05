@@ -21,7 +21,7 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
                 _.Schema = BasicSchema<BasicQueryWithAttributesAndClassPolicy>();
                 _.User = CreatePrincipal(claims: new Dictionary<string, string>
                     {
-                        {"Admin", "true"}
+                        { "Admin", "true" }
                     });
             });
         }
@@ -57,7 +57,7 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
                 _.Schema = BasicSchema<BasicQueryWithAttributesAndFieldPolicy>();
                 _.User = CreatePrincipal(claims: new Dictionary<string, string>
                     {
-                        {"Admin", "true"}
+                        { "Admin", "true" }
                     });
             });
         }
@@ -93,7 +93,7 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
                 _.Schema = NestedSchema();
                 _.User = CreatePrincipal(claims: new Dictionary<string, string>
                     {
-                        {"Admin", "true"}
+                        { "Admin", "true" }
                     });
             });
         }
@@ -129,7 +129,7 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
                 _.Schema = TypedSchema();
                 _.User = CreatePrincipal(claims: new Dictionary<string, string>
                     {
-                        {"Admin", "true"}
+                        { "Admin", "true" }
                     });
             });
         }

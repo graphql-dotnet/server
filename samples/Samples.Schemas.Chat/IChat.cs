@@ -20,7 +20,6 @@ namespace GraphQL.Samples.Schemas.Chat
     {
         private readonly ISubject<Message> _messageStream = new ReplaySubject<Message>(1);
 
-
         public Chat()
         {
             AllMessages = new ConcurrentStack<Message>();

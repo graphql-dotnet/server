@@ -15,7 +15,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
 
         public void LinkTo(ITargetBlock<OperationMessage> target)
         {
-            _readBuffer.LinkTo(target, new DataflowLinkOptions()
+            _readBuffer.LinkTo(target, new DataflowLinkOptions
             {
                 PropagateCompletion = true
             });

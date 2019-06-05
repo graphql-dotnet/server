@@ -56,7 +56,7 @@ namespace GraphQL.Samples.Server
             app.UseWebSockets();
             app.UseGraphQLWebSockets<ChatSchema>("/graphql");
             app.UseGraphQL<ChatSchema>("/graphql");
-            app.UseGraphQLPlayground(new GraphQLPlaygroundOptions()
+            app.UseGraphQLPlayground(new GraphQLPlaygroundOptions
             {
                 Path = "/ui/playground",
                 PlaygroundSettings = new Dictionary<string, object>
@@ -70,7 +70,7 @@ namespace GraphQL.Samples.Server
                 GraphiQLPath = "/ui/graphiql",
                 GraphQLEndPoint = "/graphql"
             });
-            app.UseGraphQLVoyager(new GraphQLVoyagerOptions()
+            app.UseGraphQLVoyager(new GraphQLVoyagerOptions
             {
                 GraphQLEndPoint = "/graphql",
                 Path = "/ui/voyager"

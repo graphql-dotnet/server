@@ -1,6 +1,19 @@
 <Project>
-  <PropertyGroup>
+  
+  <PropertyGroup Label="Сommon properties">
     <LangVersion>latest</LangVersion>
-    <GraphQLPackageVersion>3.0.0-preview-1149</GraphQLPackageVersion>
+    <PackageProjectUrl>https://github.com/graphql-dotnet/server</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/graphql-dotnet/server</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <Copyright>Pekka Heikura</Copyright>
+    <Authors>Pekka Heikura</Authors>
+    <Product>graphql-dotnet server</Product>
+    <Company>graphql-dotnet</Company>
   </PropertyGroup>
+
+  <PropertyGroup Label="Package dependency versions">
+    <GraphQLPackageVersion>3.0.0-preview-1175</GraphQLPackageVersion>
+    <MicrosoftAspNetCoreHttpAbstractionsVersion>2.0.2</MicrosoftAspNetCoreHttpAbstractionsVersion>
+  </PropertyGroup>
+  
 </Project>

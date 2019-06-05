@@ -26,7 +26,6 @@ namespace GraphQL.Server.Transports.WebSockets
             Writer = new WebSocketWriterPipeline(_socket, documentWriter);
         }
 
-
         public WebSocketCloseStatus? CloseStatus => _socket.CloseStatus;
 
         public IReaderPipeline Reader { get; }

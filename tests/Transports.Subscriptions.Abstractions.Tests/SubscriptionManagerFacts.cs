@@ -20,7 +20,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
                 {
                     Streams = new Dictionary<string, IObservable<ExecutionResult>>
                     {
-                        {"1", Substitute.For<IObservable<ExecutionResult>>()}
+                        { "1", Substitute.For<IObservable<ExecutionResult>>() }
                     }
                 });
             _sut = new SubscriptionManager(_executer, new NullLoggerFactory());
@@ -69,7 +69,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
                 {
                     Streams = new Dictionary<string, IObservable<ExecutionResult>>
                     {
-                        {"1", null}
+                        { "1", null }
                     }
                 });
 
