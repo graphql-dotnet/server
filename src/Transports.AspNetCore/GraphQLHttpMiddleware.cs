@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -77,7 +78,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                 }
             }
 
-            object userContext = null;
+            IDictionary<string, object> userContext = null;
             var userContextBuilder = context.RequestServices.GetService<IUserContextBuilder>();
 
             if (userContextBuilder != null)

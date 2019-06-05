@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using GraphQL.Server.Transports.AspNetCore;
 using GraphQL.Server.Transports.AspNetCore.Internal;
@@ -31,7 +33,7 @@ namespace GraphQL.Server
         /// <param name="creator">A delegate used to create the user context from the <see cref="HttpContext"/>.</param>
         /// <returns>The GraphQL builder.</returns>
         public static IGraphQLBuilder AddUserContextBuilder<TUserContext>(this IGraphQLBuilder builder, Func<HttpContext, TUserContext> creator)
-            where TUserContext : class
+            where TUserContext : class, IDictionary<string, object>
         {
             builder.Services.AddSingleton<IUserContextBuilder>(new UserContextBuilder<TUserContext>(creator));
 
@@ -46,7 +48,7 @@ namespace GraphQL.Server
         /// <param name="creator">A delegate used to create the user context from the <see cref="HttpContext"/>.</param>
         /// <returns>The GraphQL builder.</returns>
         public static IGraphQLBuilder AddUserContextBuilder<TUserContext>(this IGraphQLBuilder builder, Func<HttpContext, Task<TUserContext>> creator)
-            where TUserContext : class
+            where TUserContext : class, IDictionary<string, object>
         {
             builder.Services.AddSingleton<IUserContextBuilder>(new UserContextBuilder<TUserContext>(creator));
 
