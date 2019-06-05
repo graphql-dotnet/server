@@ -14,7 +14,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{0FD61587
 		appveyor.yml = appveyor.yml
 		build.cake = build.cake
 		GitVersion.yml = GitVersion.yml
-		global.json = global.json
 		nuget.config = nuget.config
 	EndProjectSection
 EndProject
