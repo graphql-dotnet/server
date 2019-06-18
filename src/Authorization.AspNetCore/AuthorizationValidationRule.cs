@@ -66,7 +66,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
                     // check target field
                     AuthorizeAsync(fieldAst, fieldDef, context, operationType).GetAwaiter().GetResult();
                     // check returned graph type
-                    AuthorizeAsync(fieldAst, fieldDef.ResolvedType, context, operationType).GetAwaiter().GetResult();
+                    AuthorizeAsync(fieldAst, fieldDef.ResolvedType.GetNamedType(), context, operationType).GetAwaiter().GetResult();
                 });
             });
         }

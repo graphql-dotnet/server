@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
 namespace GraphQL.Server.Transports.AspNetCore.Internal
 {
     public class UserContextBuilder<TUserContext> : IUserContextBuilder
+        where TUserContext : IDictionary<string, object>
     {
         private readonly Func<HttpContext, Task<TUserContext>> _func;
 
@@ -21,7 +23,7 @@ namespace GraphQL.Server.Transports.AspNetCore.Internal
             _func = x => Task.FromResult(func(x));
         }
 
-        public async Task<object> BuildUserContext(HttpContext httpContext)
+        public async Task<IDictionary<string, object>> BuildUserContext(HttpContext httpContext)
         {
             return await _func(httpContext);
         }

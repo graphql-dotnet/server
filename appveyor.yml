@@ -1,4 +1,4 @@
-image: Visual Studio 2017
+os: Visual Studio 2017
 
 version: 0.0.0-{build}
 build_script:  
@@ -10,6 +10,13 @@ artifacts:
 
 test: off
 skip_branch_with_pr: true
+
+install:
+  - ps: Install-Product node LTS
+  - ps: choco install dotnetcore-sdk --no-progress --confirm --version 2.2.104
+  - node --version
+  - npm --version
+  - dotnet --version
 
 on_failure:
   - ps: Update-AppveyorBuild -Version "$($env:appveyor_build_version)-$(Get-Date -format HHmmss)-failed"
