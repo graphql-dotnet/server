@@ -13,7 +13,5 @@ namespace GraphQL.Server
         public bool ExposeExceptions { get; set; }
 
         public bool SetFieldMiddleware { get; set; } = true;
-
-        public Type GraphQLExecuterType { get; set; } = typeof(DefaultGraphQLExecuter<>);
     }
 }
