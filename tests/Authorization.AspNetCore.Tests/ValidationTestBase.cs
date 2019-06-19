@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using GraphQL.Execution;
-using GraphQL.Http;
 using GraphQL.Types;
 using GraphQL.Validation;
 using Microsoft.AspNetCore.Authorization;
@@ -34,9 +33,6 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
     }
     public class ValidationTestBase
     {
-        private IDocumentExecuter _executor = new DocumentExecuter();
-        private IDocumentWriter _writer = new DocumentWriter(indent: true);
-
         protected HttpContext HttpContext { get; private set; }
 
         protected AuthorizationValidationRule Rule { get; private set; }
