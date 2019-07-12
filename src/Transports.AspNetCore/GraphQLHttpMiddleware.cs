@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
 using GraphQL.Http;
 using GraphQL.Server.Internal;
@@ -69,7 +70,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                         gqlRequest.Query = await ReadAsStringAsync(httpRequest.Body);
                         break;
                     case FormUrlEncodedContentType:
-                        var formCollection = await httpRequest.ReadFormAsync();
+                        var formCollection = await ReadAsFormAsync(httpRequest);
                         ExtractGraphQLRequestFromPostBody(formCollection, gqlRequest);
                         break;
                     default:
@@ -129,8 +130,13 @@ namespace GraphQL.Server.Transports.AspNetCore
 
         private static T Deserialize<T>(Stream s)
         {
-            using (var reader = new StreamReader(s))
-            using (var jsonReader = new JsonTextReader(reader))
+            if (s.CanSeek)
+            {
+                s.Seek(0, SeekOrigin.Begin);
+            }
+
+            using (var reader = new StreamReader(s, Encoding.UTF8, true, 1024, leaveOpen: true))
+            using (var jsonReader = new JsonTextReader(reader) { CloseInput = false })
             {
                 return new JsonSerializer().Deserialize<T>(jsonReader);
             }
@@ -138,10 +144,25 @@ namespace GraphQL.Server.Transports.AspNetCore
 
         private static async Task<string> ReadAsStringAsync(Stream s)
         {
-            using (var reader = new StreamReader(s))
+            if (s.CanSeek)
+            {
+                s.Seek(0, SeekOrigin.Begin);
+            }
+
+            using (var reader = new StreamReader(s, Encoding.UTF8, true, 1024, leaveOpen: true))
             {
                 return await reader.ReadToEndAsync();
             }
+        }
+
+        private static async Task<IFormCollection> ReadAsFormAsync(HttpRequest request)
+        {
+            if (request.Body.CanSeek)
+            {
+                request.Body.Seek(0, SeekOrigin.Begin);
+            }
+
+            return await request.ReadFormAsync();
         }
 
         private static void ExtractGraphQLRequestFromQueryString(IQueryCollection qs, GraphQLRequest gqlRequest)
