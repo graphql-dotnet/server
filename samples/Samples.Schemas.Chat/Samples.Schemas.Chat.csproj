@@ -7,7 +7,7 @@
   </PropertyGroup>
   
   <ItemGroup>
-      <PackageReference Include="GraphQL" Version="$(GraphQLPackageVersion)" />
+      <PackageReference Include="GraphQL" Version="$(GraphQLVersion)" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Transports.Subscriptions.Abstractions\Transports.Subscriptions.Abstractions.csproj" />

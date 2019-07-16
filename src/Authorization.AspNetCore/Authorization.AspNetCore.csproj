@@ -9,9 +9,9 @@
   </PropertyGroup>
 
   <ItemGroup Label="Package References">
-    <PackageReference Include="GraphQL" Version="$(GraphQLPackageVersion)" />
-    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="2.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.0.0" />
+    <PackageReference Include="GraphQL" Version="$(GraphQLVersion)" />
+    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="$(MicrosoftAspNetCoreAuthorizationVersion)" />
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="$(MicrosoftAspNetCoreHttpVersion)" />
   </ItemGroup>
 
   <ItemGroup Label="Project References">

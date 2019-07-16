@@ -1,9 +1,3 @@
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Http.Headers;
-using System.Threading.Tasks;
 using GraphQL.Http;
 using GraphQL.Server.Internal;
 using GraphQL.Server.Transports.AspNetCore.Common;
@@ -13,6 +7,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
+using System.IO;
+using System.Net.Http.Headers;
+using System.Threading.Tasks;
 
 namespace GraphQL.Server.Transports.AspNetCore
 {
@@ -129,8 +127,12 @@ namespace GraphQL.Server.Transports.AspNetCore
 
         private static T Deserialize<T>(Stream s)
         {
-            using (var reader = new StreamReader(s))
-            using (var jsonReader = new JsonTextReader(reader))
+            // Do not explicitly or implicitly (via using, etc.) call dispose because StreamReader will dispose inner stream.
+            // This leads to the inability to use the stream further by other consumers/middlewares of the request processing
+            // pipeline. In fact, it is absolutely not dangerous not to dispose StreamReader as it does not perform any useful
+            // work except for the disposing inner stream.
+            var reader = new StreamReader(s);
+            using (var jsonReader = new JsonTextReader(reader) { CloseInput = false })
             {
                 return new JsonSerializer().Deserialize<T>(jsonReader);
             }
@@ -138,10 +140,11 @@ namespace GraphQL.Server.Transports.AspNetCore
 
         private static async Task<string> ReadAsStringAsync(Stream s)
         {
-            using (var reader = new StreamReader(s))
-            {
-                return await reader.ReadToEndAsync();
-            }
+            // Do not explicitly or implicitly (via using, etc.) call dispose because StreamReader will dispose inner stream.
+            // This leads to the inability to use the stream further by other consumers/middlewares of the request processing
+            // pipeline. In fact, it is absolutely not dangerous not to dispose StreamReader as it does not perform any useful
+            // work except for the disposing inner stream.
+            return await new StreamReader(s).ReadToEndAsync();
         }
 
         private static void ExtractGraphQLRequestFromQueryString(IQueryCollection qs, GraphQLRequest gqlRequest)
