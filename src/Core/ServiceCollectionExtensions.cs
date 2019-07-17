@@ -53,7 +53,7 @@ namespace GraphQL.Server
             return services.AddGraphQL((provider, options) =>
             {
                 configureOptions(options);
-            }); 
+            });
         }
 
         /// <summary>

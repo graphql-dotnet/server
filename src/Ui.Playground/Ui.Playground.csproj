@@ -1,30 +1,21 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<AssemblyName>GraphQL.Server.Ui.Playground</AssemblyName>
 		<RootNamespace>GraphQL.Server.Ui.Playground</RootNamespace>
-		<Product>GraphQL for .NET</Product>
-		<Company>graphql-dotnet</Company>
-		<Authors>Pekka Heikura</Authors>
 		<Description>GraphQL playground extension</Description>
-		<PackageProjectUrl>https://github.com/graphql-dotnet/server</PackageProjectUrl>
-		<RepositoryUrl>https://github.com/graphql-dotnet/server</RepositoryUrl>
-		<RepositoryType>Git</RepositoryType>
 		<PackageTags>GraphQL Playground</PackageTags>
-		<Copyright>Pekka Heikura</Copyright>
 		<PackageId>GraphQL.Server.Ui.Playground</PackageId>
 	</PropertyGroup>
-
 
 	<ItemGroup>
 		<EmbeddedResource Include="Internal\playground.cshtml" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.0.2" />
-		<PackageReference Include="Newtonsoft.Json" Version="11.0.1" />
+		<PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="$(MicrosoftAspNetCoreHttpAbstractionsVersion)" />
+		<PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonVersion)" />
 	</ItemGroup>
 
 </Project>

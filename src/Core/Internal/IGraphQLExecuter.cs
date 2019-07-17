@@ -19,7 +19,7 @@ namespace GraphQL.Server.Internal
         /// <param name="context"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<ExecutionResult> ExecuteAsync(string operationName, string query, Inputs variables, IDictionary<string, object> context, CancellationToken cancellationToken = default(CancellationToken));
+        Task<ExecutionResult> ExecuteAsync(string operationName, string query, Inputs variables, IDictionary<string, object> context, CancellationToken cancellationToken = default);
     }
 
     public interface IGraphQLExecuter<TSchema> : IGraphQLExecuter

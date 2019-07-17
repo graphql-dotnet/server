@@ -1,8 +1,8 @@
-﻿using System;
+﻿using GraphQL.Server.Ui.Voyager.Internal;
+using Microsoft.AspNetCore.Http;
+using System;
 using System.Text;
 using System.Threading.Tasks;
-using GraphQL.Server.Ui.Voyager.Internal;
-using Microsoft.AspNetCore.Http;
 
 namespace GraphQL.Server.Ui.Voyager
 {
@@ -16,7 +16,7 @@ namespace GraphQL.Server.Ui.Voyager
         /// <summary>
         /// The Next Middleware
         /// </summary>
-        private readonly RequestDelegate nextMiddleware;
+        private readonly RequestDelegate _nextMiddleware;
 
         /// <summary>
         /// The page model used to render Voyager
@@ -30,8 +30,8 @@ namespace GraphQL.Server.Ui.Voyager
         /// <param name="settings">The Settings of the Middleware</param>
         public VoyagerMiddleware(RequestDelegate nextMiddleware, GraphQLVoyagerOptions settings)
         {
-            this.nextMiddleware = nextMiddleware ?? throw new ArgumentNullException(nameof(nextMiddleware));
-            this._settings = settings ?? throw new ArgumentNullException(nameof(settings));
+            _nextMiddleware = nextMiddleware ?? throw new ArgumentNullException(nameof(nextMiddleware));
+            _settings = settings ?? throw new ArgumentNullException(nameof(settings));
         }
 
         /// <summary>
@@ -41,19 +41,16 @@ namespace GraphQL.Server.Ui.Voyager
         /// <returns></returns>
         public Task Invoke(HttpContext httpContext)
         {
-            if (httpContext == null) { throw new ArgumentNullException(nameof(httpContext)); }
+            if (httpContext == null) throw new ArgumentNullException(nameof(httpContext));
 
-            if (IsVoyagerRequest(httpContext.Request))
-            {
-                return InvokeVoyager(httpContext.Response);
-            }
-
-            return nextMiddleware(httpContext);
+            return IsVoyagerRequest(httpContext.Request)
+                ? InvokeVoyager(httpContext.Response)
+                : _nextMiddleware(httpContext);
         }
 
         private bool IsVoyagerRequest(HttpRequest httpRequest)
         {
-            return HttpMethods.IsGet(httpRequest.Method) && httpRequest.Path.StartsWithSegments(this._settings.Path);
+            return HttpMethods.IsGet(httpRequest.Method) && httpRequest.Path.StartsWithSegments(_settings.Path);
         }
 
         private Task InvokeVoyager(HttpResponse httpResponse)

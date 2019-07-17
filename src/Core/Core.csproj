@@ -1,23 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-        <TargetFrameworks>netstandard2.0</TargetFrameworks>
-        <AssemblyName>GraphQL.Server.Core</AssemblyName>
-        <RootNamespace>GraphQL.Server</RootNamespace>
-        <VersionPrefix>0.0.0</VersionPrefix>
-        <VersionSuffix>dev</VersionSuffix>
-        <Product>graphql-dotnet server</Product>
-        <Company>graphql-dotnet</Company>
-        <Authors>Pekka Heikura</Authors>
-        <Description>GraphQL Server Core</Description>
-        <PackageProjectUrl>https://github.com/graphql-dotnet/server</PackageProjectUrl>
-        <RepositoryUrl>https://github.com/graphql-dotnet/server</RepositoryUrl>
-        <RepositoryType>Git</RepositoryType>
-        <PackageTags>GraphQL transport server</PackageTags>
-        <Copyright>Pekka Heikura</Copyright>
-    </PropertyGroup>
-    <ItemGroup>
-        <PackageReference Include="GraphQL" Version="$(GraphQLPackageVersion)" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Options" Version="2.0.1" />
-    </ItemGroup>
+  
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <AssemblyName>GraphQL.Server.Core</AssemblyName>
+    <RootNamespace>GraphQL.Server</RootNamespace>
+    <VersionPrefix>0.0.0</VersionPrefix>
+    <VersionSuffix>dev</VersionSuffix>
+    <Description>GraphQL Server Core</Description>
+    <PackageTags>GraphQL transport server</PackageTags>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="GraphQL" Version="$(GraphQLVersion)" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="$(MicrosoftExtensionsDependencyInjectionAbstractionsVersion)" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="$(MicrosoftExtensionsOptionsVersion)" />
+  </ItemGroup>
+  
 </Project>

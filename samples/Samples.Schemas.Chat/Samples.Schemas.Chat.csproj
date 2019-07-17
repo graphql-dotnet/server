@@ -5,10 +5,12 @@
     <AssemblyName>GraphQL.Samples.Schemas.Chat</AssemblyName>
     <RootNamespace>GraphQL.Samples.Schemas.Chat</RootNamespace>
   </PropertyGroup>
-    <ItemGroup>
-        <PackageReference Include="GraphQL" Version="$(GraphQLPackageVersion)" />
-    </ItemGroup>
-    <ItemGroup>
-      <ProjectReference Include="..\..\src\Transports.Subscriptions.Abstractions\Transports.Subscriptions.Abstractions.csproj" />
-    </ItemGroup>
+  
+  <ItemGroup>
+      <PackageReference Include="GraphQL" Version="$(GraphQLVersion)" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Transports.Subscriptions.Abstractions\Transports.Subscriptions.Abstractions.csproj" />
+  </ItemGroup>
+  
 </Project>

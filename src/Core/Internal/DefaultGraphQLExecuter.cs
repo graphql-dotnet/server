@@ -34,7 +34,7 @@ namespace GraphQL.Server.Internal
             _validationRules = validationRules;
         }
 
-        public virtual Task<ExecutionResult> ExecuteAsync(string operationName, string query, Inputs variables, IDictionary<string, object> context, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<ExecutionResult> ExecuteAsync(string operationName, string query, Inputs variables, IDictionary<string, object> context, CancellationToken cancellationToken = default)
         {
             var options = GetOptions(operationName, query, variables, context, cancellationToken);
             return _documentExecuter.ExecuteAsync(options);
@@ -42,7 +42,7 @@ namespace GraphQL.Server.Internal
 
         protected virtual ExecutionOptions GetOptions(string operationName, string query, Inputs variables, IDictionary<string, object> context, CancellationToken cancellationToken)
         {
-            var opts = new ExecutionOptions()
+            var opts = new ExecutionOptions
             {
                 Schema = Schema,
                 OperationName = operationName,

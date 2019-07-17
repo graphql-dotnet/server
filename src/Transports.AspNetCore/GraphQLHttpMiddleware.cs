@@ -103,9 +103,9 @@ namespace GraphQL.Server.Transports.AspNetCore
 
         private Task WriteBadRequestResponseAsync(HttpContext context, IDocumentWriter writer, string errorMessage)
         {
-            var result = new ExecutionResult()
+            var result = new ExecutionResult
             {
-                Errors = new ExecutionErrors()
+                Errors = new ExecutionErrors
                 {
                     new ExecutionError(errorMessage)
                 }

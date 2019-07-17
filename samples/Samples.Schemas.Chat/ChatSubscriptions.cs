@@ -28,7 +28,7 @@ namespace GraphQL.Samples.Schemas.Chat
             {
                 Name = "messageAddedByUser",
                 Arguments = new QueryArguments(
-                    new QueryArgument<NonNullGraphType<StringGraphType>> {Name = "id"}
+                    new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "id" }
                 ),
                 Type = typeof(MessageType),
                 Resolver = new FuncFieldResolver<Message>(ResolveMessage),

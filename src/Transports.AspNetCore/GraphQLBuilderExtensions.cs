@@ -14,7 +14,7 @@ namespace GraphQL.Server
         /// <summary>
         /// Adds an <see cref="IUserContextBuilder"/> as a singleton.
         /// </summary>
-        /// <typeparam name="TUserContext">The type of the <see cref="IUserContextBuilder"/> implementation.</typeparam>
+        /// <typeparam name="TUserContextBuilder">The type of the <see cref="IUserContextBuilder"/> implementation.</typeparam>
         /// <param name="builder">The GraphQL builder.</param>
         /// <returns>The GraphQL builder.</returns>
         public static IGraphQLBuilder AddUserContextBuilder<TUserContextBuilder>(this IGraphQLBuilder builder)
