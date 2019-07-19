@@ -20,7 +20,7 @@ namespace GraphQL.Samples.Server
             try
             {
                 Log.Information("Starting web host");
-                BuildWebHost(args).Run();
+                CreateWebHostBuilder(args).Build().Run();
                 return 0;
             }
             catch (Exception ex)
@@ -34,12 +34,10 @@ namespace GraphQL.Samples.Server
             }
         }
 
-        public static IWebHost BuildWebHost(string[] args)
+        public static IWebHostBuilder CreateWebHostBuilder(string[] args)
         {
-            return WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>()
-                .UseSerilog()
-                .Build();
+            return WebHost.CreateDefaultBuilder<Startup>(args)
+                .UseSerilog();
         }
     }
 }

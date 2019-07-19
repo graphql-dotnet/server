@@ -43,6 +43,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             // Handle requests as per recommendation at http://graphql.org/learn/serving-over-http/
             var httpRequest = context.Request;
             var gqlRequest = new GraphQLRequest();
+            GraphQLRequest[] gqlBatchRequest = null;
 
             var writer = context.RequestServices.GetRequiredService<IDocumentWriter>();
 
@@ -61,7 +62,11 @@ namespace GraphQL.Server.Transports.AspNetCore
                 switch (mediaTypeHeader.MediaType)
                 {
                     case JsonContentType:
-                        gqlRequest = Deserialize<GraphQLRequest>(httpRequest.Body);
+                        // batching is supported only for POST and application/json
+                        if (IsBatchRequest(httpRequest))
+                            gqlBatchRequest = Deserialize<GraphQLRequest[]>(httpRequest.Body);
+                        else
+                            gqlRequest = Deserialize<GraphQLRequest>(httpRequest.Body);
                         break;
                     case GraphQLContentType:
                         gqlRequest.Query = await ReadAsStringAsync(httpRequest.Body);
@@ -86,19 +91,48 @@ namespace GraphQL.Server.Transports.AspNetCore
 
             var executer = context.RequestServices.GetRequiredService<IGraphQLExecuter<TSchema>>();
 
-            var result = await executer.ExecuteAsync(
-                gqlRequest.OperationName,
-                gqlRequest.Query,
-                gqlRequest.GetInputs(),
-                userContext,
-                context.RequestAborted);
-
-            if (result.Errors != null)
+            // normal execution
+            if (gqlBatchRequest == null)
             {
-                _logger.LogError("GraphQL execution error(s): {Errors}", result.Errors);
-            }
+                var result = await executer.ExecuteAsync(
+                    gqlRequest.OperationName,
+                    gqlRequest.Query,
+                    gqlRequest.GetInputs(),
+                    userContext,
+                    context.RequestAborted);
 
-            await WriteResponseAsync(context, writer, result);
+                if (result.Errors != null)
+                {
+                    _logger.LogError("GraphQL execution error(s): {Errors}", result.Errors);
+                }
+
+                await WriteResponseAsync(context, writer, result);
+            }
+            // execute multiple graphql requests in one batch
+            else
+            {
+                var executionResults = new ExecutionResult[gqlBatchRequest.Length];
+                for (int i = 0; i < gqlBatchRequest.Length; ++i)
+                {
+                    var request = gqlBatchRequest[i];
+
+                    var result = await executer.ExecuteAsync(
+                        request.OperationName,
+                        request.Query,
+                        request.GetInputs(),
+                        userContext,
+                        context.RequestAborted);
+
+                    if (result.Errors != null)
+                    {
+                        _logger.LogError("GraphQL execution error(s) in batch [{Index}]: {Errors}", i, result.Errors);
+                    }
+
+                    executionResults[i] = result;
+                }
+
+                await WriteResponseAsync(context, writer, executionResults);
+            }
         }
 
         private Task WriteBadRequestResponseAsync(HttpContext context, IDocumentWriter writer, string errorMessage)
@@ -117,7 +151,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             return writer.WriteAsync(context.Response.Body, result);
         }
 
-        private Task WriteResponseAsync(HttpContext context, IDocumentWriter writer, ExecutionResult result)
+        private Task WriteResponseAsync<TResult>(HttpContext context, IDocumentWriter writer, TResult result)
         {
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = 200; // OK
@@ -159,6 +193,14 @@ namespace GraphQL.Server.Transports.AspNetCore
             gqlRequest.Query = fc.TryGetValue(GraphQLRequest.QueryKey, out var queryValues) ? queryValues[0] : null;
             gqlRequest.Variables = fc.TryGetValue(GraphQLRequest.VariablesKey, out var variablesValue) ? JObject.Parse(variablesValue[0]) : null;
             gqlRequest.OperationName = fc.TryGetValue(GraphQLRequest.OperationNameKey, out var operationNameValues) ? operationNameValues[0] : null;
+        }
+
+        private static bool IsBatchRequest(HttpRequest request)
+        {
+            // Generally speaking it would be possible to determine a batch query by the presence of an opening square bracket at the beginning
+            // of the request body, but this is fraught with errors and possible problems associated with buffering the request stream. It is
+            // better to explicitly check the presence of the special header - it is safer and easier.
+            return request.Headers["graphql-batch"] == "true";
         }
     }
 }
