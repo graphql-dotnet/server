@@ -83,6 +83,8 @@ namespace GraphQL.Server.Transports.AspNetCore
             {
                 userContext = await userContextBuilder.BuildUserContext(context);
             }
+            else
+                userContext = new Dictionary<string, object>(); // in order to allow resolvers to exchange their state through this object
 
             var executer = context.RequestServices.GetRequiredService<IGraphQLExecuter<TSchema>>();
 
