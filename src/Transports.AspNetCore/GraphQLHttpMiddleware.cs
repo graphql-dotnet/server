@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http.Headers;
@@ -24,6 +25,18 @@ namespace GraphQL.Server.Transports.AspNetCore
         private readonly ILogger _logger;
         private readonly RequestDelegate _next;
         private readonly PathString _path;
+        private readonly JsonSerializer _serializer;
+
+        public GraphQLHttpMiddleware(ILogger<GraphQLHttpMiddleware<TSchema>> logger, RequestDelegate next, PathString path, Action<JsonSerializerSettings> configure)
+        {
+            _logger = logger;
+            _next = next;
+            _path = path;
+
+            var settings = new JsonSerializerSettings();
+            configure(settings);
+            _serializer = JsonSerializer.Create(settings); // it's thread safe https://stackoverflow.com/questions/36186276/is-the-json-net-jsonserializer-threadsafe
+        }
 
         public GraphQLHttpMiddleware(ILogger<GraphQLHttpMiddleware<TSchema>> logger, RequestDelegate next, PathString path)
         {
@@ -62,19 +75,22 @@ namespace GraphQL.Server.Transports.AspNetCore
                 switch (mediaTypeHeader.MediaType)
                 {
                     case JsonContentType:
-                        // batching is supported only for POST and application/json
-                        if (IsBatchRequest(httpRequest))
-                            gqlBatchRequest = Deserialize<GraphQLRequest[]>(httpRequest.Body);
-                        else
-                            gqlRequest = Deserialize<GraphQLRequest>(httpRequest.Body);
+                        if (!Deserialize(httpRequest.Body, out gqlRequest, out gqlBatchRequest))
+                        {
+                            await WriteBadRequestResponseAsync(context, writer, "Body text could not be parsed. Body text should start with '{' for normal graphql query or with '[' for batched query.");
+                            return;
+                        }
                         break;
+
                     case GraphQLContentType:
                         gqlRequest.Query = await ReadAsStringAsync(httpRequest.Body);
                         break;
+
                     case FormUrlEncodedContentType:
                         var formCollection = await httpRequest.ReadFormAsync();
                         ExtractGraphQLRequestFromPostBody(formCollection, gqlRequest);
                         break;
+
                     default:
                         await WriteBadRequestResponseAsync(context, writer, $"Invalid 'Content-Type' header: non-supported media type. Must be of '{JsonContentType}', '{GraphQLContentType}', or '{FormUrlEncodedContentType}'. See: http://graphql.org/learn/serving-over-http/.");
                         return;
@@ -91,7 +107,7 @@ namespace GraphQL.Server.Transports.AspNetCore
 
             var executer = context.RequestServices.GetRequiredService<IGraphQLExecuter<TSchema>>();
 
-            // normal execution
+            // normal execution with single graphql request
             if (gqlBatchRequest == null)
             {
                 var result = await executer.ExecuteAsync(
@@ -159,16 +175,31 @@ namespace GraphQL.Server.Transports.AspNetCore
             return writer.WriteAsync(context.Response.Body, result);
         }
 
-        private static T Deserialize<T>(Stream s)
+        private bool Deserialize(Stream stream, out GraphQLRequest single, out GraphQLRequest[] batch)
         {
+            single = null;
+            batch = null;
+
             // Do not explicitly or implicitly (via using, etc.) call dispose because StreamReader will dispose inner stream.
             // This leads to the inability to use the stream further by other consumers/middlewares of the request processing
             // pipeline. In fact, it is absolutely not dangerous not to dispose StreamReader as it does not perform any useful
             // work except for the disposing inner stream.
-            var reader = new StreamReader(s);
+            var reader = new StreamReader(stream);
             using (var jsonReader = new JsonTextReader(reader) { CloseInput = false })
             {
-                return new JsonSerializer().Deserialize<T>(jsonReader);
+                switch (reader.Peek())
+                {
+                    case '{':
+                        single = _serializer.Deserialize<GraphQLRequest>(jsonReader);
+                        return true;
+
+                    case '[':
+                        batch = _serializer.Deserialize<GraphQLRequest[]>(jsonReader);
+                        return true;
+
+                    default:
+                        return false; // fast return with BadRequest without reading request stream
+                }
             }
         }
 
@@ -193,14 +224,6 @@ namespace GraphQL.Server.Transports.AspNetCore
             gqlRequest.Query = fc.TryGetValue(GraphQLRequest.QueryKey, out var queryValues) ? queryValues[0] : null;
             gqlRequest.Variables = fc.TryGetValue(GraphQLRequest.VariablesKey, out var variablesValue) ? JObject.Parse(variablesValue[0]) : null;
             gqlRequest.OperationName = fc.TryGetValue(GraphQLRequest.OperationNameKey, out var operationNameValues) ? operationNameValues[0] : null;
-        }
-
-        private static bool IsBatchRequest(HttpRequest request)
-        {
-            // Generally speaking it would be possible to determine a batch query by the presence of an opening square bracket at the beginning
-            // of the request body, but this is fraught with errors and possible problems associated with buffering the request stream. It is
-            // better to explicitly check the presence of the special header - it is safer and easier.
-            return request.Headers["graphql-batch"] == "true";
         }
     }
 }

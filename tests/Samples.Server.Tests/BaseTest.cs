@@ -15,8 +15,12 @@ namespace Samples.Server.Tests
         {
             Server = new TestServer(Program.CreateWebHostBuilder(Array.Empty<string>()));
             Client = Server.CreateClient();
-            BatchClient = Server.CreateClient();
-            BatchClient.DefaultRequestHeaders.Add("graphql-batch", "true");
+        }
+
+        protected async Task<string> SendRequestAsync(string text)
+        {
+            var response = await Client.PostAsync("graphql", new StringContent(text, Encoding.UTF8, "application/json"));
+            return await response.Content.ReadAsStringAsync();
         }
 
         protected async Task<string> SendRequestAsync(GraphQLRequest request)
@@ -27,21 +31,18 @@ namespace Samples.Server.Tests
 
         protected async Task<string> SendBatchRequestAsync(params GraphQLRequest[] requests)
         {
-            var response = await BatchClient.PostAsync("graphql", new StringContent(JsonConvert.SerializeObject(requests), Encoding.UTF8, "application/json"));
+            var response = await Client.PostAsync("graphql", new StringContent(JsonConvert.SerializeObject(requests), Encoding.UTF8, "application/json"));
             return await response.Content.ReadAsStringAsync();
         }
 
         public virtual void Dispose()
         {
             Client.Dispose();
-            BatchClient.Dispose();
             Server.Dispose();
         }
 
         protected TestServer Server { get; }
 
         protected HttpClient Client { get; }
-
-        protected HttpClient BatchClient { get; } 
     }
 }
