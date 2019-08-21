@@ -47,7 +47,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             if (payload == null) throw new ArgumentNullException(nameof(payload));
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            var subscription = await ExecuteAsync(id, payload, context);
+            var subscription = await ExecuteAsync(id, payload, context).ConfigureAwait(false);
 
             if (subscription == null)
                 return;
@@ -84,7 +84,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
                 payload.OperationName,
                 payload.Query,
                 payload.Variables?.ToInputs(),
-                context);
+                context).ConfigureAwait(false);
 
             if (result.Errors != null && result.Errors.Any())
             {
@@ -94,7 +94,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
                     Type = MessageType.GQL_ERROR,
                     Id = id,
                     Payload = result
-                });
+                }).ConfigureAwait(false);
 
                 return null;
             }
@@ -111,7 +111,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
                             Type = MessageType.GQL_ERROR,
                             Id = id,
                             Payload = result
-                        });
+                        }).ConfigureAwait(false);
 
                         return null;
                     }
@@ -132,13 +132,13 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
                 Type = MessageType.GQL_DATA,
                 Id = id,
                 Payload = result
-            });
+            }).ConfigureAwait(false);
 
             await writer.SendAsync(new OperationMessage
             {
                 Type = MessageType.GQL_COMPLETE,
                 Id = id
-            });
+            }).ConfigureAwait(false);
 
             return null;
         }
