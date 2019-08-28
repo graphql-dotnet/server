@@ -67,6 +67,11 @@ namespace GraphQL.Server.Internal
                 SetFieldMiddleware = _options.SetFieldMiddleware
             };
 
+            if (opts.EnableMetrics)
+            {
+                opts.FieldMiddleware.Use<InstrumentFieldsMiddleware>();
+            }
+
             foreach (var listener in _listeners)
             {
                 opts.Listeners.Add(listener);
