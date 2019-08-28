@@ -33,7 +33,7 @@ namespace GraphQL.Server.Transports.WebSockets
                 if (!context.WebSockets.IsWebSocketRequest || !context.Request.Path.StartsWithSegments(_path))
                 {
                     _logger.LogDebug("Request is not a valid websocket request");
-                    await _next(context);
+                    await _next(context).ConfigureAwait(false);
 
                     return;
                 }
@@ -62,7 +62,7 @@ namespace GraphQL.Server.Transports.WebSockets
                     var connectionFactory = context.RequestServices.GetRequiredService<IWebSocketConnectionFactory<TSchema>>();
                     var connection = connectionFactory.CreateConnection(socket, context.Connection.Id);
 
-                    await connection.Connect();
+                    await connection.Connect().ConfigureAwait(false);
                 }
             }
         }
