@@ -27,7 +27,7 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
             _rules.AddRange(rules);
         }
     }
-    public class GraphQLUserContext
+    public class GraphQLUserContext : Dictionary<string, object>
     {
         public ClaimsPrincipal User { get; set; }
     }
