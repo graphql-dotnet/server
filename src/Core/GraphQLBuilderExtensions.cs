@@ -88,6 +88,7 @@ namespace GraphQL.Server
                 .AddSingleton(typeof(ConnectionType<>))
                 .AddSingleton(typeof(EdgeType<>))
                 .AddSingleton<PageInfoType>();
+
             return builder;
         }
     }

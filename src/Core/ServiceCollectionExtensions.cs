@@ -11,7 +11,7 @@ namespace GraphQL.Server
     public static class ServiceCollectionExtensions
     {
         /// <summary>
-        /// Add required services for GraphQL
+        /// Add required services for GraphQL.
         /// </summary>
         /// <param name="services"></param>
         /// <param name="options"></param>
@@ -22,7 +22,7 @@ namespace GraphQL.Server
         }
 
         /// <summary>
-        /// Add required services for GraphQL
+        /// Add required services for GraphQL.
         /// </summary>
         /// <param name="services"></param>
         /// <param name="options"></param>
@@ -46,7 +46,7 @@ namespace GraphQL.Server
         /// Add required services for GraphQL.
         /// </summary>
         /// <param name="services"></param>
-        /// <param name="configureOptions"></param>
+        /// <param name="configureOptions">An action delegate to configure the provided <see cref="GraphQLOptions"/>.</param>
         /// <returns></returns>
         public static IGraphQLBuilder AddGraphQL(this IServiceCollection services, Action<GraphQLOptions> configureOptions)
         {
@@ -57,10 +57,10 @@ namespace GraphQL.Server
         }
 
         /// <summary>
-        /// Add required services for GraphQL
+        /// Add required services for GraphQL.
         /// </summary>
         /// <param name="services"></param>
-        /// <param name="configureOptions"></param>
+        /// <param name="configureOptions">An action delegate to configure the provided <see cref="GraphQLOptions"/>.</param>
         /// <returns></returns>
         public static IGraphQLBuilder AddGraphQL(this IServiceCollection services, Action<IServiceProvider, GraphQLOptions> configureOptions)
         {
@@ -76,7 +76,7 @@ namespace GraphQL.Server
         }
 
         /// <summary>
-        /// Add required services for GraphQL
+        /// Add required services for GraphQL.
         /// </summary>
         /// <param name="services"></param>
         /// <returns></returns>

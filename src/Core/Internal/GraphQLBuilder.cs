@@ -2,7 +2,7 @@
 
 namespace GraphQL.Server.Internal
 {
-    public class GraphQLBuilder : IGraphQLBuilder
+    internal sealed class GraphQLBuilder : IGraphQLBuilder
     {
         public IServiceCollection Services { get; }
 
