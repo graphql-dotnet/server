@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using GraphQL.Conversion;
 using GraphQL.Execution;
 using GraphQL.Types;
 using GraphQL.Validation;
@@ -53,7 +54,8 @@ namespace GraphQL.Server.Internal
                 ComplexityConfiguration = _options.ComplexityConfiguration,
                 EnableMetrics = _options.EnableMetrics,
                 ExposeExceptions = _options.ExposeExceptions,
-                SetFieldMiddleware = _options.SetFieldMiddleware
+                SetFieldMiddleware = _options.SetFieldMiddleware,
+                FieldNameConverter = _options.FieldNameConverter ?? new CamelCaseFieldNameConverter(),
             };
 
             foreach (var listener in _listeners)

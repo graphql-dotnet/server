@@ -1,3 +1,4 @@
+using GraphQL.Conversion;
 using GraphQL.Validation.Complexity;
 
 namespace GraphQL.Server
@@ -11,5 +12,7 @@ namespace GraphQL.Server
         public bool ExposeExceptions { get; set; }
 
         public bool SetFieldMiddleware { get; set; } = true;
+
+        public IFieldNameConverter FieldNameConverter { get; set; }
     }
 }
