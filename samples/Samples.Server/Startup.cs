@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Collections.Generic;
 
 namespace GraphQL.Samples.Server
@@ -37,6 +38,7 @@ namespace GraphQL.Samples.Server
             {
                 options.EnableMetrics = true;
                 options.ExposeExceptions = Environment.IsDevelopment();
+                options.UnhandledExceptionDelegate = (ctx, ex) => { Console.WriteLine("error: " + ex.Message); return ex; };
             })
             .AddWebSockets()
             .AddDataLoader();

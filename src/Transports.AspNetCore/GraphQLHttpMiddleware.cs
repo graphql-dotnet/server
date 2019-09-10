@@ -38,13 +38,6 @@ namespace GraphQL.Server.Transports.AspNetCore
             _serializer = JsonSerializer.Create(settings); // it's thread safe https://stackoverflow.com/questions/36186276/is-the-json-net-jsonserializer-threadsafe
         }
 
-        public GraphQLHttpMiddleware(ILogger<GraphQLHttpMiddleware<TSchema>> logger, RequestDelegate next, PathString path)
-        {
-            _logger = logger;
-            _next = next;
-            _path = path;
-        }
-
         public async Task InvokeAsync(HttpContext context)
         {
             if (context.WebSockets.IsWebSocketRequest || !context.Request.Path.StartsWithSegments(_path))
@@ -211,7 +204,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             // This leads to the inability to use the stream further by other consumers/middlewares of the request processing
             // pipeline. In fact, it is absolutely not dangerous not to dispose StreamReader as it does not perform any useful
             // work except for the disposing inner stream.
-            return await new StreamReader(s).ReadToEndAsync().ConfigureAwait(false); ;
+            return await new StreamReader(s).ReadToEndAsync().ConfigureAwait(false);
         }
 
         private static void ExtractGraphQLRequestFromQueryString(IQueryCollection qs, GraphQLRequest gqlRequest)
