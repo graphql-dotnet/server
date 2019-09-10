@@ -91,7 +91,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
             var tasks = new List<Task<AuthorizationResult>>(policyNames.Count);
             foreach (var policyName in policyNames)
             {
-                var task = _authorizationService.AuthorizeAsync(this._httpContextAccessor.HttpContext.User, policyName);
+                var task = _authorizationService.AuthorizeAsync(_httpContextAccessor.HttpContext.User, policyName);
                 tasks.Add(task);
             }
             await Task.WhenAll(tasks).ConfigureAwait(false);
@@ -136,19 +136,23 @@ namespace GraphQL.Server.Authorization.AspNetCore
                         stringBuilder.AppendLine("' is not present.");
                     }
                     break;
+
                 case DenyAnonymousAuthorizationRequirement denyAnonymousAuthorizationRequirement:
                     stringBuilder.AppendLine("The current user must be authenticated.");
                     break;
+
                 case NameAuthorizationRequirement nameAuthorizationRequirement:
                     stringBuilder.Append("The current user name must match the name '");
                     stringBuilder.Append(nameAuthorizationRequirement.RequiredName);
                     stringBuilder.AppendLine("'.");
                     break;
+
                 case OperationAuthorizationRequirement operationAuthorizationRequirement:
                     stringBuilder.Append("Required operation '");
                     stringBuilder.Append(operationAuthorizationRequirement.Name);
                     stringBuilder.AppendLine("' was not present.");
                     break;
+
                 case RolesAuthorizationRequirement rolesAuthorizationRequirement:
                     if (rolesAuthorizationRequirement.AllowedRoles == null || !rolesAuthorizationRequirement.AllowedRoles.Any())
                     {
@@ -162,6 +166,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
                         stringBuilder.AppendLine("' are not present.");
                     }
                     break;
+
                 default:
                     stringBuilder.Append("Requirement '");
                     stringBuilder.Append(authorizationRequirement.GetType().Name);

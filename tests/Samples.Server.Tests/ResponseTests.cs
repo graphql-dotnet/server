@@ -11,7 +11,7 @@ namespace Samples.Server.Tests
         public async Task Single_Query_Should_Return_Single_Result()
         {
             var response = await SendRequestAsync(new GraphQLRequest { Query = "{ __schema { queryType { name } } }" });
-            response.ShouldBe(@"{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}}");
+            response.ShouldBe(@"{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}}", ignoreExtensions: true);
         }
 
         [Fact]
@@ -22,7 +22,7 @@ namespace Samples.Server.Tests
                 new GraphQLRequest { Query = "query two { __schema { queryType { name } } }", OperationName = "two" },
                 new GraphQLRequest { Query = "query three { __schema { queryType { name } } }", OperationName = "three" }
                 );
-            response.ShouldBe(@"[{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}},{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}},{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}}]");
+            response.ShouldBe(@"[{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}},{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}},{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}}]", ignoreExtensions: true);
         }
 
         [Fact]

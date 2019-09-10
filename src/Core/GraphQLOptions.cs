@@ -7,6 +7,9 @@ namespace GraphQL.Server
     {
         public ComplexityConfiguration ComplexityConfiguration { get; set; }
 
+        /// <summary>
+        /// This setting essentially allows Apollo Tracing.
+        /// </summary>
         public bool EnableMetrics { get; set; } = true;
 
         public bool ExposeExceptions { get; set; }

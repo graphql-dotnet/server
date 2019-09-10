@@ -1,10 +1,8 @@
-﻿using System;
-using GraphQL.Server.Authorization.AspNetCore;
+﻿using GraphQL.Server.Authorization.AspNetCore;
 using GraphQL.Validation;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
+using System;
 
 namespace GraphQL.Server
 {
@@ -14,14 +12,14 @@ namespace GraphQL.Server
         /// Adds the GraphQL authorization.
         /// </summary>
         /// <param name="builder">The GraphQL builder.</param>
-        /// <returns></returns>
+        /// <returns>Reference to the passed <paramref name="builder"/>.</returns>
         public static IGraphQLBuilder AddGraphQLAuthorization(this IGraphQLBuilder builder)
         {
-            builder.Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            builder
-                .Services
+            builder.Services
+                .AddHttpContextAccessor()
                 .AddTransient<IValidationRule, AuthorizationValidationRule>()
                 .AddAuthorization();
+
             return builder;
         }
 
@@ -30,14 +28,14 @@ namespace GraphQL.Server
         /// </summary>
         /// <param name="builder">The GraphQL builder.</param>
         /// <param name="options">An action delegate to configure the provided <see cref="AuthorizationOptions"/>.</param>
-        /// <returns>The GraphQL builder.</returns>
+        /// <returns>Reference to the passed <paramref name="builder"/>.</returns>
         public static IGraphQLBuilder AddGraphQLAuthorization(this IGraphQLBuilder builder, Action<AuthorizationOptions> options)
         {
-            builder.Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            builder
-                .Services
+            builder.Services
+                .AddHttpContextAccessor()
                 .AddTransient<IValidationRule, AuthorizationValidationRule>()
                 .AddAuthorization(options);
+
             return builder;
         }
     }

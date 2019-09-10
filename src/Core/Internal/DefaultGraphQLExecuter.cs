@@ -1,12 +1,14 @@
+using GraphQL.Conversion;
+using GraphQL.Execution;
+using GraphQL.Instrumentation;
+using GraphQL.Types;
+using GraphQL.Validation;
+using Microsoft.Extensions.Options;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using GraphQL.Conversion;
-using GraphQL.Execution;
-using GraphQL.Types;
-using GraphQL.Validation;
-using Microsoft.Extensions.Options;
 
 namespace GraphQL.Server.Internal
 {
@@ -35,10 +37,19 @@ namespace GraphQL.Server.Internal
             _validationRules = validationRules;
         }
 
-        public virtual Task<ExecutionResult> ExecuteAsync(string operationName, string query, Inputs variables, IDictionary<string, object> context, CancellationToken cancellationToken = default)
+        public virtual async Task<ExecutionResult> ExecuteAsync(string operationName, string query, Inputs variables, IDictionary<string, object> context, CancellationToken cancellationToken = default)
         {
+            var start = DateTime.UtcNow;
+
             var options = GetOptions(operationName, query, variables, context, cancellationToken);
-            return _documentExecuter.ExecuteAsync(options);
+            var result = await _documentExecuter.ExecuteAsync(options);
+
+            if (options.EnableMetrics)
+            {
+                result.EnrichWithApolloTracing(start);
+            }
+
+            return result;
         }
 
         protected virtual ExecutionOptions GetOptions(string operationName, string query, Inputs variables, IDictionary<string, object> context, CancellationToken cancellationToken)
@@ -56,6 +67,11 @@ namespace GraphQL.Server.Internal
                 ExposeExceptions = _options.ExposeExceptions,
                 FieldNameConverter = _options.FieldNameConverter ?? CamelCaseFieldNameConverter.Instance,
             };
+
+            if (opts.EnableMetrics)
+            {
+                opts.FieldMiddleware.Use<InstrumentFieldsMiddleware>();
+            }
 
             foreach (var listener in _listeners)
             {
