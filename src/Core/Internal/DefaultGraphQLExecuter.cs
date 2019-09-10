@@ -1,3 +1,4 @@
+using GraphQL.Conversion;
 using GraphQL.Execution;
 using GraphQL.Instrumentation;
 using GraphQL.Types;
@@ -64,7 +65,7 @@ namespace GraphQL.Server.Internal
                 ComplexityConfiguration = _options.ComplexityConfiguration,
                 EnableMetrics = _options.EnableMetrics,
                 ExposeExceptions = _options.ExposeExceptions,
-                SetFieldMiddleware = _options.SetFieldMiddleware
+                FieldNameConverter = _options.FieldNameConverter ?? CamelCaseFieldNameConverter.Instance,
             };
 
             if (opts.EnableMetrics)

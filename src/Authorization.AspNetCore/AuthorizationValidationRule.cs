@@ -94,7 +94,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
                 var task = _authorizationService.AuthorizeAsync(_httpContextAccessor.HttpContext.User, policyName);
                 tasks.Add(task);
             }
-            await Task.WhenAll(tasks);
+            await Task.WhenAll(tasks).ConfigureAwait(false);
 
             foreach (var task in tasks)
             {

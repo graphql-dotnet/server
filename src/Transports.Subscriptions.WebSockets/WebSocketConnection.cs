@@ -18,9 +18,9 @@ namespace GraphQL.Server.Transports.WebSockets
 
         public async Task Connect()
         {
-            await _server.OnConnect();
-            await _server.OnDisconnect();
-            await _transport.CloseAsync();
+            await _server.OnConnect().ConfigureAwait(false);
+            await _server.OnDisconnect().ConfigureAwait(false);
+            await _transport.CloseAsync().ConfigureAwait(false);
         }
     }
 }
