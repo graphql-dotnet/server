@@ -54,8 +54,7 @@ namespace GraphQL.Server.Internal
                 ComplexityConfiguration = _options.ComplexityConfiguration,
                 EnableMetrics = _options.EnableMetrics,
                 ExposeExceptions = _options.ExposeExceptions,
-                SetFieldMiddleware = _options.SetFieldMiddleware,
-                FieldNameConverter = _options.FieldNameConverter ?? new CamelCaseFieldNameConverter(),
+                FieldNameConverter = _options.FieldNameConverter ?? CamelCaseFieldNameConverter.Instance,
             };
 
             foreach (var listener in _listeners)
