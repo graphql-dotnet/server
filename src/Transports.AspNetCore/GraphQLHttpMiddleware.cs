@@ -4,7 +4,6 @@ using GraphQL.Server.Transports.AspNetCore.Common;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -22,14 +21,12 @@ namespace GraphQL.Server.Transports.AspNetCore
         private const string GraphQLContentType = "application/graphql";
         private const string FormUrlEncodedContentType = "application/x-www-form-urlencoded";
 
-        private readonly ILogger _logger;
         private readonly RequestDelegate _next;
         private readonly PathString _path;
         private readonly JsonSerializer _serializer;
 
-        public GraphQLHttpMiddleware(ILogger<GraphQLHttpMiddleware<TSchema>> logger, RequestDelegate next, PathString path, Action<JsonSerializerSettings> configure)
+        public GraphQLHttpMiddleware(RequestDelegate next, PathString path, Action<JsonSerializerSettings> configure)
         {
-            _logger = logger;
             _next = next;
             _path = path;
 
@@ -112,10 +109,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                     userContext,
                     context.RequestAborted).ConfigureAwait(false);
 
-                if (result.Errors != null)
-                {
-                    _logger.LogError("GraphQL execution error(s): {Errors}", result.Errors);
-                }
+                await RequestExecutedAsync(gqlRequest, -1, result);
 
                 await WriteResponseAsync(context, writer, result).ConfigureAwait(false);
             }
@@ -134,16 +128,19 @@ namespace GraphQL.Server.Transports.AspNetCore
                         userContext,
                         context.RequestAborted).ConfigureAwait(false);
 
-                    if (result.Errors != null)
-                    {
-                        _logger.LogError("GraphQL execution error(s) in batch [{Index}]: {Errors}", i, result.Errors);
-                    }
+                    await RequestExecutedAsync(gqlRequest, i, result);
 
                     executionResults[i] = result;
                 }
 
                 await WriteResponseAsync(context, writer, executionResults).ConfigureAwait(false);
             }
+        }
+
+        protected virtual Task RequestExecutedAsync(GraphQLRequest request, int indexInBatch, ExecutionResult result)
+        {
+            // nothing to do in this middleware
+            return Task.CompletedTask;
         }
 
         private Task WriteBadRequestResponseAsync(HttpContext context, IDocumentWriter writer, string errorMessage)
