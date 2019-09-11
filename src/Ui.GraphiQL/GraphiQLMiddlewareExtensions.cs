@@ -3,19 +3,17 @@ using GraphQL.Server.Ui.GraphiQL;
 namespace Microsoft.AspNetCore.Builder
 {
     /// <summary>
-    /// Extension methods for <see cref="GraphiQLMiddleware"/>
+    /// Extension methods for <see cref="IApplicationBuilder"/>
     /// </summary>
     public static class GraphiQLMiddlewareExtensions
     {
-        /// <summary>
-        /// Enables a GraphiQLServer using the specified settings
-        /// </summary>
+        /// <summary> Adds middleware for GraphiQL using the specified options. </summary>
         /// <param name="applicationBuilder"> <see cref="IApplicationBuilder"/> to configure an application's request pipeline. </param>
-        /// <param name="settings">Options to customize <see cref="GraphiQLMiddleware"/>.</param>
-        /// <returns></returns>
-        public static IApplicationBuilder UseGraphiQLServer(this IApplicationBuilder applicationBuilder, GraphiQLOptions settings = null)
+        /// <param name="options"> Options to customize <see cref="GraphiQLMiddleware"/>. If not set, then the default values will be used. </param>
+        /// <returns> The reference to provided <paramref name="app"/> instance. </returns>
+        public static IApplicationBuilder UseGraphiQLServer(this IApplicationBuilder applicationBuilder, GraphiQLOptions options = null)
         {
-            return applicationBuilder.UseMiddleware<GraphiQLMiddleware>(settings ?? new GraphiQLOptions());
+            return applicationBuilder.UseMiddleware<GraphiQLMiddleware>(options ?? new GraphiQLOptions());
         }
     }
 }

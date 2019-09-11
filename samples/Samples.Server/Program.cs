@@ -1,8 +1,8 @@
-using System;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Serilog;
 using Serilog.Events;
+using System;
 
 namespace GraphQL.Samples.Server
 {
