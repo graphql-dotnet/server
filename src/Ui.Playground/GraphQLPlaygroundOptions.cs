@@ -9,7 +9,7 @@ namespace GraphQL.Server.Ui.Playground
     public class GraphQLPlaygroundOptions
     {
         /// <summary>
-        /// The Playground EndPoint
+        /// The Playground EndPoint to listen
         /// </summary>
         public PathString Path { get; set; } = "/ui/playground";
 

@@ -11,10 +11,10 @@ namespace GraphQL.Server.Ui.Playground
     /// </summary>
     public class PlaygroundMiddleware
     {
-        private readonly GraphQLPlaygroundOptions _settings;
+        private readonly GraphQLPlaygroundOptions _options;
 
         /// <summary>
-        /// The Next Middleware
+        /// The next middleware
         /// </summary>
         private readonly RequestDelegate _nextMiddleware;
 
@@ -24,14 +24,14 @@ namespace GraphQL.Server.Ui.Playground
         private PlaygroundPageModel _pageModel;
 
         /// <summary>
-        /// Create a new PlaygroundMiddleware
+        /// Create a new <see cref="PlaygroundMiddleware"/>
         /// </summary>
-        /// <param name="nextMiddleware">The Next Middleware</param>
-        /// <param name="settings">The Settings of the Middleware</param>
-        public PlaygroundMiddleware(RequestDelegate nextMiddleware, GraphQLPlaygroundOptions settings)
+        /// <param name="nextMiddleware">The next middleware</param>
+        /// <param name="options">Options to customize middleware</param>
+        public PlaygroundMiddleware(RequestDelegate nextMiddleware, GraphQLPlaygroundOptions options)
         {
             _nextMiddleware = nextMiddleware ?? throw new ArgumentNullException(nameof(nextMiddleware));
-            _settings = settings ?? throw new ArgumentNullException(nameof(settings));
+            _options = options ?? throw new ArgumentNullException(nameof(options));
         }
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace GraphQL.Server.Ui.Playground
 
         private bool IsPlaygroundRequest(HttpRequest httpRequest)
         {
-            return HttpMethods.IsGet(httpRequest.Method) && httpRequest.Path.StartsWithSegments(_settings.Path);
+            return HttpMethods.IsGet(httpRequest.Method) && httpRequest.Path.StartsWithSegments(_options.Path);
         }
 
         private Task InvokePlayground(HttpResponse httpResponse)
@@ -59,7 +59,7 @@ namespace GraphQL.Server.Ui.Playground
 
             // Initialize page model if null
             if (_pageModel == null)
-                _pageModel = new PlaygroundPageModel(_settings);
+                _pageModel = new PlaygroundPageModel(_options);
 
             var data = Encoding.UTF8.GetBytes(_pageModel.Render());
             return httpResponse.Body.WriteAsync(data, 0, data.Length);

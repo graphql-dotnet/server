@@ -8,7 +8,7 @@ namespace GraphQL.Server.Ui.Voyager
     public class GraphQLVoyagerOptions
     {
         /// <summary>
-        /// The Voyager EndPoint
+        /// The Voyager EndPoint to listen
         /// </summary>
         public PathString Path { get; set; } = "/ui/voyager";
 

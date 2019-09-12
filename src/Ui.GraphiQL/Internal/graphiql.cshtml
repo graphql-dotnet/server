@@ -1,4 +1,4 @@
-<!--
+﻿<!--
  *  Copyright (c) Facebook, Inc.
  *  All rights reserved.
  *
@@ -43,7 +43,7 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/graphiql/0.13.0/graphiql.min.js"></script>
 
 	<script src="https://unpkg.com/subscriptions-transport-ws@0.8.3/browser/client.js"></script>
-    	<script src="https://unpkg.com/graphiql-subscriptions-fetcher@0.0.2/browser/client.js"></script>
+	<script src="https://unpkg.com/graphiql-subscriptions-fetcher@0.0.2/browser/client.js"></script>
 
 </head>
 <body>
@@ -135,7 +135,7 @@
 
 		// Enable Subscriptions via WebSocket
 		var subscriptionsClient = new window.SubscriptionsTransportWs.SubscriptionClient((window.location.protocol === "http:" ? "ws://" : "wss://") + window.location.host + "@Model.GraphQLEndPoint", { reconnect: true });
-    		var subscriptionsFetcher = window.GraphiQLSubscriptionsFetcher.graphQLFetcher(subscriptionsClient, graphQLFetcher);
+		var subscriptionsFetcher = window.GraphiQLSubscriptionsFetcher.graphQLFetcher(subscriptionsClient, graphQLFetcher);
 
 		// Render <GraphiQL /> into the body.
 		// See the README in the top level of this module to learn more about

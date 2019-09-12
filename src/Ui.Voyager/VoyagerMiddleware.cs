@@ -11,10 +11,10 @@ namespace GraphQL.Server.Ui.Voyager
     /// </summary>
     public class VoyagerMiddleware
     {
-        private readonly GraphQLVoyagerOptions _settings;
+        private readonly GraphQLVoyagerOptions _options;
 
         /// <summary>
-        /// The Next Middleware
+        /// The next middleware
         /// </summary>
         private readonly RequestDelegate _nextMiddleware;
 
@@ -24,14 +24,14 @@ namespace GraphQL.Server.Ui.Voyager
         private VoyagerPageModel _pageModel;
 
         /// <summary>
-        /// Create a new VoyagerMiddleware
+        /// Create a new <see cref="VoyagerMiddleware"/>
         /// </summary>
-        /// <param name="nextMiddleware">The Next Middleware</param>
-        /// <param name="settings">The Settings of the Middleware</param>
-        public VoyagerMiddleware(RequestDelegate nextMiddleware, GraphQLVoyagerOptions settings)
+        /// <param name="nextMiddleware">The next middleware</param>
+        /// <param name="options">Options to customize middleware</param>
+        public VoyagerMiddleware(RequestDelegate nextMiddleware, GraphQLVoyagerOptions options)
         {
             _nextMiddleware = nextMiddleware ?? throw new ArgumentNullException(nameof(nextMiddleware));
-            _settings = settings ?? throw new ArgumentNullException(nameof(settings));
+            _options = options ?? throw new ArgumentNullException(nameof(options));
         }
 
         /// <summary>
@@ -50,7 +50,7 @@ namespace GraphQL.Server.Ui.Voyager
 
         private bool IsVoyagerRequest(HttpRequest httpRequest)
         {
-            return HttpMethods.IsGet(httpRequest.Method) && httpRequest.Path.StartsWithSegments(_settings.Path);
+            return HttpMethods.IsGet(httpRequest.Method) && httpRequest.Path.StartsWithSegments(_options.Path);
         }
 
         private Task InvokeVoyager(HttpResponse httpResponse)
@@ -60,7 +60,7 @@ namespace GraphQL.Server.Ui.Voyager
 
             // Initialize page model if null
             if (_pageModel == null)
-                _pageModel = new VoyagerPageModel(_settings);
+                _pageModel = new VoyagerPageModel(_options);
 
             var data = Encoding.UTF8.GetBytes(_pageModel.Render());
             return httpResponse.Body.WriteAsync(data, 0, data.Length);

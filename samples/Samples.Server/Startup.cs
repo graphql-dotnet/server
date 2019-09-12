@@ -26,24 +26,18 @@ namespace GraphQL.Samples.Server
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<IChat, Chat>();
-            services.AddSingleton<ChatSchema>();
-            services.AddSingleton<ChatQuery>();
-            services.AddSingleton<ChatMutation>();
-            services.AddSingleton<ChatSubscriptions>();
-            services.AddSingleton<MessageType>();
-            services.AddSingleton<MessageInputType>();
-
-            services.AddGraphQL(options =>
-            {
-                options.EnableMetrics = true;
-                options.ExposeExceptions = Environment.IsDevelopment();
-                options.UnhandledExceptionDelegate = (ctx, ex) => { Console.WriteLine("error: " + ex.Message); return ex; };
-            })
-            .AddWebSockets()
-            .AddDataLoader();
-
-            services.AddMvc();
+            services
+                .AddSingleton<IChat, Chat>()
+                .AddSingleton<ChatSchema>()
+                .AddGraphQL(options =>
+                {
+                    options.EnableMetrics = true;
+                    options.ExposeExceptions = Environment.IsDevelopment();
+                    options.UnhandledExceptionDelegate = (ctx, ex) => { Console.WriteLine("error: " + ex.Message); return ex; };
+                })
+                .AddWebSockets()
+                .AddDataLoader()
+                .AddGraphTypes(typeof(ChatSchema));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -64,20 +58,21 @@ namespace GraphQL.Samples.Server
                 PlaygroundSettings = new Dictionary<string, object>
                 {
                     ["editor.theme"] = "light",
-                    ["tracing.hideTracingResponse"] = false
+                    ["tracing.hideTracingResponse"] = false,
                 }
             });
+
             app.UseGraphiQLServer(new GraphiQLOptions
             {
-                GraphiQLPath = "/ui/graphiql",
-                GraphQLEndPoint = "/graphql"
+                Path = "/ui/graphiql",
+                GraphQLEndPoint = "/graphql",
             });
+
             app.UseGraphQLVoyager(new GraphQLVoyagerOptions
             {
+                Path = "/ui/voyager",
                 GraphQLEndPoint = "/graphql",
-                Path = "/ui/voyager"
             });
-            app.UseMvc();
         }
     }
 }
