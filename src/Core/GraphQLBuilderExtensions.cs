@@ -10,6 +10,9 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace GraphQL.Server
 {
+    /// <summary>
+    /// GraphQL specific extension methods for <see cref="IGraphQLBuilder"/>.
+    /// </summary>
     public static class GraphQLBuilderExtensions
     {
         /// <summary>

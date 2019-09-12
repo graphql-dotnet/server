@@ -45,14 +45,11 @@ namespace GraphQL.Server.Authorization.AspNetCore
 
                 _.Match<ObjectField>(objectFieldAst =>
                 {
-                    var argumentType = context.TypeInfo.GetArgument().ResolvedType.GetNamedType() as IComplexGraphType;
-                    if (argumentType == null)
+                    if (context.TypeInfo.GetArgument().ResolvedType.GetNamedType() is IComplexGraphType argumentType)
                     {
-                        return;
+                        var fieldType = argumentType.GetField(objectFieldAst.Name);
+                        AuthorizeAsync(objectFieldAst, fieldType, context, operationType).GetAwaiter().GetResult();
                     }
-
-                    var fieldType = argumentType.GetField(objectFieldAst.Name);
-                    AuthorizeAsync(objectFieldAst, fieldType, context, operationType).GetAwaiter().GetResult();
                 });
 
                 _.Match<Field>(fieldAst =>

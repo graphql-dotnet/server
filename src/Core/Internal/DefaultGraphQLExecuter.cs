@@ -66,6 +66,7 @@ namespace GraphQL.Server.Internal
                 EnableMetrics = _options.EnableMetrics,
                 ExposeExceptions = _options.ExposeExceptions,
                 FieldNameConverter = _options.FieldNameConverter ?? CamelCaseFieldNameConverter.Instance,
+                UnhandledExceptionDelegate = _options.UnhandledExceptionDelegate ?? ((ctx, ex) => ex), 
             };
 
             if (opts.EnableMetrics)

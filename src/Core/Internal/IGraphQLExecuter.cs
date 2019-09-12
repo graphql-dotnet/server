@@ -6,12 +6,12 @@ using GraphQL.Types;
 namespace GraphQL.Server.Internal
 {
     /// <summary>
-    ///     GraphQL query, mutation and subscription executer
+    /// GraphQL query, mutation and subscription executer
     /// </summary>
     public interface IGraphQLExecuter
     {
         /// <summary>
-        ///     Execute operation
+        /// Execute operation
         /// </summary>
         /// <param name="operationName"></param>
         /// <param name="query"></param>
