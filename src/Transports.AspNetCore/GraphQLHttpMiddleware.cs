@@ -4,7 +4,6 @@ using GraphQL.Server.Transports.AspNetCore.Common;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -22,27 +21,18 @@ namespace GraphQL.Server.Transports.AspNetCore
         private const string GraphQLContentType = "application/graphql";
         private const string FormUrlEncodedContentType = "application/x-www-form-urlencoded";
 
-        private readonly ILogger _logger;
         private readonly RequestDelegate _next;
         private readonly PathString _path;
         private readonly JsonSerializer _serializer;
 
-        public GraphQLHttpMiddleware(ILogger<GraphQLHttpMiddleware<TSchema>> logger, RequestDelegate next, PathString path, Action<JsonSerializerSettings> configure)
+        public GraphQLHttpMiddleware(RequestDelegate next, PathString path, Action<JsonSerializerSettings> configure)
         {
-            _logger = logger;
             _next = next;
             _path = path;
 
             var settings = new JsonSerializerSettings();
             configure(settings);
             _serializer = JsonSerializer.Create(settings); // it's thread safe https://stackoverflow.com/questions/36186276/is-the-json-net-jsonserializer-threadsafe
-        }
-
-        public GraphQLHttpMiddleware(ILogger<GraphQLHttpMiddleware<TSchema>> logger, RequestDelegate next, PathString path)
-        {
-            _logger = logger;
-            _next = next;
-            _path = path;
         }
 
         public async Task InvokeAsync(HttpContext context)
@@ -119,10 +109,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                     userContext,
                     context.RequestAborted).ConfigureAwait(false);
 
-                if (result.Errors != null)
-                {
-                    _logger.LogError("GraphQL execution error(s): {Errors}", result.Errors);
-                }
+                await RequestExecutedAsync(gqlRequest, -1, result);
 
                 await WriteResponseAsync(context, writer, result).ConfigureAwait(false);
             }
@@ -141,16 +128,19 @@ namespace GraphQL.Server.Transports.AspNetCore
                         userContext,
                         context.RequestAborted).ConfigureAwait(false);
 
-                    if (result.Errors != null)
-                    {
-                        _logger.LogError("GraphQL execution error(s) in batch [{Index}]: {Errors}", i, result.Errors);
-                    }
+                    await RequestExecutedAsync(gqlRequest, i, result);
 
                     executionResults[i] = result;
                 }
 
                 await WriteResponseAsync(context, writer, executionResults).ConfigureAwait(false);
             }
+        }
+
+        protected virtual Task RequestExecutedAsync(GraphQLRequest request, int indexInBatch, ExecutionResult result)
+        {
+            // nothing to do in this middleware
+            return Task.CompletedTask;
         }
 
         private Task WriteBadRequestResponseAsync(HttpContext context, IDocumentWriter writer, string errorMessage)
@@ -211,7 +201,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             // This leads to the inability to use the stream further by other consumers/middlewares of the request processing
             // pipeline. In fact, it is absolutely not dangerous not to dispose StreamReader as it does not perform any useful
             // work except for the disposing inner stream.
-            return await new StreamReader(s).ReadToEndAsync().ConfigureAwait(false); ;
+            return await new StreamReader(s).ReadToEndAsync().ConfigureAwait(false);
         }
 
         private static void ExtractGraphQLRequestFromQueryString(IQueryCollection qs, GraphQLRequest gqlRequest)
