@@ -33,7 +33,10 @@ namespace GraphQL.Samples.Server
                 {
                     options.EnableMetrics = true;
                     options.ExposeExceptions = Environment.IsDevelopment();
-                    options.UnhandledExceptionDelegate = (ctx, ex) => { Console.WriteLine("error: " + ex.Message); return ex; };
+                    options.UnhandledExceptionDelegate = ctx =>
+                    {
+                        Console.WriteLine("error: " + ctx.OriginalException.Message);
+                    };
                 })
                 .AddWebSockets()
                 .AddDataLoader()
