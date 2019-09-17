@@ -66,7 +66,7 @@ namespace GraphQL.Server.Internal
                 EnableMetrics = _options.EnableMetrics,
                 ExposeExceptions = _options.ExposeExceptions,
                 FieldNameConverter = _options.FieldNameConverter ?? CamelCaseFieldNameConverter.Instance,
-                UnhandledExceptionDelegate = _options.UnhandledExceptionDelegate ?? ((ctx, ex) => ex), 
+                UnhandledExceptionDelegate = _options.UnhandledExceptionDelegate, 
             };
 
             if (opts.EnableMetrics)
@@ -79,9 +79,14 @@ namespace GraphQL.Server.Internal
                 opts.Listeners.Add(listener);
             }
 
-            opts.ValidationRules = _validationRules
-                .Concat(DocumentValidator.CoreRules())
-                .ToList();
+            var customRules = _validationRules.ToArray();
+            if (customRules.Length > 0)
+            {
+                // if not set then standard list of validation rules will be used
+                opts.ValidationRules = customRules
+                    .Concat(DocumentValidator.CoreRules)
+                    .ToList();
+            }
 
             return opts;
         }
