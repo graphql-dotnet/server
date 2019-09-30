@@ -9,6 +9,9 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
@@ -65,13 +68,17 @@ namespace GraphQL.Server.Transports.AspNetCore
                 switch (mediaTypeHeader.MediaType)
                 {
                     case JsonContentType:
-                        if (!Deserialize(httpRequest.Body, out gqlRequest, out gqlBatchRequest))
+                        var result = await Deserialize(httpRequest.Body).ConfigureAwait(false);
+
+                        if (!result.Success)
                         {
                             await WriteBadRequestResponseAsync(context, writer, "Body text could not be parsed. Body text should start with '{' for normal graphql query or with '[' for batched query.").ConfigureAwait(false);
                             return;
                         }
-                        break;
 
+                        gqlRequest = result.Request;
+                        gqlBatchRequest = result.Requests;
+                        break;
                     case GraphQLContentType:
                         gqlRequest.Query = await ReadAsStringAsync(httpRequest.Body).ConfigureAwait(false);
                         break;
@@ -159,39 +166,52 @@ namespace GraphQL.Server.Transports.AspNetCore
             return writer.WriteAsync(context.Response.Body, result);
         }
 
-        private Task WriteResponseAsync<TResult>(HttpContext context, IDocumentWriter writer, TResult result)
+        private async Task WriteResponseAsync<TResult>(HttpContext context, IDocumentWriter writer, TResult result)
         {
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = 200; // OK
 
-            return writer.WriteAsync(context.Response.Body, result);
+            await writer.WriteAsync(context.Response.Body, result);
         }
-
-        private bool Deserialize(Stream stream, out GraphQLRequest single, out GraphQLRequest[] batch)
+       
+        private async Task<(bool Success, GraphQLRequest Request, GraphQLRequest[] Requests, Exception)> Deserialize(Stream stream)
         {
-            single = null;
-            batch = null;
 
             // Do not explicitly or implicitly (via using, etc.) call dispose because StreamReader will dispose inner stream.
             // This leads to the inability to use the stream further by other consumers/middlewares of the request processing
             // pipeline. In fact, it is absolutely not dangerous not to dispose StreamReader as it does not perform any useful
             // work except for the disposing inner stream.
             var reader = new StreamReader(stream);
-            using (var jsonReader = new JsonTextReader(reader) { CloseInput = false })
+
+            // There is no async peek, so need to check the type of jToken returned
+            // If anything other than { or ] or some other error then return false
+            try
             {
-                switch (reader.Peek())
+                using (var jsonReader = new JsonTextReader(reader) {CloseInput = false})
                 {
-                    case '{':
-                        single = _serializer.Deserialize<GraphQLRequest>(jsonReader);
-                        return true;
+                    var jToken = await JToken.LoadAsync(jsonReader).ConfigureAwait(false);
 
-                    case '[':
-                        batch = _serializer.Deserialize<GraphQLRequest[]>(jsonReader);
-                        return true;
+                    switch (jToken)
+                    {
+                        case JObject _:
+                        {
+                            var single = jToken.ToObject<GraphQLRequest>();
+                            return (true, single, null, null);
+                        }
+                        case JArray _:
+                        {
+                            var batch = jToken.ToObject<GraphQLRequest[]>();
+                            return (true, null, batch, null);
+                        }
 
-                    default:
-                        return false; // fast return with BadRequest without reading request stream
+                        default:
+                            return (false, null, null, null);
+                    }
                 }
+            }
+            catch (Exception exception)
+            {
+                return (false, null, null, exception); 
             }
         }
 
