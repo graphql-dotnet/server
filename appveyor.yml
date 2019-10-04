@@ -1,6 +1,11 @@
 os: Visual Studio 2017
 
 version: 0.0.0-{build}
+pull_requests:
+  do_not_increment_build_number: true
+
+skip_tags: true
+
 build_script:  
   - ps: .\build.ps1 -Target "Default"
 
@@ -9,7 +14,7 @@ artifacts:
     name: Packages
 
 test: off
-skip_branch_with_pr: true
+skip_branch_with_pr: false
 
 install:
   - ps: Install-Product node LTS
