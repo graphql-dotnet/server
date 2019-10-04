@@ -65,7 +65,13 @@ namespace GraphQL.Server.Transports.AspNetCore
                 switch (mediaTypeHeader.MediaType)
                 {
                     case JsonContentType:
-                        if (!Deserialize(httpRequest.Body, out gqlRequest, out gqlBatchRequest))
+                        var (success, single, batch) = await Deserialize(httpRequest.Body).ConfigureAwait(false);
+                        if (success)
+                        {
+                            gqlRequest = single;
+                            gqlBatchRequest = batch;
+                        }
+                        else
                         {
                             await WriteBadRequestResponseAsync(context, writer, "Body text could not be parsed. Body text should start with '{' for normal graphql query or with '[' for batched query.").ConfigureAwait(false);
                             return;
@@ -167,11 +173,8 @@ namespace GraphQL.Server.Transports.AspNetCore
             return writer.WriteAsync(context.Response.Body, result);
         }
 
-        private bool Deserialize(Stream stream, out GraphQLRequest single, out GraphQLRequest[] batch)
+        private async Task<(bool success, GraphQLRequest single, GraphQLRequest[] batch)> Deserialize(Stream stream)
         {
-            single = null;
-            batch = null;
-
             // Do not explicitly or implicitly (via using, etc.) call dispose because StreamReader will dispose inner stream.
             // This leads to the inability to use the stream further by other consumers/middlewares of the request processing
             // pipeline. In fact, it is absolutely not dangerous not to dispose StreamReader as it does not perform any useful
@@ -179,18 +182,30 @@ namespace GraphQL.Server.Transports.AspNetCore
             var reader = new StreamReader(stream);
             using (var jsonReader = new JsonTextReader(reader) { CloseInput = false })
             {
-                switch (reader.Peek())
+                JToken json;
+                try
                 {
-                    case '{':
-                        single = _serializer.Deserialize<GraphQLRequest>(jsonReader);
-                        return true;
+                    json = await JToken.LoadAsync(jsonReader).ConfigureAwait(false);
+                }
+                catch (JsonReaderException) // invalid JSON request
+                {
+                    return (success: false, single: null, batch: null);
+                }
 
-                    case '[':
-                        batch = _serializer.Deserialize<GraphQLRequest[]>(jsonReader);
-                        return true;
-
+                switch (json.Type)
+                {
+                    case JTokenType.Object:
+                        {
+                            var single = json.ToObject<GraphQLRequest>(_serializer);
+                            return (success: true, single, batch: null);
+                        }
+                    case JTokenType.Array:
+                        {
+                            var batch = json.ToObject<GraphQLRequest[]>(_serializer);
+                            return (success: true, single: null, batch);
+                        }
                     default:
-                        return false; // fast return with BadRequest without reading request stream
+                        return (success: false, single: null, batch: null); // fast return with BadRequest without reading request stream
                 }
             }
         }
