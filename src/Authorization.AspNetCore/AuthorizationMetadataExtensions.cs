@@ -1,6 +1,6 @@
-using System.Collections.Generic;
 using GraphQL.Builders;
 using GraphQL.Types;
+using System.Collections.Generic;
 
 namespace GraphQL.Server.Authorization.AspNetCore
 {
@@ -31,7 +31,6 @@ namespace GraphQL.Server.Authorization.AspNetCore
             return builder;
         }
 
-        public static List<string> GetPolicies(this IProvideMetadata type) =>
-            type.GetMetadata<List<string>>(PolicyKey, null);
+        public static List<string> GetPolicies(this IProvideMetadata type) => type.GetMetadata<List<string>>(PolicyKey);
     }
 }
