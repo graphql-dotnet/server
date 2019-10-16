@@ -1,10 +1,9 @@
+using GraphQL.Subscription;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
-using GraphQL.Subscription;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
 
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 {

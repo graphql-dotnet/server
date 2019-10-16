@@ -1,3 +1,5 @@
+using GraphQL.Server.Transports.Subscriptions.Abstractions;
+using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Net.WebSockets;
@@ -5,8 +7,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
-using GraphQL.Server.Transports.Subscriptions.Abstractions;
-using Newtonsoft.Json;
 
 namespace GraphQL.Server.Transports.WebSockets
 {
