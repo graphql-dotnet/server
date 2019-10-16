@@ -62,7 +62,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                 switch (mediaTypeHeader.MediaType)
                 {
                     case JsonContentType:
-                        gqlRequest = Deserialize<GraphQLRequest>(httpRequest.Body);
+                        gqlRequest = await Deserialize<GraphQLRequest>(httpRequest.Body);
                         break;
                     case GraphQLContentType:
                         gqlRequest.Query = await ReadAsStringAsync(httpRequest.Body);
@@ -126,12 +126,11 @@ namespace GraphQL.Server.Transports.AspNetCore
             return writer.WriteAsync(context.Response.Body, result);
         }
 
-        private static T Deserialize<T>(Stream s)
+        private static async Task<T> Deserialize<T>(Stream s)
         {
             using (var reader = new StreamReader(s))
-            using (var jsonReader = new JsonTextReader(reader))
             {
-                return new JsonSerializer().Deserialize<T>(jsonReader);
+                return JsonConvert.DeserializeObject<T>(await reader.ReadToEndAsync());
             }
         }
 
