@@ -1,10 +1,10 @@
-using System.Collections.Generic;
-using System.Net.WebSockets;
-using System.Threading.Tasks;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
+using System.Net.WebSockets;
+using System.Threading.Tasks;
 
 namespace GraphQL.Server.Transports.WebSockets
 {

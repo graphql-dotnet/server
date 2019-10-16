@@ -1,8 +1,8 @@
+using GraphQL.Http;
+using GraphQL.Server.Transports.Subscriptions.Abstractions;
 using System.Net.WebSockets;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
-using GraphQL.Http;
-using GraphQL.Server.Transports.Subscriptions.Abstractions;
 
 namespace GraphQL.Server.Transports.WebSockets
 {

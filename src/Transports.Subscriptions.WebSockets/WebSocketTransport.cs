@@ -1,10 +1,10 @@
-using System.Net.WebSockets;
-using System.Threading;
-using System.Threading.Tasks;
 using GraphQL.Http;
 using GraphQL.Server.Transports.Subscriptions.Abstractions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using System.Net.WebSockets;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace GraphQL.Server.Transports.WebSockets
 {

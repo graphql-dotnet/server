@@ -82,9 +82,10 @@ namespace GraphQL.Server.Internal
             var customRules = _validationRules.ToArray();
             if (customRules.Length > 0)
             {
-                // if not set then standard list of validation rules will be used
-                opts.ValidationRules = customRules
-                    .Concat(DocumentValidator.CoreRules)
+                // if not set then standard list of validation rules (DocumentValidator.CoreRules) will be used by DocumentValidator
+                // else concatenate standard rules with custom ones preferring the standard to go first
+                opts.ValidationRules = DocumentValidator.CoreRules
+                    .Concat(customRules)
                     .ToList();
             }
 

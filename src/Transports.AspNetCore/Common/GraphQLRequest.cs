@@ -18,14 +18,8 @@ namespace GraphQL.Server.Transports.AspNetCore.Common
         [JsonProperty(OperationNameKey)]
         public string OperationName { get; set; }
 
-        public Inputs GetInputs()
-        {
-            return GetInputs(Variables);
-        }
+        public Inputs GetInputs() => GetInputs(Variables);
 
-        public static Inputs GetInputs(JObject variables)
-        {
-            return variables?.ToInputs();
-        }
+        public static Inputs GetInputs(JObject variables) => variables?.ToInputs();
     }
 }
