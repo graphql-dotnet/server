@@ -11,7 +11,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
     /// <summary>
     ///     Internal observer of the subscription
     /// </summary>
-    public class Subscription : IObserver<ExecutionResult>
+    public class Subscription
     {
         private readonly Action<Subscription> _completed;
         private readonly ILogger<Subscription> _logger;
@@ -38,10 +38,11 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 
         public OperationMessagePayload OriginalPayload { get; }
 
-        public void OnCompleted()
+
+        private async Task SendComplete()
         {
             _logger.LogDebug("Subscription: {subscriptionId} completing", Id);
-            _writer.Post(new OperationMessage
+            await _writer.SendAsync(new OperationMessage
             {
                 Type = MessageType.GQL_COMPLETE,
                 Id = Id
@@ -51,15 +52,10 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             _unsubscribe?.Dispose();
         }
 
-        public void OnError(Exception error)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void OnNext(ExecutionResult value)
+        private async Task SendData(ExecutionResult value)
         {
             _logger.LogDebug("Subscription: {subscriptionId} got data", Id);
-            _writer.Post(new OperationMessage
+            await _writer.SendAsync(new OperationMessage
             {
                 Type = MessageType.GQL_DATA,
                 Id = Id,
@@ -81,7 +77,12 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         private void Subscribe(SubscriptionExecutionResult result)
         {
             var stream = result.Streams.Values.Single();
-            _unsubscribe = stream.Synchronize().Subscribe(this);
+            _unsubscribe = stream.Synchronize()
+                .Select(value => Observable.FromAsync(() => SendData(value)))
+                .Merge(1)
+                .Concat(Observable.FromAsync(SendComplete))
+                .Subscribe();
+
             _logger.LogDebug("Subscription: {subscriptionId} subscribed", Id);
         }
     }

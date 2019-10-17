@@ -40,7 +40,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
 
 
             /* Then */
-            _writer.Received().Post(
+            _writer.Received().SendAsync(
                 Arg.Is<OperationMessage>(
                     message => message.Id == id
                                && message.Type == MessageType.GQL_DATA));
@@ -71,7 +71,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             /* Then */
             Assert.False(stream.HasObservers);
             completed.Received().Invoke(sut);
-            _writer.Received().Post(
+            _writer.Received().SendAsync(
                 Arg.Is<OperationMessage>(
                     message => message.Id == id
                                && message.Type == MessageType.GQL_COMPLETE));
