@@ -11,8 +11,14 @@
     <Company>graphql-dotnet</Company>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <IsNetStandardTarget>$(TargetFramework.StartsWith('netstandard'))</IsNetStandardTarget>
+    <IsNetCore22Target>'$(TargetFramework)' == 'netcoreapp2.2'</IsNetCore22Target>
+    <IsNetCore30Target>'$(TargetFramework)' == 'netcoreapp3.0'</IsNetCore30Target>
+  </PropertyGroup>
+  
   <PropertyGroup Label="Package dependency versions">
-    <MicrosoftAspNetCoreVersion>2.2.0</MicrosoftAspNetCoreVersion>
+    <MicrosoftAspNetCoreVersion>2.2.0</MicrosoftAspNetCoreVersion> 
     <MicrosoftAspNetCoreHttpAbstractionsVersion>2.2.0</MicrosoftAspNetCoreHttpAbstractionsVersion>
     <MicrosoftAspNetCoreHttpVersion>2.2.2</MicrosoftAspNetCoreHttpVersion>
     <MicrosoftAspNetCoreTestHostVersion>2.2.0</MicrosoftAspNetCoreTestHostVersion>
@@ -21,9 +27,12 @@
     <MicrosoftAspNetCoreHostingAbstractionsVersion>2.2.0</MicrosoftAspNetCoreHostingAbstractionsVersion>
     
     <MicrosoftExtensionsLoggingVersion>2.2.0</MicrosoftExtensionsLoggingVersion>
-    <MicrosoftExtensionsOptionsVersion>2.2.0</MicrosoftExtensionsOptionsVersion>
-    <MicrosoftExtensionsDependencyInjectionVersion>2.2.0</MicrosoftExtensionsDependencyInjectionVersion>
-    <MicrosoftExtensionsDependencyInjectionAbstractionsVersion>2.2.0</MicrosoftExtensionsDependencyInjectionAbstractionsVersion>
+    <MicrosoftExtensionsOptionsVersion Condition="'$(IsNetStandardTarget)' == 'True'">2.2.0</MicrosoftExtensionsOptionsVersion>
+    <MicrosoftExtensionsOptionsVersion Condition="'$(IsNetStandardTarget)' == 'False'">3.0.0</MicrosoftExtensionsOptionsVersion>
+    <MicrosoftExtensionsDependencyInjectionVersion Condition="'$(IsNetStandardTarget)' == 'True'">2.2.0</MicrosoftExtensionsDependencyInjectionVersion>
+    <MicrosoftExtensionsDependencyInjectionVersion Condition="'$(IsNetStandardTarget)' == 'False'">3.0.0</MicrosoftExtensionsDependencyInjectionVersion>
+    <MicrosoftExtensionsDependencyInjectionAbstractionsVersion Condition="'$(IsNetStandardTarget)' == 'True'">2.2.0</MicrosoftExtensionsDependencyInjectionAbstractionsVersion>
+    <MicrosoftExtensionsDependencyInjectionAbstractionsVersion Condition="'$(IsNetStandardTarget)' == 'False'">3.0.0</MicrosoftExtensionsDependencyInjectionAbstractionsVersion>
     
     <MicrosoftNETTestSdkVersion>16.2.0</MicrosoftNETTestSdkVersion>
     <CastleCoreVersion>4.4.0</CastleCoreVersion>

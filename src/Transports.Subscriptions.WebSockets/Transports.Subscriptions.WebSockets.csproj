@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netcoreapp3.0;netstandard2.0</TargetFrameworks>
     <AssemblyName>GraphQL.Server.Transports.WebSockets</AssemblyName>
     <RootNamespace>GraphQL.Server.Transports.WebSockets</RootNamespace>
     <VersionPrefix>0.0.0</VersionPrefix>
@@ -17,6 +17,15 @@
     <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonVersion)" />
     <PackageReference Include="System.Reactive" Version="$(SystemReactiveVersion)" />
   </ItemGroup>
+  
+  <ItemGroup Condition="'$(IsNetStandardTarget)' == 'False'">
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>  
+  
+  <ItemGroup Condition="'$(IsNetStandardTarget)' == 'True'">
+    <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="$(MicrosoftAspNetCoreHostingAbstractionsVersion)" />
+  </ItemGroup>
+  
   <ItemGroup>
     <ProjectReference Include="..\Transports.Subscriptions.Abstractions\Transports.Subscriptions.Abstractions.csproj" />
   </ItemGroup>
