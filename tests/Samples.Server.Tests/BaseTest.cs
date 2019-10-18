@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
+using Microsoft.Extensions.Hosting;
 
 namespace Samples.Server.Tests
 {
@@ -16,6 +17,13 @@ namespace Samples.Server.Tests
         public BaseTest(WebApplicationFactory<Startup> factory)
         {
             _factory = factory;
+
+#if NETCOREAPP2_2
+#else
+            // Workaround until GraphQL can swap off Newtonsoft.Json and onto the new MS one.
+            // https://github.com/graphql-dotnet/graphql-dotnet/issues/1116
+            _factory.Server.AllowSynchronousIO = true;
+#endif
         }
 
         protected async Task<string> SendRequestAsync(string text)

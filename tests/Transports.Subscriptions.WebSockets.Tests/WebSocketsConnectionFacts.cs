@@ -51,7 +51,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         }
 
         [Fact]
-        public async Task should_accept_websocket_connection()
+        public async Task Should_accept_websocket_connection()
         {
             /* Given */
             /* When */
@@ -62,7 +62,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         }
 
         [Fact]
-        public async Task should_not_accept_websocket_with_wrong_protocol()
+        public async Task Should_not_accept_websocket_with_wrong_protocol()
         {
             /* Given */
             /* When */
@@ -80,7 +80,6 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
 #if !(NETFRAMEWORK || NETCOREAPP2_2)
         _host.Dispose();
 #endif
-
         }
     }
 }
