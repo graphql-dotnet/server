@@ -13,11 +13,11 @@
     <PackageReference Include="Microsoft.Extensions.Options" Version="$(MicrosoftExtensionsOptionsVersion)" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(IsNetStandardTarget)' == 'False'">
+  <ItemGroup Condition="'$(IsNetCore30OnwardsTarget)' == 'True'">
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   
-  <ItemGroup Condition="'$(IsNetStandardTarget)' == 'True'">
+  <ItemGroup Condition="'$(IsNetCore30OnwardsTarget)' == 'False'">
     <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="$(MicrosoftAspNetCoreHostingAbstractionsVersion)" />
   </ItemGroup>
 

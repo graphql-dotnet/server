@@ -15,12 +15,12 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="$(xunitrunnervisualstudioVersion)" />
   </ItemGroup>
 
-  <ItemGroup Label="Package references for .NET Core 2.2" Condition="'$(IsNetCore22Target)' == 'True'">
-    <PackageReference Include="Microsoft.AspNetCore.Http" Version="$(MicrosoftAspNetCoreHttpVersion)" />
-  </ItemGroup>
-
-  <ItemGroup Label="Package references for .NET Core 3" Condition="'$(IsNetCore30Target)' == 'True'">
+  <ItemGroup Label="Package references for .NET Core 3" Condition="'$(IsNetCore30OnwardsTarget)' == 'True'">
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  
+  <ItemGroup Label="Package references for .NET Core 2.2" Condition="'$(IsNetCore30OnwardsTarget)' == 'False'">
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="$(MicrosoftAspNetCoreHttpVersion)" />
   </ItemGroup>
 
   <ItemGroup Label="Project References">

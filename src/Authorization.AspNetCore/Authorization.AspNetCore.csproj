@@ -12,11 +12,11 @@
     <PackageReference Include="GraphQL" Version="$(GraphQLVersion)" />
   </ItemGroup>
 
-  <ItemGroup Label="Package references for .NET Core" Condition="'$(IsNetStandardTarget)' == 'False'">
+  <ItemGroup Label="Package references for .NET Core" Condition="'$(IsNetCore30OnwardsTarget)' == 'True'">
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   
-  <ItemGroup Label="Package references for .NET Standard" Condition="'$(IsNetStandardTarget)' == 'True'">
+  <ItemGroup Label="Package references for .NET Standard" Condition="'$(IsNetCore30OnwardsTarget)' == 'False'">
     <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="$(MicrosoftAspNetCoreAuthorizationVersion)" />
     <PackageReference Include="Microsoft.AspNetCore.Http" Version="$(MicrosoftAspNetCoreHttpVersion)" />
   </ItemGroup>

@@ -1,28 +1,24 @@
+using Microsoft.AspNetCore.Mvc.Testing;
 using System;
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.TestHost;
 using Xunit;
 
 namespace GraphQL.Server.Transports.WebSockets.Tests
 {
     public class WebSocketsConnectionFacts
     {
-        public WebSocketsConnectionFacts()
-        {
-            _server = new TestServer(WebHost
-                .CreateDefaultBuilder()
-                .UseStartup<TestStartup>());
-        }
+        private readonly WebApplicationFactory<TestStartup> _factory;
 
-        private readonly TestServer _server;
+        public WebSocketsConnectionFacts(WebApplicationFactory<TestStartup> factory)
+        {
+            _factory = factory;
+        }
 
         private Task<WebSocket> ConnectAsync(string protocol)
         {
-            var client = _server.CreateWebSocketClient();
+            var client = _factory.Server.CreateWebSocketClient();
             client.ConfigureRequest = request => { request.Headers.Add("Sec-WebSocket-Protocol", protocol); };
             return client.ConnectAsync(new Uri("http://localhost/graphql"), CancellationToken.None);
         }

@@ -12,27 +12,29 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <IsNetStandardTarget>$(TargetFramework.StartsWith('netstandard'))</IsNetStandardTarget>
-    <IsNetCore22Target>'$(TargetFramework)' == 'netcoreapp2.2'</IsNetCore22Target>
-    <IsNetCore30Target>'$(TargetFramework)' == 'netcoreapp3.0'</IsNetCore30Target>
+    <IsNetCore30OnwardsTarget>$(TargetFramework.Equals('netcoreapp3.0'))</IsNetCore30OnwardsTarget>
   </PropertyGroup>
   
   <PropertyGroup Label="Package dependency versions">
     <MicrosoftAspNetCoreVersion>2.2.0</MicrosoftAspNetCoreVersion> 
     <MicrosoftAspNetCoreHttpAbstractionsVersion>2.2.0</MicrosoftAspNetCoreHttpAbstractionsVersion>
     <MicrosoftAspNetCoreHttpVersion>2.2.2</MicrosoftAspNetCoreHttpVersion>
-    <MicrosoftAspNetCoreTestHostVersion>2.2.0</MicrosoftAspNetCoreTestHostVersion>
     <MicrosoftAspNetCoreWebSocketsVersion>2.2.1</MicrosoftAspNetCoreWebSocketsVersion>
     <MicrosoftAspNetCoreAuthorizationVersion>2.2.0</MicrosoftAspNetCoreAuthorizationVersion>
     <MicrosoftAspNetCoreHostingAbstractionsVersion>2.2.0</MicrosoftAspNetCoreHostingAbstractionsVersion>
-    
-    <MicrosoftExtensionsLoggingVersion>2.2.0</MicrosoftExtensionsLoggingVersion>
-    <MicrosoftExtensionsOptionsVersion Condition="'$(IsNetStandardTarget)' == 'True'">2.2.0</MicrosoftExtensionsOptionsVersion>
-    <MicrosoftExtensionsOptionsVersion Condition="'$(IsNetStandardTarget)' == 'False'">3.0.0</MicrosoftExtensionsOptionsVersion>
-    <MicrosoftExtensionsDependencyInjectionVersion Condition="'$(IsNetStandardTarget)' == 'True'">2.2.0</MicrosoftExtensionsDependencyInjectionVersion>
-    <MicrosoftExtensionsDependencyInjectionVersion Condition="'$(IsNetStandardTarget)' == 'False'">3.0.0</MicrosoftExtensionsDependencyInjectionVersion>
-    <MicrosoftExtensionsDependencyInjectionAbstractionsVersion Condition="'$(IsNetStandardTarget)' == 'True'">2.2.0</MicrosoftExtensionsDependencyInjectionAbstractionsVersion>
-    <MicrosoftExtensionsDependencyInjectionAbstractionsVersion Condition="'$(IsNetStandardTarget)' == 'False'">3.0.0</MicrosoftExtensionsDependencyInjectionAbstractionsVersion>
+    <MicrosoftAspNetCoreTestHostVersion Condition="'$(IsNetCore30OnwardsTarget)' == 'False'">2.2.0</MicrosoftAspNetCoreTestHostVersion>
+    <MicrosoftAspNetCoreTestHostVersion Condition="'$(IsNetCore30OnwardsTarget)' == 'True'">3.0.0</MicrosoftAspNetCoreTestHostVersion>
+    <MicrosoftAspNetCoreMvcTestingVersion Condition="'$(IsNetCore30OnwardsTarget)' == 'False'">2.2.0</MicrosoftAspNetCoreMvcTestingVersion>
+    <MicrosoftAspNetCoreMvcTestingVersion Condition="'$(IsNetCore30OnwardsTarget)' == 'True'">3.0.0</MicrosoftAspNetCoreMvcTestingVersion>
+
+    <MicrosoftExtensionsLoggingVersion Condition="'$(IsNetCore30OnwardsTarget)' == 'False'">2.2.0</MicrosoftExtensionsLoggingVersion>
+    <MicrosoftExtensionsLoggingVersion Condition="'$(IsNetCore30OnwardsTarget)' == 'True'">3.0.0</MicrosoftExtensionsLoggingVersion>
+    <MicrosoftExtensionsOptionsVersion Condition="'$(IsNetCore30OnwardsTarget)' == 'False'">2.2.0</MicrosoftExtensionsOptionsVersion>
+    <MicrosoftExtensionsOptionsVersion Condition="'$(IsNetCore30OnwardsTarget)' == 'True'">3.0.0</MicrosoftExtensionsOptionsVersion>
+    <MicrosoftExtensionsDependencyInjectionVersion Condition="'$(IsNetCore30OnwardsTarget)' == 'False'">2.2.0</MicrosoftExtensionsDependencyInjectionVersion>
+    <MicrosoftExtensionsDependencyInjectionVersion Condition="'$(IsNetCore30OnwardsTarget)' == 'True'">3.0.0</MicrosoftExtensionsDependencyInjectionVersion>
+    <MicrosoftExtensionsDependencyInjectionAbstractionsVersion Condition="'$(IsNetCore30OnwardsTarget)' == 'False'">2.2.0</MicrosoftExtensionsDependencyInjectionAbstractionsVersion>
+    <MicrosoftExtensionsDependencyInjectionAbstractionsVersion Condition="'$(IsNetCore30OnwardsTarget)' == 'True'">3.0.0</MicrosoftExtensionsDependencyInjectionAbstractionsVersion>
     
     <MicrosoftNETTestSdkVersion>16.2.0</MicrosoftNETTestSdkVersion>
     <CastleCoreVersion>4.4.0</CastleCoreVersion>

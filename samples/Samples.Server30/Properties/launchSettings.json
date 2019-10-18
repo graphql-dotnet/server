@@ -3,7 +3,7 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "http://localhost:60340/",
+      "applicationUrl": "http://localhost:60342/",
       "sslPort": 0
     }
   },
@@ -16,14 +16,14 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "Samples.Server": {
+    "Samples.Server30": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "ui/playground/",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
-      "applicationUrl": "http://localhost:60341/"
+      "applicationUrl": "http://localhost:60343/"
     }
   }
 }

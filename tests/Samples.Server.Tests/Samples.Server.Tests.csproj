@@ -6,21 +6,21 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="GraphQL" Version="$(GraphQLVersion)" />
     <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="$(MicrosoftAspNetCoreTestHostVersion)" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="$(MicrosoftAspNetCoreMvcTestingVersion)" />
     <PackageReference Include="Shouldly" Version="$(ShouldlyVersion)" />
     <PackageReference Include="xunit" Version="$(xunitVersion)" />
     <PackageReference Include="xunit.runner.visualstudio" Version="$(xunitrunnervisualstudioVersion)" />
   </ItemGroup>
 
-  <ItemGroup Label="Package references for .NET Core 2.2" Condition="'$(IsNetCore22Target)' == 'True'">
-    <PackageReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-
-  <ItemGroup Label="Package references for .NET Core 3" Condition="'$(IsNetCore30Target)' == 'True'">
+  <ItemGroup Label="References for .NET Core 3" Condition="'$(IsNetCore30OnwardsTarget)' == 'True'">
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <ProjectReference Include="..\..\samples\Samples.Server30\Samples.Server30.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Label="References for .NET Core 2.2" Condition="'$(IsNetCore30OnwardsTarget)' == 'False'">
+    <PackageReference Include="Microsoft.AspNetCore.App" />
     <ProjectReference Include="..\..\samples\Samples.Server\Samples.Server.csproj" />
   </ItemGroup>
 
