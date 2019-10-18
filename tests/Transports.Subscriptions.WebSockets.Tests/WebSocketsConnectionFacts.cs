@@ -1,4 +1,8 @@
+using Microsoft.AspNetCore;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.Hosting;
 using System;
 using System.Net.WebSockets;
 using System.Threading;
@@ -7,18 +11,41 @@ using Xunit;
 
 namespace GraphQL.Server.Transports.WebSockets.Tests
 {
-    public class WebSocketsConnectionFacts
+    public class WebSocketsConnectionFacts : IDisposable
     {
-        private readonly WebApplicationFactory<TestStartup> _factory;
-
-        public WebSocketsConnectionFacts(WebApplicationFactory<TestStartup> factory)
+#if (NETFRAMEWORK || NETCOREAPP2_2)
+        public WebSocketsConnectionFacts()
         {
-            _factory = factory;
+            _server = new TestServer(WebHost
+                .CreateDefaultBuilder()
+                .UseStartup<TestStartup>());
         }
+
+        private readonly TestServer _server;
+#else
+        public WebSocketsConnectionFacts()
+        {
+            _host = Host
+                .CreateDefaultBuilder()
+                .ConfigureWebHost(webBuilder =>
+                {
+                    webBuilder
+                        .UseTestServer()
+                        .UseStartup<TestStartup>()
+                        .Configure(app => { });
+                })
+                .Start();
+
+            _server = _host.GetTestServer();
+        }
+
+        private readonly IHost _host;
+        private readonly TestServer _server;
+#endif
 
         private Task<WebSocket> ConnectAsync(string protocol)
         {
-            var client = _factory.Server.CreateWebSocketClient();
+            var client = _server.CreateWebSocketClient();
             client.ConfigureRequest = request => { request.Headers.Add("Sec-WebSocket-Protocol", protocol); };
             return client.ConnectAsync(new Uri("http://localhost/graphql"), CancellationToken.None);
         }
@@ -45,6 +72,15 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
 
             /* Then */
             Assert.Equal(WebSocketCloseStatus.ProtocolError, received.CloseStatus);
+        }
+
+        public void Dispose()
+        {
+            _server.Dispose();
+#if !(NETFRAMEWORK || NETCOREAPP2_2)
+        _host.Dispose();
+#endif
+
         }
     }
 }
