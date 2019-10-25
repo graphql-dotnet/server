@@ -9,6 +9,8 @@
   <ItemGroup>
     <Compile Include="..\Samples.Server\AddAuthenticator.cs" Link="AddAuthenticator.cs" />
     <Compile Include="..\Samples.Server\GraphQLHttpMiddlewareWithLogs.cs" Link="GraphQLHttpMiddlewareWithLogs.cs" />
+    <Compile Include="..\Samples.Server\Program.cs" Link="Program.cs" />
+    <Compile Include="..\Samples.Server\Startup.cs" Link="Startup.cs" />
   </ItemGroup>
 
   <ItemGroup>

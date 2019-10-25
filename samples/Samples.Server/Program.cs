@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Events;
 using System;
@@ -19,8 +20,12 @@ namespace GraphQL.Samples.Server
 
             try
             {
-                Log.Information("Starting web host");
+                Log.Information("Starting host");
+#if NETCOREAPP2_2
                 CreateWebHostBuilder(args).Build().Run();
+#else
+                CreateHostBuilder(args).Build().Run();
+#endif
                 return 0;
             }
             catch (Exception ex)
@@ -34,10 +39,23 @@ namespace GraphQL.Samples.Server
             }
         }
 
+#if NETCOREAPP2_2
         public static IWebHostBuilder CreateWebHostBuilder(string[] args)
         {
             return WebHost.CreateDefaultBuilder<Startup>(args)
                 .UseSerilog();
         }
+#else
+                public static IHostBuilder CreateHostBuilder(string[] args)
+        {
+            return Host.CreateDefaultBuilder(args)
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder
+                        .UseSerilog()
+                        .UseStartup<Startup>();
+                });
+        }
+#endif
     }
 }
