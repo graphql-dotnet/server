@@ -1,4 +1,4 @@
-os: Visual Studio 2017
+os: Visual Studio 2019
 
 version: 0.0.0-{build}
 pull_requests:
@@ -17,10 +17,7 @@ test: off
 skip_branch_with_pr: false
 
 install:
-  - ps: Install-Product node LTS
-  - ps: choco install dotnetcore-sdk --no-progress --confirm --version 2.2.104
-  - node --version
-  - npm --version
+  - ps: choco install dotnetcore-sdk --no-progress --confirm --version 3.0.100
   - dotnet --version
 
 on_failure:
