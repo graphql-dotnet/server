@@ -20,10 +20,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\src\Transports.AspNetCore\Transports.AspNetCore.csproj" />
     <ProjectReference Include="..\..\src\Transports.Subscriptions.WebSockets\Transports.Subscriptions.WebSockets.csproj" />
     <ProjectReference Include="..\..\src\Ui.GraphiQL\Ui.GraphiQL.csproj" />

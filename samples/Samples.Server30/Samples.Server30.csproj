@@ -21,10 +21,6 @@
     <PackageReference Include="Serilog.AspNetCore" Version="$(SerilogAspNetCoreVersion)" />
     <PackageReference Include="Serilog.Sinks.Console" Version="$(SerilogSinksConsoleVersion)" />
   </ItemGroup>
-  
-  <ItemGroup>
-    <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.0" />
-  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Transports.AspNetCore\Transports.AspNetCore.csproj" />
