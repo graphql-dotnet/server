@@ -7,6 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\Samples.Server\AddAuthenticator.cs" Link="AddAuthenticator.cs" />
+    <Compile Include="..\Samples.Server\GraphQLHttpMiddlewareWithLogs.cs" Link="GraphQLHttpMiddlewareWithLogs.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="wwwroot\" />
   </ItemGroup>
 
