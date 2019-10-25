@@ -4,7 +4,7 @@ var target = Argument<string>("target", "Default");
 var configuration = Argument<string>("configuration", "Release");
 var artifactsDir = Directory(Argument<string>("artifactsDir", "./artifacts"));
 var publishDir = Directory(Argument<string>("publishDir", "./publish"));
-var framework = Argument<string>("framework", "netstandard2.0");
+//var framework = Argument<string>("framework", "netstandard2.0");
 var runtime = Argument<string>("runtime", "win-x64");
 var sln = "./GraphQL.Server.Transports.sln";
 var projectFiles = new [] {
@@ -30,7 +30,7 @@ Task("Publish")
   {
       var settings = new DotNetCorePublishSettings
       {
-          Framework = framework,
+          //Framework = framework,
           Configuration = configuration,
           OutputDirectory = publishDir,
           Runtime = runtime
@@ -70,7 +70,7 @@ Task("Build")
   {
       var settings = new DotNetCoreBuildSettings
       {
-          Framework = framework,
+          //Framework = framework,
           Configuration = configuration
       };
 
