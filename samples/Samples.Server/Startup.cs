@@ -10,8 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 
-#if NETCOREAPP2_2
-#else
+#if !NETCOREAPP2_2
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Hosting;
 #endif

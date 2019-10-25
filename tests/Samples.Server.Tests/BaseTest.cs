@@ -17,7 +17,7 @@ namespace Samples.Server.Tests
         {
 #if NETCOREAPP2_2
             Server = new TestServer(Program.CreateWebHostBuilder(Array.Empty<string>()));
-#elif NETCOREAPP3_0
+#else
             Host = Program.CreateHostBuilder(Array.Empty<string>())
                  .ConfigureWebHost(webBuilder =>
                  {
@@ -59,8 +59,7 @@ namespace Samples.Server.Tests
             Client.Dispose();
             Server.Dispose();
 
-#if NETCOREAPP2_2
-#else
+#if !NETCOREAPP2_2
             Host.Dispose();
 #endif
         }
@@ -69,8 +68,7 @@ namespace Samples.Server.Tests
 
         protected HttpClient Client { get; }
 
-#if NETCOREAPP2_2
-#else
+#if !NETCOREAPP2_2
         protected IHost Host { get; }
 #endif
     }
