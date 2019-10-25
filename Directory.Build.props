@@ -1,5 +1,5 @@
 <Project>
-  
+
   <PropertyGroup Label="Сommon properties">
     <LangVersion>latest</LangVersion>
     <PackageProjectUrl>https://github.com/graphql-dotnet/server</PackageProjectUrl>
@@ -14,9 +14,9 @@
   <PropertyGroup>
     <IsNetCore30OnwardsTarget>$(TargetFramework.Equals('netcoreapp3.0'))</IsNetCore30OnwardsTarget>
   </PropertyGroup>
-  
+
   <PropertyGroup Label="Package dependency versions">
-    <MicrosoftAspNetCoreVersion>2.2.0</MicrosoftAspNetCoreVersion> 
+    <MicrosoftAspNetCoreVersion>2.2.0</MicrosoftAspNetCoreVersion>
     <MicrosoftAspNetCoreHttpAbstractionsVersion>2.2.0</MicrosoftAspNetCoreHttpAbstractionsVersion>
     <MicrosoftAspNetCoreHttpVersion>2.2.2</MicrosoftAspNetCoreHttpVersion>
     <MicrosoftAspNetCoreWebSocketsVersion>2.2.1</MicrosoftAspNetCoreWebSocketsVersion>
@@ -35,7 +35,7 @@
     <MicrosoftExtensionsDependencyInjectionVersion Condition="'$(IsNetCore30OnwardsTarget)' == 'True'">3.0.0</MicrosoftExtensionsDependencyInjectionVersion>
     <MicrosoftExtensionsDependencyInjectionAbstractionsVersion Condition="'$(IsNetCore30OnwardsTarget)' == 'False'">2.2.0</MicrosoftExtensionsDependencyInjectionAbstractionsVersion>
     <MicrosoftExtensionsDependencyInjectionAbstractionsVersion Condition="'$(IsNetCore30OnwardsTarget)' == 'True'">3.0.0</MicrosoftExtensionsDependencyInjectionAbstractionsVersion>
-    
+
     <MicrosoftNETTestSdkVersion>16.2.0</MicrosoftNETTestSdkVersion>
     <CastleCoreVersion>4.4.0</CastleCoreVersion>
     <NSubstituteVersion>3.1.0</NSubstituteVersion>
@@ -43,17 +43,17 @@
     <GraphQLVersion>3.0.0-preview-1282</GraphQLVersion>
     <MoqVersion>4.12.0</MoqVersion>
     <ShouldlyVersion>3.0.2</ShouldlyVersion>
-   
+
     <xunitVersion>2.4.1</xunitVersion>
     <xunitrunnervisualstudioVersion>2.4.1</xunitrunnervisualstudioVersion>
 
     <SerilogVersion>2.8.0</SerilogVersion>
     <SerilogAspNetCoreVersion>2.1.1</SerilogAspNetCoreVersion>
     <SerilogSinksConsoleVersion>3.1.1</SerilogSinksConsoleVersion>
-    
+
     <SystemThreadingTasksDataflowVersion>4.9.0</SystemThreadingTasksDataflowVersion>
     <SystemThreadingTasksExtensionsVersion>4.5.3</SystemThreadingTasksExtensionsVersion>
     <SystemReactiveVersion>4.1.5</SystemReactiveVersion>
   </PropertyGroup>
-  
+
 </Project>
