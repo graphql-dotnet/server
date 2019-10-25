@@ -1,29 +1,39 @@
 ﻿using GraphQL.Samples.Server;
 using GraphQL.Server.Transports.AspNetCore.Common;
-using Microsoft.AspNetCore.Mvc.Testing;
 using Newtonsoft.Json;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using Xunit;
 using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.TestHost;
+using System;
+using Microsoft.AspNetCore.Hosting;
 
 namespace Samples.Server.Tests
 {
-    public abstract class BaseTest : IClassFixture<WebApplicationFactory<Startup>>
+    public abstract class BaseTest : IDisposable
     {
-        private readonly WebApplicationFactory<Startup> _factory;
-
-        public BaseTest(WebApplicationFactory<Startup> factory)
+        protected BaseTest()
         {
-            _factory = factory;
-
 #if NETCOREAPP2_2
-#else
+            Server = new TestServer(Program.CreateWebHostBuilder(Array.Empty<string>()));
+#elif NETCOREAPP3_0
+            Host = Program.CreateHostBuilder(Array.Empty<string>())
+                 .ConfigureWebHost(webBuilder =>
+                 {
+                     webBuilder
+                         .UseTestServer();
+                 })
+                 .Start();
+
+            Server = Host.GetTestServer();
+
             // Workaround until GraphQL can swap off Newtonsoft.Json and onto the new MS one.
             // https://github.com/graphql-dotnet/graphql-dotnet/issues/1116
-            _factory.Server.AllowSynchronousIO = true;
+            Server.AllowSynchronousIO = true;
 #endif
+
+            Client = Server.CreateClient();
         }
 
         protected async Task<string> SendRequestAsync(string text)
@@ -44,6 +54,24 @@ namespace Samples.Server.Tests
             return await response.Content.ReadAsStringAsync();
         }
 
-        protected HttpClient Client => _factory.CreateClient();
+        public virtual void Dispose()
+        {
+            Client.Dispose();
+            Server.Dispose();
+
+#if NETCOREAPP2_2
+#else
+            Host.Dispose();
+#endif
+        }
+
+        protected TestServer Server { get; }
+
+        protected HttpClient Client { get; }
+
+#if NETCOREAPP2_2
+#else
+        protected IHost Host { get; }
+#endif
     }
 }

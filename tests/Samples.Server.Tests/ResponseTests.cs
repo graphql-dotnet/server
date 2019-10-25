@@ -1,6 +1,4 @@
-﻿using GraphQL.Samples.Server;
-using GraphQL.Server.Transports.AspNetCore.Common;
-using Microsoft.AspNetCore.Mvc.Testing;
+﻿using GraphQL.Server.Transports.AspNetCore.Common;
 using Shouldly;
 using System.Threading.Tasks;
 using Xunit;
@@ -9,12 +7,6 @@ namespace Samples.Server.Tests
 {
     public class ResponseTests : BaseTest
     {
-        public ResponseTests(WebApplicationFactory<Startup> factory)
-            : base(factory)
-        {
-
-        }
-
         [Fact]
         public async Task Single_Query_Should_Return_Single_Result()
         {
