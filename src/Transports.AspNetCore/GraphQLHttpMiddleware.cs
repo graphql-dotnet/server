@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http.Headers;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace GraphQL.Server.Transports.AspNetCore
@@ -99,6 +100,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                 userContext = new Dictionary<string, object>(); // in order to allow resolvers to exchange their state through this object
 
             var executer = context.RequestServices.GetRequiredService<IGraphQLExecuter<TSchema>>();
+            var token = GetCancellationToken(context);
 
             // normal execution with single graphql request
             if (gqlBatchRequest == null)
@@ -109,7 +111,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                     gqlRequest.Query,
                     gqlRequest.GetInputs(),
                     userContext,
-                    context.RequestAborted).ConfigureAwait(false);
+                    token).ConfigureAwait(false);
 
                 await RequestExecutedAsync(new GraphQLRequestExecutionResult(gqlRequest, result, stopwatch.Elapsed));
 
@@ -129,7 +131,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                         request.Query,
                         request.GetInputs(),
                         userContext,
-                        context.RequestAborted).ConfigureAwait(false);
+                        token).ConfigureAwait(false);
 
                     await RequestExecutedAsync(new GraphQLRequestExecutionResult(gqlRequest, result, stopwatch.Elapsed, i));
 
@@ -139,6 +141,8 @@ namespace GraphQL.Server.Transports.AspNetCore
                 await WriteResponseAsync(context, writer, executionResults).ConfigureAwait(false);
             }
         }
+
+        protected virtual CancellationToken GetCancellationToken(HttpContext context) => context.RequestAborted;
 
         protected virtual Task RequestExecutedAsync(in GraphQLRequestExecutionResult requestExecutionResult)
         {
