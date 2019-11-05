@@ -27,12 +27,11 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         {
             _host = Host
                 .CreateDefaultBuilder()
-                .ConfigureWebHost(webBuilder =>
+                .ConfigureWebHost(webHostBuilder =>
                 {
-                    webBuilder
+                    webHostBuilder
                         .UseTestServer()
-                        .UseStartup<TestStartup>()
-                        .Configure(app => { });
+                        .UseStartup<TestStartup>();
                 })
                 .Start();
 
