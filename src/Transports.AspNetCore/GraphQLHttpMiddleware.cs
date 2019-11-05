@@ -1,4 +1,5 @@
 using GraphQL.Http;
+using GraphQL.Instrumentation;
 using GraphQL.Server.Internal;
 using GraphQL.Server.Transports.AspNetCore.Common;
 using GraphQL.Types;
@@ -102,6 +103,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             // normal execution with single graphql request
             if (gqlBatchRequest == null)
             {
+                var stopwatch = ValueStopwatch.StartNew();
                 var result = await executer.ExecuteAsync(
                     gqlRequest.OperationName,
                     gqlRequest.Query,
@@ -109,7 +111,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                     userContext,
                     context.RequestAborted).ConfigureAwait(false);
 
-                await RequestExecutedAsync(gqlRequest, -1, result);
+                await RequestExecutedAsync(new GraphQLRequestExecutionResult(gqlRequest, result, stopwatch.Elapsed));
 
                 await WriteResponseAsync(context, writer, result).ConfigureAwait(false);
             }
@@ -121,6 +123,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                 {
                     var request = gqlBatchRequest[i];
 
+                    var stopwatch = ValueStopwatch.StartNew();
                     var result = await executer.ExecuteAsync(
                         request.OperationName,
                         request.Query,
@@ -128,7 +131,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                         userContext,
                         context.RequestAborted).ConfigureAwait(false);
 
-                    await RequestExecutedAsync(gqlRequest, i, result);
+                    await RequestExecutedAsync(new GraphQLRequestExecutionResult(gqlRequest, result, stopwatch.Elapsed, i));
 
                     executionResults[i] = result;
                 }
@@ -137,7 +140,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             }
         }
 
-        protected virtual Task RequestExecutedAsync(GraphQLRequest request, int indexInBatch, ExecutionResult result)
+        protected virtual Task RequestExecutedAsync(in GraphQLRequestExecutionResult requestExecutionResult)
         {
             // nothing to do in this middleware
             return Task.CompletedTask;
