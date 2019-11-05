@@ -5,11 +5,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace GraphQL.Samples.Server
 {
-    // Example of a custom GraphQL Middleware which logs errors to Microsoft.Extensions.Logging API
+    // Example of a custom GraphQL Middleware that sends execution result to Microsoft.Extensions.Logging API
     public class GraphQLHttpMiddlewareWithLogs<TSchema> : GraphQLHttpMiddleware<TSchema>
         where TSchema : ISchema
     {
@@ -32,6 +33,13 @@ namespace GraphQL.Samples.Server
             }
 
             return base.RequestExecutedAsync(request, indexInBatch, result);
+        }
+
+        protected override CancellationToken GetCancellationToken(HttpContext context)
+        {
+            // custom CancellationToken example 
+            var cts = CancellationTokenSource.CreateLinkedTokenSource(base.GetCancellationToken(context), new CancellationTokenSource(TimeSpan.FromSeconds(5)).Token);
+            return cts.Token;
         }
     }
 }
