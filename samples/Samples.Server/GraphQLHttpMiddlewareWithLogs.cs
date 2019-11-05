@@ -21,17 +21,19 @@ namespace GraphQL.Samples.Server
             _logger = logger;
         }
 
-        protected override Task RequestExecutedAsync(GraphQLRequest request, int indexInBatch, ExecutionResult result)
+        protected override Task RequestExecutedAsync(in GraphQLRequestExecutionResult requestExecutionResult)
         {
-            if (result.Errors != null)
+            if (requestExecutionResult.Result.Errors != null)
             {
-                if (indexInBatch >= 0)
-                    _logger.LogError("GraphQL execution error(s) in batch [{Index}]: {Errors}", indexInBatch, result.Errors);
+                if (requestExecutionResult.IndexInBatch.HasValue)
+                    _logger.LogError("GraphQL execution completed in {Elapsed} with error(s) in batch [{Index}]: {Errors}", requestExecutionResult.Elapsed, requestExecutionResult.IndexInBatch, requestExecutionResult.Result.Errors);
                 else
-                    _logger.LogError("GraphQL execution error(s): {Errors}", result.Errors);
+                    _logger.LogError("GraphQL execution completed in {Elapsed} with error(s): {Errors}", requestExecutionResult.Elapsed, requestExecutionResult.Result.Errors);
             }
+            else
+                _logger.LogInformation("GraphQL execution successfully completed in {Elapsed}", requestExecutionResult.Elapsed);
 
-            return base.RequestExecutedAsync(request, indexInBatch, result);
+            return base.RequestExecutedAsync(requestExecutionResult);
         }
     }
 }
