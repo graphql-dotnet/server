@@ -38,7 +38,7 @@ Task("Publish")
 
       foreach(var projectFile in projectFiles)
       {
-        DotNetCorePublish(projectFile, settings);
+          DotNetCorePublish(projectFile, settings);
       }
   });
 
@@ -57,9 +57,9 @@ Task("Pack")
           MSBuildSettings = buildSettings
       };
 
-      foreach(var projectFile in projectFiles)
+      foreach (var projectFile in projectFiles)
       {
-        DotNetCorePack(projectFile, settings);
+          DotNetCorePack(projectFile, settings);
       }
   });
 
@@ -74,9 +74,9 @@ Task("Build")
           Configuration = configuration
       };
 
-      foreach(var projectFile in projectFiles)
+      foreach (var projectFile in projectFiles)
       {
-        DotNetCoreBuild(projectFile, settings);
+          DotNetCoreBuild(projectFile, settings);
       }
   });
 
@@ -92,9 +92,9 @@ Task("Clean")
 Task("Restore")
   .Does(()=>
   {
-      foreach(var projectFile in projectFiles)
+      foreach (var projectFile in projectFiles)
       {
-        DotNetCoreRestore(projectFile);
+          DotNetCoreRestore(projectFile);
       }
   });
 
@@ -106,7 +106,7 @@ Task("SetVersion")
         version = versionInfo.NuGetVersion;
         Information($"Version: {version}, FullSemVer: {versionInfo.FullSemVer}");
 
-        if(AppVeyor.IsRunningOnAppVeyor) {
+        if (AppVeyor.IsRunningOnAppVeyor) {
             AppVeyor.UpdateBuildVersion(version);
         }
     });
@@ -114,10 +114,10 @@ Task("SetVersion")
 Task("Test")
   .Does(()=> {
       var projectFiles = GetFiles("./tests/**/*.csproj");
-      foreach(var file in projectFiles)
+      foreach (var file in projectFiles)
       {
           DotNetCoreTest(file.FullPath);
       }
-    });
+  });
 
 RunTarget(target);

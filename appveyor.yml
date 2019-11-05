@@ -19,7 +19,6 @@ skip_branch_with_pr: false
 install:
   - ps: choco install dotnetcore-sdk --no-progress --confirm --version 3.0.100
   - dotnet --version
-  - nuget --version
 
 on_failure:
   - ps: Update-AppveyorBuild -Version "$($env:appveyor_build_version)-$(Get-Date -format HHmmss)-failed"
