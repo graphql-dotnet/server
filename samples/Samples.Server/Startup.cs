@@ -48,6 +48,10 @@ namespace GraphQL.Samples.Server
             {
                 options.AllowSynchronousIO = true;
             });
+            services.Configure<IISServerOptions>(options =>
+            {
+                options.AllowSynchronousIO = true;
+            });
 #endif
 
             services
@@ -73,12 +77,11 @@ namespace GraphQL.Samples.Server
             if (Environment.IsDevelopment())
                 app.UseDeveloperExceptionPage();
 
-            app.UseDefaultFiles();
-            app.UseStaticFiles();
-
             app.UseWebSockets();
             app.UseGraphQLWebSockets<ChatSchema>("/graphql");
+
             app.UseGraphQL<ChatSchema, GraphQLHttpMiddlewareWithLogs<ChatSchema>>("/graphql");
+            
             app.UseGraphQLPlayground(new GraphQLPlaygroundOptions
             {
                 Path = "/ui/playground",
