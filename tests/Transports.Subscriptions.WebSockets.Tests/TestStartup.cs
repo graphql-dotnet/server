@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace GraphQL.Server.Transports.WebSockets.Tests
@@ -13,7 +12,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
                 .AddWebSockets();
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app)
         {
             app.UseWebSockets();
             app.UseGraphQLWebSockets<TestSchema>("/graphql");

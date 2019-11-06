@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netcoreapp3.0;netstandard2.0</TargetFrameworks>
     <AssemblyName>GraphQL.Server.Transports.WebSockets</AssemblyName>
     <RootNamespace>GraphQL.Server.Transports.WebSockets</RootNamespace>
     <VersionPrefix>0.0.0</VersionPrefix>
@@ -12,11 +12,20 @@
   
   <ItemGroup>
     <PackageReference Include="GraphQL" Version="$(GraphQLVersion)" />
-    <PackageReference Include="Microsoft.AspNetCore.WebSockets" Version="$(MicrosoftAspNetCoreWebSocketsVersion)" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="$(MicrosoftExtensionsLoggingVersion)" />
     <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonVersion)" />
     <PackageReference Include="System.Reactive" Version="$(SystemReactiveVersion)" />
   </ItemGroup>
+  
+  <ItemGroup Condition="'$(IsNetCore30OnwardsTarget)' == 'True'">
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>  
+  
+  <ItemGroup Condition="'$(IsNetCore30OnwardsTarget)' == 'False'">
+    <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="$(MicrosoftAspNetCoreHostingAbstractionsVersion)" />
+    <PackageReference Include="Microsoft.AspNetCore.WebSockets" Version="$(MicrosoftAspNetCoreWebSocketsVersion)" />
+  </ItemGroup>
+  
   <ItemGroup>
     <ProjectReference Include="..\Transports.Subscriptions.Abstractions\Transports.Subscriptions.Abstractions.csproj" />
   </ItemGroup>

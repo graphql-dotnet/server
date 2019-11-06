@@ -14,14 +14,7 @@ namespace GraphQL.Server
         /// <param name="builder">The GraphQL builder.</param>
         /// <returns>Reference to the passed <paramref name="builder"/>.</returns>
         public static IGraphQLBuilder AddGraphQLAuthorization(this IGraphQLBuilder builder)
-        {
-            builder.Services
-                .AddHttpContextAccessor()
-                .AddTransient<IValidationRule, AuthorizationValidationRule>()
-                .AddAuthorization();
-
-            return builder;
-        }
+            => builder.AddGraphQLAuthorization(options => { });
 
         /// <summary>
         /// Adds the GraphQL authorization.
@@ -34,7 +27,11 @@ namespace GraphQL.Server
             builder.Services
                 .AddHttpContextAccessor()
                 .AddTransient<IValidationRule, AuthorizationValidationRule>()
+#if NETCOREAPP3_0
+                .AddAuthorizationCore(options);
+#else
                 .AddAuthorization(options);
+#endif
 
             return builder;
         }

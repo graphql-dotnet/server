@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netcoreapp3.0;netstandard2.0</TargetFrameworks>
     <AssemblyName>GraphQL.Server.Ui.Voyager</AssemblyName>
     <RootNamespace>GraphQL.Server.Ui.Voyager</RootNamespace>
     <Description>GraphQL voyager extension</Description>
@@ -13,7 +13,11 @@
     <EmbeddedResource Include="Internal\voyager.cshtml" />
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(IsNetCore30OnwardsTarget)' == 'True'">
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(IsNetCore30OnwardsTarget)' == 'False'">
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="$(MicrosoftAspNetCoreHttpAbstractionsVersion)" />
   </ItemGroup>
 

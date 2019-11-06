@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup Label="Build">
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.0;netstandard2.0</TargetFrameworks>
     <AssemblyName>GraphQL.Server.Authorization.AspNetCore</AssemblyName>
     <RootNamespace>GraphQL.Server.Authorization.AspNetCore</RootNamespace>
     <Description>HTTP authorization middleware for graphql</Description>
@@ -10,6 +10,13 @@
 
   <ItemGroup Label="Package References">
     <PackageReference Include="GraphQL" Version="$(GraphQLVersion)" />
+  </ItemGroup>
+
+  <ItemGroup Label="Package references for .NET Core" Condition="'$(IsNetCore30OnwardsTarget)' == 'True'">
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  
+  <ItemGroup Label="Package references for .NET Standard" Condition="'$(IsNetCore30OnwardsTarget)' == 'False'">
     <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="$(MicrosoftAspNetCoreAuthorizationVersion)" />
     <PackageReference Include="Microsoft.AspNetCore.Http" Version="$(MicrosoftAspNetCoreHttpVersion)" />
   </ItemGroup>
