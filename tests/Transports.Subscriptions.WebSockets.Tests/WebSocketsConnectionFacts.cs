@@ -1,13 +1,16 @@
-using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
-using Microsoft.Extensions.Hosting;
 using System;
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
+
+#if (NETFRAMEWORK || NETCOREAPP2_2)
+using Microsoft.AspNetCore;
+#else
+using Microsoft.Extensions.Hosting;
+#endif
 
 namespace GraphQL.Server.Transports.WebSockets.Tests
 {
@@ -81,7 +84,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         {
             _server.Dispose();
 #if !(NETFRAMEWORK || NETCOREAPP2_2)
-        _host.Dispose();
+            _host.Dispose();
 #endif
         }
     }

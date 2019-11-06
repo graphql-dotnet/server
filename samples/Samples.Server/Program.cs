@@ -1,9 +1,13 @@
-using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Events;
 using System;
+
+#if NETCOREAPP2_2
+using Microsoft.AspNetCore;
+#else
+using Microsoft.Extensions.Hosting;
+#endif
 
 namespace GraphQL.Samples.Server
 {
@@ -46,7 +50,7 @@ namespace GraphQL.Samples.Server
                 .UseSerilog();
         }
 #else
-                public static IHostBuilder CreateHostBuilder(string[] args)
+        public static IHostBuilder CreateHostBuilder(string[] args)
         {
             return Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>

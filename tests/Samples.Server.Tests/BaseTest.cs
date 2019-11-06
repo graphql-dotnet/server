@@ -4,10 +4,14 @@ using Newtonsoft.Json;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using System;
+
+#if NETCOREAPP2_2
 using Microsoft.AspNetCore.Hosting;
+#else
+using Microsoft.Extensions.Hosting;
+#endif
 
 namespace Samples.Server.Tests
 {
@@ -64,12 +68,12 @@ namespace Samples.Server.Tests
 #endif
         }
 
-        protected TestServer Server { get; }
+        private TestServer Server { get; }
 
-        protected HttpClient Client { get; }
+        private HttpClient Client { get; }
 
 #if !NETCOREAPP2_2
-        protected IHost Host { get; }
+        private IHost Host { get; }
 #endif
     }
 }

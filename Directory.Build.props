@@ -22,8 +22,8 @@
     <MicrosoftAspNetCoreWebSocketsVersion>2.2.1</MicrosoftAspNetCoreWebSocketsVersion>
     <MicrosoftAspNetCoreAuthorizationVersion>2.2.0</MicrosoftAspNetCoreAuthorizationVersion>
     <MicrosoftAspNetCoreHostingAbstractionsVersion>2.2.0</MicrosoftAspNetCoreHostingAbstractionsVersion>
-    <MicrosoftAspNetCoreMvcTestingVersion Condition="'$(IsNetCore30OnwardsTarget)' == 'False'">2.2.0</MicrosoftAspNetCoreMvcTestingVersion>
-    <MicrosoftAspNetCoreMvcTestingVersion Condition="'$(IsNetCore30OnwardsTarget)' == 'True'">3.0.0</MicrosoftAspNetCoreMvcTestingVersion>
+    <MicrosoftAspNetCoreTestHostVersion Condition="'$(IsNetCore30OnwardsTarget)' == 'False'">2.2.0</MicrosoftAspNetCoreTestHostVersion>
+    <MicrosoftAspNetCoreTestHostVersion Condition="'$(IsNetCore30OnwardsTarget)' == 'True'">3.0.0</MicrosoftAspNetCoreTestHostVersion>
 
     <MicrosoftExtensionsLoggingVersion Condition="'$(IsNetCore30OnwardsTarget)' == 'False'">2.2.0</MicrosoftExtensionsLoggingVersion>
     <MicrosoftExtensionsLoggingVersion Condition="'$(IsNetCore30OnwardsTarget)' == 'True'">3.0.0</MicrosoftExtensionsLoggingVersion>
