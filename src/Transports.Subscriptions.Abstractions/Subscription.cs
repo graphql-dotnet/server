@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using GraphQL.Subscription;
@@ -80,6 +81,11 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             _unsubscribe = stream.Synchronize()
                 .Select(value => Observable.FromAsync(() => SendData(value)))
                 .Merge(1)
+                .Catch((Exception e) =>
+                {
+                    _logger.LogError(e, "Subscription: {subscriptionId} exception occurred", Id);
+                    return Observable.Empty<Unit>();
+                })
                 .Concat(Observable.FromAsync(SendComplete))
                 .Subscribe();
 
