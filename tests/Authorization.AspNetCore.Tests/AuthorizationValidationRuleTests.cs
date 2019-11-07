@@ -21,7 +21,7 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
                 _.Schema = BasicSchema<BasicQueryWithAttributesAndClassPolicy>();
                 _.User = CreatePrincipal(claims: new Dictionary<string, string>
                     {
-                        {"Admin", "true"}
+                        { "Admin", "true" }
                     });
             });
         }
@@ -57,7 +57,7 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
                 _.Schema = BasicSchema<BasicQueryWithAttributesAndFieldPolicy>();
                 _.User = CreatePrincipal(claims: new Dictionary<string, string>
                     {
-                        {"Admin", "true"}
+                        { "Admin", "true" }
                     });
             });
         }
@@ -93,7 +93,7 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
                 _.Schema = NestedSchema();
                 _.User = CreatePrincipal(claims: new Dictionary<string, string>
                     {
-                        {"Admin", "true"}
+                        { "Admin", "true" }
                     });
             });
         }
@@ -129,8 +129,40 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
                 _.Schema = TypedSchema();
                 _.User = CreatePrincipal(claims: new Dictionary<string, string>
                     {
-                        {"Admin", "true"}
+                        { "Admin", "true" }
                     });
+            });
+        }
+
+        [Fact]
+        public void nested_type_list_policy_fail()
+        {
+            ConfigureAuthorizationOptions(
+                options =>
+                {
+                    options.AddPolicy("PostPolicy", x => x.RequireClaim("admin"));
+                });
+
+            ShouldFailRule(_ =>
+            {
+                _.Query = @"query { posts }";
+                _.Schema = NestedSchema();
+            });
+        }
+
+        [Fact]
+        public void nested_type_list_non_null_policy_fail()
+        {
+            ConfigureAuthorizationOptions(
+                options =>
+                {
+                    options.AddPolicy("PostPolicy", x => x.RequireClaim("admin"));
+                });
+
+            ShouldFailRule(_ =>
+            {
+                _.Query = @"query { postsNonNull }";
+                _.Schema = NestedSchema();
             });
         }
 
@@ -189,6 +221,8 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
             string defs = @"
                 type Query {
                     post(id: ID!): Post
+                    posts: [Post]
+                    postsNonNull: [Post!]!
                 }
 
                 type Post {
@@ -207,6 +241,16 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
         public class NestedQueryWithAttributes
         {
             public Post Post(string id)
+            {
+                return null;
+            }
+
+            public IEnumerable<Post> Posts()
+            {
+                return null;
+            }
+
+            public IEnumerable<Post> PostsNonNull()
             {
                 return null;
             }

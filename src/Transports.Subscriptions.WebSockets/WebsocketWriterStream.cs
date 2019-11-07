@@ -38,17 +38,17 @@ namespace GraphQL.Server.Transports.WebSockets
 
         public override int Read(byte[] buffer, int offset, int count)
         {
-            throw new System.NotSupportedException();
+            throw new NotSupportedException();
         }
 
         public override long Seek(long offset, SeekOrigin origin)
         {
-            throw new System.NotSupportedException();
+            throw new NotSupportedException();
         }
 
         public override void SetLength(long value)
         {
-            throw new System.NotSupportedException();
+            throw new NotSupportedException();
         }
 
         public override bool CanRead => false;

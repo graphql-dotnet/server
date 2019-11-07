@@ -26,7 +26,6 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         [DataMember(Name = "payload")]
         public object Payload { get; set; }
 
-
         /// <inheritdoc />
         public override string ToString()
         {

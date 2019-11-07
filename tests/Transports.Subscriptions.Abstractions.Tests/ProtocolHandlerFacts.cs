@@ -31,7 +31,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
                 {
                     Streams = new Dictionary<string, IObservable<ExecutionResult>>
                     {
-                        {"1", Substitute.For<IObservable<ExecutionResult>>()}
+                        { "1", Substitute.For<IObservable<ExecutionResult>>() }
                     }
                 });
             _subscriptionManager = new SubscriptionManager(_documentExecuter, new NullLoggerFactory());

@@ -1,6 +1,9 @@
 GraphQL for .NET - Subscription Transport WebSockets
 ====================================================
 
+>Looking for maintainers https://github.com/graphql-dotnet/server/issues/193
+
+
 >WARNING: not tested in heavy production use! That said if you are using this in production
 >drop me a line to tell me how's it working for you. Maybe I can take this disclaimer off.
 

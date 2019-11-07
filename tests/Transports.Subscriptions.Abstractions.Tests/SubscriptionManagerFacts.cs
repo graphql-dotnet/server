@@ -20,7 +20,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
                 {
                     Streams = new Dictionary<string, IObservable<ExecutionResult>>
                     {
-                        {"1", Substitute.For<IObservable<ExecutionResult>>()}
+                        { "1", Substitute.For<IObservable<ExecutionResult>>() }
                     }
                 });
             _sut = new SubscriptionManager(_executer, new NullLoggerFactory());
@@ -61,7 +61,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         {
             /* Given */
             var id = "1";
-            var payload = new OperationMessagePayload();  
+            var payload = new OperationMessagePayload();
             var context = new MessageHandlingContext(_server, null);
 
             _executer.ExecuteAsync(null, null, null, null).ReturnsForAnyArgs(
@@ -69,7 +69,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
                 {
                     Streams = new Dictionary<string, IObservable<ExecutionResult>>
                     {
-                        {"1", null}
+                        { "1", null }
                     }
                 });
 
@@ -140,7 +140,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             await _executer.Received().ExecuteAsync(
                 Arg.Is(payload.OperationName),
                 Arg.Is(payload.Query),
-                Arg.Any<dynamic>(), 
+                Arg.Any<dynamic>(),
                 context);
         }
 

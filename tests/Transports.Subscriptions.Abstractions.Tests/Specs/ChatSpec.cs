@@ -34,7 +34,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
             _server = new SubscriptionServer(
                 _transport,
                 _subscriptions,
-                new []{ new ProtocolMessageListener(new NullLogger<ProtocolMessageListener>())},
+                new[] { new ProtocolMessageListener(new NullLogger<ProtocolMessageListener>()) },
                 new NullLogger<SubscriptionServer>()
             );
         }

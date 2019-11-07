@@ -1,3 +1,5 @@
+using GraphQL.Server.Transports.Subscriptions.Abstractions;
+using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Net.WebSockets;
@@ -5,8 +7,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
-using GraphQL.Server.Transports.Subscriptions.Abstractions;
-using Newtonsoft.Json;
 
 namespace GraphQL.Server.Transports.WebSockets
 {
@@ -42,24 +42,24 @@ namespace GraphQL.Server.Transports.WebSockets
 
         public async Task Complete(WebSocketCloseStatus closeStatus, string statusDescription)
         {
-          if (_socket.State != WebSocketState.Closed && _socket.State != WebSocketState.CloseSent)
-            try
-            {
-              if (closeStatus == WebSocketCloseStatus.NormalClosure)
-                await _socket.CloseAsync(
-                  closeStatus,
-                  statusDescription,
-                  CancellationToken.None);
-              else
-                await _socket.CloseOutputAsync(
-                  closeStatus,
-                  statusDescription,
-                  CancellationToken.None);
-            }
-            finally
-            {
-              _startBlock.Complete();
-            }
+            if (_socket.State != WebSocketState.Closed && _socket.State != WebSocketState.CloseSent)
+                try
+                {
+                    if (closeStatus == WebSocketCloseStatus.NormalClosure)
+                        await _socket.CloseAsync(
+                          closeStatus,
+                          statusDescription,
+                          CancellationToken.None).ConfigureAwait(false); 
+                    else
+                        await _socket.CloseOutputAsync(
+                          closeStatus,
+                          statusDescription,
+                          CancellationToken.None).ConfigureAwait(false); 
+                }
+                finally
+                {
+                    _startBlock.Complete();
+                }
         }
 
         public Task Completion => _endBlock.Completion;
@@ -86,7 +86,7 @@ namespace GraphQL.Server.Transports.WebSockets
                     MaxDegreeOfParallelism = 1
                 });
 
-            Task.Run(async () => { await ReadMessageAsync(source); });
+            Task.Run(async () => { await ReadMessageAsync(source).ConfigureAwait(false);  });
 
             return source;
         }
@@ -107,7 +107,7 @@ namespace GraphQL.Server.Transports.WebSockets
 
                         do
                         {
-                            receiveResult = await _socket.ReceiveAsync(segment, CancellationToken.None);
+                            receiveResult = await _socket.ReceiveAsync(segment, CancellationToken.None).ConfigureAwait(false);
 
                             if (receiveResult.CloseStatus.HasValue)
                                 target.Complete();
@@ -115,7 +115,7 @@ namespace GraphQL.Server.Transports.WebSockets
                             if (receiveResult.Count == 0)
                                 continue;
 
-                            await memoryStream.WriteAsync(segment.Array, segment.Offset, receiveResult.Count);
+                            await memoryStream.WriteAsync(segment.Array, segment.Offset, receiveResult.Count).ConfigureAwait(false);
                         } while (!receiveResult.EndOfMessage || memoryStream.Length == 0);
 
                         message = Encoding.UTF8.GetString(memoryStream.ToArray());
@@ -141,7 +141,7 @@ namespace GraphQL.Server.Transports.WebSockets
                                 break;
                         }
 
-                        await Complete(closeStatus, $"Closing socket connection due to {wx.WebSocketErrorCode}.");
+                        await Complete(closeStatus, $"Closing socket connection due to {wx.WebSocketErrorCode}.").ConfigureAwait(false);
                         break;
                     }
                     catch (Exception x)
@@ -151,7 +151,7 @@ namespace GraphQL.Server.Transports.WebSockets
                     }
                 }
 
-                await target.SendAsync(message);
+                await target.SendAsync(message).ConfigureAwait(false);
             }
         }
     }

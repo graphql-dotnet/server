@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 {
-    public class MessageHandlingContext : IDisposable
+    public class MessageHandlingContext : Dictionary<string, object>, IDisposable
     {
         private readonly IServerOperations _server;
 
@@ -41,12 +42,12 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 
         public T Get<T>(string key)
         {
-            if (!Properties.TryGetValue(key, out var value)) return default(T);
+            if (!Properties.TryGetValue(key, out var value)) return default;
 
             if (value is T variable)
                 return variable;
 
-            return default(T);
+            return default;
         }
 
         public Task Terminate()

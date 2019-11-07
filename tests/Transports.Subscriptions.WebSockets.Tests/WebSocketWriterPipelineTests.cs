@@ -18,7 +18,6 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         public WebSocketWriterPipelineFacts()
         {
             _testWebSocket = new TestWebSocket();
-
         }
 
         public static IEnumerable<object[]> TestData =>
@@ -33,7 +32,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
                             Data = new TestMessage
                             {
                                 Content = "Hello world",
-                                SentAt = new DateTimeOffset(2018, 12, 12, 10, 0,0, TimeSpan.Zero)
+                                SentAt = new DateTimeOffset(2018, 12, 12, 10, 0, 0, TimeSpan.Zero)
                             }
                         }
                     },
@@ -48,7 +47,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
                             Data = Enumerable.Repeat(new TestMessage
                             {
                                 Content = "Hello world",
-                                SentAt = new DateTimeOffset(2018, 12, 12, 10, 0,0, TimeSpan.Zero)
+                                SentAt = new DateTimeOffset(2018, 12, 12, 10, 0, 0, TimeSpan.Zero)
                             }, 10)
                         }
                     },
@@ -63,7 +62,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
                             Data = Enumerable.Repeat(new TestMessage
                             {
                                 Content = "Hello world",
-                                SentAt = new DateTimeOffset(2018, 12, 12, 10, 0,0, TimeSpan.Zero)
+                                SentAt = new DateTimeOffset(2018, 12, 12, 10, 0, 0, TimeSpan.Zero)
                             }, 16_000)
                         }
                     },
@@ -79,7 +78,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
                             Data = Enumerable.Repeat(new TestMessage
                             {
                                 Content = "Hello world",
-                                SentAt = new DateTimeOffset(2018, 12, 12, 10, 0,0, TimeSpan.Zero)
+                                SentAt = new DateTimeOffset(2018, 12, 12, 10, 0, 0, TimeSpan.Zero)
                             }, 160_000)
                         }
                     },
@@ -95,7 +94,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
                             Data = Enumerable.Repeat(new TestMessage
                             {
                                 Content = "Hello world",
-                                SentAt = new DateTimeOffset(2018, 12, 12, 10, 0,0, TimeSpan.Zero)
+                                SentAt = new DateTimeOffset(2018, 12, 12, 10, 0, 0, TimeSpan.Zero)
                             }, 1_600_000)
                         }
                     },
