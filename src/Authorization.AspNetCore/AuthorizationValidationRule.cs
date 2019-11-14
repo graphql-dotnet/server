@@ -24,9 +24,9 @@ namespace GraphQL.Server.Authorization.AspNetCore
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public INodeVisitor Validate(ValidationContext context)
+        public Task<INodeVisitor> ValidateAsync(ValidationContext context)
         {
-            return new EnterLeaveListener(_ =>
+            return Task.FromResult((INodeVisitor)new EnterLeaveListener(_ =>
             {
                 var operationType = OperationType.Query;
 
@@ -65,7 +65,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
                     // check returned graph type
                     AuthorizeAsync(fieldAst, fieldDef.ResolvedType.GetNamedType(), context, operationType).GetAwaiter().GetResult();
                 });
-            });
+            }));
         }
 
         private async Task AuthorizeAsync(
