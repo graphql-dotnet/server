@@ -100,7 +100,7 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
             var documentBuilder = new GraphQLDocumentBuilder();
             var document = documentBuilder.Build(config.Query);
             var validator = new DocumentValidator();
-            return validator.Validate(config.Query, config.Schema, document, config.Rules, userContext, config.Inputs);
+            return validator.ValidateAsync(config.Query, config.Schema, document, config.Rules, userContext, config.Inputs).GetAwaiter().GetResult();
         }
 
         protected ClaimsPrincipal CreatePrincipal(string authenticationType = null, IDictionary<string, string> claims = null)
