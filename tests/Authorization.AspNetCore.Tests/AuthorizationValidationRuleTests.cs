@@ -1,6 +1,6 @@
-using System.Collections.Generic;
 using GraphQL.Types;
 using GraphQL.Types.Relay.DataObjects;
+using System.Collections.Generic;
 using Xunit;
 
 namespace GraphQL.Server.Authorization.AspNetCore.Tests
@@ -282,22 +282,7 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
             query.Connection<PostGraphType>()
                 .Name("posts")
                 .AuthorizeWith("ConnectionPolicy")
-                .Resolve(ctx => new Connection<Post>()
-                {
-                    Edges = new List<Edge<Post>>
-                    {
-                        new Edge<Post>
-                        {
-                            Cursor = "Post:1",
-                            Node = new Post { Id = "1" }
-                        },
-                        new Edge<Post>
-                        {
-                            Cursor = "Post:2",
-                            Node = new Post { Id = "2" }
-                        },
-                    }
-                });
+                .Resolve(ctx => new Connection<Post>());
 
             return new Schema { Query = query };
         }
