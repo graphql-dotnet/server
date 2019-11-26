@@ -30,6 +30,14 @@ namespace GraphQL.Server.Authorization.AspNetCore
             builder.FieldType.AuthorizeWith(policy);
             return builder;
         }
+        
+        public static ConnectionBuilder<TGraphType, TSourceType> AuthorizeWith<TGraphType, TSourceType>(
+            this ConnectionBuilder<TGraphType, TSourceType> builder, string policy)
+            where TGraphType : IGraphType
+        {
+            builder.FieldType.AuthorizeWith(policy);
+            return builder;
+        }
 
         public static List<string> GetPolicies(this IProvideMetadata type) =>
             type.GetMetadata<List<string>>(PolicyKey, null);
