@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using GraphQL.Types;
+using GraphQL.Types.Relay.DataObjects;
 using Xunit;
 
 namespace GraphQL.Server.Authorization.AspNetCore.Tests
@@ -150,6 +151,43 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
             });
         }
 
+        [Fact]
+        public void passes_with_policy_on_connection_type()
+        {
+            ConfigureAuthorizationOptions(
+                options =>
+                {
+                    options.AddPolicy("ConnectionPolicy", x => x.RequireClaim("admin"));
+                });
+
+            ShouldPassRule(_ =>
+            {
+                _.Query = @"query { posts { items { id } } }";
+                _.Schema = TypedSchema();
+                _.User = CreatePrincipal(claims: new Dictionary<string, string>
+                {
+                    {"Admin", "true"}
+                });
+            });
+        }
+
+        [Fact]
+        public void fails_on_missing_claim_on_connection_type()
+        {
+            ConfigureAuthorizationOptions(
+                options =>
+                {
+                    options.AddPolicy("ConnectionPolicy", x => x.RequireClaim("admin"));
+                });
+
+            ShouldFailRule(_ =>
+            {
+                _.Query = @"query { posts { items { id } } }";
+                _.Schema = TypedSchema();
+                _.User = CreatePrincipal();
+            });
+        }
+
         private ISchema BasicSchema<T>()
         {
             string defs = @"
@@ -218,6 +256,14 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
             public string Id { get; set; }
         }
 
+        public class PostGraphType : ObjectGraphType<Post>
+        {
+            public PostGraphType()
+            {
+                Field(p => p.Id);
+            }
+        }
+
         public class Author
         {
             public string Name { get; set; }
@@ -226,11 +272,33 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
         private ISchema TypedSchema()
         {
             var query = new ObjectGraphType();
+            
             query.Field<StringGraphType>(
                 "author",
                 arguments: new QueryArguments(new QueryArgument<AuthorInputType> { Name = "input" }),
                 resolve: context => "testing"
             );
+
+            query.Connection<PostGraphType>()
+                .Name("posts")
+                .AuthorizeWith("ConnectionPolicy")
+                .Resolve(ctx => new Connection<Post>()
+                {
+                    Edges = new List<Edge<Post>>
+                    {
+                        new Edge<Post>
+                        {
+                            Cursor = "Post:1",
+                            Node = new Post { Id = "1" }
+                        },
+                        new Edge<Post>
+                        {
+                            Cursor = "Post:2",
+                            Node = new Post { Id = "2" }
+                        },
+                    }
+                });
+
             return new Schema { Query = query };
         }
 
