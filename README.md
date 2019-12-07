@@ -1,13 +1,23 @@
 GraphQL for .NET - Subscription Transport WebSockets
 ====================================================
 
->Looking for maintainers https://github.com/graphql-dotnet/server/issues/193
-
-
 >WARNING: not tested in heavy production use! That said if you are using this in production
 >drop me a line to tell me how's it working for you. Maybe I can take this disclaimer off.
 
 [![Build status](https://ci.appveyor.com/api/projects/status/x0nf67vfao60wf7e/branch/master?svg=true)](https://ci.appveyor.com/project/graphql-dotnet-ci/server/branch/master)
+
+Provides the following packages:
+
+| Package | Downloads |
+|---------|-----------|
+| GraphQL.Server.Core | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Core)](https://www.nuget.org/packages/GraphQL.Server.Core/) |
+| GraphQL.Server.Transports.AspNetCore | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Transports.AspNetCore)](https://www.nuget.org/packages/GraphQL.Server.Transports.AspNetCore/) |
+| GraphQL.Server.Transports.Subscriptions.Abstractions | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Transports.Subscriptions.Abstractions)](https://www.nuget.org/packages/GraphQL.Server.Transports.Subscriptions.Abstractions/) |
+| GraphQL.Server.Transports.WebSockets | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Transports.WebSockets)](https://www.nuget.org/packages/GraphQL.Server.Transports.WebSockets/) |
+| GraphQL.Server.Ui.Playground | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Ui.Playground)](https://www.nuget.org/packages/GraphQL.Server.Ui.Playground/) |
+| GraphQL.Server.Ui.GraphiQL | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Ui.GraphiQL)](https://www.nuget.org/packages/GraphQL.Server.Ui.GraphiQL/) |
+| GraphQL.Server.Ui.Voyager | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Ui.Voyager)](https://www.nuget.org/packages/GraphQL.Server.Ui.Voyager/) |
+| GraphQL.Server.Authorization.AspNetCore | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Authorization.AspNetCore)](https://www.nuget.org/packages/GraphQL.Server.Authorization.AspNetCore/) |
 
 Transport compatible with [Apollo](https://github.com/apollographql/subscriptions-transport-ws) subscription protocol.
 
@@ -77,7 +87,7 @@ access the properties including your actual `UserContext` by using the
 ## Sample
 
 Samples.Server shows a simple Chat style example of how subscription transport is used
-with GraphiQL integration.
+with GraphiQL integration. An example works for `netcoreapp2.2` and `netcoreapp3.0` platforms.
 
 Here are example queries to get started. Use three browser tabs or better yet windows 
 to view the changes.
