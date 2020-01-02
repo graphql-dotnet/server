@@ -1,5 +1,6 @@
 using GraphQL.Conversion;
 using GraphQL.Execution;
+using GraphQL.Introspection;
 using GraphQL.Validation.Complexity;
 using System;
 
@@ -19,5 +20,7 @@ namespace GraphQL.Server
         public IFieldNameConverter FieldNameConverter { get; set; }
 
         public Action<UnhandledExceptionContext> UnhandledExceptionDelegate = ctx => { };
+
+        public ISchemaFilter SchemaFilter { get; set; } = new DefaultSchemaFilter();
     }
 }
