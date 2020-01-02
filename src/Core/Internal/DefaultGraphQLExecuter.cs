@@ -1,6 +1,7 @@
 using GraphQL.Conversion;
 using GraphQL.Execution;
 using GraphQL.Instrumentation;
+using GraphQL.Introspection;
 using GraphQL.Types;
 using GraphQL.Validation;
 using Microsoft.Extensions.Options;
@@ -66,7 +67,8 @@ namespace GraphQL.Server.Internal
                 EnableMetrics = _options.EnableMetrics,
                 ExposeExceptions = _options.ExposeExceptions,
                 FieldNameConverter = _options.FieldNameConverter ?? CamelCaseFieldNameConverter.Instance,
-                UnhandledExceptionDelegate = _options.UnhandledExceptionDelegate, 
+                UnhandledExceptionDelegate = _options.UnhandledExceptionDelegate,
+                SchemaFilter = _options.SchemaFilter ?? new DefaultSchemaFilter(),
             };
 
             if (opts.EnableMetrics)
