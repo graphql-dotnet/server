@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using GraphQL.Http;
 using GraphQL.Server.Internal;
 using Microsoft.Extensions.DependencyInjection;

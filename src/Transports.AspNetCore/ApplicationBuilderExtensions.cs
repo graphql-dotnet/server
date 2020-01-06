@@ -1,8 +1,13 @@
 using GraphQL.Server.Transports.AspNetCore;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
 using System;
+
+#if NETSTANDARD2_0
+using Newtonsoft.Json;
+#else
+using System.Text.Json;
+#endif
 
 namespace Microsoft.AspNetCore.Builder
 {
@@ -19,7 +24,12 @@ namespace Microsoft.AspNetCore.Builder
         /// <param name="path">The path to the GraphQL endpoint which defaults to '/graphql'</param>
         /// <param name="configure">Action to configure json serialization settings</param>
         /// <returns>The <see cref="IApplicationBuilder"/> received as parameter</returns>
-        public static IApplicationBuilder UseGraphQL<TSchema>(this IApplicationBuilder builder, string path = "/graphql", Action<JsonSerializerSettings> configure = null)
+        public static IApplicationBuilder UseGraphQL<TSchema>(this IApplicationBuilder builder, string path = "/graphql",
+#if NETSTANDARD2_0
+            Action<JsonSerializerSettings> configure = null)
+#else
+            Action<JsonSerializerOptions> configure = null)
+#endif
             where TSchema : ISchema
         {
             return builder.UseGraphQL<TSchema>(new PathString(path), configure);
@@ -33,7 +43,12 @@ namespace Microsoft.AspNetCore.Builder
         /// <param name="path">The path to the GraphQL endpoint</param>
         /// <param name="configure">Action to configure json serialization settings</param>
         /// <returns>The <see cref="IApplicationBuilder"/> received as parameter</returns>
-        public static IApplicationBuilder UseGraphQL<TSchema>(this IApplicationBuilder builder, PathString path, Action<JsonSerializerSettings> configure = null)
+        public static IApplicationBuilder UseGraphQL<TSchema>(this IApplicationBuilder builder, PathString path,
+#if NETSTANDARD2_0
+            Action<JsonSerializerSettings> configure = null)
+#else
+            Action<JsonSerializerOptions> configure = null)
+#endif
             where TSchema : ISchema
         {
             return builder.UseMiddleware<GraphQLHttpMiddleware<TSchema>>(path, configure ?? (_ => { }));
@@ -48,7 +63,12 @@ namespace Microsoft.AspNetCore.Builder
         /// <param name="path">The path to the GraphQL endpoint which defaults to '/graphql'</param>
         /// <param name="configure">Action to configure json serialization settings</param>
         /// <returns>The <see cref="IApplicationBuilder"/> received as parameter</returns>
-        public static IApplicationBuilder UseGraphQL<TSchema, TMiddleware>(this IApplicationBuilder builder, string path = "/graphql", Action<JsonSerializerSettings> configure = null)
+        public static IApplicationBuilder UseGraphQL<TSchema, TMiddleware>(this IApplicationBuilder builder, string path = "/graphql",
+#if NETSTANDARD2_0
+            Action<JsonSerializerSettings> configure = null)
+#else
+            Action<JsonSerializerOptions> configure = null)
+#endif
             where TSchema : ISchema
             where TMiddleware : GraphQLHttpMiddleware<TSchema>
         {
@@ -64,7 +84,12 @@ namespace Microsoft.AspNetCore.Builder
         /// <param name="path">The path to the GraphQL endpoint</param>
         /// <param name="configure">Action to configure json serialization settings</param>
         /// <returns>The <see cref="IApplicationBuilder"/> received as parameter</returns>
-        public static IApplicationBuilder UseGraphQL<TSchema, TMiddleware>(this IApplicationBuilder builder, PathString path, Action<JsonSerializerSettings> configure = null)
+        public static IApplicationBuilder UseGraphQL<TSchema, TMiddleware>(this IApplicationBuilder builder, PathString path,
+#if NETSTANDARD2_0
+            Action<JsonSerializerSettings> configure = null)
+#else
+            Action<JsonSerializerOptions> configure = null)
+#endif
             where TSchema : ISchema
             where TMiddleware : GraphQLHttpMiddleware<TSchema>
         {

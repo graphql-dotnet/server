@@ -1,4 +1,4 @@
-﻿using GraphQL.Samples.Server;
+using GraphQL.Samples.Server;
 using GraphQL.Server.Transports.AspNetCore.Common;
 using Newtonsoft.Json;
 using System.Net.Http;
@@ -34,7 +34,7 @@ namespace Samples.Server.Tests
 
             // Workaround until GraphQL can swap off Newtonsoft.Json and onto the new MS one.
             // https://github.com/graphql-dotnet/graphql-dotnet/issues/1116
-            Server.AllowSynchronousIO = true;
+            //Server.AllowSynchronousIO = true;
 #endif
 
             Client = Server.CreateClient();

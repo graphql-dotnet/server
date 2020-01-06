@@ -5,7 +5,6 @@ using GraphQL.Server.Transports.AspNetCore.Common;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -13,6 +12,14 @@ using System.IO;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
+
+#if NETSTANDARD2_0
+using Newtonsoft.Json;
+using JsonSerializer = Newtonsoft.Json.JsonSerializer;
+#else
+using System.Text.Json;
+using JsonSerializer = System.Text.Json.JsonSerializer;
+#endif
 
 namespace GraphQL.Server.Transports.AspNetCore
 {
@@ -25,16 +32,31 @@ namespace GraphQL.Server.Transports.AspNetCore
 
         private readonly RequestDelegate _next;
         private readonly PathString _path;
+
+#if NETSTANDARD2_0
         private readonly JsonSerializer _serializer;
 
         public GraphQLHttpMiddleware(RequestDelegate next, PathString path, Action<JsonSerializerSettings> configure)
+            : this(next, path)
         {
-            _next = next;
-            _path = path;
-
             var settings = new JsonSerializerSettings();
             configure(settings);
             _serializer = JsonSerializer.Create(settings); // it's thread safe https://stackoverflow.com/questions/36186276/is-the-json-net-jsonserializer-threadsafe
+        }
+#else
+        private readonly JsonSerializerOptions _serializerOptions = new JsonSerializerOptions();
+
+        public GraphQLHttpMiddleware(RequestDelegate next, PathString path, Action<JsonSerializerOptions> configure)
+            : this(next, path)
+        {
+            configure(_serializerOptions);
+        }
+#endif
+
+        private GraphQLHttpMiddleware(RequestDelegate next, PathString path)
+        {
+            _next = next;
+            _path = path;
         }
 
         public async Task InvokeAsync(HttpContext context)
@@ -67,7 +89,14 @@ namespace GraphQL.Server.Transports.AspNetCore
                 switch (mediaTypeHeader.MediaType)
                 {
                     case JsonContentType:
-                        if (!Deserialize(httpRequest.Body, out gqlRequest, out gqlBatchRequest))
+#if NETSTANDARD2_0
+                        var wasDeserialized = Deserialize(httpRequest.Body, out gqlRequest, out gqlBatchRequest);
+#else
+                        var (wasDeserialized, gqlRequestOut, gqlBatchRequestOut) = await DeserializeAsync(httpRequest.Body);
+                        gqlRequest = gqlRequestOut;
+                        gqlBatchRequest = gqlBatchRequestOut;
+#endif
+                        if (!wasDeserialized)
                         {
                             await WriteBadRequestResponseAsync(context, writer, "Body text could not be parsed. Body text should start with '{' for normal graphql query or with '[' for batched query.").ConfigureAwait(false);
                             return;
@@ -174,6 +203,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             return writer.WriteAsync(context.Response.Body, result);
         }
 
+#if NETSTANDARD2_0
         private bool Deserialize(Stream stream, out GraphQLRequest single, out GraphQLRequest[] batch)
         {
             single = null;
@@ -184,6 +214,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             // pipeline. In fact, it is absolutely not dangerous not to dispose StreamReader as it does not perform any useful
             // work except for the disposing inner stream.
             var reader = new StreamReader(stream);
+
             using (var jsonReader = new JsonTextReader(reader) { CloseInput = false })
             {
                 switch (reader.Peek())
@@ -201,6 +232,27 @@ namespace GraphQL.Server.Transports.AspNetCore
                 }
             }
         }
+#else
+        private async Task<(bool wasDeserialized, GraphQLRequest single, GraphQLRequest[] batch)> DeserializeAsync(Stream stream)
+        {
+            // Do not explicitly or implicitly (via using, etc.) call dispose because StreamReader will dispose inner stream.
+            // This leads to the inability to use the stream further by other consumers/middlewares of the request processing
+            // pipeline. In fact, it is absolutely not dangerous not to dispose StreamReader as it does not perform any useful
+            // work except for the disposing inner stream.
+            var reader = new StreamReader(stream);
+            switch (reader.Peek()) // TODO: Find an async equivalent!
+            {
+                case '{':
+                    return (true, await JsonSerializer.DeserializeAsync<GraphQLRequest>(stream, _serializerOptions), null);
+
+                case '[':
+                    return (true, null, await JsonSerializer.DeserializeAsync<GraphQLRequest[]>(stream, _serializerOptions));
+
+                default:
+                    return (false, null, null); // fast return with BadRequest without reading request stream
+            }
+        }
+#endif
 
         private static async Task<string> ReadAsStringAsync(Stream s)
         {
