@@ -239,18 +239,30 @@ namespace GraphQL.Server.Transports.AspNetCore
             // This leads to the inability to use the stream further by other consumers/middlewares of the request processing
             // pipeline. In fact, it is absolutely not dangerous not to dispose StreamReader as it does not perform any useful
             // work except for the disposing inner stream.
-            var reader = new StreamReader(stream);
-            switch (reader.Peek()) // TODO: Find an async equivalent!
-            {
-                case '{':
-                    return (true, await JsonSerializer.DeserializeAsync<GraphQLRequest>(stream, _serializerOptions), null);
+            var ms = new MemoryStream();
+            await stream.CopyToAsync(ms);
+            var jsonBytes = ms.ToArray();
 
-                case '[':
-                    return (true, null, await JsonSerializer.DeserializeAsync<GraphQLRequest[]>(stream, _serializerOptions));
+            switch (GetTokenType(jsonBytes))
+            {
+                case JsonTokenType.StartObject:
+                    var gqlRequest = JsonSerializer.Deserialize<GraphQLRequest>(jsonBytes.AsSpan(), _serializerOptions);
+                    return (true, gqlRequest, null);
+
+                case JsonTokenType.StartArray:
+                    var gqlRequests = JsonSerializer.Deserialize<GraphQLRequest[]>(jsonBytes.AsSpan(), _serializerOptions);
+                    return (true, null, gqlRequests);
 
                 default:
                     return (false, null, null); // fast return with BadRequest without reading request stream
             }
+        }
+
+        private static JsonTokenType GetTokenType(byte[] bytes)
+        {
+            var reader = new Utf8JsonReader(bytes.AsSpan());
+            reader.Read();
+            return reader.TokenType;
         }
 #endif
 
