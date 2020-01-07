@@ -235,12 +235,8 @@ namespace GraphQL.Server.Transports.AspNetCore
 #else
         private async Task<(bool wasDeserialized, GraphQLRequest single, GraphQLRequest[] batch)> DeserializeAsync(Stream stream)
         {
-            // Do not explicitly or implicitly (via using, etc.) call dispose because StreamReader will dispose inner stream.
-            // This leads to the inability to use the stream further by other consumers/middlewares of the request processing
-            // pipeline. In fact, it is absolutely not dangerous not to dispose StreamReader as it does not perform any useful
-            // work except for the disposing inner stream.
-            var ms = new MemoryStream();
-            await stream.CopyToAsync(ms);
+            using var ms = new MemoryStream();
+            await stream.CopyToAsync(ms).ConfigureAwait(false);
             var jsonBytes = ms.ToArray();
 
             switch (GetTokenType(jsonBytes))
