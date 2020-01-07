@@ -239,7 +239,17 @@ namespace GraphQL.Server.Transports.AspNetCore
             await stream.CopyToAsync(ms).ConfigureAwait(false);
             var jsonBytes = ms.ToArray();
 
-            switch (GetTokenType(jsonBytes))
+            JsonTokenType tokenType;
+            try
+            {
+                tokenType = GetTokenType(jsonBytes);
+            }
+            catch (Exception)
+            {
+                return (false, null, null); // BadRequest
+            }
+
+            switch (tokenType)
             {
                 case JsonTokenType.StartObject:
                     var gqlRequest = JsonSerializer.Deserialize<GraphQLRequest>(jsonBytes.AsSpan(), _serializerOptions);
@@ -250,7 +260,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                     return (true, null, gqlRequests);
 
                 default:
-                    return (false, null, null); // fast return with BadRequest without reading request stream
+                    return (false, null, null); // BadRequest
             }
         }
 

@@ -1,6 +1,5 @@
 using GraphQL.Samples.Server;
 using GraphQL.Server.Transports.AspNetCore.Common;
-using Newtonsoft.Json;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,8 +7,10 @@ using Microsoft.AspNetCore.TestHost;
 using System;
 
 #if NETCOREAPP2_2
+using Newtonsoft.Json;
 using Microsoft.AspNetCore.Hosting;
 #else
+using System.Text.Json;
 using Microsoft.Extensions.Hosting;
 #endif
 
@@ -48,13 +49,23 @@ namespace Samples.Server.Tests
 
         protected async Task<string> SendRequestAsync(GraphQLRequest request)
         {
-            var response = await Client.PostAsync("graphql", new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json"));
+#if NETCOREAPP2_2
+            var content = JsonConvert.SerializeObject(request);
+#else
+            var content = JsonSerializer.Serialize(request);
+#endif
+            var response = await Client.PostAsync("graphql", new StringContent(content, Encoding.UTF8, "application/json"));
             return  await response.Content.ReadAsStringAsync();
         }
 
         protected async Task<string> SendBatchRequestAsync(params GraphQLRequest[] requests)
         {
-            var response = await Client.PostAsync("graphql", new StringContent(JsonConvert.SerializeObject(requests), Encoding.UTF8, "application/json"));
+#if NETCOREAPP2_2
+            var content = JsonConvert.SerializeObject(requests);
+#else
+            var content = JsonSerializer.Serialize(requests);
+#endif
+            var response = await Client.PostAsync("graphql", new StringContent(content, Encoding.UTF8, "application/json"));
             return await response.Content.ReadAsStringAsync();
         }
 
