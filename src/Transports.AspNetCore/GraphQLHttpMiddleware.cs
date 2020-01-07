@@ -92,7 +92,7 @@ namespace GraphQL.Server.Transports.AspNetCore
 #if NETSTANDARD2_0
                         var wasDeserialized = Deserialize(httpRequest.Body, out gqlRequest, out gqlBatchRequest);
 #else
-                        var (wasDeserialized, gqlRequestOut, gqlBatchRequestOut) = await DeserializeAsync(httpRequest.Body);
+                        var (wasDeserialized, gqlRequestOut, gqlBatchRequestOut) = await DeserializeAsync(httpRequest.Body).ConfigureAwait(false);
                         gqlRequest = gqlRequestOut;
                         gqlBatchRequest = gqlBatchRequestOut;
 #endif
