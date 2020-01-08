@@ -1,10 +1,9 @@
-﻿using System;
 using GraphQL.Http;
 using GraphQL.Server.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
+using System;
 
 namespace GraphQL.Server
 {
@@ -35,8 +34,8 @@ namespace GraphQL.Server
 
             services.TryAddSingleton<IDocumentWriter>(x =>
             {
-                var jsonSerializerSettings = x.GetRequiredService<IOptions<JsonSerializerSettings>>();
-                return new DocumentWriter(Formatting.None, jsonSerializerSettings.Value);
+                throw new InvalidOperationException("IDocumentWriter not set in DI. " +
+                    "Add a IDocumentWriter implementation, for example GraphQL.NewtonsoftJson.DocumentWriter or GraphQL.SystemTextJson.DocumentWriter");
             });
 
             return new GraphQLBuilder(services);
