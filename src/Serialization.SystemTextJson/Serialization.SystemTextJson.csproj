@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <AssemblyName>GraphQL.Server.Serialization.SystemTextJson</AssemblyName>
+    <RootNamespace>GraphQL.Server.Serialization.SystemTextJson</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Transports.AspNetCore\Transports.AspNetCore.csproj" />
+  </ItemGroup>
+
+</Project>

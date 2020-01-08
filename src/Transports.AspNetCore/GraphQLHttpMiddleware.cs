@@ -5,21 +5,11 @@ using GraphQL.Server.Transports.AspNetCore.Common;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json.Linq;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
-
-#if NETSTANDARD2_0
-using Newtonsoft.Json;
-using JsonSerializer = Newtonsoft.Json.JsonSerializer;
-#else
-using System.Text.Json;
-using JsonSerializer = System.Text.Json.JsonSerializer;
-#endif
 
 namespace GraphQL.Server.Transports.AspNetCore
 {
@@ -32,31 +22,13 @@ namespace GraphQL.Server.Transports.AspNetCore
 
         private readonly RequestDelegate _next;
         private readonly PathString _path;
+        private readonly IGraphQLRequestDeserializer _deserializer;
 
-#if NETSTANDARD2_0
-        private readonly JsonSerializer _serializer;
-
-        public GraphQLHttpMiddleware(RequestDelegate next, PathString path, Action<JsonSerializerSettings> configure)
-            : this(next, path)
-        {
-            var settings = new JsonSerializerSettings();
-            configure(settings);
-            _serializer = JsonSerializer.Create(settings); // it's thread safe https://stackoverflow.com/questions/36186276/is-the-json-net-jsonserializer-threadsafe
-        }
-#else
-        private readonly JsonSerializerOptions _serializerOptions = new JsonSerializerOptions();
-
-        public GraphQLHttpMiddleware(RequestDelegate next, PathString path, Action<JsonSerializerOptions> configure)
-            : this(next, path)
-        {
-            configure(_serializerOptions);
-        }
-#endif
-
-        private GraphQLHttpMiddleware(RequestDelegate next, PathString path)
+        public GraphQLHttpMiddleware(RequestDelegate next, PathString path, IGraphQLRequestDeserializer deserializer)
         {
             _next = next;
             _path = path;
+            _deserializer = deserializer;
         }
 
         public async Task InvokeAsync(HttpContext context)
@@ -69,12 +41,13 @@ namespace GraphQL.Server.Transports.AspNetCore
 
             // Handle requests as per recommendation at http://graphql.org/learn/serving-over-http/
             var httpRequest = context.Request;
-            var gqlRequest = new GraphQLRequest();
-            GraphQLRequest[] gqlBatchRequest = null;
+            var gqlRequest = _deserializer.Default();
+            IGraphQLRequest[] gqlBatchRequest = null;
 
             var writer = context.RequestServices.GetRequiredService<IDocumentWriter>();
 
-            if (HttpMethods.IsGet(httpRequest.Method) || (HttpMethods.IsPost(httpRequest.Method) && httpRequest.Query.ContainsKey(GraphQLRequest.QueryKey)))
+            if (HttpMethods.IsGet(httpRequest.Method) ||
+                (HttpMethods.IsPost(httpRequest.Method) && httpRequest.Query.ContainsKey(GraphQLRequestProperties.QueryKey)))
             {
                 ExtractGraphQLRequestFromQueryString(httpRequest.Query, gqlRequest);
             }
@@ -89,18 +62,14 @@ namespace GraphQL.Server.Transports.AspNetCore
                 switch (mediaTypeHeader.MediaType)
                 {
                     case JsonContentType:
-#if NETSTANDARD2_0
-                        var wasDeserialized = Deserialize(httpRequest.Body, out gqlRequest, out gqlBatchRequest);
-#else
-                        var (wasDeserialized, gqlRequestOut, gqlBatchRequestOut) = await DeserializeAsync(httpRequest.Body).ConfigureAwait(false);
-                        gqlRequest = gqlRequestOut;
-                        gqlBatchRequest = gqlBatchRequestOut;
-#endif
-                        if (!wasDeserialized)
+                        var deserializationResult = await _deserializer.FromBodyAsync(httpRequest.Body).ConfigureAwait(false);
+                        if (!deserializationResult.WasSuccessful)
                         {
                             await WriteBadRequestResponseAsync(context, writer, "Body text could not be parsed. Body text should start with '{' for normal graphql query or with '[' for batched query.").ConfigureAwait(false);
                             return;
                         }
+                        gqlRequest = deserializationResult.Single;
+                        gqlBatchRequest = deserializationResult.Batch;
                         break;
 
                     case GraphQLContentType:
@@ -118,15 +87,10 @@ namespace GraphQL.Server.Transports.AspNetCore
                 }
             }
 
-            IDictionary<string, object> userContext = null;
             var userContextBuilder = context.RequestServices.GetService<IUserContextBuilder>();
-
-            if (userContextBuilder != null)
-            {
-                userContext = await userContextBuilder.BuildUserContext(context).ConfigureAwait(false);
-            }
-            else
-                userContext = new Dictionary<string, object>(); // in order to allow resolvers to exchange their state through this object
+            IDictionary<string, object> userContext = userContextBuilder != null
+                ? await userContextBuilder.BuildUserContext(context).ConfigureAwait(false)
+                : new Dictionary<string, object>();
 
             var executer = context.RequestServices.GetRequiredService<IGraphQLExecuter<TSchema>>();
             var token = GetCancellationToken(context);
@@ -138,7 +102,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                 var result = await executer.ExecuteAsync(
                     gqlRequest.OperationName,
                     gqlRequest.Query,
-                    gqlRequest.GetInputs(),
+                    gqlRequest.Variables.ToInputs(),
                     userContext,
                     token).ConfigureAwait(false);
 
@@ -158,7 +122,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                     var result = await executer.ExecuteAsync(
                         request.OperationName,
                         request.Query,
-                        request.GetInputs(),
+                        request.Variables.ToInputs(),
                         userContext,
                         token).ConfigureAwait(false);
 
@@ -203,75 +167,6 @@ namespace GraphQL.Server.Transports.AspNetCore
             return writer.WriteAsync(context.Response.Body, result);
         }
 
-#if NETSTANDARD2_0
-        private bool Deserialize(Stream stream, out GraphQLRequest single, out GraphQLRequest[] batch)
-        {
-            single = null;
-            batch = null;
-
-            // Do not explicitly or implicitly (via using, etc.) call dispose because StreamReader will dispose inner stream.
-            // This leads to the inability to use the stream further by other consumers/middlewares of the request processing
-            // pipeline. In fact, it is absolutely not dangerous not to dispose StreamReader as it does not perform any useful
-            // work except for the disposing inner stream.
-            var reader = new StreamReader(stream);
-
-            using (var jsonReader = new JsonTextReader(reader) { CloseInput = false })
-            {
-                switch (reader.Peek())
-                {
-                    case '{':
-                        single = _serializer.Deserialize<GraphQLRequest>(jsonReader);
-                        return true;
-
-                    case '[':
-                        batch = _serializer.Deserialize<GraphQLRequest[]>(jsonReader);
-                        return true;
-
-                    default:
-                        return false; // fast return with BadRequest without reading request stream
-                }
-            }
-        }
-#else
-        private async Task<(bool wasDeserialized, GraphQLRequest single, GraphQLRequest[] batch)> DeserializeAsync(Stream stream)
-        {
-            using var ms = new MemoryStream();
-            await stream.CopyToAsync(ms).ConfigureAwait(false);
-            var jsonBytes = ms.ToArray();
-
-            JsonTokenType tokenType;
-            try
-            {
-                tokenType = GetTokenType(jsonBytes);
-            }
-            catch (Exception)
-            {
-                return (false, null, null); // BadRequest
-            }
-
-            switch (tokenType)
-            {
-                case JsonTokenType.StartObject:
-                    var gqlRequest = JsonSerializer.Deserialize<GraphQLRequest>(jsonBytes.AsSpan(), _serializerOptions);
-                    return (true, gqlRequest, null);
-
-                case JsonTokenType.StartArray:
-                    var gqlRequests = JsonSerializer.Deserialize<GraphQLRequest[]>(jsonBytes.AsSpan(), _serializerOptions);
-                    return (true, null, gqlRequests);
-
-                default:
-                    return (false, null, null); // BadRequest
-            }
-        }
-
-        private static JsonTokenType GetTokenType(byte[] bytes)
-        {
-            var reader = new Utf8JsonReader(bytes.AsSpan());
-            reader.Read();
-            return reader.TokenType;
-        }
-#endif
-
         private static async Task<string> ReadAsStringAsync(Stream s)
         {
             // Do not explicitly or implicitly (via using, etc.) call dispose because StreamReader will dispose inner stream.
@@ -281,18 +176,18 @@ namespace GraphQL.Server.Transports.AspNetCore
             return await new StreamReader(s).ReadToEndAsync().ConfigureAwait(false);
         }
 
-        private static void ExtractGraphQLRequestFromQueryString(IQueryCollection qs, GraphQLRequest gqlRequest)
+        private static void ExtractGraphQLRequestFromQueryString(IQueryCollection qs, IGraphQLRequest gqlRequest)
         {
-            gqlRequest.Query = qs.TryGetValue(GraphQLRequest.QueryKey, out var queryValues) ? queryValues[0] : null;
-            gqlRequest.Variables = qs.TryGetValue(GraphQLRequest.VariablesKey, out var variablesValues) ? JObject.Parse(variablesValues[0]) : null;
-            gqlRequest.OperationName = qs.TryGetValue(GraphQLRequest.OperationNameKey, out var operationNameValues) ? operationNameValues[0] : null;
+            gqlRequest.Query = qs.TryGetValue(GraphQLRequestProperties.QueryKey, out var queryValues) ? queryValues[0] : null;
+            gqlRequest.Variables = qs.TryGetValue(GraphQLRequestProperties.VariablesKey, out var variablesValues) ? variablesValues[0] : null;
+            gqlRequest.OperationName = qs.TryGetValue(GraphQLRequestProperties.OperationNameKey, out var operationNameValues) ? operationNameValues[0] : null;
         }
 
-        private static void ExtractGraphQLRequestFromPostBody(IFormCollection fc, GraphQLRequest gqlRequest)
+        private static void ExtractGraphQLRequestFromPostBody(IFormCollection fc, IGraphQLRequest gqlRequest)
         {
-            gqlRequest.Query = fc.TryGetValue(GraphQLRequest.QueryKey, out var queryValues) ? queryValues[0] : null;
-            gqlRequest.Variables = fc.TryGetValue(GraphQLRequest.VariablesKey, out var variablesValue) ? JObject.Parse(variablesValue[0]) : null;
-            gqlRequest.OperationName = fc.TryGetValue(GraphQLRequest.OperationNameKey, out var operationNameValues) ? operationNameValues[0] : null;
+            gqlRequest.Query = fc.TryGetValue(GraphQLRequestProperties.QueryKey, out var queryValues) ? queryValues[0] : null;
+            gqlRequest.Variables = fc.TryGetValue(GraphQLRequestProperties.VariablesKey, out var variablesValue) ? variablesValue[0] : null;
+            gqlRequest.OperationName = fc.TryGetValue(GraphQLRequestProperties.OperationNameKey, out var operationNameValues) ? operationNameValues[0] : null;
         }
     }
 }
