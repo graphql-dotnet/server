@@ -90,7 +90,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             var userContextBuilder = context.RequestServices.GetService<IUserContextBuilder>();
             IDictionary<string, object> userContext = userContextBuilder != null
                 ? await userContextBuilder.BuildUserContext(context).ConfigureAwait(false)
-                : new Dictionary<string, object>();
+                : new Dictionary<string, object>(); // in order to allow resolvers to exchange their state through this object
 
             var executer = context.RequestServices.GetRequiredService<IGraphQLExecuter<TSchema>>();
             var token = GetCancellationToken(context);
