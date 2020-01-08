@@ -41,7 +41,7 @@ namespace GraphQL.Server.Transports.AspNetCore
 
             // Handle requests as per recommendation at http://graphql.org/learn/serving-over-http/
             var httpRequest = context.Request;
-            var gqlRequest = _deserializer.Default();
+            IGraphQLRequest gqlRequest = null;
             IGraphQLRequest[] gqlBatchRequest = null;
 
             var writer = context.RequestServices.GetRequiredService<IDocumentWriter>();
@@ -49,7 +49,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             if (HttpMethods.IsGet(httpRequest.Method) ||
                 (HttpMethods.IsPost(httpRequest.Method) && httpRequest.Query.ContainsKey(GraphQLRequestProperties.QueryKey)))
             {
-                ExtractGraphQLRequestFromQueryString(httpRequest.Query, gqlRequest);
+                gqlRequest = ExtractGraphQLRequestFromQueryString(httpRequest.Query);
             }
             else if (HttpMethods.IsPost(httpRequest.Method))
             {
@@ -78,7 +78,7 @@ namespace GraphQL.Server.Transports.AspNetCore
 
                     case FormUrlEncodedContentType:
                         var formCollection = await httpRequest.ReadFormAsync().ConfigureAwait(false);
-                        ExtractGraphQLRequestFromPostBody(formCollection, gqlRequest);
+                        gqlRequest = ExtractGraphQLRequestFromPostBody(formCollection);
                         break;
 
                     default:
@@ -176,18 +176,22 @@ namespace GraphQL.Server.Transports.AspNetCore
             return await new StreamReader(s).ReadToEndAsync().ConfigureAwait(false);
         }
 
-        private static void ExtractGraphQLRequestFromQueryString(IQueryCollection qs, IGraphQLRequest gqlRequest)
+        private IGraphQLRequest ExtractGraphQLRequestFromQueryString(IQueryCollection qs)
         {
+            var gqlRequest = _deserializer.Default();
             gqlRequest.Query = qs.TryGetValue(GraphQLRequestProperties.QueryKey, out var queryValues) ? queryValues[0] : null;
             gqlRequest.Variables = qs.TryGetValue(GraphQLRequestProperties.VariablesKey, out var variablesValues) ? variablesValues[0] : null;
             gqlRequest.OperationName = qs.TryGetValue(GraphQLRequestProperties.OperationNameKey, out var operationNameValues) ? operationNameValues[0] : null;
+            return gqlRequest;
         }
 
-        private static void ExtractGraphQLRequestFromPostBody(IFormCollection fc, IGraphQLRequest gqlRequest)
+        private IGraphQLRequest ExtractGraphQLRequestFromPostBody(IFormCollection fc)
         {
+            var gqlRequest = _deserializer.Default();
             gqlRequest.Query = fc.TryGetValue(GraphQLRequestProperties.QueryKey, out var queryValues) ? queryValues[0] : null;
             gqlRequest.Variables = fc.TryGetValue(GraphQLRequestProperties.VariablesKey, out var variablesValue) ? variablesValue[0] : null;
             gqlRequest.OperationName = fc.TryGetValue(GraphQLRequestProperties.OperationNameKey, out var operationNameValues) ? operationNameValues[0] : null;
+            return gqlRequest;
         }
     }
 }
