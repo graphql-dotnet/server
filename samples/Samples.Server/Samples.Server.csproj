@@ -22,6 +22,7 @@
     <ProjectReference Include="..\..\src\Transports.Subscriptions.WebSockets\Transports.Subscriptions.WebSockets.csproj" />
     <ProjectReference Include="..\..\src\Ui.GraphiQL\Ui.GraphiQL.csproj" />
     <ProjectReference Include="..\..\src\Ui.Playground\Ui.Playground.csproj" />
+    <ProjectReference Include="..\..\src\Ui.Altair\Ui.Altair.csproj" />
     <ProjectReference Include="..\..\src\Ui.Voyager\Ui.Voyager.csproj" />
     <ProjectReference Include="..\Samples.Schemas.Chat\Samples.Schemas.Chat.csproj" />
   </ItemGroup>
