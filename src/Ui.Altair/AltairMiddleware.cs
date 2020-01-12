@@ -11,7 +11,7 @@ namespace GraphQL.Server.Ui.Altair
     /// </summary>
     public class AltairMiddleware
     {
-        private readonly AltairGraphQLOptions _options;
+        private readonly GraphQLAltairOptions _options;
 
         /// <summary>
         /// The next middleware
@@ -28,7 +28,7 @@ namespace GraphQL.Server.Ui.Altair
         /// </summary>
         /// <param name="nextMiddleware">The next middleware</param>
         /// <param name="options">Options to customize middleware</param>
-        public AltairMiddleware(RequestDelegate nextMiddleware, AltairGraphQLOptions options)
+        public AltairMiddleware(RequestDelegate nextMiddleware, GraphQLAltairOptions options)
         {
             _nextMiddleware = nextMiddleware ?? throw new ArgumentNullException(nameof(nextMiddleware));
             _options = options ?? throw new ArgumentNullException(nameof(options));

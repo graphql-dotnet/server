@@ -6,7 +6,7 @@ namespace GraphQL.Server.Ui.Altair
     /// <summary>
     /// Options to customize <see cref="AltairMiddleware"/>
     /// </summary>
-    public class AltairGraphQLOptions
+    public class GraphQLAltairOptions
     {
         /// <summary>
         /// The Altair GraphQL EndPoint to listen
@@ -19,7 +19,7 @@ namespace GraphQL.Server.Ui.Altair
         public PathString GraphQLEndPoint { get; set; } = "/graphql";
 
         /// <summary>
-        /// The GraphQL Config
+        /// Altair Headers Config
         /// </summary>
         public Dictionary<string, string> Headers { get; set; }
     }

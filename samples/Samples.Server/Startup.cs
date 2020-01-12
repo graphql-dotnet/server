@@ -99,10 +99,14 @@ namespace GraphQL.Samples.Server
                 GraphQLEndPoint = "/graphql",
             });
 
-            app.UseAltairGraphQL(new AltairGraphQLOptions
+            app.UseGraphQLAltair(new GraphQLAltairOptions
             {
                 Path = "/ui/altair",
                 GraphQLEndPoint = "/graphql",
+                Headers = new Dictionary<string, string>
+                {
+                    ["X-api-token"] = "130fh9823bd023hd892d0j238dh",
+                }
             });
 
             app.UseGraphQLVoyager(new GraphQLVoyagerOptions

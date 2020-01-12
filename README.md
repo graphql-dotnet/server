@@ -72,7 +72,7 @@ public void Configure(IApplicationBuilder app, IHostingEnvironment env)
     app.UseGraphQLPlayground(new GraphQLPlaygroundOptions());
 
     // use altair middleware at default url /ui/altair
-    app.UseAltairGraphQL(new AltairGraphQLOptions());
+    app.UseGraphQLAltair(new GraphQLAltairOptions());
     
     // use voyager middleware at default url /ui/voyager
     app.UseGraphQLVoyager(new GraphQLVoyagerOptions());

@@ -9,9 +9,9 @@ namespace GraphQL.Server.Ui.Altair.Internal
     {
         private string _altairCSHtml;
 
-        private readonly AltairGraphQLOptions _options;
+        private readonly GraphQLAltairOptions _options;
 
-        public AltairPageModel(AltairGraphQLOptions options)
+        public AltairPageModel(GraphQLAltairOptions options)
         {
             _options = options;
         }
