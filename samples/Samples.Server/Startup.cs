@@ -2,6 +2,7 @@ using GraphQL.Samples.Schemas.Chat;
 using GraphQL.Server;
 using GraphQL.Server.Ui.GraphiQL;
 using GraphQL.Server.Ui.Playground;
+using GraphQL.Server.Ui.Altair;
 using GraphQL.Server.Ui.Voyager;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -96,6 +97,16 @@ namespace GraphQL.Samples.Server
             {
                 Path = "/ui/graphiql",
                 GraphQLEndPoint = "/graphql",
+            });
+
+            app.UseGraphQLAltair(new GraphQLAltairOptions
+            {
+                Path = "/ui/altair",
+                GraphQLEndPoint = "/graphql",
+                Headers = new Dictionary<string, string>
+                {
+                    ["X-api-token"] = "130fh9823bd023hd892d0j238dh",
+                }
             });
 
             app.UseGraphQLVoyager(new GraphQLVoyagerOptions

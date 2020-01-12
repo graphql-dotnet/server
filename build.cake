@@ -13,6 +13,7 @@ var projectFiles = new [] {
   "./src/Transports.Subscriptions.WebSockets/Transports.Subscriptions.WebSockets.csproj",
   "./src/Ui.Playground/Ui.Playground.csproj",
   "./src/Ui.GraphiQL/Ui.GraphiQL.csproj",
+  "./src/Ui.Altair/Ui.Altair.csproj",
   "./src/Ui.Voyager/Ui.Voyager.csproj",
   "./src/Authorization.AspNetCore/Authorization.AspNetCore.csproj"
   };
