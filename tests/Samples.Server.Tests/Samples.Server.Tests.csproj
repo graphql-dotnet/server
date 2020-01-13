@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- TODO: Remove and just get transitive-ly from specific serializer reference once https://github.com/graphql-dotnet/graphql-dotnet/pull/1448 is merged -->
     <PackageReference Include="GraphQL" Version="$(GraphQLVersion)" />
     <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="$(MicrosoftAspNetCoreTestHostVersion)" />
     <PackageReference Include="Shouldly" Version="$(ShouldlyVersion)" />
@@ -19,10 +20,12 @@
 
   <ItemGroup Label="References for .NET Core 3" Condition="'$(IsNetCore30OnwardsTarget)' == 'True'">
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <!--<PackageReference Include="GraphQL.SystemTextJson" Version="$(GraphQLVersion)" />-->
   </ItemGroup>
 
   <ItemGroup Label="References for .NET Core 2.2" Condition="'$(IsNetCore30OnwardsTarget)' == 'False'">
     <PackageReference Include="Microsoft.AspNetCore.App" />
+    <!--<PackageReference Include="GraphQL.NewtonsoftJson" Version="$(GraphQLVersion)" />-->
   </ItemGroup>
 
 </Project>
