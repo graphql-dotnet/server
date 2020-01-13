@@ -7,12 +7,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-#if NETCOREAPP2_2
-using Newtonsoft.Json;
-#else
-using System.Text.Json;
-#endif
-
 namespace GraphQL.Samples.Server
 {
     // Example of a custom GraphQL Middleware that sends execution result to Microsoft.Extensions.Logging API
@@ -25,12 +19,8 @@ namespace GraphQL.Samples.Server
             ILogger<GraphQLHttpMiddleware<TSchema>> logger,
             RequestDelegate next,
             PathString path,
-#if NETCOREAPP2_2
-            Action<JsonSerializerSettings> configure)
-#else
-            Action<JsonSerializerOptions> configure)
-#endif
-            : base(next, path, configure)
+            IGraphQLRequestDeserializer requestDeserializer)
+            : base(next, path, requestDeserializer)
         {
             _logger = logger;
         }

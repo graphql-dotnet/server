@@ -3,15 +3,15 @@ using System.Text.Json.Serialization;
 
 namespace GraphQL.Server.Serialization.SystemTextJson
 {
-    public class GraphQLRequest : IGraphQLRequest
+    public class GraphQLRequest : Transports.AspNetCore.Common.GraphQLRequest
     {
         [JsonPropertyName(GraphQLRequestProperties.QueryKey)]
-        public string Query { get; set; }
+        public override string Query { get; set; }
 
         [JsonPropertyName(GraphQLRequestProperties.VariablesKey)]
-        public string Variables { get; set; }
+        public override string Variables { get; set; }
 
         [JsonPropertyName(GraphQLRequestProperties.OperationNameKey)]
-        public string OperationName { get; set; }
+        public override string OperationName { get; set; }
     }
 }

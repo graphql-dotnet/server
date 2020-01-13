@@ -4,7 +4,7 @@ namespace GraphQL.Server.Transports.AspNetCore.Common
 {
     public readonly struct GraphQLRequestExecutionResult
     {
-        public GraphQLRequestExecutionResult(IGraphQLRequest request, ExecutionResult result, TimeSpan elapsed, int? indexInBatch = null)
+        public GraphQLRequestExecutionResult(GraphQLRequest request, ExecutionResult result, TimeSpan elapsed, int? indexInBatch = null)
         {
             Request = request;
             Result = result;
@@ -12,7 +12,7 @@ namespace GraphQL.Server.Transports.AspNetCore.Common
             IndexInBatch = indexInBatch;
         }
 
-        public IGraphQLRequest Request { get; }
+        public GraphQLRequest Request { get; }
 
         public ExecutionResult Result { get; }
 

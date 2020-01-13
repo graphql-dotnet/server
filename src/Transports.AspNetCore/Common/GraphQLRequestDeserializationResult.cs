@@ -4,8 +4,8 @@ namespace GraphQL.Server.Transports.AspNetCore.Common
     {
         public bool WasSuccessful { get; set; }
 
-        public IGraphQLRequest Single { get; set; }
+        public GraphQLRequest Single { get; set; }
 
-        public IGraphQLRequest[] Batch { get; set; }
+        public GraphQLRequest[] Batch { get; set; }
     }
 }

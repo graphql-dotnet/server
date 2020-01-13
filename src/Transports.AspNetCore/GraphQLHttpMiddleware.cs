@@ -41,8 +41,8 @@ namespace GraphQL.Server.Transports.AspNetCore
 
             // Handle requests as per recommendation at http://graphql.org/learn/serving-over-http/
             var httpRequest = context.Request;
-            IGraphQLRequest gqlRequest = null;
-            IGraphQLRequest[] gqlBatchRequest = null;
+            GraphQLRequest gqlRequest = null;
+            GraphQLRequest[] gqlBatchRequest = null;
 
             var writer = context.RequestServices.GetRequiredService<IDocumentWriter>();
 
@@ -88,9 +88,9 @@ namespace GraphQL.Server.Transports.AspNetCore
             }
 
             var userContextBuilder = context.RequestServices.GetService<IUserContextBuilder>();
-            IDictionary<string, object> userContext = userContextBuilder != null
-                ? await userContextBuilder.BuildUserContext(context).ConfigureAwait(false)
-                : new Dictionary<string, object>(); // in order to allow resolvers to exchange their state through this object
+            IDictionary<string, object> userContext = userContextBuilder == null
+                ? new Dictionary<string, object>() // in order to allow resolvers to exchange their state through this object
+                : await userContextBuilder.BuildUserContext(context).ConfigureAwait(false);
 
             var executer = context.RequestServices.GetRequiredService<IGraphQLExecuter<TSchema>>();
             var token = GetCancellationToken(context);
@@ -176,7 +176,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             return await new StreamReader(s).ReadToEndAsync().ConfigureAwait(false);
         }
 
-        private IGraphQLRequest ExtractGraphQLRequestFromQueryString(IQueryCollection qs)
+        private GraphQLRequest ExtractGraphQLRequestFromQueryString(IQueryCollection qs)
         {
             var gqlRequest = _deserializer.Default();
             gqlRequest.Query = qs.TryGetValue(GraphQLRequestProperties.QueryKey, out var queryValues) ? queryValues[0] : null;
@@ -185,7 +185,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             return gqlRequest;
         }
 
-        private IGraphQLRequest ExtractGraphQLRequestFromPostBody(IFormCollection fc)
+        private GraphQLRequest ExtractGraphQLRequestFromPostBody(IFormCollection fc)
         {
             var gqlRequest = _deserializer.Default();
             gqlRequest.Query = fc.TryGetValue(GraphQLRequestProperties.QueryKey, out var queryValues) ? queryValues[0] : null;

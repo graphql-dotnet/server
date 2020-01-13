@@ -3,15 +3,15 @@ using Newtonsoft.Json;
 
 namespace GraphQL.Server.Serialization.NewtonsoftJson
 {
-    public class GraphQLRequest : IGraphQLRequest
+    public class GraphQLRequest : Transports.AspNetCore.Common.GraphQLRequest
     {
         [JsonProperty(GraphQLRequestProperties.QueryKey)]
-        public string Query { get; set; }
+        public override string Query { get; set; }
 
         [JsonProperty(GraphQLRequestProperties.VariablesKey)]
-        public string Variables { get; set; }
+        public override string Variables { get; set; }
 
         [JsonProperty(GraphQLRequestProperties.OperationNameKey)]
-        public string OperationName { get; set; }
+        public override string OperationName { get; set; }
     }
 }

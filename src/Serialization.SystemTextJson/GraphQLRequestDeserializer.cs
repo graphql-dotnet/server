@@ -15,8 +15,6 @@ namespace GraphQL.Server.Serialization.SystemTextJson
             configure(_serializerOptions);
         }
 
-        public IGraphQLRequest Default() => new GraphQLRequest();
-
         public async Task<GraphQLRequestDeserializationResult> FromBodyAsync(Stream stream)
         {
             using var ms = new MemoryStream();
