@@ -36,7 +36,7 @@ namespace GraphQL.Samples.Schemas.Chat
             });
         }
 
-        private IObservable<Message> SubscribeById(ResolveEventStreamContext context)
+        private IObservable<Message> SubscribeById(IResolveEventStreamContext context)
         {
             var messageContext = context.UserContext.As<MessageHandlingContext>();
             var user = messageContext.Get<ClaimsPrincipal>("user");
@@ -51,14 +51,14 @@ namespace GraphQL.Samples.Schemas.Chat
             return messages.Where(message => message.From.Id == id);
         }
 
-        private Message ResolveMessage(ResolveFieldContext context)
+        private Message ResolveMessage(IResolveFieldContext context)
         {
             var message = context.Source as Message;
 
             return message;
         }
 
-        private IObservable<Message> Subscribe(ResolveEventStreamContext context)
+        private IObservable<Message> Subscribe(IResolveEventStreamContext context)
         {
             var messageContext = context.UserContext.As<MessageHandlingContext>();
             var user = messageContext.Get<ClaimsPrincipal>("user");
