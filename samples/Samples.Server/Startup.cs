@@ -9,6 +9,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using GraphQL.Http;
+using GraphQL.Server.Transports.AspNetCore.Common;
 
 #if !NETCOREAPP2_2
 using Microsoft.AspNetCore.Server.Kestrel.Core;
@@ -41,10 +43,15 @@ namespace GraphQL.Samples.Server
         public void ConfigureServices(IServiceCollection services)
         {
 #if NETCOREAPP2_2
-            services.AddSingleton(p => new GraphQL.Server.Serialization.NewtonsoftJson.GraphQLRequestDeserializer(settings => { }));
+            services.AddSingleton<IGraphQLRequestDeserializer>(p =>
+                new GraphQL.Server.Serialization.NewtonsoftJson.GraphQLRequestDeserializer(settings => { }));
 #else
-            services.AddSingleton(p => new GraphQL.Server.Serialization.SystemTextJson.GraphQLRequestDeserializer(settings => { }));
+            services.AddSingleton<IGraphQLRequestDeserializer>(p =>
+                new GraphQL.Server.Serialization.SystemTextJson.GraphQLRequestDeserializer(settings => { }));
 #endif
+
+            // TODO: Toggle use GraphQL.NewtonsoftJson.DocumentWriter or GraphQL.SystemTextJson.DocumentWriter once that PR over there is done
+            services.AddSingleton<IDocumentWriter, DocumentWriter>();
 
             services
                 .AddSingleton<IChat, Chat>()

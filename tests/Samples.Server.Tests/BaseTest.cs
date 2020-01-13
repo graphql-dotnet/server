@@ -1,5 +1,4 @@
 using GraphQL.Samples.Server;
-using GraphQL.Server.Transports.AspNetCore.Common;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,9 +8,11 @@ using System;
 #if NETCOREAPP2_2
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Hosting;
+using GraphQLRequest = GraphQL.Server.Serialization.NewtonsoftJson.GraphQLRequest;
 #else
 using System.Text.Json;
 using Microsoft.Extensions.Hosting;
+using GraphQLRequest = GraphQL.Server.Serialization.SystemTextJson.GraphQLRequest;
 #endif
 
 namespace Samples.Server.Tests
@@ -32,10 +33,6 @@ namespace Samples.Server.Tests
                  .Start();
 
             Server = Host.GetTestServer();
-
-            // Workaround until GraphQL can swap off Newtonsoft.Json and onto the new MS one.
-            // https://github.com/graphql-dotnet/graphql-dotnet/issues/1116
-            //Server.AllowSynchronousIO = true;
 #endif
 
             Client = Server.CreateClient();
