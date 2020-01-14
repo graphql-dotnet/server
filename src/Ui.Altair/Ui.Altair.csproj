@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>netcoreapp3.0;netstandard2.0</TargetFrameworks>
+		<AssemblyName>GraphQL.Server.Ui.Altair</AssemblyName>
+		<RootNamespace>GraphQL.Server.Ui.Altair</RootNamespace>
+		<Description>Altair GraphQL extension</Description>
+		<PackageTags>Altair GraphQL</PackageTags>
+		<PackageId>GraphQL.Server.Ui.Altair</PackageId>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Include="Internal\altair.cshtml" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonVersion)" />
+	</ItemGroup>
+
+  <ItemGroup Condition="'$(IsNetCore30OnwardsTarget)' == 'True'">
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(IsNetCore30OnwardsTarget)' == 'False'">
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="$(MicrosoftAspNetCoreHttpAbstractionsVersion)" />
+  </ItemGroup>
+
+</Project>
