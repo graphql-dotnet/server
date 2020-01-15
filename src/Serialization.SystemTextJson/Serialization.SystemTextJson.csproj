@@ -1,9 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFrameworks>netcoreapp3.1;netcoreapp3.0</TargetFrameworks>
     <AssemblyName>GraphQL.Server.Serialization.SystemTextJson</AssemblyName>
     <RootNamespace>GraphQL.Server.Serialization.SystemTextJson</RootNamespace>
+    <PackageId>GraphQL.Server.SystemTextJson</PackageId>
+    <Description>GraphQL middleware using System.Text.Json</Description>
   </PropertyGroup>
 
   <ItemGroup>

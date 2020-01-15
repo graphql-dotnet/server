@@ -1,8 +1,8 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 	
   <PropertyGroup>
 		<Description>A GraphiQL Integration for AspNetCore</Description>
-		<TargetFrameworks>netcoreapp3.0;netstandard2.0</TargetFrameworks>
+		<TargetFrameworks>netcoreapp3.1;netcoreapp3.0;netstandard2.0</TargetFrameworks>
 		<PackageId>GraphQL.Server.Ui.GraphiQL</PackageId>
 		<AssemblyName>GraphQL.Server.Ui.GraphiQL</AssemblyName>
 		<RootNamespace>GraphQL.Server.Ui.GraphiQL</RootNamespace>

@@ -4,6 +4,8 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>GraphQL.Server.Serialization.NewtonsoftJson</AssemblyName>
     <RootNamespace>GraphQL.Server.Serialization.NewtonsoftJson</RootNamespace>
+    <PackageId>GraphQL.Server.NewtonsoftJson</PackageId>
+    <Description>GraphQL middleware using Newtonsoft.Json</Description>
   </PropertyGroup>
 
   <ItemGroup>
