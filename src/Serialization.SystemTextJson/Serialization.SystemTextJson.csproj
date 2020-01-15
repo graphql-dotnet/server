@@ -4,7 +4,7 @@
     <TargetFrameworks>netcoreapp3.1;netcoreapp3.0</TargetFrameworks>
     <AssemblyName>GraphQL.Server.Serialization.SystemTextJson</AssemblyName>
     <RootNamespace>GraphQL.Server.Serialization.SystemTextJson</RootNamespace>
-    <PackageId>GraphQL.Server.SystemTextJson</PackageId>
+    <PackageId>GraphQL.Server.Serialization.SystemTextJson</PackageId>
     <Description>GraphQL middleware using System.Text.Json</Description>
   </PropertyGroup>
 
