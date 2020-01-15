@@ -12,10 +12,18 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <IsNetCore30OnwardsTarget>$(TargetFramework.Equals('netcoreapp3.0'))</IsNetCore30OnwardsTarget>
+    <IsNetCore30OnwardsTarget>$(TargetFramework.StartsWith('netcoreapp3.'))</IsNetCore30OnwardsTarget>
   </PropertyGroup>
 
-  <PropertyGroup Label="Net Core 3.0" Condition="'$(IsNetCore30OnwardsTarget)' == 'True'">
+  <PropertyGroup Label="Net Core 3.1" Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+    <MicrosoftAspNetCoreTestHostVersion>3.1.0</MicrosoftAspNetCoreTestHostVersion>
+    <MicrosoftExtensionsLoggingVersion>3.1.0</MicrosoftExtensionsLoggingVersion>
+    <MicrosoftExtensionsOptionsVersion>3.1.0</MicrosoftExtensionsOptionsVersion>
+    <MicrosoftExtensionsDependencyInjectionVersion>3.1.0</MicrosoftExtensionsDependencyInjectionVersion>
+    <MicrosoftExtensionsDependencyInjectionAbstractionsVersion>3.1.0</MicrosoftExtensionsDependencyInjectionAbstractionsVersion>
+  </PropertyGroup>
+  
+  <PropertyGroup Label="Net Core 3.0" Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
     <MicrosoftAspNetCoreTestHostVersion>3.0.0</MicrosoftAspNetCoreTestHostVersion>
     <MicrosoftExtensionsLoggingVersion>3.0.0</MicrosoftExtensionsLoggingVersion>
     <MicrosoftExtensionsOptionsVersion>3.0.0</MicrosoftExtensionsOptionsVersion>
