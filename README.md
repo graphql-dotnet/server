@@ -16,6 +16,7 @@ Provides the following packages:
 | GraphQL.Server.Transports.WebSockets | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Transports.WebSockets)](https://www.nuget.org/packages/GraphQL.Server.Transports.WebSockets/) |
 | GraphQL.Server.Ui.Playground | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Ui.Playground)](https://www.nuget.org/packages/GraphQL.Server.Ui.Playground/) |
 | GraphQL.Server.Ui.GraphiQL | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Ui.GraphiQL)](https://www.nuget.org/packages/GraphQL.Server.Ui.GraphiQL/) |
+| GraphQL.Server.Ui.Altair | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Ui.Altair)](https://www.nuget.org/packages/GraphQL.Server.Ui.Altair/) |
 | GraphQL.Server.Ui.Voyager | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Ui.Voyager)](https://www.nuget.org/packages/GraphQL.Server.Ui.Voyager/) |
 | GraphQL.Server.Authorization.AspNetCore | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Authorization.AspNetCore)](https://www.nuget.org/packages/GraphQL.Server.Authorization.AspNetCore/) |
 
@@ -32,6 +33,7 @@ For the WebSocket subscription protocol (depends on above) middleware:
 For the UI middleware/s:
 >`dotnet add package GraphQL.Server.Ui.GraphiQL`  
 >`dotnet add package GraphQL.Server.Ui.Playground`  
+>`dotnet add package GraphQL.Server.Ui.Altair`  
 >`dotnet add package GraphQL.Server.Ui.Voyager`  
 
 
@@ -68,6 +70,9 @@ public void Configure(IApplicationBuilder app, IHostingEnvironment env)
 
     // use graphql-playground middleware at default url /ui/playground
     app.UseGraphQLPlayground(new GraphQLPlaygroundOptions());
+
+    // use altair middleware at default url /ui/altair
+    app.UseGraphQLAltair(new GraphQLAltairOptions());
     
     // use voyager middleware at default url /ui/voyager
     app.UseGraphQLVoyager(new GraphQLVoyagerOptions());
