@@ -1,4 +1,4 @@
-using GraphQL.Server.Transports.AspNetCore.Common;
+using GraphQL.Server.Common;
 using System;
 using System.IO;
 using System.Text.Json;

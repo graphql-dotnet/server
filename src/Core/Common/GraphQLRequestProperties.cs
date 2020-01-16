@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace GraphQL.Server.Transports.AspNetCore.Common
+namespace GraphQL.Server.Common
 {
     public static class GraphQLRequestProperties
     {

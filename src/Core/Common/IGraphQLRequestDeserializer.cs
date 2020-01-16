@@ -1,7 +1,7 @@
 using System.IO;
 using System.Threading.Tasks;
 
-namespace GraphQL.Server.Transports.AspNetCore.Common
+namespace GraphQL.Server.Common
 {
     public interface IGraphQLRequestDeserializer
     {

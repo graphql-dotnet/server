@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using GraphQL.Http;
-using GraphQL.Server.Transports.AspNetCore.Common;
+using GraphQL.Server.Common;
 
 #if !NETCOREAPP2_2
 using Microsoft.AspNetCore.Server.Kestrel.Core;
