@@ -13,7 +13,10 @@ using System.Collections.Generic;
 using GraphQL.Http;
 using GraphQL.Server.Common;
 
-#if !NETCOREAPP2_2
+#if NETCOREAPP2_2
+using GraphQL.Server.Serialization.NewtonsoftJson;
+#else
+using GraphQL.Server.Serialization.SystemTextJson;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Hosting;
 #endif
@@ -43,23 +46,14 @@ namespace GraphQL.Samples.Server
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-#if NETCOREAPP2_2
-            services.AddSingleton<IGraphQLRequestDeserializer>(p =>
-                new GraphQL.Server.Serialization.NewtonsoftJson.GraphQLRequestDeserializer(settings => { }));
-#else
-            services.AddSingleton<IGraphQLRequestDeserializer>(p =>
-                new GraphQL.Server.Serialization.SystemTextJson.GraphQLRequestDeserializer(settings => { }));
-#endif
-
-            // TODO: Toggle use GraphQL.NewtonsoftJson.DocumentWriter or GraphQL.SystemTextJson.DocumentWriter once that PR over there is done
-            services.AddSingleton<IDocumentWriter, DocumentWriter>();
-
             services
                 .AddSingleton<IChat, Chat>()
                 .AddSingleton<ChatSchema>()
+                .AddSingleton<IGraphQLRequestDeserializer>(p => new GraphQLRequestDeserializer(settings => { }))
+                .AddSingleton<IDocumentWriter, DocumentWriter>()
                 .AddGraphQL(options =>
                 {
-                    options.EnableMetrics = true;
+                    options.EnableMetrics = Environment.IsDevelopment();
                     options.ExposeExceptions = Environment.IsDevelopment();
                     options.UnhandledExceptionDelegate = ctx =>
                     {
