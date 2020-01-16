@@ -61,7 +61,7 @@ public void ConfigureServices(IServiceCollection services)
         {
             options.EnableMetrics = this.Environment.IsDevelopment();;
             options.ExposeExceptions = this.Environment.IsDevelopment();
-            options.UnhandledExceptionDelegate = ctx => { };
+            options.UnhandledExceptionDelegate = ctx => { Console.WriteLine(ctx.OriginalException) };
         })
         .AddWebSockets() // Add required services for web socket support
         .AddDataLoader() // Add required services for DataLoader support
