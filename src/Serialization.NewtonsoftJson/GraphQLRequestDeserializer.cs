@@ -17,7 +17,7 @@ namespace GraphQL.Server.Serialization.NewtonsoftJson
             _serializer = JsonSerializer.Create(settings); // it's thread safe https://stackoverflow.com/questions/36186276/is-the-json-net-jsonserializer-threadsafe
         }
 
-        public Task<GraphQLRequestDeserializationResult> FromBodyAsync(Stream stream)
+        public Task<GraphQLRequestDeserializationResult> FromBodyAsync(Stream stream, long? contentLength)
         {
             // Do not explicitly or implicitly (via using, etc.) call dispose because StreamReader will dispose inner stream.
             // This leads to the inability to use the stream further by other consumers/middlewares of the request processing

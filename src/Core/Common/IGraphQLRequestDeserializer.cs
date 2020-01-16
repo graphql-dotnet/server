@@ -5,6 +5,6 @@ namespace GraphQL.Server.Common
 {
     public interface IGraphQLRequestDeserializer
     {
-        Task<GraphQLRequestDeserializationResult> FromBodyAsync(Stream stream);
+        Task<GraphQLRequestDeserializationResult> FromBodyAsync(Stream stream, long? contentLength);
     }
 }

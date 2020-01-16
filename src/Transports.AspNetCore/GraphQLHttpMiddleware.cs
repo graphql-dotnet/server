@@ -63,7 +63,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                 switch (mediaTypeHeader.MediaType)
                 {
                     case JsonContentType:
-                        var deserializationResult = await _deserializer.FromBodyAsync(httpRequest.Body).ConfigureAwait(false);
+                        var deserializationResult = await _deserializer.FromBodyAsync(httpRequest.Body, httpRequest.ContentLength).ConfigureAwait(false);
                         if (!deserializationResult.WasSuccessful)
                         {
                             await WriteBadRequestResponseAsync(context, writer, "Body text could not be parsed. Body text should start with '{' for normal graphql query or with '[' for batched query.").ConfigureAwait(false);
