@@ -106,7 +106,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         [Fact]
         public async Task should_post_single_message()
         {
-            var webSocketWriterPipeline = CreateWebSocketWriterPipeline(new CamelCasePropertyNamesContractResolver());
+            var webSocketWriterPipeline = CreateWebSocketWriterPipeline(new CamelCaseNamingStrategy());
             var message = new OperationMessage
             {
                 Payload = new ExecutionResult
@@ -132,7 +132,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         [Fact]
         public async Task should_post_array_of_10_messages()
         {
-            var webSocketWriterPipeline = CreateWebSocketWriterPipeline(new CamelCasePropertyNamesContractResolver());
+            var webSocketWriterPipeline = CreateWebSocketWriterPipeline(new CamelCaseNamingStrategy());
             var message = new OperationMessage
             {
                 Payload = new ExecutionResult
@@ -172,7 +172,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         [MemberData(nameof(TestData))]
         public async Task should_post_for_any_message_length(OperationMessage message, long expectedLength)
         {
-            var webSocketWriterPipeline = CreateWebSocketWriterPipeline(new CamelCasePropertyNamesContractResolver());
+            var webSocketWriterPipeline = CreateWebSocketWriterPipeline(new CamelCaseNamingStrategy());
             Assert.True(webSocketWriterPipeline.Post(message));
             await webSocketWriterPipeline.Complete();
             await webSocketWriterPipeline.Completion;
@@ -184,7 +184,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         [MemberData(nameof(TestData))]
         public async Task should_send_for_any_message_length(OperationMessage message, long expectedLength)
         {
-            var webSocketWriterPipeline = CreateWebSocketWriterPipeline(new CamelCasePropertyNamesContractResolver());
+            var webSocketWriterPipeline = CreateWebSocketWriterPipeline(new CamelCaseNamingStrategy());
             await webSocketWriterPipeline.SendAsync(message);
             await webSocketWriterPipeline.Complete();
             await webSocketWriterPipeline.Completion;
@@ -195,7 +195,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         [Fact]
         public async Task should_support_correct_case()
         {
-            var webSocketWriterPipeline = CreateWebSocketWriterPipeline(new DefaultContractResolver());
+            var webSocketWriterPipeline = CreateWebSocketWriterPipeline(new DefaultNamingStrategy());
             var operationMessage = new OperationMessage
             {
                 Id = "78F15F13-CA90-4BA6-AFF5-990C23FA882A",
@@ -220,12 +220,12 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
                 resultingJson);
         }
 
-        private WebSocketWriterPipeline CreateWebSocketWriterPipeline(IContractResolver contractResolver)
+        private WebSocketWriterPipeline CreateWebSocketWriterPipeline(NamingStrategy namingStrategy)
         {
             return new WebSocketWriterPipeline(_testWebSocket, new DocumentWriter(
                 new JsonSerializerSettings
                 {
-                    ContractResolver = contractResolver,
+                    ContractResolver = new ExecutionResultContractResolver() { NamingStrategy = namingStrategy },
                     NullValueHandling = NullValueHandling.Ignore,
                     Formatting = Formatting.None
                 }));
