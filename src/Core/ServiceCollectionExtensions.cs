@@ -1,4 +1,3 @@
-using GraphQL.Http;
 using GraphQL.Server.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;

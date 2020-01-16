@@ -51,6 +51,7 @@ namespace GraphQL.Server.Serialization.SystemTextJson
 
         private GraphQLRequestDeserializationResult Process(byte[] jsonBytes, int length)
         {
+            // Trim to the real length, as when using the shared array pool the buffer returned can be bigger than desired
             var jsonData = jsonBytes.AsSpan(0, length);
 
             JsonTokenType tokenType;

@@ -1,4 +1,3 @@
-﻿using GraphQL.Http;
 using GraphQL.Server.Internal;
 using GraphQL.Server.Transports.Subscriptions.Abstractions;
 using GraphQL.Types;

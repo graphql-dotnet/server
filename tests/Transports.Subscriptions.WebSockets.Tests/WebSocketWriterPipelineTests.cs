@@ -1,12 +1,12 @@
+using GraphQL.NewtonsoftJson;
+using GraphQL.Server.Transports.Subscriptions.Abstractions;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using GraphQL.Http;
-using GraphQL.Server.Transports.Subscriptions.Abstractions;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using Xunit;
 
 namespace GraphQL.Server.Transports.WebSockets.Tests
@@ -150,16 +150,21 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
             Assert.Single(_testWebSocket.Messages);
 
             var resultingJson = Encoding.UTF8.GetString(_testWebSocket.Messages.First().ToArray());
-            Assert.Equal("{\"payload\":{\"data\":[{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
-                         "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
-                         "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
-                         "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
-                         "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
-                         "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
-                         "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
-                         "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
-                         "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
-                         "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}]}}",
+            Assert.Equal(
+                "{\"payload\":" +
+                    "{\"data\":[" +
+                        "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
+                        "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
+                        "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
+                        "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
+                        "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
+                        "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
+                        "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
+                        "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
+                        "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
+                        "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}" +
+                    "]}" +
+                "}",
                 resultingJson);
         }
 
@@ -217,11 +222,12 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
 
         private WebSocketWriterPipeline CreateWebSocketWriterPipeline(IContractResolver contractResolver)
         {
-            return new WebSocketWriterPipeline(_testWebSocket, new DocumentWriter(Formatting.None,
+            return new WebSocketWriterPipeline(_testWebSocket, new DocumentWriter(
                 new JsonSerializerSettings
                 {
                     ContractResolver = contractResolver,
-                    NullValueHandling = NullValueHandling.Ignore
+                    NullValueHandling = NullValueHandling.Ignore,
+                    Formatting = Formatting.None
                 }));
         }
     }

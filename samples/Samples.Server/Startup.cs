@@ -10,8 +10,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
-using GraphQL.Http;
 using GraphQL.Server.Common;
+using GraphQL.NewtonsoftJson;
 
 #if NETCOREAPP2_2
 using GraphQL.Server.Serialization.NewtonsoftJson;

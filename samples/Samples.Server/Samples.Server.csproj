@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="GraphQL" Version="$(GraphQLVersion)" />
+    <PackageReference Include="GraphQL.NewtonsoftJson" Version="$(GraphQLVersion)" />
     <PackageReference Include="Serilog" Version="$(SerilogVersion)" />
     <PackageReference Include="Serilog.AspNetCore" Version="$(SerilogAspNetCoreVersion)" />
     <PackageReference Include="Serilog.Sinks.Console" Version="$(SerilogSinksConsoleVersion)" />

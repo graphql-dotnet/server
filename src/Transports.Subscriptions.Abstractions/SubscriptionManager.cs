@@ -1,3 +1,4 @@
+using GraphQL.NewtonsoftJson;
 using GraphQL.Server.Internal;
 using GraphQL.Server.Transports.Subscriptions.Abstractions.Internal;
 using GraphQL.Subscription;

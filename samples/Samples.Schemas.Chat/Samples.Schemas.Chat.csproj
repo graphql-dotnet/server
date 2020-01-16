@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
@@ -7,7 +7,7 @@
   </PropertyGroup>
   
   <ItemGroup>
-      <PackageReference Include="GraphQL" Version="$(GraphQLVersion)" />
+    <PackageReference Include="GraphQL.NewtonsoftJson" Version="$(GraphQLVersion)" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Transports.Subscriptions.Abstractions\Transports.Subscriptions.Abstractions.csproj" />

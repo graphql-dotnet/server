@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup Label="Package References">
-    <PackageReference Include="GraphQL" Version="$(GraphQLVersion)" />
+    <PackageReference Include="GraphQL.NewtonsoftJson" Version="$(GraphQLVersion)" />
   </ItemGroup>
 
   <ItemGroup Label="Package references for .NET Core" Condition="'$(IsNetCore3OnwardsTarget)' == 'True'">
