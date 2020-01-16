@@ -17,11 +17,11 @@
     <PackageReference Include="System.Reactive" Version="$(SystemReactiveVersion)" />
   </ItemGroup>
   
-  <ItemGroup Condition="'$(IsNetCore30OnwardsTarget)' == 'True'">
+  <ItemGroup Condition="'$(IsNetCore3OnwardsTarget)' == 'True'">
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>  
   
-  <ItemGroup Condition="'$(IsNetCore30OnwardsTarget)' == 'False'">
+  <ItemGroup Condition="'$(IsNetCore3OnwardsTarget)' == 'False'">
     <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="$(MicrosoftAspNetCoreHostingAbstractionsVersion)" />
     <PackageReference Include="Microsoft.AspNetCore.WebSockets" Version="$(MicrosoftAspNetCoreWebSocketsVersion)" />
   </ItemGroup>

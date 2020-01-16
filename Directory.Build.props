@@ -12,7 +12,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <IsNetCore30OnwardsTarget>$(TargetFramework.StartsWith('netcoreapp3.'))</IsNetCore30OnwardsTarget>
+    <IsNetCore3OnwardsTarget>$(TargetFramework.StartsWith('netcoreapp3.'))</IsNetCore3OnwardsTarget>
   </PropertyGroup>
 
   <PropertyGroup Label="Net Core 3.1" Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
@@ -31,7 +31,7 @@
     <MicrosoftExtensionsDependencyInjectionAbstractionsVersion>3.0.0</MicrosoftExtensionsDependencyInjectionAbstractionsVersion>
   </PropertyGroup>
 
-  <PropertyGroup Label="Net Core 2.2" Condition="'$(IsNetCore30OnwardsTarget)' == 'False'">
+  <PropertyGroup Label="Net Core 2.2" Condition="'$(IsNetCore3OnwardsTarget)' == 'False'">
     <MicrosoftAspNetCoreTestHostVersion>2.2.0</MicrosoftAspNetCoreTestHostVersion>
     <MicrosoftExtensionsLoggingVersion>2.2.0</MicrosoftExtensionsLoggingVersion>
     <MicrosoftExtensionsOptionsVersion>2.2.0</MicrosoftExtensionsOptionsVersion>

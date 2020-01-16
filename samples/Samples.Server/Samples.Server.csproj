@@ -27,11 +27,11 @@
     <ProjectReference Include="..\Samples.Schemas.Chat\Samples.Schemas.Chat.csproj" />
   </ItemGroup>
 
-  <ItemGroup Label="References for .NET Core 3.0 Onwards" Condition="'$(IsNetCore30OnwardsTarget)' == 'True'">
+  <ItemGroup Label="References for .NET Core 3.0 Onwards" Condition="'$(IsNetCore3OnwardsTarget)' == 'True'">
     <ProjectReference Include="..\..\src\Serialization.SystemTextJson\Serialization.SystemTextJson.csproj" />
   </ItemGroup>
 
-  <ItemGroup Label="References for .NET Core 2.2" Condition="'$(IsNetCore30OnwardsTarget)' == 'False'">
+  <ItemGroup Label="References for .NET Core 2.2" Condition="'$(IsNetCore3OnwardsTarget)' == 'False'">
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.WebSockets" Version="$(MicrosoftAspNetCoreWebSocketsVersion)" />
     <ProjectReference Include="..\..\src\Serialization.NewtonsoftJson\Serialization.NewtonsoftJson.csproj" />
