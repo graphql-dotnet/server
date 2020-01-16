@@ -59,7 +59,7 @@ public void ConfigureServices(IServiceCollection services)
         .AddSingleton<IDocumentWriter, DocumentWriter>()
         .AddGraphQL(options =>
         {
-            options.EnableMetrics = this.Environment.IsDevelopment();;
+            options.EnableMetrics = Environment.IsDevelopment();
             options.ExposeExceptions = this.Environment.IsDevelopment();
             options.UnhandledExceptionDelegate = ctx => { Console.WriteLine(ctx.OriginalException) };
         })
