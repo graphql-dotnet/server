@@ -60,7 +60,7 @@ public void ConfigureServices(IServiceCollection services)
         .AddGraphQL(options =>
         {
             options.EnableMetrics = Environment.IsDevelopment();
-            options.ExposeExceptions = this.Environment.IsDevelopment();
+            options.ExposeExceptions = Environment.IsDevelopment();
             options.UnhandledExceptionDelegate = ctx => { Console.WriteLine(ctx.OriginalException) };
         })
         .AddWebSockets() // Add required services for web socket support
