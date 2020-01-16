@@ -53,19 +53,19 @@ public void ConfigureServices(IServiceCollection services)
 {
     // Add GraphQL services and configure options
     services
-      .AddSingleton<IChat, Chat>()
-      .AddSingleton<ChatSchema>()
-      .AddSingleton<IGraphQLRequestDeserializer>(p => new GraphQLRequestDeserializer(settings => { }))
-      .AddSingleton<IDocumentWriter, DocumentWriter>()
-      .AddGraphQL(options =>
-      {
-          options.EnableMetrics = this.Environment.IsDevelopment();;
-          options.ExposeExceptions = this.Environment.IsDevelopment();
-          options.UnhandledExceptionDelegate = ctx => { };
-      })
-      .AddWebSockets() // Add required services for web socket support
-      .AddDataLoader() // Add required services for DataLoader support
-      .AddGraphTypes(typeof(ChatSchema)) // Add all IGraphType implementors in assembly which ChatSchema exists 
+        .AddSingleton<IChat, Chat>()
+        .AddSingleton<ChatSchema>()
+        .AddSingleton<IGraphQLRequestDeserializer>(p => new GraphQLRequestDeserializer(settings => { }))
+        .AddSingleton<IDocumentWriter, DocumentWriter>()
+        .AddGraphQL(options =>
+        {
+            options.EnableMetrics = this.Environment.IsDevelopment();;
+            options.ExposeExceptions = this.Environment.IsDevelopment();
+            options.UnhandledExceptionDelegate = ctx => { };
+        })
+        .AddWebSockets() // Add required services for web socket support
+        .AddDataLoader() // Add required services for DataLoader support
+        .AddGraphTypes(typeof(ChatSchema)) // Add all IGraphType implementors in assembly which ChatSchema exists 
 }
 
 public void Configure(IApplicationBuilder app)
