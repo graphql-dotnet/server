@@ -1,9 +1,6 @@
 GraphQL for .NET - Subscription Transport WebSockets
 ====================================================
 
->WARNING: not tested in heavy production use! That said if you are using this in production
->drop me a line to tell me how's it working for you. Maybe I can take this disclaimer off.
-
 [![Build status](https://ci.appveyor.com/api/projects/status/x0nf67vfao60wf7e/branch/master?svg=true)](https://ci.appveyor.com/project/graphql-dotnet-ci/server/branch/master)
 
 Provides the following packages:
@@ -14,6 +11,8 @@ Provides the following packages:
 | GraphQL.Server.Transports.AspNetCore | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Transports.AspNetCore)](https://www.nuget.org/packages/GraphQL.Server.Transports.AspNetCore/) |
 | GraphQL.Server.Transports.Subscriptions.Abstractions | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Transports.Subscriptions.Abstractions)](https://www.nuget.org/packages/GraphQL.Server.Transports.Subscriptions.Abstractions/) |
 | GraphQL.Server.Transports.WebSockets | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Transports.WebSockets)](https://www.nuget.org/packages/GraphQL.Server.Transports.WebSockets/) |
+| GraphQL.Server.Serializer.NewtonsoftJson | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Serializer.NewtonsoftJson)](https://www.nuget.org/packages/GraphQL.Server.Serializer.NewtonsoftJson/) |
+| GraphQL.Server.Serializer.SystemTextJson | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Serializer.SystemTextJson)](https://www.nuget.org/packages/GraphQL.Server.Serializer.SystemTextJson/) |
 | GraphQL.Server.Ui.Playground | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Ui.Playground)](https://www.nuget.org/packages/GraphQL.Server.Ui.Playground/) |
 | GraphQL.Server.Ui.GraphiQL | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Ui.GraphiQL)](https://www.nuget.org/packages/GraphQL.Server.Ui.GraphiQL/) |
 | GraphQL.Server.Ui.Altair | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Ui.Altair)](https://www.nuget.org/packages/GraphQL.Server.Ui.Altair/) |
@@ -36,25 +35,39 @@ For the UI middleware/s:
 >`dotnet add package GraphQL.Server.Ui.Altair`  
 >`dotnet add package GraphQL.Server.Ui.Voyager`  
 
+For the serializer:  
+> Legacy (prior to .NET Core 3):  
+> `dotnet add package GraphQL.Server.Serialization.NewstonsoftJson`  
+
+> .NET Core 3+:  
+> `dotnet add package GraphQL.Server.Serialization.SystemTextJson`  
+
+(or your own)
 
 ### Configure
+
+See the sample project's Startup.cs for full details.
 
 ``` csharp
 public void ConfigureServices(IServiceCollection services)
 {
     services.AddSingleton<ChatSchema>();
 
+    services.AddSingleton<IGraphQLRequestDeserializer>(p => new GraphQLRequestDeserializer(settings => { }));
+
+    services.AddSingleton<IDocumentWriter, DocumentWriter>();
+
     // Add GraphQL services and configure options
     services.AddGraphQL(options =>
     {
-        options.EnableMetrics = true;
+        options.EnableMetrics = this.Environment.IsDevelopment();;
         options.ExposeExceptions = this.Environment.IsDevelopment();
     })
     .AddWebSockets() // Add required services for web socket support
     .AddDataLoader(); // Add required services for DataLoader support
 }
 
-public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+public void Configure(IApplicationBuilder app)
 {
     // this is required for websockets support
     app.UseWebSockets();
@@ -92,7 +105,7 @@ access the properties including your actual `UserContext` by using the
 ## Sample
 
 Samples.Server shows a simple Chat style example of how subscription transport is used
-with GraphiQL integration. An example works for `netcoreapp2.2` and `netcoreapp3.0` platforms.
+with GraphiQL integration. An example works for `netcoreapp2.2`, `netcoreapp3.0` and `netcoreapp3.1` platforms.
 
 Here are example queries to get started. Use three browser tabs or better yet windows 
 to view the changes.
