@@ -48,7 +48,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             var writer = context.RequestServices.GetRequiredService<IDocumentWriter>();
 
             if (HttpMethods.IsGet(httpRequest.Method) ||
-                (HttpMethods.IsPost(httpRequest.Method) && httpRequest.Query.ContainsKey(GraphQLRequestProperties.QueryKey)))
+                (HttpMethods.IsPost(httpRequest.Method) && httpRequest.Query.ContainsKey(GraphQLRequest.QueryKey)))
             {
                 gqlRequest = ExtractGraphQLRequestFromQueryString(httpRequest.Query);
             }
@@ -179,16 +179,16 @@ namespace GraphQL.Server.Transports.AspNetCore
 
         private GraphQLRequest ExtractGraphQLRequestFromQueryString(IQueryCollection qs) => new GraphQLRequest
         {
-            Query = qs.TryGetValue(GraphQLRequestProperties.QueryKey, out var queryValues) ? queryValues[0] : null,
-            Variables = qs.TryGetValue(GraphQLRequestProperties.VariablesKey, out var variablesValues) ? variablesValues[0] : null,
-            OperationName = qs.TryGetValue(GraphQLRequestProperties.OperationNameKey, out var operationNameValues) ? operationNameValues[0] : null
+            Query = qs.TryGetValue(GraphQLRequest.QueryKey, out var queryValues) ? queryValues[0] : null,
+            Variables = qs.TryGetValue(GraphQLRequest.VariablesKey, out var variablesValues) ? variablesValues[0] : null,
+            OperationName = qs.TryGetValue(GraphQLRequest.OperationNameKey, out var operationNameValues) ? operationNameValues[0] : null
         };
 
         private GraphQLRequest ExtractGraphQLRequestFromPostBody(IFormCollection fc) => new GraphQLRequest
         {
-            Query = fc.TryGetValue(GraphQLRequestProperties.QueryKey, out var queryValues) ? queryValues[0] : null,
-            Variables = fc.TryGetValue(GraphQLRequestProperties.VariablesKey, out var variablesValue) ? variablesValue[0] : null,
-            OperationName = fc.TryGetValue(GraphQLRequestProperties.OperationNameKey, out var operationNameValues) ? operationNameValues[0] : null
+            Query = fc.TryGetValue(GraphQLRequest.QueryKey, out var queryValues) ? queryValues[0] : null,
+            Variables = fc.TryGetValue(GraphQLRequest.VariablesKey, out var variablesValue) ? variablesValue[0] : null,
+            OperationName = fc.TryGetValue(GraphQLRequest.OperationNameKey, out var operationNameValues) ? operationNameValues[0] : null
         };
     }
 }

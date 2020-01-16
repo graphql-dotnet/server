@@ -1,17 +1,16 @@
-using GraphQL.Server.Common;
 using Newtonsoft.Json;
 
 namespace GraphQL.Server.Serialization.NewtonsoftJson
 {
     public class GraphQLRequest : Common.GraphQLRequest
     {
-        [JsonProperty(GraphQLRequestProperties.QueryKey)]
+        [JsonProperty(QueryKey)]
         public override string Query { get; set; }
 
-        [JsonProperty(GraphQLRequestProperties.VariablesKey)]
+        [JsonProperty(VariablesKey)]
         public override string Variables { get; set; }
 
-        [JsonProperty(GraphQLRequestProperties.OperationNameKey)]
+        [JsonProperty(OperationNameKey)]
         public override string OperationName { get; set; }
     }
 }
