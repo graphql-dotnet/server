@@ -225,7 +225,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
             return new WebSocketWriterPipeline(_testWebSocket, new DocumentWriter(
                 new JsonSerializerSettings
                 {
-                    ContractResolver = new ExecutionResultContractResolver() { NamingStrategy = namingStrategy },
+                    ContractResolver = new ExecutionResultContractResolver { NamingStrategy = namingStrategy },
                     NullValueHandling = NullValueHandling.Ignore,
                     Formatting = Formatting.None
                 }));
