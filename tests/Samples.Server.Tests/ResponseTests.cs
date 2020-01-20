@@ -52,5 +52,17 @@ namespace Samples.Server.Tests
             var response = await SendRequestAsync(request);
             response.ShouldBe(@"{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}}", ignoreExtensions: true);
         }
+
+        [Fact]
+        public async Task Should_Be_Able_To_Deserialize_Empty_Variables()
+        {
+            var request = new GraphQLRequest
+            {
+                Query = "{ __schema { queryType { name } } }",
+                Variables = new GraphQL.Inputs()
+            };
+            var response = await SendRequestAsync(request);
+            response.ShouldBe(@"{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}}", ignoreExtensions: true);
+        }
     }
 }

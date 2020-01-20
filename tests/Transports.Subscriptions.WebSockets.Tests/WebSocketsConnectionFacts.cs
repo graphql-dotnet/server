@@ -39,10 +39,6 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
                 .Start();
 
             _server = _host.GetTestServer();
-
-            // Workaround until GraphQL can swap off Newtonsoft.Json and onto the new MS one.
-            // https://github.com/graphql-dotnet/graphql-dotnet/issues/1116
-            _server.AllowSynchronousIO = true;
         }
 
         private readonly IHost _host;
