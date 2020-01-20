@@ -8,7 +8,7 @@ namespace GraphQL.Server.Serialization.SystemTextJson
         public override string Query { get; set; }
 
         [JsonPropertyName(VariablesKey)]
-        public override string Variables { get; set; }
+        public override Inputs Variables { get; set; }
 
         [JsonPropertyName(OperationNameKey)]
         public override string OperationName { get; set; }

@@ -8,7 +8,7 @@ namespace GraphQL.Server.Serialization.NewtonsoftJson
         public override string Query { get; set; }
 
         [JsonProperty(VariablesKey)]
-        public override string Variables { get; set; }
+        public override Inputs Variables { get; set; }
 
         [JsonProperty(OperationNameKey)]
         public override string OperationName { get; set; }

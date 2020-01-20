@@ -37,5 +37,20 @@ namespace Samples.Server.Tests
             var response = await SendRequestAsync("Oops");
             response.ShouldBe(@"{""errors"":[{""message"":""Body text could not be parsed. Body text should start with '{' for normal graphql query or with '[' for batched query.""}]}");
         }
+
+        [Fact]
+        public async Task Should_Be_Able_To_Deserialize_Variables()
+        {
+            var request = new GraphQLRequest
+            {
+                Query = "{ __schema { queryType { name } } }",
+                Variables = new GraphQL.Inputs()
+                {
+                    { "key", "value" }
+                }
+            };
+            var response = await SendRequestAsync(request);
+            response.ShouldBe(@"{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}}", ignoreExtensions: true);
+        }
     }
 }
