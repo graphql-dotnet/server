@@ -1,10 +1,10 @@
-using System.IO;
+using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
 
 namespace GraphQL.Server.Common
 {
     public interface IGraphQLRequestDeserializer
     {
-        Task<GraphQLRequestDeserializationResult> FromBodyAsync(Stream stream, long? contentLength);
+        Task<GraphQLRequestDeserializationResult> DeserializeAsync(HttpRequest httpRequest);
     }
 }

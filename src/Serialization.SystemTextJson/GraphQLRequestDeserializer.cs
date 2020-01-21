@@ -1,25 +1,22 @@
 using GraphQL.Server.Common;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Buffers;
-using System.IO;
+using System.IO.Pipelines;
 using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace GraphQL.Server.Serialization.SystemTextJson
 {
+    /// <summary>
+    /// Implementation of an <see cref="IGraphQLRequestDeserializer"/> that uses System.Text.Json;
+    /// reading the request body asynchronously and optimally.
+    /// <remarks>
+    /// </remarks>
+    /// With thanks to David Fowler (@davidfowl) for his help getting this right.
+    /// </summary>
     public class GraphQLRequestDeserializer : IGraphQLRequestDeserializer
     {
-        /// <summary>
-        /// Max size of a buffer we can create using the Shared ArrayPool.
-        /// </summary>
-        /// <remarks>
-        /// Determined by following <see cref="ArrayPool{T}.Shared" /> (https://github.com/dotnet/coreclr/blob/master/src/System.Private.CoreLib/shared/System/Buffers/ArrayPool.cs)
-        /// which instantiates a TlsOverPerCoreLockedStacksArrayPool (https://github.com/dotnet/runtime/blob/ccf6aedb63c37ea8e10e4f5b5d9d23a69bdd9489/src/libraries/System.Private.CoreLib/src/System/Buffers/TlsOverPerCoreLockedStacksArrayPool.cs)
-        /// whose ctor calls Utilities.GetMaxBucketSize with TlsOverPerCoreLockedStacksArrayPool.NumBuckets = 17 (https://github.com/dotnet/runtime/blob/ccf6aedb63c37ea8e10e4f5b5d9d23a69bdd9489/src/libraries/System.Private.CoreLib/src/System/Buffers/Utilities.cs#L22)
-        /// which does 16 << 17 = 2MB as below.
-        /// </remarks>
-        private const int MaxSharedBufferSize = 2097152; 
-
         private readonly JsonSerializerOptions _serializerOptions = new JsonSerializerOptions();
 
         public GraphQLRequestDeserializer(Action<JsonSerializerOptions> configure)
@@ -27,66 +24,67 @@ namespace GraphQL.Server.Serialization.SystemTextJson
             configure(_serializerOptions);
         }
 
-        public async Task<GraphQLRequestDeserializationResult> FromBodyAsync(Stream stream, long? contentLength)
+        public async Task<GraphQLRequestDeserializationResult> DeserializeAsync(HttpRequest httpRequest)
         {
-            var sharedArrayPool = ArrayPool<byte>.Shared;
-            if (contentLength.HasValue && contentLength < MaxSharedBufferSize)
-            {
-                var length = (int)contentLength.Value; // MaxSharedBufferSize < int.MaxValue so this is OK
-                var jsonBytes = sharedArrayPool.Rent(length); 
-                await stream.ReadAsync(jsonBytes, 0, length);
-
-                try
-                {
-                    return Process(jsonBytes.AsSpan(0, length));
-                }
-                finally
-                {
-                    sharedArrayPool.Return(jsonBytes);
-                }
-            }
-            else
-            {
-                using var ms = new MemoryStream();
-                await stream.CopyToAsync(ms).ConfigureAwait(false);
-                var jsonBytes = ms.GetBuffer();
-                return Process(jsonBytes.AsSpan(0, ms.Length));
-            }
-        }
-
-        private GraphQLRequestDeserializationResult Process(ReadOnlySpan<byte> jsonBytes)
-        {
-            JsonTokenType tokenType;
+            JsonTokenType jsonTokenType;
             try
             {
-                tokenType = GetTokenType(jsonBytes);
+                jsonTokenType = await PeekJsonTokenType(httpRequest.BodyReader);
             }
-            catch (Exception)
+            catch (JsonException)
             {
-                tokenType = JsonTokenType.None;
+                // Invalid request content, assign None so it falls through to WasSuccessful = false
+                jsonTokenType = JsonTokenType.None;
             }
 
             var result = new GraphQLRequestDeserializationResult() { WasSuccessful = true };
-            switch (tokenType)
+            switch (jsonTokenType)
             {
                 case JsonTokenType.StartObject:
-                    result.Single = JsonSerializer.Deserialize<GraphQLRequest>(jsonBytes, _serializerOptions);
-                    break;
+                    result.Single = await JsonSerializer.DeserializeAsync<GraphQLRequest>(httpRequest.BodyReader.AsStream(), _serializerOptions);
+                    return result;
                 case JsonTokenType.StartArray:
-                    result.Batch = JsonSerializer.Deserialize<GraphQLRequest[]>(jsonBytes, _serializerOptions);
-                    break;
+                    result.Batch = await JsonSerializer.DeserializeAsync<GraphQLRequest[]>(httpRequest.BodyReader.AsStream(), _serializerOptions);
+                    return result;
                 default:
                     result.WasSuccessful = false;
-                    break;
+                    return result;
             }
-            return result;
         }
 
-        private static JsonTokenType GetTokenType(ReadOnlySpan<byte> jsonBytes)
+        private static async ValueTask<JsonTokenType> PeekJsonTokenType(PipeReader reader)
         {
-            var reader = new Utf8JsonReader(jsonBytes);
-            var success = reader.Read();
-            return success ? reader.TokenType : JsonTokenType.None;
+            // Separate method so that we can use the ref struct
+            static bool DetermineTokenType(in ReadOnlySequence<byte> buffer, out JsonTokenType jsonToken)
+            {
+                var jsonReader = new Utf8JsonReader(buffer);
+                if (jsonReader.Read())
+                {
+                    jsonToken = jsonReader.TokenType;
+                    return true;
+                }
+                jsonToken = JsonTokenType.None;
+                return false;
+            }
+
+            while (true)
+            {
+                var result = await reader.ReadAsync();
+                var buffer = result.Buffer;
+
+                if (DetermineTokenType(buffer, out var tokenType))
+                {
+                    // Don't consume any of the buffer so we can re-parse it with the
+                    // serializer
+                    reader.AdvanceTo(buffer.Start, buffer.Start);
+                    return tokenType;
+                }
+                else
+                {
+                    // We don't have enough to read a token, keep buffering
+                    reader.AdvanceTo(buffer.Start, buffer.End);
+                }
+            }
         }
     }
 }
