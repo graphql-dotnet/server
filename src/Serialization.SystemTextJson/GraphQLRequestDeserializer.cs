@@ -84,6 +84,12 @@ namespace GraphQL.Server.Serialization.SystemTextJson
                     // We don't have enough to read a token, keep buffering
                     reader.AdvanceTo(buffer.Start, buffer.End);
                 }
+
+                // If there's no more data coming, then bail
+                if (result.IsCompleted)
+                {
+                    return JsonTokenType.None;
+                }
             }
         }
     }
