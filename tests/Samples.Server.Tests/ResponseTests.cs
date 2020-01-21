@@ -39,14 +39,15 @@ namespace Samples.Server.Tests
         }
 
         [Fact]
-        public async Task Should_Be_Able_To_Deserialize_Variables()
+        public async Task Serializer_Should_Handle_Variables()
         {
             var request = new GraphQLRequest
             {
                 Query = "{ __schema { queryType { name } } }",
                 Variables = new GraphQL.Inputs()
                 {
-                    { "key", "value" }
+                    { "key1", "value" },
+                    { "key2", new { innerKey = "innerValue" } }
                 }
             };
             var response = await SendRequestAsync(request);
@@ -54,7 +55,7 @@ namespace Samples.Server.Tests
         }
 
         [Fact]
-        public async Task Should_Be_Able_To_Deserialize_Empty_Variables()
+        public async Task Serializer_Should_Handle_Empty_Variables()
         {
             var request = new GraphQLRequest
             {
