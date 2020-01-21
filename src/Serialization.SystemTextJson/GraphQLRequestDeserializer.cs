@@ -33,9 +33,14 @@ namespace GraphQL.Server.Serialization.SystemTextJson
             {
                 using var ms = new MemoryStream();
                 await stream.CopyToAsync(ms).ConfigureAwait(false);
-                jsonBytes = ms.ToArray();
-                length = jsonBytes.Length;
+                if (!ms.TryGetBuffer(out var streamBytes))
+                {
+                    return new GraphQLRequestDeserializationResult();
+                }
+                jsonBytes = streamBytes.Array;
+                length = streamBytes.Count;
             }
+
             try
             {
                 return Process(jsonBytes, length);
