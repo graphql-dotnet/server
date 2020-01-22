@@ -42,15 +42,34 @@ namespace Samples.Server.Tests
         {
             var request = new GraphQLRequest
             {
-                Query = "{ __schema { queryType { name } } }",
+                Query = "mutation ($content: String!) { addMessage(message: { content: $content, fromId: $fromId, sentAt: $sentAt }) { sentAt, content, from { id } } }",
                 Variables = new GraphQL.Inputs()
                 {
-                    { "key1", "value" },
-                    { "key2", new { innerKey = "innerValue" } }
+                    { "content", "some content" },
+                    { "sentAt", "2020-01-01" },
+                    { "fromId", "1" } }
+            };
+            var response = await SendRequestAsync(request);
+            response.ShouldBe(
+                @"{""data"":{""addMessage"":{""sentAt"":""2020-01-01"",""content"":""some content"",""from"":{""id"":""1""}}}}",
+                ignoreExtensions: true);
+        }
+
+        [Fact]
+        public async Task Serializer_Should_Handle_Complex_Variable()
+        {
+            var request = new GraphQLRequest
+            {
+                Query = "mutation ($msg: MessageInputType!) { addMessage(message: $msg) { sentAt, content, from { id } } }",
+                Variables = new GraphQL.Inputs()
+                {
+                    { "msg", new { content = "some content", sentAt = "2020-01-01", fromId = "1" } }
                 }
             };
             var response = await SendRequestAsync(request);
-            response.ShouldBe(@"{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}}", ignoreExtensions: true);
+            response.ShouldBe(
+                @"{""data"":{""addMessage"":{""sentAt"":""2020-01-01"",""content"":""some content"",""from"":{""id"":""1""}}}}",
+                ignoreExtensions: true);
         }
 
         [Fact]
