@@ -1,8 +1,8 @@
 using Newtonsoft.Json;
 
-namespace GraphQL.Server.Serialization.NewtonsoftJson
+namespace GraphQL.Server.Transports.AspNetCore.NewtonsoftJson
 {
-    public class GraphQLRequest : Common.GraphQLRequest
+    public class GraphQLRequest : Server.Common.GraphQLRequest
     {
         [JsonProperty(QueryKey)]
         public override string Query { get; set; }

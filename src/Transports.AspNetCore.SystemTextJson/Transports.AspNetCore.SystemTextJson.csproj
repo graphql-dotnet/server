@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp3.1;netcoreapp3.0</TargetFrameworks>
+    <AssemblyName>GraphQL.Server.Transports.AspNetCore.SystemTextJson</AssemblyName>
+    <RootNamespace>GraphQL.Server.Transports.AspNetCore.SystemTextJson</RootNamespace>
+    <PackageId>GraphQL.Server.Transports.AspNetCore.SystemTextJson</PackageId>
+    <Description>GraphQL middleware using System.Text.Json</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <ProjectReference Include="..\Transports.AspNetCore\Transports.AspNetCore.csproj" />
+  </ItemGroup>
+
+</Project>

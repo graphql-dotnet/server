@@ -1,8 +1,8 @@
 using System.Text.Json.Serialization;
 
-namespace GraphQL.Server.Serialization.SystemTextJson
+namespace GraphQL.Server.Transports.AspNetCore.SystemTextJson
 {
-    public class GraphQLRequest : Common.GraphQLRequest
+    public class GraphQLRequest : Server.Common.GraphQLRequest
     {
         [JsonPropertyName(QueryKey)]
         public override string Query { get; set; }

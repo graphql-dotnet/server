@@ -1,4 +1,4 @@
-using GraphQL.Server.Common;
+using GraphQL.Server.Transports.AspNetCore.Common;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Buffers;
@@ -6,15 +6,15 @@ using System.IO.Pipelines;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace GraphQL.Server.Serialization.SystemTextJson
+namespace GraphQL.Server.Transports.AspNetCore.SystemTextJson
 {
     /// <summary>
     /// Implementation of an <see cref="IGraphQLRequestDeserializer"/> that uses System.Text.Json;
     /// reading the request body asynchronously and optimally.
-    /// <remarks>
-    /// </remarks>
-    /// With thanks to David Fowler (@davidfowl) for his help getting this right.
     /// </summary>
+    /// <remarks>
+    /// With thanks to David Fowler (@davidfowl) for his help getting this right.
+    /// </remarks>
     public class GraphQLRequestDeserializer : IGraphQLRequestDeserializer
     {
         private readonly JsonSerializerOptions _serializerOptions = new JsonSerializerOptions();

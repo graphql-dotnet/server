@@ -8,11 +8,11 @@ using System;
 #if NETCOREAPP2_2
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Hosting;
-using GraphQLRequest = GraphQL.Server.Serialization.NewtonsoftJson.GraphQLRequest;
+using GraphQLRequest = GraphQL.Server.Transports.AspNetCore.NewtonsoftJson.GraphQLRequest;
 #else
 using System.Text.Json;
 using Microsoft.Extensions.Hosting;
-using GraphQLRequest = GraphQL.Server.Serialization.SystemTextJson.GraphQLRequest;
+using GraphQLRequest = GraphQL.Server.Transports.AspNetCore.SystemTextJson.GraphQLRequest;
 #endif
 
 namespace Samples.Server.Tests

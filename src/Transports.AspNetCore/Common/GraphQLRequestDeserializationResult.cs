@@ -1,4 +1,6 @@
-namespace GraphQL.Server.Common
+using GraphQL.Server.Common;
+
+namespace GraphQL.Server.Transports.AspNetCore.Common
 {
     public class GraphQLRequestDeserializationResult
     {

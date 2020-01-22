@@ -1,12 +1,11 @@
-using GraphQL.Server.Transports.AspNetCore.Common;
 using Shouldly;
 using System.Threading.Tasks;
 using Xunit;
 
 #if NETCOREAPP2_2
-using GraphQLRequest = GraphQL.Server.Serialization.NewtonsoftJson.GraphQLRequest;
+using GraphQLRequest = GraphQL.Server.Transports.AspNetCore.NewtonsoftJson.GraphQLRequest;
 #else
-using GraphQLRequest = GraphQL.Server.Serialization.SystemTextJson.GraphQLRequest;
+using GraphQLRequest = GraphQL.Server.Transports.AspNetCore.SystemTextJson.GraphQLRequest;
 #endif
 
 namespace Samples.Server.Tests

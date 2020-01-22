@@ -1,12 +1,15 @@
-using GraphQL.Server.Common;
+using GraphQL.Server.Transports.AspNetCore.Common;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace GraphQL.Server.Serialization.NewtonsoftJson
+namespace GraphQL.Server.Transports.AspNetCore.NewtonsoftJson
 {
+    /// <summary>
+    /// Implementation of an <see cref="IGraphQLRequestDeserializer"/> that uses Newtonsoft.Json.
+    /// </summary>
     public class GraphQLRequestDeserializer : IGraphQLRequestDeserializer
     {
         private readonly JsonSerializer _serializer;

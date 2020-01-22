@@ -10,13 +10,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
-using GraphQL.Server.Common;
 using GraphQL.NewtonsoftJson;
+using GraphQL.Server.Transports.AspNetCore.Common;
 
 #if NETCOREAPP2_2
-using GraphQL.Server.Serialization.NewtonsoftJson;
+using GraphQL.Server.Transports.AspNetCore.NewtonsoftJson;
 #else
-using GraphQL.Server.Serialization.SystemTextJson;
+using GraphQL.Server.Transports.AspNetCore.SystemTextJson;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Hosting;
 #endif
