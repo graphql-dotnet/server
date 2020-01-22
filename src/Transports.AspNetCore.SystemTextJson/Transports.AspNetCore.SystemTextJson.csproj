@@ -5,7 +5,7 @@
     <AssemblyName>GraphQL.Server.Transports.AspNetCore.SystemTextJson</AssemblyName>
     <RootNamespace>GraphQL.Server.Transports.AspNetCore.SystemTextJson</RootNamespace>
     <PackageId>GraphQL.Server.Transports.AspNetCore.SystemTextJson</PackageId>
-    <Description>GraphQL serializer using System.Text.Json</Description>
+    <Description>GraphQL middleware using System.Text.Json for serialization</Description>
   </PropertyGroup>
 
   <ItemGroup>

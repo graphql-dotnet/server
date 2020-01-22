@@ -99,12 +99,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             if (gqlBatchRequest == null)
             {
                 var stopwatch = ValueStopwatch.StartNew();
-                var result = await executer.ExecuteAsync(
-                    gqlRequest.OperationName,
-                    gqlRequest.Query,
-                    gqlRequest.Inputs,
-                    userContext,
-                    token).ConfigureAwait(false);
+                var result = await ExecuteRequestAsync(gqlRequest, userContext, executer, token);
 
                 await RequestExecutedAsync(new GraphQLRequestExecutionResult(gqlRequest, result, stopwatch.Elapsed));
 
@@ -119,12 +114,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                     var request = gqlBatchRequest[i];
 
                     var stopwatch = ValueStopwatch.StartNew();
-                    var result = await executer.ExecuteAsync(
-                        request.OperationName,
-                        request.Query,
-                        request.Inputs,
-                        userContext,
-                        token).ConfigureAwait(false);
+                    var result = await ExecuteRequestAsync(request, userContext, executer, token);
 
                     await RequestExecutedAsync(new GraphQLRequestExecutionResult(gqlRequest, result, stopwatch.Elapsed, i));
 
@@ -134,6 +124,14 @@ namespace GraphQL.Server.Transports.AspNetCore
                 await WriteResponseAsync(context, writer, executionResults).ConfigureAwait(false);
             }
         }
+
+        private static async Task<ExecutionResult> ExecuteRequestAsync(GraphQLRequest gqlRequest, IDictionary<string, object> userContext, IGraphQLExecuter<TSchema> executer, CancellationToken token)
+            => await executer.ExecuteAsync(
+                gqlRequest.OperationName,
+                gqlRequest.Query,
+                gqlRequest.GetInputs(),
+                userContext,
+                token).ConfigureAwait(false);
 
         protected virtual CancellationToken GetCancellationToken(HttpContext context) => context.RequestAborted;
 
