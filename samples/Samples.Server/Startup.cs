@@ -46,6 +46,20 @@ namespace GraphQL.Samples.Server
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+#if NETCOREAPP3_0
+            // Workaround until GraphQL can swap off Newtonsoft.Json and onto the new MS one.
+            // Depending on whether you're using IIS or Kestrel, the code required is different
+            // See: https://github.com/graphql-dotnet/graphql-dotnet/issues/1116
+            services.Configure<KestrelServerOptions>(options =>
+            {
+                options.AllowSynchronousIO = true;
+            });
+            services.Configure<IISServerOptions>(options =>
+            {
+                options.AllowSynchronousIO = true;
+            });
+#endif
+
             services
                 .AddSingleton<IChat, Chat>()
                 .AddSingleton<ChatSchema>()
