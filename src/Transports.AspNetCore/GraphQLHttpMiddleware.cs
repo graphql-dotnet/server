@@ -1,5 +1,4 @@
 using GraphQL.Instrumentation;
-using GraphQL.NewtonsoftJson;
 using GraphQL.Server.Common;
 using GraphQL.Server.Internal;
 using GraphQL.Server.Transports.AspNetCore.Common;
@@ -50,7 +49,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             if (HttpMethods.IsGet(httpRequest.Method) ||
                 (HttpMethods.IsPost(httpRequest.Method) && httpRequest.Query.ContainsKey(GraphQLRequest.QueryKey)))
             {
-                gqlRequest = ExtractGraphQLRequestFromQueryString(httpRequest.Query);
+                gqlRequest = _deserializer.Deserialize(httpRequest.Query);
             }
             else if (HttpMethods.IsPost(httpRequest.Method))
             {
@@ -79,7 +78,7 @@ namespace GraphQL.Server.Transports.AspNetCore
 
                     case FormUrlEncodedContentType:
                         var formCollection = await httpRequest.ReadFormAsync().ConfigureAwait(false);
-                        gqlRequest = ExtractGraphQLRequestFromPostBody(formCollection);
+                        gqlRequest = _deserializer.Deserialize(formCollection);
                         break;
 
                     default:
@@ -103,7 +102,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                 var result = await executer.ExecuteAsync(
                     gqlRequest.OperationName,
                     gqlRequest.Query,
-                    gqlRequest.Variables,
+                    gqlRequest.Inputs,
                     userContext,
                     token).ConfigureAwait(false);
 
@@ -123,7 +122,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                     var result = await executer.ExecuteAsync(
                         request.OperationName,
                         request.Query,
-                        request.Variables,
+                        request.Inputs,
                         userContext,
                         token).ConfigureAwait(false);
 
@@ -176,19 +175,5 @@ namespace GraphQL.Server.Transports.AspNetCore
             // work except for the disposing inner stream.
             return await new StreamReader(s).ReadToEndAsync().ConfigureAwait(false);
         }
-
-        private GraphQLRequest ExtractGraphQLRequestFromQueryString(IQueryCollection qs) => new GraphQLRequest
-        {
-            Query = qs.TryGetValue(GraphQLRequest.QueryKey, out var queryValues) ? queryValues[0] : null,
-            Variables = qs.TryGetValue(GraphQLRequest.VariablesKey, out var variablesValues) ? variablesValues[0].ToInputs() : null,
-            OperationName = qs.TryGetValue(GraphQLRequest.OperationNameKey, out var operationNameValues) ? operationNameValues[0] : null
-        };
-
-        private GraphQLRequest ExtractGraphQLRequestFromPostBody(IFormCollection fc) => new GraphQLRequest
-        {
-            Query = fc.TryGetValue(GraphQLRequest.QueryKey, out var queryValues) ? queryValues[0] : null,
-            Variables = fc.TryGetValue(GraphQLRequest.VariablesKey, out var variablesValue) ? variablesValue[0].ToInputs() : null,
-            OperationName = fc.TryGetValue(GraphQLRequest.OperationNameKey, out var operationNameValues) ? operationNameValues[0] : null
-        };
     }
 }

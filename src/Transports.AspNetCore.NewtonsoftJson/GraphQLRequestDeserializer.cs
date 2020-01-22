@@ -1,9 +1,11 @@
 using GraphQL.Server.Transports.AspNetCore.Common;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using GraphQLRequestBase = GraphQL.Server.Common.GraphQLRequest;
 
 namespace GraphQL.Server.Transports.AspNetCore.NewtonsoftJson
 {
@@ -49,5 +51,19 @@ namespace GraphQL.Server.Transports.AspNetCore.NewtonsoftJson
 
             return Task.FromResult(result);
         }
+
+        public GraphQLRequestBase Deserialize(IQueryCollection qs) => new GraphQLRequest
+        {
+            Query = qs.TryGetValue(GraphQLRequestBase.QueryKey, out var queryValues) ? queryValues[0] : null,
+            Variables = qs.TryGetValue(GraphQLRequestBase.VariablesKey, out var variablesValues) ? JObject.Parse(variablesValues[0]) : null,
+            OperationName = qs.TryGetValue(GraphQLRequestBase.OperationNameKey, out var operationNameValues) ? operationNameValues[0] : null
+        };
+
+        public GraphQLRequestBase Deserialize(IFormCollection fc) => new GraphQLRequest
+        {
+            Query = fc.TryGetValue(GraphQLRequestBase.QueryKey, out var queryValues) ? queryValues[0] : null,
+            Variables = fc.TryGetValue(GraphQLRequestBase.VariablesKey, out var variablesValue) ? JObject.Parse(variablesValue[0]) : null,
+            OperationName = fc.TryGetValue(GraphQLRequestBase.OperationNameKey, out var operationNameValues) ? operationNameValues[0] : null
+        };
     }
 }

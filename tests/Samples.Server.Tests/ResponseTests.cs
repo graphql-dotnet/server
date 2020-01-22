@@ -3,8 +3,10 @@ using System.Threading.Tasks;
 using Xunit;
 
 #if NETCOREAPP2_2
+using GraphQL.Server.Transports.AspNetCore.NewtonsoftJson;
 using GraphQLRequest = GraphQL.Server.Transports.AspNetCore.NewtonsoftJson.GraphQLRequest;
 #else
+using GraphQL.Server.Transports.AspNetCore.SystemTextJson;
 using GraphQLRequest = GraphQL.Server.Transports.AspNetCore.SystemTextJson.GraphQLRequest;
 #endif
 
@@ -43,11 +45,7 @@ namespace Samples.Server.Tests
             var request = new GraphQLRequest
             {
                 Query = "mutation ($content: String!) { addMessage(message: { content: $content, fromId: $fromId, sentAt: $sentAt }) { sentAt, content, from { id } } }",
-                Variables = new GraphQL.Inputs()
-                {
-                    { "content", "some content" },
-                    { "sentAt", "2020-01-01" },
-                    { "fromId", "1" } }
+                Variables = @"{ ""content"": ""some content"", ""sentAt"": ""2020-01-01"", ""fromId"": ""1"" }".ToVariables()
             };
             var response = await SendRequestAsync(request);
             response.ShouldBe(
@@ -61,10 +59,7 @@ namespace Samples.Server.Tests
             var request = new GraphQLRequest
             {
                 Query = "mutation ($msg: MessageInputType!) { addMessage(message: $msg) { sentAt, content, from { id } } }",
-                Variables = new GraphQL.Inputs()
-                {
-                    { "msg", new { content = "some content", sentAt = "2020-01-01", fromId = "1" } }
-                }
+                Variables = @"{ ""content"": ""some content"", ""sentAt"": ""2020-01-01"", ""fromId"": ""1"" }".ToVariables()
             };
             var response = await SendRequestAsync(request);
             response.ShouldBe(
@@ -78,7 +73,7 @@ namespace Samples.Server.Tests
             var request = new GraphQLRequest
             {
                 Query = "{ __schema { queryType { name } } }",
-                Variables = new GraphQL.Inputs()
+                Variables = "{}".ToVariables()
             };
             var response = await SendRequestAsync(request);
             response.ShouldBe(@"{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}}", ignoreExtensions: true);
