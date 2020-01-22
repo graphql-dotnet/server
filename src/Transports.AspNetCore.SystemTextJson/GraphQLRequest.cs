@@ -13,7 +13,7 @@ namespace GraphQL.Server.Transports.AspNetCore.SystemTextJson
         public override string OperationName { get; set; }
 
         [JsonPropertyName(VariablesKey)]
-        public JsonDocument Variables { get; set; }
+        public JsonElement Variables { get; set; }
 
         public override Inputs GetInputs() => Variables.ToInputs();
     }

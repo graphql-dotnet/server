@@ -4,6 +4,10 @@ namespace GraphQL.Server.Transports.AspNetCore.SystemTextJson
 {
     public static class Extensions
     {
-        public static JsonDocument ToVariables(this string json) => JsonDocument.Parse(json);
+        public static JsonElement ToVariables(this string json)
+        {
+            using var jsonDoc = JsonDocument.Parse(json);
+            return jsonDoc.RootElement.Clone();
+        }
     }
 }
