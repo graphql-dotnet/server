@@ -5,7 +5,7 @@
     <AssemblyName>GraphQL.Server.Transports.AspNetCore.NewtonsoftJson</AssemblyName>
     <RootNamespace>GraphQL.Server.Transports.AspNetCore.NewtonsoftJson</RootNamespace>
     <PackageId>GraphQL.Server.Transports.AspNetCore.NewtonsoftJson</PackageId>
-    <Description>GraphQL middleware using Newtonsoft.Json</Description>
+    <Description>GraphQL serializer using Newtonsoft.Json</Description>
   </PropertyGroup>
 
   <ItemGroup>
