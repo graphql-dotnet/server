@@ -1,4 +1,3 @@
-using GraphQL.Http;
 using GraphQL.Instrumentation;
 using GraphQL.Server.Internal;
 using GraphQL.Server.Transports.AspNetCore.Common;

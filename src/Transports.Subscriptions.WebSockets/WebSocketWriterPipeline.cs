@@ -1,4 +1,3 @@
-using GraphQL.Http;
 using GraphQL.Server.Transports.Subscriptions.Abstractions;
 using System.Net.WebSockets;
 using System.Threading.Tasks;

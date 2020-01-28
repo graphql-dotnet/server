@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using GraphQL.Http;
+using GraphQL.NewtonsoftJson;
 using GraphQL.Server.Transports.Subscriptions.Abstractions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -217,8 +217,8 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
 
         private WebSocketWriterPipeline CreateWebSocketWriterPipeline(IContractResolver contractResolver)
         {
-            return new WebSocketWriterPipeline(_testWebSocket, new DocumentWriter(Formatting.None,
-                new JsonSerializerSettings
+            return new WebSocketWriterPipeline(_testWebSocket, new DocumentWriter(
+            	new JsonSerializerSettings
                 {
                     ContractResolver = contractResolver,
                     NullValueHandling = NullValueHandling.Ignore

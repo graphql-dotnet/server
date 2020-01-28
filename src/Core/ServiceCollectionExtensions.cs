@@ -1,5 +1,5 @@
-﻿using System;
-using GraphQL.Http;
+using System;
+using GraphQL.NewtonsoftJson;
 using GraphQL.Server.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -36,7 +36,7 @@ namespace GraphQL.Server
             services.TryAddSingleton<IDocumentWriter>(x =>
             {
                 var jsonSerializerSettings = x.GetRequiredService<IOptions<JsonSerializerSettings>>();
-                return new DocumentWriter(Formatting.None, jsonSerializerSettings.Value);
+                return new DocumentWriter(jsonSerializerSettings.Value);
             });
 
             return new GraphQLBuilder(services);
