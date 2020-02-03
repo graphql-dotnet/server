@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace GraphQL.Server.Common
 {
     public abstract class GraphQLRequest
@@ -9,6 +11,8 @@ namespace GraphQL.Server.Common
         public virtual string OperationName { get; set; }
 
         public virtual string Query { get; set; }
+
+        public virtual Dictionary<string, object> Variables { get; set; }
 
         public abstract Inputs GetInputs();
     }

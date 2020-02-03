@@ -1,4 +1,5 @@
 using GraphQL.Server.Transports.AspNetCore.Common;
+using GraphQL.SystemTextJson;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Buffers;
@@ -97,14 +98,14 @@ namespace GraphQL.Server.Transports.AspNetCore.SystemTextJson
         public GraphQLRequestBase Deserialize(IQueryCollection qs) => new GraphQLRequest
         {
             Query = qs.TryGetValue(GraphQLRequestBase.QueryKey, out var queryValues) ? queryValues[0] : null,
-            Variables = qs.TryGetValue(GraphQLRequestBase.VariablesKey, out var variablesValues) ? JsonDocument.Parse(variablesValues[0]) : null,
+            Variables = qs.TryGetValue(GraphQLRequestBase.VariablesKey, out var variablesValues) ? variablesValues[0].ToDictionary() : null,
             OperationName = qs.TryGetValue(GraphQLRequestBase.OperationNameKey, out var operationNameValues) ? operationNameValues[0] : null
         };
 
         public GraphQLRequestBase Deserialize(IFormCollection fc) => new GraphQLRequest
         {
             Query = fc.TryGetValue(GraphQLRequestBase.QueryKey, out var queryValues) ? queryValues[0] : null,
-            Variables = fc.TryGetValue(GraphQLRequestBase.VariablesKey, out var variablesValue) ? JsonDocument.Parse(variablesValue[0]) : null,
+            Variables = fc.TryGetValue(GraphQLRequestBase.VariablesKey, out var variablesValue) ? variablesValue[0].ToDictionary() : null,
             OperationName = fc.TryGetValue(GraphQLRequestBase.OperationNameKey, out var operationNameValues) ? operationNameValues[0] : null
         };
     }

@@ -1,6 +1,6 @@
 using GraphQL.NewtonsoftJson;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
 
 namespace GraphQL.Server.Transports.AspNetCore.NewtonsoftJson
 {
@@ -13,7 +13,8 @@ namespace GraphQL.Server.Transports.AspNetCore.NewtonsoftJson
         public override string Query { get; set; }
 
         [JsonProperty(VariablesKey)]
-        public JObject Variables { get; set; }
+        //[JsonConverter()] // TODO: Similar to SystemTextJson, implement a converter for this guy
+        public override Dictionary<string, object> Variables { get; set; }
 
         public override Inputs GetInputs() => Variables.ToInputs();
     }

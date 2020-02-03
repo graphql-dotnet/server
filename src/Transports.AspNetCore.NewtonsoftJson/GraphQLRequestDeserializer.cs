@@ -1,3 +1,4 @@
+using GraphQL.NewtonsoftJson;
 using GraphQL.Server.Transports.AspNetCore.Common;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
@@ -55,14 +56,14 @@ namespace GraphQL.Server.Transports.AspNetCore.NewtonsoftJson
         public GraphQLRequestBase Deserialize(IQueryCollection qs) => new GraphQLRequest
         {
             Query = qs.TryGetValue(GraphQLRequestBase.QueryKey, out var queryValues) ? queryValues[0] : null,
-            Variables = qs.TryGetValue(GraphQLRequestBase.VariablesKey, out var variablesValues) ? JObject.Parse(variablesValues[0]) : null,
+            Variables = qs.TryGetValue(GraphQLRequestBase.VariablesKey, out var variablesValues) ? variablesValues[0].ToDictionary() : null,
             OperationName = qs.TryGetValue(GraphQLRequestBase.OperationNameKey, out var operationNameValues) ? operationNameValues[0] : null
         };
 
         public GraphQLRequestBase Deserialize(IFormCollection fc) => new GraphQLRequest
         {
             Query = fc.TryGetValue(GraphQLRequestBase.QueryKey, out var queryValues) ? queryValues[0] : null,
-            Variables = fc.TryGetValue(GraphQLRequestBase.VariablesKey, out var variablesValue) ? JObject.Parse(variablesValue[0]) : null,
+            Variables = fc.TryGetValue(GraphQLRequestBase.VariablesKey, out var variablesValue) ? variablesValue[0].ToDictionary() : null,
             OperationName = fc.TryGetValue(GraphQLRequestBase.OperationNameKey, out var operationNameValues) ? operationNameValues[0] : null
         };
     }

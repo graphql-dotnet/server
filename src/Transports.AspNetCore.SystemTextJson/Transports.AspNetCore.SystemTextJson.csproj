@@ -11,6 +11,9 @@
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <ProjectReference Include="..\Transports.AspNetCore\Transports.AspNetCore.csproj" />
+
+    <!-- TODO: Make a package ref-->
+    <ProjectReference Include="..\..\..\graphql-dotnet\src\GraphQL.SystemTextJson\GraphQL.SystemTextJson.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,5 +1,5 @@
 using GraphQL.SystemTextJson;
-using System.Text.Json;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace GraphQL.Server.Transports.AspNetCore.SystemTextJson
@@ -13,7 +13,8 @@ namespace GraphQL.Server.Transports.AspNetCore.SystemTextJson
         public override string OperationName { get; set; }
 
         [JsonPropertyName(VariablesKey)]
-        public JsonElement Variables { get; set; }
+        [JsonConverter(typeof(ObjectDictionaryConverter))]
+        public override Dictionary<string, object> Variables { get; set; }
 
         public override Inputs GetInputs() => Variables.ToInputs();
     }
