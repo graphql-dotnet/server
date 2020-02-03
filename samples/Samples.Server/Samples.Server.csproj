@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="GraphQL.NewtonsoftJson" Version="$(GraphQLVersion)" />
+    
     <PackageReference Include="Serilog" Version="$(SerilogVersion)" />
     <PackageReference Include="Serilog.AspNetCore" Version="$(SerilogAspNetCoreVersion)" />
     <PackageReference Include="Serilog.Sinks.Console" Version="$(SerilogSinksConsoleVersion)" />
@@ -27,12 +27,14 @@
   </ItemGroup>
 
   <ItemGroup Label="References for .NET Core 3.0+" Condition="'$(IsNetCore3OnwardsTarget)' == 'True'">
+    <PackageReference Include="GraphQL.SystemTextJson" Version="$(GraphQLVersion)" />
     <ProjectReference Include="..\..\src\Transports.AspNetCore.SystemTextJson\Transports.AspNetCore.SystemTextJson.csproj" />
   </ItemGroup>
   
   <ItemGroup Label="References for .NET Core 2.2" Condition="'$(IsNetCore3OnwardsTarget)' == 'False'">
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.WebSockets" Version="$(MicrosoftAspNetCoreWebSocketsVersion)" />
+    <PackageReference Include="GraphQL.NewtonsoftJson" Version="$(GraphQLVersion)" />
     <ProjectReference Include="..\..\src\Transports.AspNetCore.NewtonsoftJson\Transports.AspNetCore.NewtonsoftJson.csproj" />
   </ItemGroup>
 
