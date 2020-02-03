@@ -1,3 +1,4 @@
+using GraphQL;
 using GraphQL.Instrumentation;
 using GraphQL.Server.Common;
 using GraphQL.Server.Internal;

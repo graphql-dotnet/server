@@ -14,7 +14,7 @@ namespace GraphQL.Server.Transports.AspNetCore.SystemTextJson
 
         [JsonPropertyName(VariablesKey)]
         [JsonConverter(typeof(ObjectDictionaryConverter))]
-        public override Dictionary<string, object> Variables { get; set; }
+        public Dictionary<string, object> Variables { get; set; }
 
         public override Inputs GetInputs() => Variables.ToInputs();
     }
