@@ -59,12 +59,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Transports.AspNetCore.Newto
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Transports.AspNetCore.SystemTextJson", "src\Transports.AspNetCore.SystemTextJson\Transports.AspNetCore.SystemTextJson.csproj", "{5CEB56EE-C58D-4EF8-90E3-5B53D9354C47}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.SystemTextJson", "..\graphql-dotnet\src\GraphQL.SystemTextJson\GraphQL.SystemTextJson.csproj", "{8B89BAED-1301-4149-B688-B24CC5D2E788}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL", "..\graphql-dotnet\src\GraphQL\GraphQL.csproj", "{35EB39BA-1065-4AAE-80E7-8C46A325FDB1}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.NewtonsoftJson", "..\graphql-dotnet\src\GraphQL.NewtonsoftJson\GraphQL.NewtonsoftJson.csproj", "{5CAB0C67-05BE-43CA-BEBE-835C85D64666}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -139,18 +133,6 @@ Global
 		{5CEB56EE-C58D-4EF8-90E3-5B53D9354C47}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5CEB56EE-C58D-4EF8-90E3-5B53D9354C47}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5CEB56EE-C58D-4EF8-90E3-5B53D9354C47}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8B89BAED-1301-4149-B688-B24CC5D2E788}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8B89BAED-1301-4149-B688-B24CC5D2E788}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8B89BAED-1301-4149-B688-B24CC5D2E788}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8B89BAED-1301-4149-B688-B24CC5D2E788}.Release|Any CPU.Build.0 = Release|Any CPU
-		{35EB39BA-1065-4AAE-80E7-8C46A325FDB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{35EB39BA-1065-4AAE-80E7-8C46A325FDB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{35EB39BA-1065-4AAE-80E7-8C46A325FDB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{35EB39BA-1065-4AAE-80E7-8C46A325FDB1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5CAB0C67-05BE-43CA-BEBE-835C85D64666}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5CAB0C67-05BE-43CA-BEBE-835C85D64666}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5CAB0C67-05BE-43CA-BEBE-835C85D64666}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5CAB0C67-05BE-43CA-BEBE-835C85D64666}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

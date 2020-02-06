@@ -11,8 +11,7 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\..\..\graphql-dotnet\src\GraphQL\GraphQL.csproj" />
-    <!--TODO: Restore this instead of project ref: <PackageReference Include="GraphQL" Version="$(GraphQLVersion)" />-->
+    <PackageReference Include="GraphQL" Version="$(GraphQLVersion)" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="$(MicrosoftExtensionsOptionsVersion)" />
   </ItemGroup>
   

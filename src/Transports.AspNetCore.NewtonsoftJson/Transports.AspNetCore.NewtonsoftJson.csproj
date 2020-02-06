@@ -10,9 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Transports.AspNetCore\Transports.AspNetCore.csproj" />
-
-    <!-- TODO: Make a package ref-->
-    <ProjectReference Include="..\..\..\graphql-dotnet\src\GraphQL.NewtonsoftJson\GraphQL.NewtonsoftJson.csproj" />
+    <PackageReference Include="GraphQL.NewtonsoftJson" Version="$(GraphQLVersion)" />
   </ItemGroup>
 
 </Project>
