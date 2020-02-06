@@ -1,4 +1,3 @@
-using Newtonsoft.Json;
 using System.IO;
 using System.Text;
 
@@ -20,19 +19,16 @@ namespace GraphQL.Server.Ui.Playground.Internal
         {
             if (_playgroundCSHtml == null)
             {
-                using (var manifestResourceStream = typeof(PlaygroundPageModel).Assembly.GetManifestResourceStream("GraphQL.Server.Ui.Playground.Internal.playground.cshtml"))
-                {
-                    using (var streamReader = new StreamReader(manifestResourceStream))
-                    {
-                        var builder = new StringBuilder(streamReader.ReadToEnd());
+                using var manifestResourceStream = typeof(PlaygroundPageModel).Assembly.GetManifestResourceStream("GraphQL.Server.Ui.Playground.Internal.playground.cshtml");
+                using var streamReader = new StreamReader(manifestResourceStream);
 
-                        builder.Replace("@Model.GraphQLEndPoint", _options.GraphQLEndPoint);
-                        builder.Replace("@Model.GraphQLConfig", JsonConvert.SerializeObject(_options.GraphQLConfig));
-                        builder.Replace("@Model.PlaygroundSettings", JsonConvert.SerializeObject(_options.PlaygroundSettings));
+                var builder = new StringBuilder(streamReader.ReadToEnd());
 
-                        _playgroundCSHtml = builder.ToString();
-                    }
-                }
+                builder.Replace("@Model.GraphQLEndPoint", _options.GraphQLEndPoint);
+                builder.Replace("@Model.GraphQLConfig", Serializer.Serialize(_options.GraphQLConfig));
+                builder.Replace("@Model.PlaygroundSettings", Serializer.Serialize(_options.PlaygroundSettings));
+
+                _playgroundCSHtml = builder.ToString();
             }
 
             return _playgroundCSHtml;

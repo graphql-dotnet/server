@@ -13,7 +13,6 @@
   <ItemGroup>
     <PackageReference Include="GraphQL.NewtonsoftJson" Version="$(GraphQLVersion)" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="$(MicrosoftExtensionsLoggingVersion)" />
-    <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonVersion)" />
     <PackageReference Include="System.Reactive" Version="$(SystemReactiveVersion)" />
   </ItemGroup>
   

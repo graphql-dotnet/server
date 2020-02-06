@@ -1,4 +1,3 @@
-using GraphQL.NewtonsoftJson;
 using GraphQL.Server.Transports.AspNetCore.Common;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;

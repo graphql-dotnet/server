@@ -11,10 +11,9 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Internal\altair.cshtml" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonVersion)" />
+    <Compile Include="..\Ui.Playground\Shared\**">
+      <Link>Shared\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup Condition="'$(IsNetCore3OnwardsTarget)' == 'True'">
@@ -23,6 +22,7 @@
 
   <ItemGroup Condition="'$(IsNetCore3OnwardsTarget)' == 'False'">
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="$(MicrosoftAspNetCoreHttpAbstractionsVersion)" />
+    <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonVersion)" />
   </ItemGroup>
 
 </Project>
