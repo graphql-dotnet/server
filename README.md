@@ -9,13 +9,13 @@ Provides the following packages:
 |---------|-----------|
 | GraphQL.Server.Core | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Core)](https://www.nuget.org/packages/GraphQL.Server.Core/) |
 | GraphQL.Server.Transports.AspNetCore | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Transports.AspNetCore)](https://www.nuget.org/packages/GraphQL.Server.Transports.AspNetCore/) |
+| GraphQL.Server.Transports.AspNetCore.NewtonsoftJson | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Transports.AspNetCore.NewtonsoftJson)](https://www.nuget.org/packages/GraphQL.Server.Transports.AspNetCore.NewtonsoftJson/) |
+| GraphQL.Server.Transports.AspNetCore.SystemTextJson | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Transports.AspNetCore.SystemTextJson)](https://www.nuget.org/packages/GraphQL.Server.Transports.AspNetCore.SystemTextJson/) |
 | GraphQL.Server.Transports.Subscriptions.Abstractions | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Transports.Subscriptions.Abstractions)](https://www.nuget.org/packages/GraphQL.Server.Transports.Subscriptions.Abstractions/) |
 | GraphQL.Server.Transports.WebSockets | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Transports.WebSockets)](https://www.nuget.org/packages/GraphQL.Server.Transports.WebSockets/) |
-| GraphQL.Server.Serializer.NewtonsoftJson | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Serializer.NewtonsoftJson)](https://www.nuget.org/packages/GraphQL.Server.Serializer.NewtonsoftJson/) |
-| GraphQL.Server.Serializer.SystemTextJson | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Serializer.SystemTextJson)](https://www.nuget.org/packages/GraphQL.Server.Serializer.SystemTextJson/) |
+| GraphQL.Server.Ui.Altair | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Ui.Altair)](https://www.nuget.org/packages/GraphQL.Server.Ui.Altair/) |
 | GraphQL.Server.Ui.Playground | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Ui.Playground)](https://www.nuget.org/packages/GraphQL.Server.Ui.Playground/) |
 | GraphQL.Server.Ui.GraphiQL | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Ui.GraphiQL)](https://www.nuget.org/packages/GraphQL.Server.Ui.GraphiQL/) |
-| GraphQL.Server.Ui.Altair | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Ui.Altair)](https://www.nuget.org/packages/GraphQL.Server.Ui.Altair/) |
 | GraphQL.Server.Ui.Voyager | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Ui.Voyager)](https://www.nuget.org/packages/GraphQL.Server.Ui.Voyager/) |
 | GraphQL.Server.Authorization.AspNetCore | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Authorization.AspNetCore)](https://www.nuget.org/packages/GraphQL.Server.Authorization.AspNetCore/) |
 
@@ -26,23 +26,21 @@ Transport compatible with [Apollo](https://github.com/apollographql/subscription
 For just the HTTP middleware:
 >`dotnet add package GraphQL.Server.Transports.AspNetCore`
 
+The HTTP middleware needs an `IGraphQLRequestDeserializer` implementation:
+> .NET Core 3+:  
+> `dotnet add package GraphQL.Server.Serialization.SystemTextJson`  
+> Legacy (prior to .NET Core 3):  
+> `dotnet add package GraphQL.Server.Serialization.NewtonsoftJson`  
+> (or your own)
+
 For the WebSocket subscription protocol (depends on above) middleware:
 >`dotnet add package GraphQL.Server.Transports.WebSockets`
 
 For the UI middleware/s:
+>`dotnet add package GraphQL.Server.Ui.Altair`  
 >`dotnet add package GraphQL.Server.Ui.GraphiQL`  
 >`dotnet add package GraphQL.Server.Ui.Playground`  
->`dotnet add package GraphQL.Server.Ui.Altair`  
 >`dotnet add package GraphQL.Server.Ui.Voyager`  
-
-For the serializer:  
-> Legacy (prior to .NET Core 3):  
-> `dotnet add package GraphQL.Server.Serialization.NewstonsoftJson`  
-
-> .NET Core 3+:  
-> `dotnet add package GraphQL.Server.Serialization.SystemTextJson`  
-
-(or your own)
 
 ### Configure
 
