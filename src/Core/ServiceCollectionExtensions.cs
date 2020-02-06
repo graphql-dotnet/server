@@ -33,8 +33,10 @@ namespace GraphQL.Server
 
             services.TryAddSingleton<IDocumentWriter>(x =>
             {
-                throw new InvalidOperationException("IDocumentWriter not set in DI. " +
-                    "Add a IDocumentWriter implementation, for example GraphQL.NewtonsoftJson.DocumentWriter or GraphQL.SystemTextJson.DocumentWriter");
+                throw new InvalidOperationException(
+                    "IDocumentWriter not set in DI. " +
+                    "Add a IDocumentWriter implementation, for example " +
+                    "GraphQL.SystemTextJson.DocumentWriter or GraphQL.NewtonsoftJson.DocumentWriter.");
             });
 
             return new GraphQLBuilder(services);
