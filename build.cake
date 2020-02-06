@@ -7,9 +7,9 @@ var publishDir = Directory(Argument<string>("publishDir", "./publish"));
 var runtime = Argument<string>("runtime", "win-x64");
 var projectFiles = new [] {
   "./src/Core/Core.csproj",
-  "./src/Serialization.NewtonsoftJson/Serialization.NewtonsoftJson.csproj",
-  "./src/Serialization.SystemTextJson/Serialization.SystemTextJson.csproj",
   "./src/Transports.AspNetCore/Transports.AspNetCore.csproj",
+  "./src/Transports.AspNetCore.NewtonsoftJson/Transports.AspNetCore.NewtonsoftJson.csproj",
+  "./src/Transports.AspNetCore.SystemTextJson/Transports.AspNetCore.SystemTextJson.csproj",
   "./src/Transports.Subscriptions.Abstractions/Transports.Subscriptions.Abstractions.csproj",
   "./src/Transports.Subscriptions.WebSockets/Transports.Subscriptions.WebSockets.csproj",
   "./src/Ui.Playground/Ui.Playground.csproj",
