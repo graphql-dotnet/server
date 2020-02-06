@@ -10,6 +10,11 @@ namespace GraphQL.Server.Common
 
         public virtual string Query { get; set; }
 
+        /// <summary>
+        /// Returns an <see cref="Inputs"/> representing the variables
+        /// passed in the request.
+        /// </summary>
+        /// <returns>Inputs, as deserialized from the request JSON.</returns>
         public abstract Inputs GetInputs();
     }
 }
