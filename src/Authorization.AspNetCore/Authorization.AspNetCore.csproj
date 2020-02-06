@@ -8,11 +8,7 @@
     <PackageTags>GraphQL authentication authorization middleware</PackageTags>
   </PropertyGroup>
 
-  <ItemGroup Label="Package References">
-    <PackageReference Include="GraphQL.NewtonsoftJson" Version="$(GraphQLVersion)" />
-  </ItemGroup>
-
-  <ItemGroup Label="Package references for .NET Core" Condition="'$(IsNetCore3OnwardsTarget)' == 'True'">
+  <ItemGroup Label="Package references for .NET Core 3+" Condition="'$(IsNetCore3OnwardsTarget)' == 'True'">
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   
