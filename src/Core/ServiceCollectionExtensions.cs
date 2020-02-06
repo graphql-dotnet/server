@@ -36,7 +36,8 @@ namespace GraphQL.Server
                 throw new InvalidOperationException(
                     "IDocumentWriter not set in DI. " +
                     "Add a IDocumentWriter implementation, for example " +
-                    "GraphQL.SystemTextJson.DocumentWriter or GraphQL.NewtonsoftJson.DocumentWriter.");
+                    "GraphQL.SystemTextJson.DocumentWriter or GraphQL.NewtonsoftJson.DocumentWriter." +
+                    "For more information, see: https://github.com/graphql-dotnet/graphql-dotnet/blob/master/README.md.");
             });
 
             return new GraphQLBuilder(services);
