@@ -33,7 +33,7 @@ namespace Samples.Server.Tests
         }
 
         /// <summary>
-        /// Comparison two strings but replaces any equivalent encoding differences first.
+        /// Compares two strings but replaces any equivalent encoding differences first.
         /// </summary>
         /// <param name="actualJson"></param>
         /// <param name="expectedJson"></param>
