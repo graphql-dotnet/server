@@ -11,6 +11,10 @@ namespace GraphQL.Server.Transports.AspNetCore.SystemTextJson
         [JsonPropertyName(OperationNameKey)]
         public override string OperationName { get; set; }
 
+        /// <remarks>
+        /// Population of this property during deserialization from JSON requires
+        /// <see cref="GraphQL.SystemTextJson.ObjectDictionaryConverter"/>.
+        /// </remarks>
         [JsonPropertyName(VariablesKey)]
         public Dictionary<string, object> Variables { get; set; }
 
