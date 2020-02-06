@@ -49,7 +49,7 @@ namespace Samples.Server.Tests
 #if NETCOREAPP2_2
             var content = JsonConvert.SerializeObject(request);
 #else
-            var content = JsonSerializer.Serialize(request);
+            var content = JsonSerializer.Serialize(request, _jsonSerializerOptions);
 #endif
             var response = await Client.PostAsync("graphql", new StringContent(content, Encoding.UTF8, "application/json"));
             return  await response.Content.ReadAsStringAsync();
@@ -60,7 +60,7 @@ namespace Samples.Server.Tests
 #if NETCOREAPP2_2
             var content = JsonConvert.SerializeObject(requests);
 #else
-            var content = JsonSerializer.Serialize(requests);
+            var content = JsonSerializer.Serialize(requests, _jsonSerializerOptions);
 #endif
             var response = await Client.PostAsync("graphql", new StringContent(content, Encoding.UTF8, "application/json"));
             return await response.Content.ReadAsStringAsync();
@@ -82,6 +82,7 @@ namespace Samples.Server.Tests
 
 #if !NETCOREAPP2_2
         private IHost Host { get; }
+        private static readonly JsonSerializerOptions _jsonSerializerOptions = new JsonSerializerOptions();
 #endif
     }
 }

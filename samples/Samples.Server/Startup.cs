@@ -15,10 +15,12 @@ using GraphQL.Server.Transports.AspNetCore.Common;
 
 #if NETCOREAPP2_2
 using GraphQL.Server.Transports.AspNetCore.NewtonsoftJson;
+using DocumentWriter = GraphQL.NewtonsoftJson.DocumentWriter;
 #else
 using GraphQL.Server.Transports.AspNetCore.SystemTextJson;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Hosting;
+using DocumentWriter = GraphQL.SystemTextJson.DocumentWriter;
 #endif
 
 namespace GraphQL.Samples.Server

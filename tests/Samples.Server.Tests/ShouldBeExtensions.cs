@@ -1,11 +1,11 @@
-﻿using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Linq;
 using Shouldly;
 
 namespace Samples.Server.Tests
 {
     internal static class ShouldBeExtensions
     {
-        public static void ShouldBe(this string actual, string expected, bool ignoreExtensions)
+        public static void ShouldBeEquivalentJson(this string actual, string expected, bool ignoreExtensions)
         {
             if (ignoreExtensions)
             {
@@ -29,7 +29,21 @@ namespace Samples.Server.Tests
                 }
             }
 
-            actual.ShouldBe(expected);
+            actual.ShouldBeEquivalentJson(expected);
+        }
+
+        /// <summary>
+        /// Comparison two strings but replaces any equivalent encoding differences first.
+        /// </summary>
+        /// <param name="actualJson"></param>
+        /// <param name="expectedJson"></param>
+        public static void ShouldBeEquivalentJson(this string actualJson, string expectedJson)
+        {
+#if !NETCOREAPP2_2 // e.g. System.Text.Json is being used which encodes slightly differently
+            expectedJson = expectedJson.Replace("'", @"\u0027");
+#endif
+
+            actualJson.ShouldBe(expectedJson);
         }
     }
 }

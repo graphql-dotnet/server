@@ -23,6 +23,8 @@ namespace GraphQL.Server.Transports.AspNetCore.SystemTextJson
 
         public GraphQLRequestDeserializer(Action<JsonSerializerOptions> configure)
         {
+            _serializerOptions.Converters.Add(new ObjectDictionaryConverter());
+
             configure(_serializerOptions);
         }
 

@@ -22,7 +22,7 @@ namespace Samples.Server.Tests
         public async Task Single_Query_Should_Return_Single_Result()
         {
             var response = await SendRequestAsync(new GraphQLRequest { Query = "{ __schema { queryType { name } } }" });
-            response.ShouldBe(@"{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}}", ignoreExtensions: true);
+            response.ShouldBeEquivalentJson(@"{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}}", ignoreExtensions: true);
         }
 
         [Fact]
@@ -33,14 +33,16 @@ namespace Samples.Server.Tests
                 new GraphQLRequest { Query = "query two { __schema { queryType { name } } }", OperationName = "two" },
                 new GraphQLRequest { Query = "query three { __schema { queryType { name } } }", OperationName = "three" }
                 );
-            response.ShouldBe(@"[{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}},{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}},{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}}]", ignoreExtensions: true);
+            response.ShouldBeEquivalentJson(@"[{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}},{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}},{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}}]", ignoreExtensions: true);
         }
 
         [Fact]
         public async Task Wrong_Query_Should_Return_Error()
         {
             var response = await SendRequestAsync("Oops");
-            response.ShouldBe(@"{""errors"":[{""message"":""Body text could not be parsed. Body text should start with '{' for normal graphql query or with '[' for batched query.""}]}");
+            var expected = @"{""errors"":[{""message"":""Body text could not be parsed. Body text should start with '{' for normal graphql query or with '[' for batched query.""}]}";
+
+            response.ShouldBeEquivalentJson(expected);
         }
 
         [Fact]
@@ -52,7 +54,7 @@ namespace Samples.Server.Tests
                 Variables = ToVariables(@"{ ""content"": ""some content"", ""sentAt"": ""2020-01-01"", ""fromId"": ""1"" }")
             };
             var response = await SendRequestAsync(request);
-            response.ShouldBe(
+            response.ShouldBeEquivalentJson(
                 @"{""data"":{""addMessage"":{""sentAt"":""2020-01-01"",""content"":""some content"",""from"":{""id"":""1""}}}}",
                 ignoreExtensions: true);
         }
@@ -66,7 +68,7 @@ namespace Samples.Server.Tests
                 Variables = ToVariables(@"{ ""msg"": { ""content"": ""some content"", ""sentAt"": ""2020-01-01"", ""fromId"": ""1"" } }")
             };
             var response = await SendRequestAsync(request);
-            response.ShouldBe(
+            response.ShouldBeEquivalentJson(
                 @"{""data"":{""addMessage"":{""sentAt"":""2020-01-01"",""content"":""some content"",""from"":{""id"":""1""}}}}",
                 ignoreExtensions: true);
         }
@@ -80,7 +82,7 @@ namespace Samples.Server.Tests
                 Variables = ToVariables("{}")
             };
             var response = await SendRequestAsync(request);
-            response.ShouldBe(@"{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}}", ignoreExtensions: true);
+            response.ShouldBeEquivalentJson(@"{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}}", ignoreExtensions: true);
         }
 
 #if NETCOREAPP2_2
