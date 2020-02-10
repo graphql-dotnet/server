@@ -1,4 +1,3 @@
-using GraphQL;
 using GraphQL.Instrumentation;
 using GraphQL.Server.Common;
 using GraphQL.Server.Internal;
@@ -50,7 +49,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             if (HttpMethods.IsGet(httpRequest.Method) ||
                 (HttpMethods.IsPost(httpRequest.Method) && httpRequest.Query.ContainsKey(GraphQLRequest.QueryKey)))
             {
-                gqlRequest = _deserializer.Deserialize(httpRequest.Query);
+                gqlRequest = _deserializer.DeserializeFromQueryString(httpRequest.Query);
             }
             else if (HttpMethods.IsPost(httpRequest.Method))
             {
@@ -63,7 +62,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                 switch (mediaTypeHeader.MediaType)
                 {
                     case JsonContentType:
-                        var deserializationResult = await _deserializer.DeserializeAsync(httpRequest).ConfigureAwait(false);
+                        var deserializationResult = await _deserializer.DeserializeFromJsonBodyAsync(httpRequest).ConfigureAwait(false);
                         if (!deserializationResult.WasSuccessful)
                         {
                             await WriteBadRequestResponseAsync(context, writer, "Body text could not be parsed. Body text should start with '{' for normal graphql query or with '[' for batched query.").ConfigureAwait(false);
@@ -79,7 +78,7 @@ namespace GraphQL.Server.Transports.AspNetCore
 
                     case FormUrlEncodedContentType:
                         var formCollection = await httpRequest.ReadFormAsync().ConfigureAwait(false);
-                        gqlRequest = _deserializer.Deserialize(formCollection);
+                        gqlRequest = _deserializer.DeserializeFromFormBody(formCollection);
                         break;
 
                     default:
