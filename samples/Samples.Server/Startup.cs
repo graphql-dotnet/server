@@ -10,17 +10,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
-using GraphQL.NewtonsoftJson;
-using GraphQL.Server.Transports.AspNetCore.Common;
 
-#if NETCOREAPP2_2
-using GraphQL.Server.Transports.AspNetCore.NewtonsoftJson;
-using DocumentWriter = GraphQL.NewtonsoftJson.DocumentWriter;
-#else
-using GraphQL.Server.Transports.AspNetCore.SystemTextJson;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
+#if !NETCOREAPP2_2
 using Microsoft.Extensions.Hosting;
-using DocumentWriter = GraphQL.SystemTextJson.DocumentWriter;
 #endif
 
 namespace GraphQL.Samples.Server
@@ -51,8 +43,6 @@ namespace GraphQL.Samples.Server
             services
                 .AddSingleton<IChat, Chat>()
                 .AddSingleton<ChatSchema>()
-                .AddSingleton<IGraphQLRequestDeserializer>(p => new GraphQLRequestDeserializer(settings => { }))
-                .AddSingleton<IDocumentWriter, DocumentWriter>()
                 .AddGraphQL(options =>
                 {
                     options.EnableMetrics = Environment.IsDevelopment();
@@ -62,6 +52,11 @@ namespace GraphQL.Samples.Server
                         Console.WriteLine("error: " + ctx.OriginalException.Message);
                     };
                 })
+#if NETCOREAPP2_2
+                .AddNewtonsoftJson(deserializerSettings => { }, serializerSettings: null)
+#else
+                .AddSystemTextJson(deserializerSettings => { }, serializerSettings: null)
+#endif
                 .AddWebSockets()
                 .AddDataLoader()
                 .AddGraphTypes(typeof(ChatSchema));
