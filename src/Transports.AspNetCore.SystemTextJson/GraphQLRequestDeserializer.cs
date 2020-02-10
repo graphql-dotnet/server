@@ -45,10 +45,7 @@ namespace GraphQL.Server.Transports.AspNetCore.SystemTextJson
                 jsonTokenType = JsonTokenType.None;
             }
 
-            if (cancellationToken.IsCancellationRequested)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-            }
+            ThrowIfCancellationRequested(cancellationToken);
 
             var result = new GraphQLRequestDeserializationResult() { IsSuccessful = true };
             switch (jsonTokenType)
@@ -82,10 +79,7 @@ namespace GraphQL.Server.Transports.AspNetCore.SystemTextJson
 
             while (true)
             {
-                if (cancellationToken.IsCancellationRequested)
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-                }
+                ThrowIfCancellationRequested(cancellationToken);
 
                 var result = await reader.ReadAsync(cancellationToken);
                 var buffer = result.Buffer;
@@ -124,5 +118,17 @@ namespace GraphQL.Server.Transports.AspNetCore.SystemTextJson
             Variables = fc.TryGetValue(GraphQLRequestBase.VariablesKey, out var variablesValue) ? variablesValue[0].ToDictionary() : null,
             OperationName = fc.TryGetValue(GraphQLRequestBase.OperationNameKey, out var operationNameValues) ? operationNameValues[0] : null
         };
+
+        /// <summary>
+        /// Throws a cancellation exception if cancellation has been requested via <paramref name="cancellationToken"/>.
+        /// </summary>
+        /// <param name="cancellationToken">The token to check for a cancellation request.</param>
+        internal static void ThrowIfCancellationRequested(CancellationToken cancellationToken)
+        {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+            }
+        }
     }
 }
