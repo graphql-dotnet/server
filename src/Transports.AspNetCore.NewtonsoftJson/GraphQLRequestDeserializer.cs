@@ -19,7 +19,7 @@ namespace GraphQL.Server.Transports.AspNetCore.NewtonsoftJson
         public GraphQLRequestDeserializer(Action<JsonSerializerSettings> configure)
         {
             var settings = new JsonSerializerSettings();
-            configure(settings);
+            configure?.Invoke(settings);
             _serializer = JsonSerializer.Create(settings); // it's thread safe https://stackoverflow.com/questions/36186276/is-the-json-net-jsonserializer-threadsafe
         }
 

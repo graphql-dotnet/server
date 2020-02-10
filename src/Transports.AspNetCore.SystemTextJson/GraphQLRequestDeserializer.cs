@@ -25,7 +25,7 @@ namespace GraphQL.Server.Transports.AspNetCore.SystemTextJson
         {
             _serializerOptions.Converters.Add(new ObjectDictionaryConverter());
 
-            configure(_serializerOptions);
+            configure?.Invoke(_serializerOptions);
         }
 
         public async Task<GraphQLRequestDeserializationResult> DeserializeFromJsonBodyAsync(HttpRequest httpRequest)
