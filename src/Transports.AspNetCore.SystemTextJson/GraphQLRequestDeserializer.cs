@@ -34,7 +34,7 @@ namespace GraphQL.Server.Transports.AspNetCore.SystemTextJson
             JsonTokenType jsonTokenType;
             try
             {
-                jsonTokenType = await PeekJsonTokenTypeAsync(httpRequest.BodyReader, cancellationToken).ConfigureAwait(false);
+                jsonTokenType = await PeekJsonTokenTypeAsync(httpRequest.BodyReader, cancellationToken);
             }
             catch (JsonException)
             {
@@ -46,12 +46,10 @@ namespace GraphQL.Server.Transports.AspNetCore.SystemTextJson
             switch (jsonTokenType)
             {
                 case JsonTokenType.StartObject:
-                    result.Single = await JsonSerializer.DeserializeAsync<GraphQLRequest>(httpRequest.BodyReader.AsStream(), _serializerOptions, cancellationToken)
-                        .ConfigureAwait(false);
+                    result.Single = await JsonSerializer.DeserializeAsync<GraphQLRequest>(httpRequest.BodyReader.AsStream(), _serializerOptions, cancellationToken);
                     return result;
                 case JsonTokenType.StartArray:
-                    result.Batch = await JsonSerializer.DeserializeAsync<GraphQLRequest[]>(httpRequest.BodyReader.AsStream(), _serializerOptions, cancellationToken)
-                        .ConfigureAwait(false);
+                    result.Batch = await JsonSerializer.DeserializeAsync<GraphQLRequest[]>(httpRequest.BodyReader.AsStream(), _serializerOptions, cancellationToken);
                     return result;
                 default:
                     result.IsSuccessful = false;
@@ -76,7 +74,7 @@ namespace GraphQL.Server.Transports.AspNetCore.SystemTextJson
 
             while (true)
             {
-                var result = await reader.ReadAsync().ConfigureAwait(false);
+                var result = await reader.ReadAsync();
                 var buffer = result.Buffer;
 
                 if (DetermineTokenType(buffer, out var tokenType))
