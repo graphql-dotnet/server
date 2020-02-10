@@ -23,7 +23,7 @@ namespace GraphQL.Server.Transports.AspNetCore.NewtonsoftJson
             _serializer = JsonSerializer.Create(settings); // it's thread safe https://stackoverflow.com/questions/36186276/is-the-json-net-jsonserializer-threadsafe
         }
 
-        public Task<GraphQLRequestDeserializationResult> DeserializeAsync(HttpRequest httpRequest)
+        public Task<GraphQLRequestDeserializationResult> DeserializeFromJsonBodyAsync(HttpRequest httpRequest)
         {
             // Do not explicitly or implicitly (via using, etc.) call dispose because StreamReader will dispose inner stream.
             // This leads to the inability to use the stream further by other consumers/middlewares of the request processing
@@ -52,14 +52,14 @@ namespace GraphQL.Server.Transports.AspNetCore.NewtonsoftJson
             return Task.FromResult(result);
         }
 
-        public GraphQLRequestBase Deserialize(IQueryCollection qs) => new GraphQLRequest
+        public GraphQLRequestBase DeserializeFromQueryString(IQueryCollection qs) => new GraphQLRequest
         {
             Query = qs.TryGetValue(GraphQLRequestBase.QueryKey, out var queryValues) ? queryValues[0] : null,
             Variables = qs.TryGetValue(GraphQLRequestBase.VariablesKey, out var variablesValues) ? JObject.Parse(variablesValues[0]) : null,
             OperationName = qs.TryGetValue(GraphQLRequestBase.OperationNameKey, out var operationNameValues) ? operationNameValues[0] : null
         };
 
-        public GraphQLRequestBase Deserialize(IFormCollection fc) => new GraphQLRequest
+        public GraphQLRequestBase DeserializeFromFormBody(IFormCollection fc) => new GraphQLRequest
         {
             Query = fc.TryGetValue(GraphQLRequestBase.QueryKey, out var queryValues) ? queryValues[0] : null,
             Variables = fc.TryGetValue(GraphQLRequestBase.VariablesKey, out var variablesValue) ? JObject.Parse(variablesValue[0]) : null,

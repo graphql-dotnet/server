@@ -5,6 +5,14 @@ namespace Samples.Server.Tests
 {
     internal static class ShouldBeExtensions
     {
+        /// <summary>
+        /// Compares two strings after normalizing any encoding differences first.
+        /// </summary>
+        /// <param name="actual">Actual.</param>
+        /// <param name="expected">Expected.</param>
+        /// <param name="ignoreExtensions">
+        /// Pass true to ignore the `extensions` path of the JSON when comparing for equality.
+        /// </param>
         public static void ShouldBeEquivalentJson(this string actual, string expected, bool ignoreExtensions)
         {
             if (ignoreExtensions)
@@ -33,17 +41,18 @@ namespace Samples.Server.Tests
         }
 
         /// <summary>
-        /// Compares two strings but replaces any equivalent encoding differences first.
+        /// Compares two strings after normalizing any encoding differences first.
         /// </summary>
-        /// <param name="actualJson"></param>
-        /// <param name="expectedJson"></param>
+        /// <param name="actualJson">Actual.</param>
+        /// <param name="expectedJson">Expected.</param>
         public static void ShouldBeEquivalentJson(this string actualJson, string expectedJson)
         {
-#if !NETCOREAPP2_2 // e.g. System.Text.Json is being used which encodes slightly differently
-            expectedJson = expectedJson.Replace("'", @"\u0027");
-#endif
+            expectedJson = expectedJson.NormalizeJson();
+            actualJson = actualJson.NormalizeJson();
 
             actualJson.ShouldBe(expectedJson);
         }
+
+        private static string NormalizeJson(this string json) => json.Replace("'", @"\u0027");
     }
 }
