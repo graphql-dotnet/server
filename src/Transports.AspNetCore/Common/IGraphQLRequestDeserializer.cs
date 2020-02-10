@@ -1,5 +1,6 @@
 using GraphQL.Server.Common;
 using Microsoft.AspNetCore.Http;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace GraphQL.Server.Transports.AspNetCore.Common
@@ -21,7 +22,7 @@ namespace GraphQL.Server.Transports.AspNetCore.Common
         /// </summary>
         /// <param name="httpRequest">Incoming HTTP request.</param>
         /// <returns>Result containing success flag and deserialized request/s.</returns>
-        Task<GraphQLRequestDeserializationResult> DeserializeFromJsonBodyAsync(HttpRequest httpRequest);
+        Task<GraphQLRequestDeserializationResult> DeserializeFromJsonBodyAsync(HttpRequest httpRequest, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Deserializes the query string of the request URL, into a <see cref="GraphQLRequest".
