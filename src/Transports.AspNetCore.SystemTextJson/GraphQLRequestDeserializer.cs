@@ -41,7 +41,7 @@ namespace GraphQL.Server.Transports.AspNetCore.SystemTextJson
                 jsonTokenType = JsonTokenType.None;
             }
 
-            var result = new GraphQLRequestDeserializationResult() { WasSuccessful = true };
+            var result = new GraphQLRequestDeserializationResult() { IsSuccessful = true };
             switch (jsonTokenType)
             {
                 case JsonTokenType.StartObject:
@@ -51,7 +51,7 @@ namespace GraphQL.Server.Transports.AspNetCore.SystemTextJson
                     result.Batch = await JsonSerializer.DeserializeAsync<GraphQLRequest[]>(httpRequest.BodyReader.AsStream(), _serializerOptions);
                     return result;
                 default:
-                    result.WasSuccessful = false;
+                    result.IsSuccessful = false;
                     return result;
             }
         }
