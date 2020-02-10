@@ -56,18 +56,17 @@ namespace GraphQL.Server.Transports.AspNetCore
             {
                 if (!MediaTypeHeaderValue.TryParse(httpRequest.ContentType, out var mediaTypeHeader))
                 {
-                    await WriteBadRequestResponseAsync(context, writer, $"Invalid 'Content-Type' header: value '{httpRequest.ContentType}' could not be parsed.").ConfigureAwait(false);
+                    await WriteBadRequestResponseAsync(context, writer, cancellationToken, $"Invalid 'Content-Type' header: value '{httpRequest.ContentType}' could not be parsed.").ConfigureAwait(false);
                     return;
                 }
 
                 switch (mediaTypeHeader.MediaType)
                 {
                     case JsonContentType:
-                        var deserializationResult = await _deserializer.DeserializeFromJsonBodyAsync(httpRequest, cancellationToken)
-                            .ConfigureAwait(false);
+                        var deserializationResult = await _deserializer.DeserializeFromJsonBodyAsync(httpRequest, cancellationToken).ConfigureAwait(false);
                         if (!deserializationResult.IsSuccessful)
                         {
-                            await WriteBadRequestResponseAsync(context, writer, "Body text could not be parsed. Body text should start with '{' for normal graphql query or with '[' for batched query.").ConfigureAwait(false);
+                            await WriteBadRequestResponseAsync(context, writer, cancellationToken, "Body text could not be parsed. Body text should start with '{' for normal graphql query or with '[' for batched query.").ConfigureAwait(false);
                             return;
                         }
                         gqlRequest = deserializationResult.Single;
@@ -84,7 +83,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                         break;
 
                     default:
-                        await WriteBadRequestResponseAsync(context, writer, $"Invalid 'Content-Type' header: non-supported media type. Must be of '{JsonContentType}', '{GraphQLContentType}', or '{FormUrlEncodedContentType}'. See: http://graphql.org/learn/serving-over-http/.").ConfigureAwait(false);
+                        await WriteBadRequestResponseAsync(context, writer, cancellationToken, $"Invalid 'Content-Type' header: non-supported media type. Must be of '{JsonContentType}', '{GraphQLContentType}', or '{FormUrlEncodedContentType}'. See: http://graphql.org/learn/serving-over-http/.").ConfigureAwait(false);
                         return;
                 }
             }
@@ -104,7 +103,7 @@ namespace GraphQL.Server.Transports.AspNetCore
 
                 await RequestExecutedAsync(new GraphQLRequestExecutionResult(gqlRequest, result, stopwatch.Elapsed));
 
-                await WriteResponseAsync(context, writer, result).ConfigureAwait(false);
+                await WriteResponseAsync(context, writer, cancellationToken, result).ConfigureAwait(false);
             }
             // execute multiple graphql requests in one batch
             else
@@ -122,7 +121,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                     executionResults[i] = result;
                 }
 
-                await WriteResponseAsync(context, writer, executionResults).ConfigureAwait(false);
+                await WriteResponseAsync(context, writer, cancellationToken, executionResults).ConfigureAwait(false);
             }
         }
 
@@ -142,7 +141,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             return Task.CompletedTask;
         }
 
-        private Task WriteBadRequestResponseAsync(HttpContext context, IDocumentWriter writer, string errorMessage)
+        private Task WriteBadRequestResponseAsync(HttpContext context, IDocumentWriter writer, CancellationToken cancellationToken, string errorMessage)
         {
             var result = new ExecutionResult
             {
@@ -155,15 +154,15 @@ namespace GraphQL.Server.Transports.AspNetCore
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = 400; // Bad Request
 
-            return writer.WriteAsync(context.Response.Body, result);
+            return writer.WriteAsync(context.Response.Body, result, cancellationToken);
         }
 
-        private Task WriteResponseAsync<TResult>(HttpContext context, IDocumentWriter writer, TResult result)
+        private Task WriteResponseAsync<TResult>(HttpContext context, IDocumentWriter writer, CancellationToken cancellationToken, TResult result)
         {
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = 200; // OK
 
-            return writer.WriteAsync(context.Response.Body, result);
+            return writer.WriteAsync(context.Response.Body, result, cancellationToken);
         }
 
         private static async Task<string> ReadAsStringAsync(Stream s)
