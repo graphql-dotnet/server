@@ -53,14 +53,15 @@ public void ConfigureServices(IServiceCollection services)
     services
         .AddSingleton<IChat, Chat>()
         .AddSingleton<ChatSchema>()
-        .AddSingleton<IGraphQLRequestDeserializer>(p => new GraphQLRequestDeserializer(settings => { }))
-        .AddSingleton<IDocumentWriter, DocumentWriter>()
         .AddGraphQL(options =>
         {
             options.EnableMetrics = Environment.IsDevelopment();
             options.ExposeExceptions = Environment.IsDevelopment();
             options.UnhandledExceptionDelegate = ctx => { Console.WriteLine(ctx.OriginalException) };
         })
+        // Add required services for de/serialization
+        .AddSystemTextJson() // For .NET Core 3+
+        .AddNewtonsoftJson() // For everything else
         .AddWebSockets() // Add required services for web socket support
         .AddDataLoader() // Add required services for DataLoader support
         .AddGraphTypes(typeof(ChatSchema)) // Add all IGraphType implementors in assembly which ChatSchema exists 
