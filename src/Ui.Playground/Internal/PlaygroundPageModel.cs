@@ -22,11 +22,10 @@ namespace GraphQL.Server.Ui.Playground.Internal
                 using var manifestResourceStream = typeof(PlaygroundPageModel).Assembly.GetManifestResourceStream("GraphQL.Server.Ui.Playground.Internal.playground.cshtml");
                 using var streamReader = new StreamReader(manifestResourceStream);
 
-                var builder = new StringBuilder(streamReader.ReadToEnd());
-
-                builder.Replace("@Model.GraphQLEndPoint", _options.GraphQLEndPoint);
-                builder.Replace("@Model.GraphQLConfig", Serializer.Serialize(_options.GraphQLConfig));
-                builder.Replace("@Model.PlaygroundSettings", Serializer.Serialize(_options.PlaygroundSettings));
+                var builder = new StringBuilder(streamReader.ReadToEnd())
+                    .Replace("@Model.GraphQLEndPoint", _options.GraphQLEndPoint)
+                    .Replace("@Model.GraphQLConfig", Serializer.Serialize(_options.GraphQLConfig))
+                    .Replace("@Model.PlaygroundSettings", Serializer.Serialize(_options.PlaygroundSettings));
 
                 _playgroundCSHtml = builder.ToString();
             }

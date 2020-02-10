@@ -22,10 +22,9 @@ namespace GraphQL.Server.Ui.Altair.Internal
                 using var manifestResourceStream = typeof(AltairPageModel).Assembly.GetManifestResourceStream("GraphQL.Server.Ui.Altair.Internal.altair.cshtml");
                 using var streamReader = new StreamReader(manifestResourceStream);
 
-                var builder = new StringBuilder(streamReader.ReadToEnd());
-
-                builder.Replace("@Model.GraphQLEndPoint", _options.GraphQLEndPoint);
-                builder.Replace("@Model.AltairHeaders", Serializer.Serialize(_options.Headers));
+                var builder = new StringBuilder(streamReader.ReadToEnd())
+                    .Replace("@Model.GraphQLEndPoint", _options.GraphQLEndPoint)
+                    .Replace("@Model.AltairHeaders", Serializer.Serialize(_options.Headers));
 
                 _altairCSHtml = builder.ToString();
             }
