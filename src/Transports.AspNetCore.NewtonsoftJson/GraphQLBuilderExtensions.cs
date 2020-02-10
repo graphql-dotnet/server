@@ -19,16 +19,16 @@ namespace GraphQL.Server
         /// Affects reading of the JSON from the HTTP request the middleware processes.
         /// </param>
         /// <param name="serializerSettings">
-        /// Settings for the response serializer.
+        /// Action to further configure the response serializer's settings.
         /// Affects JSON returned by the middleware.
         /// </param>
         /// <returns>GraphQL Builder.</returns>
         public static IGraphQLBuilder AddNewtonsoftJson(this IGraphQLBuilder builder,
             Action<JsonSerializerSettings> configureDeserializerSettings = null,
-            JsonSerializerSettings serializerSettings = null)
+            Action<JsonSerializerSettings> configureSerializerSettings = null)
         {
             builder.Services.AddSingleton<IGraphQLRequestDeserializer>(p => new GraphQLRequestDeserializer(configureDeserializerSettings));
-            builder.Services.AddSingleton<IDocumentWriter>(p => serializerSettings == null ? new DocumentWriter() : new DocumentWriter(serializerSettings));
+            builder.Services.AddSingleton<IDocumentWriter>(p => new DocumentWriter(configureSerializerSettings));
 
             return builder;
         }

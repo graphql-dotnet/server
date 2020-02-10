@@ -53,9 +53,9 @@ namespace GraphQL.Samples.Server
                     };
                 })
 #if NETCOREAPP2_2
-                .AddNewtonsoftJson(deserializerSettings => { }, serializerSettings: null)
+                .AddNewtonsoftJson(deserializerSettings => { }, serializerSettings => { })
 #else
-                .AddSystemTextJson(deserializerSettings => { }, serializerSettings: null)
+                .AddSystemTextJson(deserializerSettings => { }, serializerSettings => { })
 #endif
                 .AddWebSockets()
                 .AddDataLoader()
