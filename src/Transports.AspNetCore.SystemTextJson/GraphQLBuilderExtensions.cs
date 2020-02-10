@@ -18,7 +18,7 @@ namespace GraphQL.Server
         /// Action to further configure the request deserializer's settings.
         /// Affects reading of the JSON from the HTTP request the middleware processes.
         /// </param>
-        /// <param name="serializerSettings">
+        /// <param name="configureSerializerSettings">
         /// Action to further configure the response serializer's settings.
         /// Affects JSON returned by the middleware.
         /// </param>
