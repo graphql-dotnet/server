@@ -6,9 +6,9 @@ using System.Text.Json;
 
 namespace Samples.Server.Tests
 {
-    public static class Serializer
+    internal static class Serializer
     {
-        public static string Serialize(object obj)
+        internal static string Serialize(object obj)
 #if NETCOREAPP2_2
             => JsonConvert.SerializeObject(obj);
 #else

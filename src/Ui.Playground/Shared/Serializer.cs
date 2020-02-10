@@ -6,9 +6,9 @@ using System.Text.Json;
 
 namespace GraphQL.Server.Ui
 {
-    public static class Serializer
+    internal static class Serializer
     {
-        public static string Serialize(object obj)
+        internal static string Serialize(object obj)
 #if NETSTANDARD2_0
             => JsonConvert.SerializeObject(obj);
 #else
