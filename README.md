@@ -104,10 +104,11 @@ access the properties including your actual `UserContext` by using the
 
 ## Sample
 
-Samples.Server shows a simple Chat style example of how subscription transport is used
-with GraphiQL integration. An example works for `netcoreapp2.2`, `netcoreapp3.0` and `netcoreapp3.1` platforms.
+Samples.Server shows a simple Chat example demonstrating the subscription transport.
+It can be run as `netcoreapp2.2`, `netcoreapp3.0` or `netcoreapp3.1`, and supports
+various GraphQL client IDEs (by default opening GraphQL Playground).
 
-Here are example queries to get started. Use three browser tabs or better yet windows 
+Here are some example queries to get started. Use three browser tabs or better yet windows 
 to view the changes.
 
 ### Subscription 1
