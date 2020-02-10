@@ -32,7 +32,7 @@ namespace GraphQL.Server.Transports.AspNetCore.NewtonsoftJson
             // work except for the disposing inner stream.
             var reader = new StreamReader(httpRequest.Body);
 
-            var result = new GraphQLRequestDeserializationResult() { IsSuccessful = true };
+            var result = new GraphQLRequestDeserializationResult { IsSuccessful = true };
 
             using (var jsonReader = new JsonTextReader(reader) { CloseInput = false })
             {

@@ -24,6 +24,7 @@ namespace GraphQL.Server.Transports.AspNetCore.SystemTextJson
 
         public GraphQLRequestDeserializer(Action<JsonSerializerOptions> configure)
         {
+            // Add converter that deserializes Variables property
             _serializerOptions.Converters.Add(new ObjectDictionaryConverter());
 
             configure?.Invoke(_serializerOptions);
@@ -31,10 +32,12 @@ namespace GraphQL.Server.Transports.AspNetCore.SystemTextJson
 
         public async Task<GraphQLRequestDeserializationResult> DeserializeFromJsonBodyAsync(HttpRequest httpRequest, CancellationToken cancellationToken = default)
         {
+            var bodyReader = httpRequest.BodyReader;
+
             JsonTokenType jsonTokenType;
             try
             {
-                jsonTokenType = await PeekJsonTokenTypeAsync(httpRequest.BodyReader, cancellationToken);
+                jsonTokenType = await PeekJsonTokenTypeAsync(bodyReader, cancellationToken);
             }
             catch (JsonException)
             {
@@ -42,14 +45,19 @@ namespace GraphQL.Server.Transports.AspNetCore.SystemTextJson
                 jsonTokenType = JsonTokenType.None;
             }
 
+            if (cancellationToken.IsCancellationRequested)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+            }
+
             var result = new GraphQLRequestDeserializationResult() { IsSuccessful = true };
             switch (jsonTokenType)
             {
                 case JsonTokenType.StartObject:
-                    result.Single = await JsonSerializer.DeserializeAsync<GraphQLRequest>(httpRequest.BodyReader.AsStream(), _serializerOptions, cancellationToken);
+                    result.Single = await JsonSerializer.DeserializeAsync<GraphQLRequest>(bodyReader.AsStream(), _serializerOptions, cancellationToken);
                     return result;
                 case JsonTokenType.StartArray:
-                    result.Batch = await JsonSerializer.DeserializeAsync<GraphQLRequest[]>(httpRequest.BodyReader.AsStream(), _serializerOptions, cancellationToken);
+                    result.Batch = await JsonSerializer.DeserializeAsync<GraphQLRequest[]>(bodyReader.AsStream(), _serializerOptions, cancellationToken);
                     return result;
                 default:
                     result.IsSuccessful = false;
@@ -74,7 +82,12 @@ namespace GraphQL.Server.Transports.AspNetCore.SystemTextJson
 
             while (true)
             {
-                var result = await reader.ReadAsync();
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                }
+
+                var result = await reader.ReadAsync(cancellationToken);
                 var buffer = result.Buffer;
 
                 if (DetermineTokenType(buffer, out var tokenType))
