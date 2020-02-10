@@ -45,6 +45,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             GraphQLRequest[] gqlBatchRequest = null;
 
             var writer = context.RequestServices.GetRequiredService<IDocumentWriter>();
+            var cancellationToken = GetCancellationToken(context);
 
             if (HttpMethods.IsGet(httpRequest.Method) ||
                 (HttpMethods.IsPost(httpRequest.Method) && httpRequest.Query.ContainsKey(GraphQLRequest.QueryKey)))
@@ -62,7 +63,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                 switch (mediaTypeHeader.MediaType)
                 {
                     case JsonContentType:
-                        var deserializationResult = await _deserializer.DeserializeFromJsonBodyAsync(httpRequest, GetCancellationToken(context))
+                        var deserializationResult = await _deserializer.DeserializeFromJsonBodyAsync(httpRequest, cancellationToken)
                             .ConfigureAwait(false);
                         if (!deserializationResult.IsSuccessful)
                         {
@@ -94,13 +95,12 @@ namespace GraphQL.Server.Transports.AspNetCore
                 : await userContextBuilder.BuildUserContext(context).ConfigureAwait(false);
 
             var executer = context.RequestServices.GetRequiredService<IGraphQLExecuter<TSchema>>();
-            var token = GetCancellationToken(context);
 
             // normal execution with single graphql request
             if (gqlBatchRequest == null)
             {
                 var stopwatch = ValueStopwatch.StartNew();
-                var result = await ExecuteRequestAsync(gqlRequest, userContext, executer, token);
+                var result = await ExecuteRequestAsync(gqlRequest, userContext, executer, cancellationToken);
 
                 await RequestExecutedAsync(new GraphQLRequestExecutionResult(gqlRequest, result, stopwatch.Elapsed));
 
@@ -115,7 +115,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                     var request = gqlBatchRequest[i];
 
                     var stopwatch = ValueStopwatch.StartNew();
-                    var result = await ExecuteRequestAsync(request, userContext, executer, token);
+                    var result = await ExecuteRequestAsync(request, userContext, executer, cancellationToken);
 
                     await RequestExecutedAsync(new GraphQLRequestExecutionResult(gqlRequest, result, stopwatch.Elapsed, i));
 
