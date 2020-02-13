@@ -1,5 +1,6 @@
 using GraphQL.Server.Common;
 using Microsoft.AspNetCore.Http;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -32,11 +33,11 @@ namespace GraphQL.Server.Transports.AspNetCore.Common
         GraphQLRequest DeserializeFromQueryString(IQueryCollection queryCollection);
 
         /// <summary>
-        /// Deserializes the body of the request, containing form collection content,
+        /// Deserializes the body of the request, containing 'application/graphql' content,
         /// into a <see cref="GraphQLRequest".
         /// </summary>
-        /// <param name="formCollection">Request body's parsed form collection.</param>
+        /// <param name="bodyStream">Request body as a stream.</param>
         /// <returns>Deserialized GraphQL request.</returns>
-        GraphQLRequest DeserializeFromFormBody(IFormCollection formCollection);
+        Task<GraphQLRequest> DeserializeFromGraphBodyAsync(Stream bodyStream);
     }
 }

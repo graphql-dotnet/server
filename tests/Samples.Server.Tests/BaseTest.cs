@@ -4,11 +4,11 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.TestHost;
 using System;
-#if NETCOREAPP2_2
-using GraphQLRequest = GraphQL.Server.Transports.AspNetCore.NewtonsoftJson.GraphQLRequest;
-#else
+using GraphQL.Server.Common;
+using GraphQL.Server.Transports.AspNetCore.Common;
+
+#if !NETCOREAPP2_2
 using Microsoft.Extensions.Hosting;
-using GraphQLRequest = GraphQL.Server.Transports.AspNetCore.SystemTextJson.GraphQLRequest;
 #endif
 
 namespace Samples.Server.Tests
@@ -33,23 +33,36 @@ namespace Samples.Server.Tests
             Client = Server.CreateClient();
         }
 
-        protected async Task<string> SendRequestAsync(string text)
+        protected async Task<string> SendRequestAsync(GraphQLRequest request, RequestType requestType)
         {
-            var response = await Client.PostAsync("graphql", new StringContent(text, Encoding.UTF8, "application/json"));
+            // Different servings over HTTP:
+            // https://graphql.org/learn/serving-over-http/
+            HttpResponseMessage response;
+            switch (requestType)
+            {
+                case RequestType.Get:
+                    var queryString = (await Serializer.ToUrlEncodedStringAsync(request)).TrimStart('&');
+                    var url = $"graphql?{queryString}";
+                    response = await Client.GetAsync(url);
+                    break;
+                case RequestType.PostWithJson:
+                    var jsonContent = Serializer.ToJson(request);
+                    response = await Client.PostAsync("graphql", new StringContent(jsonContent, Encoding.UTF8, MediaType.Json));
+                    break;
+                case RequestType.PostWithGraph:
+                    response = await Client.PostAsync("graphql", new StringContent(request.Query, Encoding.UTF8, MediaType.GraphQL));
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+            
             return await response.Content.ReadAsStringAsync();
-        }
-
-        protected async Task<string> SendRequestAsync(GraphQLRequest request)
-        {
-            var content = Serializer.Serialize(request);
-            var response = await Client.PostAsync("graphql", new StringContent(content, Encoding.UTF8, "application/json"));
-            return  await response.Content.ReadAsStringAsync();
         }
 
         protected async Task<string> SendBatchRequestAsync(params GraphQLRequest[] requests)
         {
-            var content = Serializer.Serialize(requests);
-            var response = await Client.PostAsync("graphql", new StringContent(content, Encoding.UTF8, "application/json"));
+            var content = Serializer.ToJson(requests);
+            using var response = await Client.PostAsync("graphql", new StringContent(content, Encoding.UTF8, "application/json"));
             return await response.Content.ReadAsStringAsync();
         }
 

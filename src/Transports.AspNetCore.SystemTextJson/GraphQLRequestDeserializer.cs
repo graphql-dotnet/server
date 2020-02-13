@@ -1,13 +1,14 @@
+using GraphQL.Server.Common;
 using GraphQL.Server.Transports.AspNetCore.Common;
 using GraphQL.SystemTextJson;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Buffers;
 using System.IO.Pipelines;
+using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using GraphQLRequestBase = GraphQL.Server.Common.GraphQLRequest;
 
 namespace GraphQL.Server.Transports.AspNetCore.SystemTextJson
 {
@@ -18,7 +19,7 @@ namespace GraphQL.Server.Transports.AspNetCore.SystemTextJson
     /// <remarks>
     /// With thanks to David Fowler (@davidfowl) for his help getting this right.
     /// </remarks>
-    public class GraphQLRequestDeserializer : IGraphQLRequestDeserializer
+    public class GraphQLRequestDeserializer : GraphQLRequestDeserializerBase, IGraphQLRequestDeserializer
     {
         private readonly JsonSerializerOptions _serializerOptions = new JsonSerializerOptions();
 
@@ -30,7 +31,7 @@ namespace GraphQL.Server.Transports.AspNetCore.SystemTextJson
             configure?.Invoke(_serializerOptions);
         }
 
-        public async Task<GraphQLRequestDeserializationResult> DeserializeFromJsonBodyAsync(HttpRequest httpRequest, CancellationToken cancellationToken = default)
+        public override async Task<GraphQLRequestDeserializationResult> DeserializeFromJsonBodyAsync(HttpRequest httpRequest, CancellationToken cancellationToken = default)
         {
             var bodyReader = httpRequest.BodyReader;
 
@@ -51,10 +52,13 @@ namespace GraphQL.Server.Transports.AspNetCore.SystemTextJson
             switch (jsonTokenType)
             {
                 case JsonTokenType.StartObject:
-                    result.Single = await JsonSerializer.DeserializeAsync<GraphQLRequest>(bodyReader.AsStream(), _serializerOptions, cancellationToken);
+                    result.Single = ToGraphQLRequest(
+                        await JsonSerializer.DeserializeAsync<InternalGraphQLRequest>(bodyReader.AsStream(), _serializerOptions, cancellationToken));
                     return result;
                 case JsonTokenType.StartArray:
-                    result.Batch = await JsonSerializer.DeserializeAsync<GraphQLRequest[]>(bodyReader.AsStream(), _serializerOptions, cancellationToken);
+                    result.Batch = (await JsonSerializer.DeserializeAsync<InternalGraphQLRequest[]>(bodyReader.AsStream(), _serializerOptions, cancellationToken))
+                        .Select(ToGraphQLRequest)
+                        .ToArray();
                     return result;
                 default:
                     result.IsSuccessful = false;
@@ -105,18 +109,19 @@ namespace GraphQL.Server.Transports.AspNetCore.SystemTextJson
             }
         }
 
-        public GraphQLRequestBase DeserializeFromQueryString(IQueryCollection qs) => new GraphQLRequest
+        public override GraphQLRequest DeserializeFromQueryString(IQueryCollection qs) => ToGraphQLRequest(new InternalGraphQLRequest
         {
-            Query = qs.TryGetValue(GraphQLRequestBase.QueryKey, out var queryValues) ? queryValues[0] : null,
-            Variables = qs.TryGetValue(GraphQLRequestBase.VariablesKey, out var variablesValues) ? variablesValues[0].ToDictionary() : null,
-            OperationName = qs.TryGetValue(GraphQLRequestBase.OperationNameKey, out var operationNameValues) ? operationNameValues[0] : null
-        };
+            Query = qs.TryGetValue(GraphQLRequest.QueryKey, out var queryValues) ? queryValues[0] : null,
+            Variables = qs.TryGetValue(GraphQLRequest.VariablesKey, out var variablesValues) ? variablesValues[0].ToDictionary() : null,
+            OperationName = qs.TryGetValue(GraphQLRequest.OperationNameKey, out var operationNameValues) ? operationNameValues[0] : null
+        });
 
-        public GraphQLRequestBase DeserializeFromFormBody(IFormCollection fc) => new GraphQLRequest
-        {
-            Query = fc.TryGetValue(GraphQLRequestBase.QueryKey, out var queryValues) ? queryValues[0] : null,
-            Variables = fc.TryGetValue(GraphQLRequestBase.VariablesKey, out var variablesValue) ? variablesValue[0].ToDictionary() : null,
-            OperationName = fc.TryGetValue(GraphQLRequestBase.OperationNameKey, out var operationNameValues) ? operationNameValues[0] : null
-        };
+        private static GraphQLRequest ToGraphQLRequest(InternalGraphQLRequest internalGraphQLRequest)
+            => new GraphQLRequest
+            {
+                OperationName = internalGraphQLRequest.OperationName,
+                Query = internalGraphQLRequest.Query,
+                Inputs = internalGraphQLRequest.Variables.ToInputs()
+            };
     }
 }

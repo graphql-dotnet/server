@@ -1,19 +1,21 @@
+using GraphQL.NewtonsoftJson;
+using GraphQL.Server.Common;
 using GraphQL.Server.Transports.AspNetCore.Common;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using GraphQLRequestBase = GraphQL.Server.Common.GraphQLRequest;
 
 namespace GraphQL.Server.Transports.AspNetCore.NewtonsoftJson
 {
     /// <summary>
     /// Implementation of an <see cref="IGraphQLRequestDeserializer"/> that uses Newtonsoft.Json.
     /// </summary>
-    public class GraphQLRequestDeserializer : IGraphQLRequestDeserializer
+    public class GraphQLRequestDeserializer : GraphQLRequestDeserializerBase, IGraphQLRequestDeserializer
     {
         private readonly JsonSerializer _serializer;
 
@@ -24,7 +26,7 @@ namespace GraphQL.Server.Transports.AspNetCore.NewtonsoftJson
             _serializer = JsonSerializer.Create(settings); // it's thread safe https://stackoverflow.com/questions/36186276/is-the-json-net-jsonserializer-threadsafe
         }
 
-        public Task<GraphQLRequestDeserializationResult> DeserializeFromJsonBodyAsync(HttpRequest httpRequest, CancellationToken cancellationToken = default)
+        public override Task<GraphQLRequestDeserializationResult> DeserializeFromJsonBodyAsync(HttpRequest httpRequest, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -45,10 +47,12 @@ namespace GraphQL.Server.Transports.AspNetCore.NewtonsoftJson
                 switch (firstChar)
                 {
                     case '{':
-                        result.Single = _serializer.Deserialize<GraphQLRequest>(jsonReader);
+                        result.Single = ToGraphQLRequest(_serializer.Deserialize<InternalGraphQLRequest>(jsonReader));
                         break;
                     case '[':
-                        result.Batch = _serializer.Deserialize<GraphQLRequest[]>(jsonReader);
+                        result.Batch = _serializer.Deserialize<InternalGraphQLRequest[]>(jsonReader)
+                            .Select(ToGraphQLRequest)
+                            .ToArray();
                         break;
                     default:
                         result.IsSuccessful = false;
@@ -59,18 +63,19 @@ namespace GraphQL.Server.Transports.AspNetCore.NewtonsoftJson
             return Task.FromResult(result);
         }
 
-        public GraphQLRequestBase DeserializeFromQueryString(IQueryCollection qs) => new GraphQLRequest
+        public override GraphQLRequest DeserializeFromQueryString(IQueryCollection qs) => ToGraphQLRequest(new InternalGraphQLRequest
         {
-            Query = qs.TryGetValue(GraphQLRequestBase.QueryKey, out var queryValues) ? queryValues[0] : null,
-            Variables = qs.TryGetValue(GraphQLRequestBase.VariablesKey, out var variablesValues) ? JObject.Parse(variablesValues[0]) : null,
-            OperationName = qs.TryGetValue(GraphQLRequestBase.OperationNameKey, out var operationNameValues) ? operationNameValues[0] : null
-        };
+            Query = qs.TryGetValue(GraphQLRequest.QueryKey, out var queryValues) ? queryValues[0] : null,
+            Variables = qs.TryGetValue(GraphQLRequest.VariablesKey, out var variablesValues) ? JObject.Parse(variablesValues[0]) : null,
+            OperationName = qs.TryGetValue(GraphQLRequest.OperationNameKey, out var operationNameValues) ? operationNameValues[0] : null
+        });
 
-        public GraphQLRequestBase DeserializeFromFormBody(IFormCollection fc) => new GraphQLRequest
-        {
-            Query = fc.TryGetValue(GraphQLRequestBase.QueryKey, out var queryValues) ? queryValues[0] : null,
-            Variables = fc.TryGetValue(GraphQLRequestBase.VariablesKey, out var variablesValue) ? JObject.Parse(variablesValue[0]) : null,
-            OperationName = fc.TryGetValue(GraphQLRequestBase.OperationNameKey, out var operationNameValues) ? operationNameValues[0] : null
-        };
+        private static GraphQLRequest ToGraphQLRequest(InternalGraphQLRequest internalGraphQLRequest)
+            => new GraphQLRequest
+            {
+                OperationName = internalGraphQLRequest.OperationName,
+                Query = internalGraphQLRequest.Query,
+                Inputs = internalGraphQLRequest.Variables.ToInputs()
+            };
     }
 }

@@ -1,29 +1,35 @@
-using Shouldly;
 using System.Threading.Tasks;
 using Xunit;
+using GraphQL.Server.Common;
+using GraphQL;
 
 #if NETCOREAPP2_2
-using Newtonsoft.Json.Linq;
-using GraphQL.Server.Transports.AspNetCore.NewtonsoftJson;
 using GraphQL.NewtonsoftJson;
-using GraphQLRequest = GraphQL.Server.Transports.AspNetCore.NewtonsoftJson.GraphQLRequest;
 #else
-using System.Collections.Generic;
-using GraphQL.Server.Transports.AspNetCore.SystemTextJson;
 using GraphQL.SystemTextJson;
-using GraphQLRequest = GraphQL.Server.Transports.AspNetCore.SystemTextJson.GraphQLRequest;
 #endif
 
 namespace Samples.Server.Tests
 {
     public class ResponseTests : BaseTest
     {
-        [Fact]
-        public async Task Single_Query_Should_Return_Single_Result()
+        [Theory]
+        [InlineData(RequestType.Get)]
+        [InlineData(RequestType.PostWithJson)]
+        [InlineData(RequestType.PostWithGraph)]
+        public async Task Single_Query_Should_Return_Single_Result(RequestType requestType)
         {
-            var response = await SendRequestAsync(new GraphQLRequest { Query = "{ __schema { queryType { name } } }" });
+            var response = await SendRequestAsync(new GraphQLRequest { Query = "{ __schema { queryType { name } } }" }, requestType);
             response.ShouldBeEquivalentJson(@"{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}}", ignoreExtensions: true);
         }
+
+        // TODO: Add test for POST scenario that has a query in the query string
+        //[Fact]
+        //public async Task Single_Query_Using_GraphQL_MediaType_Should_Return_Single_Result_()
+        //{
+        //    var response = await SendRequestAsync("{ __schema { queryType { name } } }", "application/graphql");
+        //    response.ShouldBeEquivalentJson(@"{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}}", ignoreExtensions: true);
+        //}
 
         [Fact]
         public async Task Batched_Query_Should_Return_Multiple_Results()
@@ -36,59 +42,65 @@ namespace Samples.Server.Tests
             response.ShouldBeEquivalentJson(@"[{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}},{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}},{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}}]", ignoreExtensions: true);
         }
 
-        [Fact]
-        public async Task Wrong_Query_Should_Return_Error()
+        [Theory]
+        [InlineData(RequestType.Get)]
+        [InlineData(RequestType.PostWithJson)]
+        [InlineData(RequestType.PostWithGraph)]
+        public async Task Wrong_Query_Should_Return_Error(RequestType requestType)
         {
-            var response = await SendRequestAsync("Oops");
+            var response = await SendRequestAsync(new GraphQLRequest { Query = "Oops" }, requestType);
             var expected = @"{""errors"":[{""message"":""Body text could not be parsed. Body text should start with '{' for normal graphql query or with '[' for batched query.""}]}";
 
             response.ShouldBeEquivalentJson(expected);
         }
 
-        [Fact]
-        public async Task Serializer_Should_Handle_Variables()
+        [Theory]
+        [InlineData(RequestType.Get)]
+        [InlineData(RequestType.PostWithJson)]
+        [InlineData(RequestType.PostWithGraph)]
+        public async Task Serializer_Should_Handle_Variables(RequestType requestType)
         {
             var request = new GraphQLRequest
             {
                 Query = "mutation ($content: String!, $fromId: String!, $sentAt: Date!) { addMessage(message: { content: $content, fromId: $fromId, sentAt: $sentAt }) { sentAt, content, from { id } } }",
-                Variables = ToVariables(@"{ ""content"": ""some content"", ""sentAt"": ""2020-01-01"", ""fromId"": ""1"" }")
+                Inputs = @"{ ""content"": ""some content"", ""sentAt"": ""2020-01-01"", ""fromId"": ""1"" }".ToInputs()
             };
-            var response = await SendRequestAsync(request);
+            var response = await SendRequestAsync(request, requestType);
             response.ShouldBeEquivalentJson(
                 @"{""data"":{""addMessage"":{""sentAt"":""2020-01-01"",""content"":""some content"",""from"":{""id"":""1""}}}}",
                 ignoreExtensions: true);
         }
 
-        [Fact]
-        public async Task Serializer_Should_Handle_Complex_Variable()
+        [Theory]
+        [InlineData(RequestType.Get)]
+        [InlineData(RequestType.PostWithJson)]
+        [InlineData(RequestType.PostWithGraph)]
+        public async Task Serializer_Should_Handle_Complex_Variable(RequestType requestType)
         {
             var request = new GraphQLRequest
             {
                 Query = "mutation ($msg: MessageInputType!) { addMessage(message: $msg) { sentAt, content, from { id } } }",
-                Variables = ToVariables(@"{ ""msg"": { ""content"": ""some content"", ""sentAt"": ""2020-01-01"", ""fromId"": ""1"" } }")
+                Inputs = @"{ ""msg"": { ""content"": ""some content"", ""sentAt"": ""2020-01-01"", ""fromId"": ""1"" } }".ToInputs()
             };
-            var response = await SendRequestAsync(request);
+            var response = await SendRequestAsync(request, requestType);
             response.ShouldBeEquivalentJson(
                 @"{""data"":{""addMessage"":{""sentAt"":""2020-01-01"",""content"":""some content"",""from"":{""id"":""1""}}}}",
                 ignoreExtensions: true);
         }
 
-        [Fact]
-        public async Task Serializer_Should_Handle_Empty_Variables()
+        [Theory]
+        [InlineData(RequestType.Get)]
+        [InlineData(RequestType.PostWithJson)]
+        [InlineData(RequestType.PostWithGraph)]
+        public async Task Serializer_Should_Handle_Empty_Variables(RequestType requestType)
         {
             var request = new GraphQLRequest
             {
                 Query = "{ __schema { queryType { name } } }",
-                Variables = ToVariables("{}")
+                Inputs = "{}".ToInputs()
             };
-            var response = await SendRequestAsync(request);
+            var response = await SendRequestAsync(request, requestType);
             response.ShouldBeEquivalentJson(@"{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}}", ignoreExtensions: true);
         }
-
-#if NETCOREAPP2_2
-        private JObject ToVariables(string json) => JObject.Parse(json);
-#else
-        private Dictionary<string, object> ToVariables(string json) => json.ToDictionary();
-#endif
     }
 }
