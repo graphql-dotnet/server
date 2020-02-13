@@ -50,7 +50,8 @@ namespace Samples.Server.Tests
                     response = await Client.PostAsync("graphql", new StringContent(jsonContent, Encoding.UTF8, MediaType.Json));
                     break;
                 case RequestType.PostWithGraph:
-                    response = await Client.PostAsync("graphql", new StringContent(request.Query, Encoding.UTF8, MediaType.GraphQL));
+                    var jsonQueryContent = Serializer.ToJson(request.Query);
+                    response = await Client.PostAsync("graphql", new StringContent(jsonQueryContent, Encoding.UTF8, MediaType.GraphQL));
                     break;
                 default:
                     throw new NotImplementedException();

@@ -58,6 +58,21 @@ namespace Samples.Server.Tests
         [InlineData(RequestType.Get)]
         [InlineData(RequestType.PostWithJson)]
         [InlineData(RequestType.PostWithGraph)]
+        public async Task Serializer_Should_Handle_Inline_Variables(RequestType requestType)
+        {
+            var request = new GraphQLRequest
+            {
+                Query = @"mutation { addMessage(message: { content: ""some content"", fromId: ""1"", sentAt: ""2020-01-01"" }) { sentAt, content, from { id } } }"
+            };
+            var response = await SendRequestAsync(request, requestType);
+            response.ShouldBeEquivalentJson(
+                @"{""data"":{""addMessage"":{""sentAt"":""2020-01-01"",""content"":""some content"",""from"":{""id"":""1""}}}}",
+                ignoreExtensions: true);
+        }
+
+        [Theory]
+        [InlineData(RequestType.Get)]
+        [InlineData(RequestType.PostWithJson)]
         public async Task Serializer_Should_Handle_Variables(RequestType requestType)
         {
             var request = new GraphQLRequest
@@ -74,7 +89,6 @@ namespace Samples.Server.Tests
         [Theory]
         [InlineData(RequestType.Get)]
         [InlineData(RequestType.PostWithJson)]
-        [InlineData(RequestType.PostWithGraph)]
         public async Task Serializer_Should_Handle_Complex_Variable(RequestType requestType)
         {
             var request = new GraphQLRequest
@@ -91,7 +105,6 @@ namespace Samples.Server.Tests
         [Theory]
         [InlineData(RequestType.Get)]
         [InlineData(RequestType.PostWithJson)]
-        [InlineData(RequestType.PostWithGraph)]
         public async Task Serializer_Should_Handle_Empty_Variables(RequestType requestType)
         {
             var request = new GraphQLRequest
