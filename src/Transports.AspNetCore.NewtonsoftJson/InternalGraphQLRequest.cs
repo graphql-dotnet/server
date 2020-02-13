@@ -5,7 +5,7 @@ using Newtonsoft.Json.Linq;
 namespace GraphQL.Server.Transports.AspNetCore.NewtonsoftJson
 {
     /// <summary>
-    /// A type for deserializing directly into that suits the System.Text.Json serializer.
+    /// A type for deserializing directly into that suits the NewtonsoftJson serializer.
     /// </summary>
     internal class InternalGraphQLRequest
     {
