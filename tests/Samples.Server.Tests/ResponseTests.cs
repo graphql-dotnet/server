@@ -17,13 +17,14 @@ namespace Samples.Server.Tests
         [InlineData(RequestType.Get)]
         [InlineData(RequestType.PostWithJson)]
         [InlineData(RequestType.PostWithGraph)]
+        [InlineData(RequestType.PostWithForm)]
         public async Task Single_Query_Should_Return_Single_Result(RequestType requestType)
         {
             var response = await SendRequestAsync(new GraphQLRequest { Query = "{ __schema { queryType { name } } }" }, requestType);
             response.ShouldBeEquivalentJson(@"{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}}", ignoreExtensions: true);
         }
 
-        // TODO: Add test for POST scenario that has a query in the query string
+        // TODO: Add test for POST with query params overriding the values
         //[Fact]
         //public async Task Single_Query_Using_GraphQL_MediaType_Should_Return_Single_Result_()
         //{
@@ -42,13 +43,10 @@ namespace Samples.Server.Tests
             response.ShouldBeEquivalentJson(@"[{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}},{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}},{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}}]", ignoreExtensions: true);
         }
 
-        [Theory]
-        [InlineData(RequestType.Get)]
-        [InlineData(RequestType.PostWithJson)]
-        [InlineData(RequestType.PostWithGraph)]
-        public async Task Wrong_Query_Should_Return_Error(RequestType requestType)
+        [Fact]
+        public async Task Wrong_Query_Should_Return_Error()
         {
-            var response = await SendRequestAsync(new GraphQLRequest { Query = "Oops" }, requestType);
+            var response = await SendRequestAsync("Oops");
             var expected = @"{""errors"":[{""message"":""Body text could not be parsed. Body text should start with '{' for normal graphql query or with '[' for batched query.""}]}";
 
             response.ShouldBeEquivalentJson(expected);
@@ -58,6 +56,7 @@ namespace Samples.Server.Tests
         [InlineData(RequestType.Get)]
         [InlineData(RequestType.PostWithJson)]
         [InlineData(RequestType.PostWithGraph)]
+        [InlineData(RequestType.PostWithForm)]
         public async Task Serializer_Should_Handle_Inline_Variables(RequestType requestType)
         {
             var request = new GraphQLRequest
@@ -73,6 +72,7 @@ namespace Samples.Server.Tests
         [Theory]
         [InlineData(RequestType.Get)]
         [InlineData(RequestType.PostWithJson)]
+        [InlineData(RequestType.PostWithForm)]
         public async Task Serializer_Should_Handle_Variables(RequestType requestType)
         {
             var request = new GraphQLRequest
@@ -89,6 +89,7 @@ namespace Samples.Server.Tests
         [Theory]
         [InlineData(RequestType.Get)]
         [InlineData(RequestType.PostWithJson)]
+        [InlineData(RequestType.PostWithForm)]
         public async Task Serializer_Should_Handle_Complex_Variable(RequestType requestType)
         {
             var request = new GraphQLRequest
@@ -105,6 +106,7 @@ namespace Samples.Server.Tests
         [Theory]
         [InlineData(RequestType.Get)]
         [InlineData(RequestType.PostWithJson)]
+        [InlineData(RequestType.PostWithForm)]
         public async Task Serializer_Should_Handle_Empty_Variables(RequestType requestType)
         {
             var request = new GraphQLRequest

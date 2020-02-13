@@ -38,7 +38,6 @@ namespace GraphQL.Server.Transports.AspNetCore.Common
         /// </summary>
         /// <param name="formCollection">Request body's parsed form collection.</param>
         /// <returns>Deserialized GraphQL request.</returns>
-        [Obsolete("This is longer a recommendation and this feature may disappear in a future release.")]
         GraphQLRequest DeserializeFromFormBody(IFormCollection formCollection);
     }
 }

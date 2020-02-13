@@ -2,7 +2,6 @@ using System;
 using GraphQL.Server.Common;
 using System.Collections.Generic;
 using System.Net.Http;
-using System.Threading.Tasks;
 
 #if NETCOREAPP2_2
 using Newtonsoft.Json;
@@ -31,7 +30,7 @@ namespace Samples.Server.Tests
             => JsonSerializer.Serialize(obj, new JsonSerializerOptions { IgnoreNullValues = true });
 #endif
 
-        internal static Task<string> ToUrlEncodedStringAsync(GraphQLRequest request)
+        internal static FormUrlEncodedContent ToFormUrlEncodedContent(GraphQLRequest request)
         {
             // Don't add keys if `null` as they'll be url encoded as "" or "null"
 
@@ -52,7 +51,7 @@ namespace Samples.Server.Tests
                 dictionary[GraphQLRequest.VariablesKey] = ToJson(request.Inputs);
             }
 
-            return new FormUrlEncodedContent(dictionary).ReadAsStringAsync();
+            return new FormUrlEncodedContent(dictionary);
         }
 
         private static Dictionary<string, object> ToDictionary(this GraphQLRequest request)

@@ -33,6 +33,12 @@ namespace Samples.Server.Tests
             Client = Server.CreateClient();
         }
 
+        protected async Task<string> SendRequestAsync(string text)
+        {
+            var response = await Client.PostAsync("graphql", new StringContent(text, Encoding.UTF8, "application/json"));
+            return await response.Content.ReadAsStringAsync();
+        }
+
         protected async Task<string> SendRequestAsync(GraphQLRequest request, RequestType requestType)
         {
             // Different servings over HTTP:
@@ -41,7 +47,7 @@ namespace Samples.Server.Tests
             switch (requestType)
             {
                 case RequestType.Get:
-                    var queryString = (await Serializer.ToUrlEncodedStringAsync(request)).TrimStart('&');
+                    var queryString = (await Serializer.ToFormUrlEncodedContent(request).ReadAsStringAsync()).TrimStart('&');
                     var url = $"graphql?{queryString}";
                     response = await Client.GetAsync(url);
                     break;
@@ -53,7 +59,8 @@ namespace Samples.Server.Tests
                     response = await Client.PostAsync("graphql", new StringContent(request.Query, Encoding.UTF8, MediaType.GraphQL));
                     break;
                 case RequestType.PostWithForm:
-                    throw new NotImplementedException("TODO...");
+                    response = await Client.PostAsync("graphql", Serializer.ToFormUrlEncodedContent(request));
+                    break;
                 default:
                     throw new NotImplementedException();
             }
