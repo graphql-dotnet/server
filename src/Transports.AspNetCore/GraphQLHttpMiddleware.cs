@@ -95,14 +95,14 @@ namespace GraphQL.Server.Transports.AspNetCore
                 }
             }
 
-            // If we don't have a batch request, continue to determine the request to run
+            // If we don't have a batch request, parse the URL too to determine the actual request to run
+            // Querystring params take priority
             GraphQLRequest gqlRequest = null;
             if (bodyGQLBatchRequest == null)
             {
                 // Parse URL
                 var urlGQLRequest = _deserializer.DeserializeFromQueryString(httpRequest.Query);
 
-                // Setup the actual request to run, taking the URL query params as priority
                 gqlRequest = new GraphQLRequest
                 {
                     Query = urlGQLRequest.Query ?? bodyGQLRequest?.Query,
@@ -110,15 +110,6 @@ namespace GraphQL.Server.Transports.AspNetCore
                     OperationName = urlGQLRequest.OperationName ?? bodyGQLRequest?.OperationName
                 };
             }
-
-            // TODO: See if we can read the AST to determine this
-            //if (isGet && operation != "query") 
-            //{
-            //    httpResponse.Headers["Allow"] = "POST";
-            //    await WriteErrorResponseAsync(context, writer, cancellationToken,
-            //        $"Can only perform a {operation} operation from a POST request.",
-            //        httpStatusCode: 405).ConfigureAwait(false);
-            //}
 
             // Prepare context and execute
             var userContextBuilder = context.RequestServices.GetService<IUserContextBuilder>();

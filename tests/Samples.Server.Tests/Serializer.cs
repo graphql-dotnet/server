@@ -2,6 +2,7 @@ using System;
 using GraphQL.Server.Common;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Threading.Tasks;
 
 #if NETCOREAPP2_2
 using Newtonsoft.Json;
@@ -53,6 +54,9 @@ namespace Samples.Server.Tests
 
             return new FormUrlEncodedContent(dictionary);
         }
+
+        internal static Task<string> ToQueryStringParamsAsync(GraphQLRequest request)
+            => ToFormUrlEncodedContent(request).ReadAsStringAsync();
 
         private static Dictionary<string, object> ToDictionary(this GraphQLRequest request)
             =>  new Dictionary<string, object>

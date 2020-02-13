@@ -39,7 +39,7 @@ namespace Samples.Server.Tests
             return await response.Content.ReadAsStringAsync();
         }
 
-        protected async Task<string> SendRequestAsync(GraphQLRequest request, RequestType requestType)
+        protected async Task<string> SendRequestAsync(GraphQLRequest request, RequestType requestType, string requestUri = "graphql")
         {
             // Different servings over HTTP:
             // https://graphql.org/learn/serving-over-http/
@@ -47,19 +47,19 @@ namespace Samples.Server.Tests
             switch (requestType)
             {
                 case RequestType.Get:
-                    var queryString = (await Serializer.ToFormUrlEncodedContent(request).ReadAsStringAsync()).TrimStart('&');
-                    var url = $"graphql?{queryString}";
+                    var queryString = await Serializer.ToQueryStringParamsAsync(request);
+                    var url = $"{requestUri}?{queryString}";
                     response = await Client.GetAsync(url);
                     break;
                 case RequestType.PostWithJson:
                     var jsonContent = Serializer.ToJson(request);
-                    response = await Client.PostAsync("graphql", new StringContent(jsonContent, Encoding.UTF8, MediaType.Json));
+                    response = await Client.PostAsync(requestUri, new StringContent(jsonContent, Encoding.UTF8, MediaType.Json));
                     break;
                 case RequestType.PostWithGraph:
-                    response = await Client.PostAsync("graphql", new StringContent(request.Query, Encoding.UTF8, MediaType.GraphQL));
+                    response = await Client.PostAsync(requestUri, new StringContent(request.Query, Encoding.UTF8, MediaType.GraphQL));
                     break;
                 case RequestType.PostWithForm:
-                    response = await Client.PostAsync("graphql", Serializer.ToFormUrlEncodedContent(request));
+                    response = await Client.PostAsync(requestUri, Serializer.ToFormUrlEncodedContent(request));
                     break;
                 default:
                     throw new NotImplementedException();

@@ -20,17 +20,38 @@ namespace Samples.Server.Tests
         [InlineData(RequestType.PostWithForm)]
         public async Task Single_Query_Should_Return_Single_Result(RequestType requestType)
         {
-            var response = await SendRequestAsync(new GraphQLRequest { Query = "{ __schema { queryType { name } } }" }, requestType);
+            var request = new GraphQLRequest { Query = "{ __schema { queryType { name } } }" };
+            var response = await SendRequestAsync(request, requestType);
             response.ShouldBeEquivalentJson(@"{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}}", ignoreExtensions: true);
         }
 
-        // TODO: Add test for POST with query params overriding the values
-        //[Fact]
-        //public async Task Single_Query_Using_GraphQL_MediaType_Should_Return_Single_Result_()
-        //{
-        //    var response = await SendRequestAsync("{ __schema { queryType { name } } }", "application/graphql");
-        //    response.ShouldBeEquivalentJson(@"{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}}", ignoreExtensions: true);
-        //}
+        [Theory]
+        [InlineData(RequestType.PostWithJson)]
+        [InlineData(RequestType.PostWithGraph)]
+        [InlineData(RequestType.PostWithForm)]
+        public async Task Middleware_Should_Prioritise_Query_String_Values(RequestType requestType)
+        {
+            var request = new GraphQLRequest
+            {
+                Query = "mutation one ($content: String!, $fromId: String!, $sentAt: Date!) { addMessage(message: { content: $content, fromId: $fromId, sentAt: $sentAt }) { sentAt, content, from { id } } }",
+                Inputs = @"{ ""content"": ""one content"", ""sentAt"": ""2020-01-01"", ""fromId"": ""1"" }".ToInputs(),
+                OperationName = "one"
+            };
+
+            var requestB = new GraphQLRequest
+            {
+                Query = "mutation two ($content: String!, $fromId: String!, $sentAt: Date!) { addMessage(message: { content: $content, fromId: $fromId, sentAt: $sentAt }) { sentAt, content, from { id } } }",
+                Inputs = @"{ ""content"": ""two content"", ""sentAt"": ""2020-01-01"", ""fromId"": ""1"" }".ToInputs(),
+                OperationName = "two"
+            };
+
+            var queryStringParams = await Serializer.ToQueryStringParamsAsync(requestB);
+
+            var response = await SendRequestAsync(request, requestType, requestUri: $"graphql?{queryStringParams}");
+            response.ShouldBeEquivalentJson(
+                @"{""data"":{""addMessage"":{""sentAt"":""2020-01-01"",""content"":""two content"",""from"":{""id"":""1""}}}}",
+                ignoreExtensions: true);
+        }
 
         [Fact]
         public async Task Batched_Query_Should_Return_Multiple_Results()
