@@ -8,6 +8,7 @@ namespace Samples.Server.Tests
     {
         Get,
         PostWithJson,
-        PostWithGraph
+        PostWithForm,
+        PostWithGraph,
     }
 }
