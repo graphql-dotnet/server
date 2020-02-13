@@ -26,6 +26,8 @@ namespace GraphQL.Server.Transports.AspNetCore.NewtonsoftJson
 
         public Task<GraphQLRequestDeserializationResult> DeserializeFromJsonBodyAsync(HttpRequest httpRequest, CancellationToken cancellationToken = default)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             // Do not explicitly or implicitly (via using, etc.) call dispose because StreamReader will dispose inner stream.
             // This leads to the inability to use the stream further by other consumers/middlewares of the request processing
             // pipeline. In fact, it is absolutely not dangerous not to dispose StreamReader as it does not perform any useful
@@ -36,7 +38,11 @@ namespace GraphQL.Server.Transports.AspNetCore.NewtonsoftJson
 
             using (var jsonReader = new JsonTextReader(reader) { CloseInput = false })
             {
-                switch (reader.Peek())
+                var firstChar = reader.Peek();
+
+                cancellationToken.ThrowIfCancellationRequested();
+
+                switch (firstChar)
                 {
                     case '{':
                         result.Single = _serializer.Deserialize<GraphQLRequest>(jsonReader);
