@@ -105,9 +105,9 @@ namespace GraphQL.Server.Transports.AspNetCore
                 // Setup the actual request to run, taking the URL query params as priority
                 gqlRequest = new GraphQLRequest
                 {
-                    Query = urlGQLRequest?.Query ?? bodyGQLRequest.Query,
-                    Inputs = urlGQLRequest?.Inputs ?? bodyGQLRequest.Inputs,
-                    OperationName = urlGQLRequest?.OperationName ?? bodyGQLRequest.OperationName
+                    Query = urlGQLRequest.Query ?? bodyGQLRequest?.Query,
+                    Inputs = urlGQLRequest.Inputs ?? bodyGQLRequest?.Inputs,
+                    OperationName = urlGQLRequest.OperationName ?? bodyGQLRequest?.OperationName
                 };
             }
 

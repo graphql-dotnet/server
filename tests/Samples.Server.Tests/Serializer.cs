@@ -33,13 +33,20 @@ namespace Samples.Server.Tests
 
         internal static Task<string> ToUrlEncodedStringAsync(GraphQLRequest request)
         {
-            var dictionary = new Dictionary<string, string>
-            {
-                { GraphQLRequest.OperationNameKey, request.OperationName },
-                { GraphQLRequest.QueryKey, request.Query }
-            };
+            // Don't add keys if `null` as they'll be url encoded as "" or "null"
 
-            // To avoid writing "null" as the variables parameter, don't include it if it's null
+            var dictionary = new Dictionary<string, string>();
+
+            if (request.OperationName != null)
+            {
+                dictionary[GraphQLRequest.OperationNameKey] = request.OperationName;
+            }
+
+            if (request.Query != null)
+            {
+                dictionary[GraphQLRequest.QueryKey] = request.Query;
+            }
+
             if (request.Inputs != null)
             {
                 dictionary[GraphQLRequest.VariablesKey] = ToJson(request.Inputs);
