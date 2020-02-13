@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 namespace GraphQL.Server.Transports.AspNetCore.SystemTextJson
 {
     /// <summary>
-    /// A type for deserializing directly into that suits the NewstonsoftJson serializer.
+    /// A type for deserializing directly into that suits the System.Text.Json serializer.
     /// </summary>
     internal class InternalGraphQLRequest
     {
