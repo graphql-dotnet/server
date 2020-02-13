@@ -6,6 +6,7 @@ using GraphQL.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
+using System.IO;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,6 +16,8 @@ namespace GraphQL.Server.Transports.AspNetCore
     public class GraphQLHttpMiddleware<TSchema>
         where TSchema : ISchema
     {
+        private const string _docsUrl = "See: http://graphql.org/learn/serving-over-http/.";
+
         private readonly RequestDelegate _next;
         private readonly PathString _path;
         private readonly IGraphQLRequestDeserializer _deserializer;
@@ -35,23 +38,32 @@ namespace GraphQL.Server.Transports.AspNetCore
             }
 
             // Handle requests as per recommendation at http://graphql.org/learn/serving-over-http/
+            // Inspiration: https://github.com/graphql/express-graphql/blob/master/src/index.js
             var httpRequest = context.Request;
-            GraphQLRequest gqlRequest = null;
-            GraphQLRequest[] gqlBatchRequest = null;
+            var httpResponse = context.Response;
 
             var writer = context.RequestServices.GetRequiredService<IDocumentWriter>();
             var cancellationToken = GetCancellationToken(context);
 
-            if (HttpMethods.IsGet(httpRequest.Method) ||
-                (HttpMethods.IsPost(httpRequest.Method) && httpRequest.Query.ContainsKey(GraphQLRequest.QueryKey)))
+            // GraphQL HTTP only supports GET and POST methods
+            var isGet = HttpMethods.IsGet(httpRequest.Method);
+            var isPost = HttpMethods.IsPost(httpRequest.Method);
+            if (!isGet && !isPost)
             {
-                gqlRequest = _deserializer.DeserializeFromQueryString(httpRequest.Query);
+                httpResponse.Headers["Allow"] = "GET, POST";
+                await WriteErrorResponseAsync(context, writer, cancellationToken,
+                    $"Invalid HTTP method. Only GET and POST are supported. {_docsUrl}",
+                    httpStatusCode: 405).ConfigureAwait(false);
             }
-            else if (HttpMethods.IsPost(httpRequest.Method))
+
+            // Parse POST body
+            GraphQLRequest bodyGQLRequest = null;
+            GraphQLRequest[] bodyGQLBatchRequest = null;
+            if (isPost)
             {
                 if (!MediaTypeHeaderValue.TryParse(httpRequest.ContentType, out var mediaTypeHeader))
                 {
-                    await WriteBadRequestResponseAsync(context, writer, cancellationToken, $"Invalid 'Content-Type' header: value '{httpRequest.ContentType}' could not be parsed.").ConfigureAwait(false);
+                    await WriteErrorResponseAsync(context, writer, cancellationToken, $"Invalid 'Content-Type' header: value '{httpRequest.ContentType}' could not be parsed.").ConfigureAwait(false);
                     return;
                 }
 
@@ -61,23 +73,54 @@ namespace GraphQL.Server.Transports.AspNetCore
                         var deserializationResult = await _deserializer.DeserializeFromJsonBodyAsync(httpRequest, cancellationToken).ConfigureAwait(false);
                         if (!deserializationResult.IsSuccessful)
                         {
-                            await WriteBadRequestResponseAsync(context, writer, cancellationToken, "Body text could not be parsed. Body text should start with '{' for normal graphql query or with '[' for batched query.").ConfigureAwait(false);
+                            await WriteErrorResponseAsync(context, writer, cancellationToken, "Body text could not be parsed. Body text should start with '{' for normal graphql query or with '[' for batched query.").ConfigureAwait(false);
                             return;
                         }
-                        gqlRequest = deserializationResult.Single;
-                        gqlBatchRequest = deserializationResult.Batch;
+                        bodyGQLRequest = deserializationResult.Single;
+                        bodyGQLBatchRequest = deserializationResult.Batch;
                         break;
-                        
+
                     case MediaType.GraphQL:
-                        gqlRequest = await _deserializer.DeserializeFromGraphBodyAsync(httpRequest.Body).ConfigureAwait(false);
+                        bodyGQLRequest = await DeserializeFromGraphBodyAsync(httpRequest.Body).ConfigureAwait(false);
+                        break;
+
+                    case MediaType.Form:
+                        var formCollection = await httpRequest.ReadFormAsync().ConfigureAwait(false);
+                        bodyGQLRequest = _deserializer.DeserializeFromFormBody(formCollection);
                         break;
 
                     default:
-                        await WriteBadRequestResponseAsync(context, writer, cancellationToken, $"Invalid 'Content-Type' header: non-supported media type. Must be of '{MediaType.Json}' or '{MediaType.GraphQL}'. See: http://graphql.org/learn/serving-over-http/.").ConfigureAwait(false);
+                        await WriteErrorResponseAsync(context, writer, cancellationToken, $"Invalid 'Content-Type' header: non-supported media type. Must be of '{MediaType.Json}' or '{MediaType.GraphQL}'. {_docsUrl}").ConfigureAwait(false);
                         return;
                 }
             }
 
+            // If we don't have a batch request, continue to determine the request to run
+            GraphQLRequest gqlRequest = null;
+            if (bodyGQLBatchRequest == null)
+            {
+                // Parse URL
+                var urlGQLRequest = _deserializer.DeserializeFromQueryString(httpRequest.Query);
+
+                // Setup the actual request to run, taking the URL query params as priority
+                gqlRequest = new GraphQLRequest
+                {
+                    Query = urlGQLRequest?.Query ?? bodyGQLRequest.Query,
+                    Inputs = urlGQLRequest?.Inputs ?? bodyGQLRequest.Inputs,
+                    OperationName = urlGQLRequest?.OperationName ?? bodyGQLRequest.OperationName
+                };
+            }
+
+            // TODO: See if we can read the AST to determine this
+            //if (isGet && operation != "query") 
+            //{
+            //    httpResponse.Headers["Allow"] = "POST";
+            //    await WriteErrorResponseAsync(context, writer, cancellationToken,
+            //        $"Can only perform a {operation} operation from a POST request.",
+            //        httpStatusCode: 405).ConfigureAwait(false);
+            //}
+
+            // Prepare context and execute
             var userContextBuilder = context.RequestServices.GetService<IUserContextBuilder>();
             IDictionary<string, object> userContext = userContextBuilder == null
                 ? new Dictionary<string, object>() // in order to allow resolvers to exchange their state through this object
@@ -85,8 +128,8 @@ namespace GraphQL.Server.Transports.AspNetCore
 
             var executer = context.RequestServices.GetRequiredService<IGraphQLExecuter<TSchema>>();
 
-            // normal execution with single graphql request
-            if (gqlBatchRequest == null)
+            // Normal execution with single graphql request
+            if (bodyGQLBatchRequest == null)
             {
                 var stopwatch = ValueStopwatch.StartNew();
                 var result = await ExecuteRequestAsync(gqlRequest, userContext, executer, cancellationToken);
@@ -95,13 +138,13 @@ namespace GraphQL.Server.Transports.AspNetCore
 
                 await WriteResponseAsync(context, writer, cancellationToken, result).ConfigureAwait(false);
             }
-            // execute multiple graphql requests in one batch
+            // Execute multiple graphql requests in one batch
             else
             {
-                var executionResults = new ExecutionResult[gqlBatchRequest.Length];
-                for (int i = 0; i < gqlBatchRequest.Length; ++i)
+                var executionResults = new ExecutionResult[bodyGQLBatchRequest.Length];
+                for (int i = 0; i < bodyGQLBatchRequest.Length; ++i)
                 {
-                    var request = gqlBatchRequest[i];
+                    var request = bodyGQLBatchRequest[i];
 
                     var stopwatch = ValueStopwatch.StartNew();
                     var result = await ExecuteRequestAsync(request, userContext, executer, cancellationToken);
@@ -115,13 +158,13 @@ namespace GraphQL.Server.Transports.AspNetCore
             }
         }
 
-        private static async Task<ExecutionResult> ExecuteRequestAsync(GraphQLRequest gqlRequest, IDictionary<string, object> userContext, IGraphQLExecuter<TSchema> executer, CancellationToken token)
-            => await executer.ExecuteAsync(
+        private static Task<ExecutionResult> ExecuteRequestAsync(GraphQLRequest gqlRequest, IDictionary<string, object> userContext, IGraphQLExecuter<TSchema> executer, CancellationToken token)
+            => executer.ExecuteAsync(
                 gqlRequest.OperationName,
                 gqlRequest.Query,
                 gqlRequest.Inputs,
                 userContext,
-                token).ConfigureAwait(false);
+                token);
 
         protected virtual CancellationToken GetCancellationToken(HttpContext context) => context.RequestAborted;
 
@@ -131,7 +174,8 @@ namespace GraphQL.Server.Transports.AspNetCore
             return Task.CompletedTask;
         }
 
-        private Task WriteBadRequestResponseAsync(HttpContext context, IDocumentWriter writer, CancellationToken cancellationToken, string errorMessage)
+        private Task WriteErrorResponseAsync(HttpContext context, IDocumentWriter writer, CancellationToken cancellationToken,
+            string errorMessage, int httpStatusCode = 400 /* BadRequest */)
         {
             var result = new ExecutionResult
             {
@@ -142,7 +186,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             };
 
             context.Response.ContentType = "application/json";
-            context.Response.StatusCode = 400; // Bad Request
+            context.Response.StatusCode = httpStatusCode;
 
             return writer.WriteAsync(context.Response.Body, result, cancellationToken);
         }
@@ -153,6 +197,19 @@ namespace GraphQL.Server.Transports.AspNetCore
             context.Response.StatusCode = 200; // OK
 
             return writer.WriteAsync(context.Response.Body, result, cancellationToken);
+        }
+
+        private async Task<GraphQLRequest> DeserializeFromGraphBodyAsync(Stream bodyStream)
+        {
+            // In this case, the query is the raw value in the POST body
+
+            // Do not explicitly or implicitly (via using, etc.) call dispose because StreamReader will dispose inner stream.
+            // This leads to the inability to use the stream further by other consumers/middlewares of the request processing
+            // pipeline. In fact, it is absolutely not dangerous not to dispose StreamReader as it does not perform any useful
+            // work except for the disposing inner stream.
+            var query = await new StreamReader(bodyStream).ReadToEndAsync().ConfigureAwait(false);
+
+            return new GraphQLRequest { Query = query };
         }
     }
 }

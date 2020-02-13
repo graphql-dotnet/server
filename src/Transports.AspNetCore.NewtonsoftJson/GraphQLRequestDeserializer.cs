@@ -15,7 +15,7 @@ namespace GraphQL.Server.Transports.AspNetCore.NewtonsoftJson
     /// <summary>
     /// Implementation of an <see cref="IGraphQLRequestDeserializer"/> that uses Newtonsoft.Json.
     /// </summary>
-    public class GraphQLRequestDeserializer : GraphQLRequestDeserializerBase, IGraphQLRequestDeserializer
+    public class GraphQLRequestDeserializer : IGraphQLRequestDeserializer
     {
         private readonly JsonSerializer _serializer;
 
@@ -26,7 +26,7 @@ namespace GraphQL.Server.Transports.AspNetCore.NewtonsoftJson
             _serializer = JsonSerializer.Create(settings); // it's thread safe https://stackoverflow.com/questions/36186276/is-the-json-net-jsonserializer-threadsafe
         }
 
-        public override Task<GraphQLRequestDeserializationResult> DeserializeFromJsonBodyAsync(HttpRequest httpRequest, CancellationToken cancellationToken = default)
+        public Task<GraphQLRequestDeserializationResult> DeserializeFromJsonBodyAsync(HttpRequest httpRequest, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -63,11 +63,18 @@ namespace GraphQL.Server.Transports.AspNetCore.NewtonsoftJson
             return Task.FromResult(result);
         }
 
-        public override GraphQLRequest DeserializeFromQueryString(IQueryCollection qs) => ToGraphQLRequest(new InternalGraphQLRequest
+        public GraphQLRequest DeserializeFromQueryString(IQueryCollection qs) => ToGraphQLRequest(new InternalGraphQLRequest
         {
             Query = qs.TryGetValue(GraphQLRequest.QueryKey, out var queryValues) ? queryValues[0] : null,
             Variables = qs.TryGetValue(GraphQLRequest.VariablesKey, out var variablesValues) ? JObject.Parse(variablesValues[0]) : null,
             OperationName = qs.TryGetValue(GraphQLRequest.OperationNameKey, out var operationNameValues) ? operationNameValues[0] : null
+        });
+
+        public GraphQLRequest DeserializeFromFormBody(IFormCollection fc) => ToGraphQLRequest(new InternalGraphQLRequest
+        {
+            Query = fc.TryGetValue(GraphQLRequest.QueryKey, out var queryValues) ? queryValues[0] : null,
+            Variables = fc.TryGetValue(GraphQLRequest.VariablesKey, out var variablesValue) ? JObject.Parse(variablesValue[0]) : null,
+            OperationName = fc.TryGetValue(GraphQLRequest.OperationNameKey, out var operationNameValues) ? operationNameValues[0] : null
         });
 
         private static GraphQLRequest ToGraphQLRequest(InternalGraphQLRequest internalGraphQLRequest)

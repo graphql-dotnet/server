@@ -7,7 +7,7 @@ namespace GraphQL.Server.Transports.AspNetCore.NewtonsoftJson
     /// <summary>
     /// A type for deserializing directly into that suits the System.Text.Json serializer.
     /// </summary>
-    public class InternalGraphQLRequest
+    internal class InternalGraphQLRequest
     {
         [JsonProperty(GraphQLRequest.OperationNameKey)]
         public string OperationName { get; set; }

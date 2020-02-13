@@ -13,7 +13,7 @@ using System.Text.Json;
 namespace Samples.Server.Tests
 {
     /// <summary>
-    /// Shim between our internal <see cref="GraphQLRequest"/> representation
+    /// Shim and utility methods between our internal <see cref="GraphQLRequest"/> representation
     /// and how it should serialize over the wire.
     /// </summary>
     internal static class Serializer
@@ -35,19 +35,25 @@ namespace Samples.Server.Tests
         {
             var dictionary = new Dictionary<string, string>
             {
-                { "operationName", request.OperationName },
-                { "query", request.Query },
-                { "variables", ToJson(request.Inputs) }
+                { GraphQLRequest.OperationNameKey, request.OperationName },
+                { GraphQLRequest.QueryKey, request.Query }
             };
+
+            // To avoid writing "null" as the variables parameter, don't include it if it's null
+            if (request.Inputs != null)
+            {
+                dictionary[GraphQLRequest.VariablesKey] = ToJson(request.Inputs);
+            }
+
             return new FormUrlEncodedContent(dictionary).ReadAsStringAsync();
         }
 
         private static Dictionary<string, object> ToDictionary(this GraphQLRequest request)
-            => new Dictionary<string, object>
+            =>  new Dictionary<string, object>
             {
-                { "operationName", request.OperationName },
-                { "query", request.Query },
-                { "variables", request.Inputs }
+                { GraphQLRequest.OperationNameKey, request.OperationName },
+                { GraphQLRequest.QueryKey, request.Query },
+                { GraphQLRequest.VariablesKey, request.Inputs }
             };
     }
 }
