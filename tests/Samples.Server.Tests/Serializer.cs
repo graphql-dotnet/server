@@ -25,7 +25,7 @@ namespace Samples.Server.Tests
 
         public static string ToJson(object obj)
 #if NETCOREAPP2_2
-            => JsonConvert.SerializeObject(obj, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
+            => JsonConvert.SerializeObject(obj, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
 #else
             => JsonSerializer.Serialize(obj, new JsonSerializerOptions { IgnoreNullValues = true });
 #endif
