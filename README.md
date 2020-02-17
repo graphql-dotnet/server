@@ -33,6 +33,9 @@ The HTTP middleware needs an `IGraphQLRequestDeserializer` implementation:
 > `dotnet add package GraphQL.Server.Serialization.NewtonsoftJson`  
 > (or your own)
 
+For more information on how to migrate from Newtonsoft.Json to System.Text.Json see
+[this article](https://docs.microsoft.com/en-us/dotnet/standard/serialization/system-text-json-migrate-from-newtonsoft-how-to).
+
 For the WebSocket subscription protocol (depends on above) middleware:
 >`dotnet add package GraphQL.Server.Transports.WebSockets`
 
