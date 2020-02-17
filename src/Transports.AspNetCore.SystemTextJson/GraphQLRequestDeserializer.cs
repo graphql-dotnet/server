@@ -86,6 +86,9 @@ namespace GraphQL.Server.Transports.AspNetCore.SystemTextJson
                 cancellationToken.ThrowIfCancellationRequested();
 
                 var result = await reader.ReadAsync(cancellationToken);
+
+                cancellationToken.ThrowIfCancellationRequested();
+
                 var buffer = result.Buffer;
 
                 if (DetermineTokenType(buffer, out var tokenType))
