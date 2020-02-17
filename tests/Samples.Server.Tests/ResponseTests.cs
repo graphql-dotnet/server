@@ -137,6 +137,7 @@ namespace Samples.Server.Tests
         [Theory]
         [InlineData(RequestType.Get)]
         [InlineData(RequestType.PostWithJson)]
+        [InlineData(RequestType.PostWithGraph)]
         [InlineData(RequestType.PostWithForm)]
         public async Task Serializer_Should_Handle_Variables(RequestType requestType)
         {
@@ -154,6 +155,7 @@ namespace Samples.Server.Tests
         [Theory]
         [InlineData(RequestType.Get)]
         [InlineData(RequestType.PostWithJson)]
+        [InlineData(RequestType.PostWithGraph)]
         [InlineData(RequestType.PostWithForm)]
         public async Task Serializer_Should_Handle_Complex_Variable(RequestType requestType)
         {
@@ -171,6 +173,7 @@ namespace Samples.Server.Tests
         [Theory]
         [InlineData(RequestType.Get)]
         [InlineData(RequestType.PostWithJson)]
+        [InlineData(RequestType.PostWithGraph)]
         [InlineData(RequestType.PostWithForm)]
         public async Task Serializer_Should_Handle_Empty_Variables(RequestType requestType)
         {

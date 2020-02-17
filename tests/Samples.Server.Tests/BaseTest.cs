@@ -15,6 +15,8 @@ namespace Samples.Server.Tests
 {
     public abstract class BaseTest : IDisposable
     {
+        private const string GRAPHQL_URL = "graphql";
+
         protected BaseTest()
         {
 #if NETCOREAPP2_2
@@ -35,13 +37,25 @@ namespace Samples.Server.Tests
 
         protected Task<HttpResponseMessage> SendRequestAsync(HttpMethod httpMethod, HttpContent httpContent)
         {
-            var request = new HttpRequestMessage(httpMethod, "graphql")
+            var request = new HttpRequestMessage(httpMethod, GRAPHQL_URL)
             {
                 Content = httpContent
             };
             return Client.SendAsync(request);
         }
 
+        /// <summary>
+        /// Sends a gql request to the server.
+        /// </summary>
+        /// <param name="request">Request details.</param>
+        /// <param name="requestType">Request type.</param>
+        /// <param name="queryStringOverride">
+        /// Optional override request details to be passed via the URL query string.
+        /// Used to facilitate testing of query string values over body content.
+        /// </param>
+        /// <returns>
+        /// Raw response as a string of JSON.
+        /// </returns>
         protected async Task<string> SendRequestAsync(GraphQLRequest request, RequestType requestType,
             GraphQLRequest queryStringOverride = null)
         {
@@ -49,8 +63,13 @@ namespace Samples.Server.Tests
             // https://graphql.org/learn/serving-over-http/
             // https://github.com/graphql/express-graphql/blob/master/src/index.js
 
-            string url = "graphql";
-            if (queryStringOverride != null)
+            // Build a url to call the api with
+            var url = GRAPHQL_URL;
+
+            // If query string override request details are provided,
+            // use it where valid. For PostWithGraph, this is handled in its own part of the next
+            // switch statement as it needs to pass its own query strings for just the `request`.
+            if (queryStringOverride != null && requestType != RequestType.PostWithGraph)
             {
                 if (requestType == RequestType.Get)
                 {
@@ -64,26 +83,40 @@ namespace Samples.Server.Tests
                 url += "?" + await Serializer.ToQueryStringParamsAsync(queryStringOverride);
             }
 
+            string urlWithParams;
             HttpResponseMessage response;
+
+            // Handle different request types as necessary
             switch (requestType)
             {
                 case RequestType.Get:
-                    var urlWithParams = url + "?" + await Serializer.ToQueryStringParamsAsync(request);
+                    // Details passed in query string
+                    urlWithParams = url + "?" + await Serializer.ToQueryStringParamsAsync(request);
                     response = await Client.GetAsync(urlWithParams);
                     break;
 
                 case RequestType.PostWithJson:
+                    // Details passed in body content as JSON, with url query string params also allowed
                     var json = Serializer.ToJson(request);
                     var jsonContent = new StringContent(json, Encoding.UTF8, MediaType.Json);
                     response = await Client.PostAsync(url, jsonContent);
                     break;
 
                 case RequestType.PostWithGraph:
+                    // Query in body content (raw), operationName and variables in query string params,
+                    // but take the overrides as a priority to facilitate the tests that use it
+                    urlWithParams = GRAPHQL_URL + "?" + await Serializer.ToQueryStringParamsAsync(new GraphQLRequest
+                    {
+                        Query = queryStringOverride?.Query,
+                        OperationName = queryStringOverride?.OperationName ?? request.OperationName,
+                        Inputs = queryStringOverride?.Inputs ?? request.Inputs
+                    });
                     var graphContent = new StringContent(request.Query, Encoding.UTF8, MediaType.GraphQL);
-                    response = await Client.PostAsync(url, graphContent);
+                    response = await Client.PostAsync(urlWithParams, graphContent);
                     break;
 
                 case RequestType.PostWithForm:
+                    // Details passed in form body as form url encoded, with url query string params also allowed
                     var formContent = Serializer.ToFormUrlEncodedContent(request);
                     response = await Client.PostAsync(url, formContent);
                     break;
