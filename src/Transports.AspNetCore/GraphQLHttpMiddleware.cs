@@ -86,7 +86,7 @@ namespace GraphQL.Server.Transports.AspNetCore
 
                     case MediaType.Form:
                         var formCollection = await httpRequest.ReadFormAsync().ConfigureAwait(false);
-                        bodyGQLRequest = _deserializer.DeserializeFromFormBody(formCollection);
+                        bodyGQLRequest = DeserializeFromFormBody(formCollection);
                         break;
 
                     default:
@@ -101,7 +101,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             if (bodyGQLBatchRequest == null)
             {
                 // Parse URL
-                var urlGQLRequest = _deserializer.DeserializeFromQueryString(httpRequest.Query);
+                var urlGQLRequest = DeserializeFromQueryString(httpRequest.Query);
 
                 gqlRequest = new GraphQLRequest
                 {
@@ -189,6 +189,31 @@ namespace GraphQL.Server.Transports.AspNetCore
 
             return writer.WriteAsync(context.Response.Body, result, cancellationToken);
         }
+
+        /// <summary>
+        /// Deserializes the query string of the request URL, into a <see cref="GraphQLRequest".
+        /// </summary>
+        /// <param name="queryCollection">Request URL's query collection.</param>
+        /// <returns>Deserialized GraphQL request.</returns>
+        private GraphQLRequest DeserializeFromQueryString(IQueryCollection queryCollection) => new GraphQLRequest
+        {
+            Query = queryCollection.TryGetValue(GraphQLRequest.QueryKey, out var queryValues) ? queryValues[0] : null,
+            Inputs = queryCollection.TryGetValue(GraphQLRequest.VariablesKey, out var variablesValues) ? _deserializer.DeserializeInputsFromJson(variablesValues[0]) : null,
+            OperationName = queryCollection.TryGetValue(GraphQLRequest.OperationNameKey, out var operationNameValues) ? operationNameValues[0] : null
+        };
+
+        /// <summary>
+        /// Deserializes the body of the request, containing form collection content,
+        /// into a <see cref="GraphQLRequest".
+        /// </summary>
+        /// <param name="formCollection">Request body's parsed form collection.</param>
+        /// <returns>Deserialized GraphQL request.</returns>
+        private GraphQLRequest DeserializeFromFormBody(IFormCollection formCollection) => new GraphQLRequest
+        {
+            Query = formCollection.TryGetValue(GraphQLRequest.QueryKey, out var queryValues) ? queryValues[0] : null,
+            Inputs = formCollection.TryGetValue(GraphQLRequest.VariablesKey, out var variablesValue) ? _deserializer.DeserializeInputsFromJson(variablesValue[0]) : null,
+            OperationName = formCollection.TryGetValue(GraphQLRequest.OperationNameKey, out var operationNameValues) ? operationNameValues[0] : null
+        };
 
         private async Task<GraphQLRequest> DeserializeFromGraphBodyAsync(Stream bodyStream)
         {

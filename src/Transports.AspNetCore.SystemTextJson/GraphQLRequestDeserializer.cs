@@ -66,7 +66,7 @@ namespace GraphQL.Server.Transports.AspNetCore.SystemTextJson
             }
         }
 
-        private static async ValueTask<JsonTokenType> PeekJsonTokenTypeAsync(PipeReader reader, CancellationToken cancellationToken = default)
+        private static async ValueTask<JsonTokenType> PeekJsonTokenTypeAsync(PipeReader reader, CancellationToken cancellationToken)
         {
             // Separate method so that we can use the ref struct
             static bool DetermineTokenType(in ReadOnlySequence<byte> buffer, out JsonTokenType jsonToken)
@@ -109,19 +109,7 @@ namespace GraphQL.Server.Transports.AspNetCore.SystemTextJson
             }
         }
 
-        public GraphQLRequest DeserializeFromQueryString(IQueryCollection qs) => new GraphQLRequest
-        {
-            Query = qs.TryGetValue(GraphQLRequest.QueryKey, out var queryValues) ? queryValues[0] : null,
-            Inputs = qs.TryGetValue(GraphQLRequest.VariablesKey, out var variablesValues) ? variablesValues[0]?.ToInputs() : null,
-            OperationName = qs.TryGetValue(GraphQLRequest.OperationNameKey, out var operationNameValues) ? operationNameValues[0] : null
-        };
-
-        public GraphQLRequest DeserializeFromFormBody(IFormCollection fc) => new GraphQLRequest
-        {
-            Query = fc.TryGetValue(GraphQLRequest.QueryKey, out var queryValues) ? queryValues[0] : null,
-            Inputs = fc.TryGetValue(GraphQLRequest.VariablesKey, out var variablesValue) ? variablesValue[0]?.ToInputs() : null,
-            OperationName = fc.TryGetValue(GraphQLRequest.OperationNameKey, out var operationNameValues) ? operationNameValues[0] : null
-        };
+        public Inputs DeserializeInputsFromJson(string json) => json?.ToInputs();
 
         private static GraphQLRequest ToGraphQLRequest(InternalGraphQLRequest internalGraphQLRequest)
             => new GraphQLRequest

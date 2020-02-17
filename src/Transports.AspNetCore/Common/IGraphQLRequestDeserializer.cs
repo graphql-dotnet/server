@@ -1,6 +1,4 @@
-using GraphQL.Server.Common;
 using Microsoft.AspNetCore.Http;
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -26,18 +24,10 @@ namespace GraphQL.Server.Transports.AspNetCore.Common
         Task<GraphQLRequestDeserializationResult> DeserializeFromJsonBodyAsync(HttpRequest httpRequest, CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// Deserializes the query string of the request URL, into a <see cref="GraphQLRequest".
+        /// Deserializes inputs (a.k.a. variables) from a JSON-encoded string.
         /// </summary>
-        /// <param name="queryCollection">Request URL's query collection.</param>
-        /// <returns>Deserialized GraphQL request.</returns>
-        GraphQLRequest DeserializeFromQueryString(IQueryCollection queryCollection);
-
-        /// <summary>
-        /// Deserializes the body of the request, containing form collection content,
-        /// into a <see cref="GraphQLRequest".
-        /// </summary>
-        /// <param name="formCollection">Request body's parsed form collection.</param>
-        /// <returns>Deserialized GraphQL request.</returns>
-        GraphQLRequest DeserializeFromFormBody(IFormCollection formCollection);
+        /// <param name="json">JSON-encoded string.</param>
+        /// <returns>Inputs.</returns>
+        Inputs DeserializeInputsFromJson(string json);
     }
 }
