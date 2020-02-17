@@ -7,7 +7,7 @@ namespace GraphQL.Server.Transports.AspNetCore.SystemTextJson
     /// <summary>
     /// A type for deserializing directly into that suits the System.Text.Json serializer.
     /// </summary>
-    internal class InternalGraphQLRequest
+    internal sealed class InternalGraphQLRequest
     {
         [JsonPropertyName(GraphQLRequest.QueryKey)]
         public string Query { get; set; }
