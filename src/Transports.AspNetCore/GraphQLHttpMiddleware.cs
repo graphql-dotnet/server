@@ -16,7 +16,7 @@ namespace GraphQL.Server.Transports.AspNetCore
     public class GraphQLHttpMiddleware<TSchema>
         where TSchema : ISchema
     {
-        private const string _docsUrl = "See: http://graphql.org/learn/serving-over-http/.";
+        private const string DOCS_URL = "See: http://graphql.org/learn/serving-over-http/.";
 
         private readonly RequestDelegate _next;
         private readonly PathString _path;
@@ -52,7 +52,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             {
                 httpResponse.Headers["Allow"] = "GET, POST";
                 await WriteErrorResponseAsync(httpResponse, writer, cancellationToken,
-                    $"Invalid HTTP method. Only GET and POST are supported. {_docsUrl}",
+                    $"Invalid HTTP method. Only GET and POST are supported. {DOCS_URL}",
                     httpStatusCode: 405).ConfigureAwait(false);
             }
 
@@ -90,7 +90,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                         break;
 
                     default:
-                        await WriteErrorResponseAsync(httpResponse, writer, cancellationToken, $"Invalid 'Content-Type' header: non-supported media type. Must be of '{MediaType.Json}', '{MediaType.GraphQL}' or '{MediaType.Form}'. {_docsUrl}").ConfigureAwait(false);
+                        await WriteErrorResponseAsync(httpResponse, writer, cancellationToken, $"Invalid 'Content-Type' header: non-supported media type. Must be of '{MediaType.Json}', '{MediaType.GraphQL}' or '{MediaType.Form}'. {DOCS_URL}").ConfigureAwait(false);
                         return;
                 }
             }
