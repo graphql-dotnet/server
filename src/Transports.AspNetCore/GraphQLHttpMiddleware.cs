@@ -51,7 +51,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             if (!isGet && !isPost)
             {
                 httpResponse.Headers["Allow"] = "GET, POST";
-                await WriteErrorResponseAsync(context, writer, cancellationToken,
+                await WriteErrorResponseAsync(httpResponse, writer, cancellationToken,
                     $"Invalid HTTP method. Only GET and POST are supported. {_docsUrl}",
                     httpStatusCode: 405).ConfigureAwait(false);
             }
@@ -63,7 +63,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             {
                 if (!MediaTypeHeaderValue.TryParse(httpRequest.ContentType, out var mediaTypeHeader))
                 {
-                    await WriteErrorResponseAsync(context, writer, cancellationToken, $"Invalid 'Content-Type' header: value '{httpRequest.ContentType}' could not be parsed.").ConfigureAwait(false);
+                    await WriteErrorResponseAsync(httpResponse, writer, cancellationToken, $"Invalid 'Content-Type' header: value '{httpRequest.ContentType}' could not be parsed.").ConfigureAwait(false);
                     return;
                 }
 
@@ -73,7 +73,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                         var deserializationResult = await _deserializer.DeserializeFromJsonBodyAsync(httpRequest, cancellationToken).ConfigureAwait(false);
                         if (!deserializationResult.IsSuccessful)
                         {
-                            await WriteErrorResponseAsync(context, writer, cancellationToken, "Body text could not be parsed. Body text should start with '{' for normal graphql query or with '[' for batched query.").ConfigureAwait(false);
+                            await WriteErrorResponseAsync(httpResponse, writer, cancellationToken, "Body text could not be parsed. Body text should start with '{' for normal graphql query or with '[' for batched query.").ConfigureAwait(false);
                             return;
                         }
                         bodyGQLRequest = deserializationResult.Single;
@@ -90,7 +90,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                         break;
 
                     default:
-                        await WriteErrorResponseAsync(context, writer, cancellationToken, $"Invalid 'Content-Type' header: non-supported media type. Must be of '{MediaType.Json}' or '{MediaType.GraphQL}'. {_docsUrl}").ConfigureAwait(false);
+                        await WriteErrorResponseAsync(httpResponse, writer, cancellationToken, $"Invalid 'Content-Type' header: non-supported media type. Must be of '{MediaType.Json}' or '{MediaType.GraphQL}'. {_docsUrl}").ConfigureAwait(false);
                         return;
                 }
             }
@@ -127,7 +127,7 @@ namespace GraphQL.Server.Transports.AspNetCore
 
                 await RequestExecutedAsync(new GraphQLRequestExecutionResult(gqlRequest, result, stopwatch.Elapsed));
 
-                await WriteResponseAsync(context, writer, cancellationToken, result).ConfigureAwait(false);
+                await WriteResponseAsync(httpResponse, writer, cancellationToken, result).ConfigureAwait(false);
             }
             // Execute multiple graphql requests in one batch
             else
@@ -145,7 +145,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                     executionResults[i] = result;
                 }
 
-                await WriteResponseAsync(context, writer, cancellationToken, executionResults).ConfigureAwait(false);
+                await WriteResponseAsync(httpResponse, writer, cancellationToken, executionResults).ConfigureAwait(false);
             }
         }
 
@@ -165,7 +165,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             return Task.CompletedTask;
         }
 
-        private Task WriteErrorResponseAsync(HttpContext context, IDocumentWriter writer, CancellationToken cancellationToken,
+        private Task WriteErrorResponseAsync(HttpResponse httpResponse, IDocumentWriter writer, CancellationToken cancellationToken,
             string errorMessage, int httpStatusCode = 400 /* BadRequest */)
         {
             var result = new ExecutionResult
@@ -176,25 +176,20 @@ namespace GraphQL.Server.Transports.AspNetCore
                 }
             };
 
-            context.Response.ContentType = "application/json";
-            context.Response.StatusCode = httpStatusCode;
+            httpResponse.ContentType = "application/json";
+            httpResponse.StatusCode = httpStatusCode;
 
-            return writer.WriteAsync(context.Response.Body, result, cancellationToken);
+            return writer.WriteAsync(httpResponse.Body, result, cancellationToken);
         }
 
-        private Task WriteResponseAsync<TResult>(HttpContext context, IDocumentWriter writer, CancellationToken cancellationToken, TResult result)
+        private Task WriteResponseAsync<TResult>(HttpResponse httpResponse, IDocumentWriter writer, CancellationToken cancellationToken, TResult result)
         {
-            context.Response.ContentType = "application/json";
-            context.Response.StatusCode = 200; // OK
+            httpResponse.ContentType = "application/json";
+            httpResponse.StatusCode = 200; // OK
 
-            return writer.WriteAsync(context.Response.Body, result, cancellationToken);
+            return writer.WriteAsync(httpResponse.Body, result, cancellationToken);
         }
 
-        /// <summary>
-        /// Deserializes the query string of the request URL, into a <see cref="GraphQLRequest".
-        /// </summary>
-        /// <param name="queryCollection">Request URL's query collection.</param>
-        /// <returns>Deserialized GraphQL request.</returns>
         private GraphQLRequest DeserializeFromQueryString(IQueryCollection queryCollection) => new GraphQLRequest
         {
             Query = queryCollection.TryGetValue(GraphQLRequest.QueryKey, out var queryValues) ? queryValues[0] : null,
@@ -202,12 +197,6 @@ namespace GraphQL.Server.Transports.AspNetCore
             OperationName = queryCollection.TryGetValue(GraphQLRequest.OperationNameKey, out var operationNameValues) ? operationNameValues[0] : null
         };
 
-        /// <summary>
-        /// Deserializes the body of the request, containing form collection content,
-        /// into a <see cref="GraphQLRequest".
-        /// </summary>
-        /// <param name="formCollection">Request body's parsed form collection.</param>
-        /// <returns>Deserialized GraphQL request.</returns>
         private GraphQLRequest DeserializeFromFormBody(IFormCollection formCollection) => new GraphQLRequest
         {
             Query = formCollection.TryGetValue(GraphQLRequest.QueryKey, out var queryValues) ? queryValues[0] : null,
