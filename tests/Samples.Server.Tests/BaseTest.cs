@@ -51,16 +51,20 @@ namespace Samples.Server.Tests
                     var url = $"{requestUri}?{queryString}";
                     response = await Client.GetAsync(url);
                     break;
+
                 case RequestType.PostWithJson:
                     var jsonContent = Serializer.ToJson(request);
                     response = await Client.PostAsync(requestUri, new StringContent(jsonContent, Encoding.UTF8, MediaType.Json));
                     break;
+
                 case RequestType.PostWithGraph:
                     response = await Client.PostAsync(requestUri, new StringContent(request.Query, Encoding.UTF8, MediaType.GraphQL));
                     break;
+
                 case RequestType.PostWithForm:
                     response = await Client.PostAsync(requestUri, Serializer.ToFormUrlEncodedContent(request));
                     break;
+
                 default:
                     throw new NotImplementedException();
             }
