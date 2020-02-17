@@ -90,7 +90,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                         break;
 
                     default:
-                        await WriteErrorResponseAsync(httpResponse, writer, cancellationToken, $"Invalid 'Content-Type' header: non-supported media type. Must be of '{MediaType.Json}' or '{MediaType.GraphQL}'. {_docsUrl}").ConfigureAwait(false);
+                        await WriteErrorResponseAsync(httpResponse, writer, cancellationToken, $"Invalid 'Content-Type' header: non-supported media type. Must be of '{MediaType.Json}', '{MediaType.GraphQL}' or '{MediaType.Form}'. {_docsUrl}").ConfigureAwait(false);
                         return;
                 }
             }
