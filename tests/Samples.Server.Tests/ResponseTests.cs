@@ -90,7 +90,7 @@ namespace Samples.Server.Tests
             new object[]
             {
                 HttpMethod.Put,
-                _simpleQueryContent,
+                new StringContent(Serializer.ToJson(new GraphQLRequest { Query = "query { __schema { queryType { name } } }" }), Encoding.UTF8, "application/json"),
                 HttpStatusCode.MethodNotAllowed,
                 "Invalid HTTP method. Only GET and POST are supported. See: http://graphql.org/learn/serving-over-http/.",
             },
@@ -102,7 +102,7 @@ namespace Samples.Server.Tests
             new object[]
             {
                 HttpMethod.Post,
-                new StringContent(_simpleQueryJson, Encoding.UTF8, "something/unknown"),
+                new StringContent(Serializer.ToJson(new GraphQLRequest { Query = "query { __schema { queryType { name } } }" }), Encoding.UTF8, "something/unknown"),
                 HttpStatusCode.BadRequest,
                 "Invalid 'Content-Type' header: non-supported media type. Must be of 'application/json', 'application/graphql' or 'application/x-www-form-urlencoded'. See: http://graphql.org/learn/serving-over-http/."
             },
@@ -116,9 +116,6 @@ namespace Samples.Server.Tests
                 "Body text could not be parsed. Body text should start with '{' for normal graphql query or with '[' for batched query."
             }
         };
-
-        private static string _simpleQueryJson = Serializer.ToJson(new GraphQLRequest { Query = "query one { __schema { queryType { name } } }" });
-        private static StringContent _simpleQueryContent = new StringContent(_simpleQueryJson, Encoding.UTF8, "application/json");
 
         [Theory]
         [InlineData(RequestType.Get)]
