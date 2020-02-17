@@ -63,19 +63,19 @@ namespace GraphQL.Server.Transports.AspNetCore.NewtonsoftJson
             return Task.FromResult(result);
         }
 
-        public GraphQLRequest DeserializeFromQueryString(IQueryCollection qs) => ToGraphQLRequest(new InternalGraphQLRequest
+        public GraphQLRequest DeserializeFromQueryString(IQueryCollection qs) => new GraphQLRequest
         {
             Query = qs.TryGetValue(GraphQLRequest.QueryKey, out var queryValues) ? queryValues[0] : null,
-            Variables = qs.TryGetValue(GraphQLRequest.VariablesKey, out var variablesValues) ? JObject.Parse(variablesValues[0]) : null,
+            Inputs = qs.TryGetValue(GraphQLRequest.VariablesKey, out var variablesValues) ? variablesValues[0]?.ToInputs() : null,
             OperationName = qs.TryGetValue(GraphQLRequest.OperationNameKey, out var operationNameValues) ? operationNameValues[0] : null
-        });
+        };
 
-        public GraphQLRequest DeserializeFromFormBody(IFormCollection fc) => ToGraphQLRequest(new InternalGraphQLRequest
+        public GraphQLRequest DeserializeFromFormBody(IFormCollection fc) => new GraphQLRequest
         {
             Query = fc.TryGetValue(GraphQLRequest.QueryKey, out var queryValues) ? queryValues[0] : null,
-            Variables = fc.TryGetValue(GraphQLRequest.VariablesKey, out var variablesValue) ? JObject.Parse(variablesValue[0]) : null,
+            Inputs = fc.TryGetValue(GraphQLRequest.VariablesKey, out var variablesValue) ? variablesValue[0]?.ToInputs() : null,
             OperationName = fc.TryGetValue(GraphQLRequest.OperationNameKey, out var operationNameValues) ? operationNameValues[0] : null
-        });
+        };
 
         private static GraphQLRequest ToGraphQLRequest(InternalGraphQLRequest internalGraphQLRequest)
             => new GraphQLRequest
