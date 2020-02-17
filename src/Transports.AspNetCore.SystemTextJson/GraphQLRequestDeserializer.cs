@@ -42,7 +42,7 @@ namespace GraphQL.Server.Transports.AspNetCore.SystemTextJson
             }
             catch (JsonException)
             {
-                // Invalid request content, assign None so it falls through to WasSuccessful = false
+                // Invalid request content, assign None so it falls through to IsSuccessful = false
                 jsonTokenType = JsonTokenType.None;
             }
 
