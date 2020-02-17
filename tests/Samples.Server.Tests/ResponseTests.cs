@@ -45,9 +45,7 @@ namespace Samples.Server.Tests
                 OperationName = "two"
             };
 
-            var queryStringParams = await Serializer.ToQueryStringParamsAsync(requestB);
-
-            var response = await SendRequestAsync(request, requestType, requestUri: $"graphql?{queryStringParams}");
+            var response = await SendRequestAsync(request, requestType, queryStringOverride: requestB);
             response.ShouldBeEquivalentJson(
                 @"{""data"":{""addMessage"":{""sentAt"":""2020-01-01"",""content"":""two content"",""from"":{""id"":""1""}}}}",
                 ignoreExtensions: true);

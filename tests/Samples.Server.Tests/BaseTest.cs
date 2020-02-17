@@ -39,30 +39,50 @@ namespace Samples.Server.Tests
             return await response.Content.ReadAsStringAsync();
         }
 
-        protected async Task<string> SendRequestAsync(GraphQLRequest request, RequestType requestType, string requestUri = "graphql")
+        protected async Task<string> SendRequestAsync(GraphQLRequest request, RequestType requestType,
+            GraphQLRequest queryStringOverride = null)
         {
             // Different servings over HTTP:
             // https://graphql.org/learn/serving-over-http/
+            // https://github.com/graphql/express-graphql/blob/master/src/index.js
+
+            string url = "graphql";
+            if (queryStringOverride != null)
+            {
+                if (requestType == RequestType.Get)
+                {
+                    throw new ArgumentException(
+                        $"It's not valid to set a {nameof(queryStringOverride)} " +
+                        $"with a {nameof(requestType)} of {requestType} as the {nameof(request)} " +
+                        $"will already be set in the querystring",
+                        nameof(queryStringOverride));
+                }
+
+                url += "?" + await Serializer.ToQueryStringParamsAsync(queryStringOverride);
+            }
+
             HttpResponseMessage response;
             switch (requestType)
             {
                 case RequestType.Get:
-                    var queryString = await Serializer.ToQueryStringParamsAsync(request);
-                    var url = $"{requestUri}?{queryString}";
-                    response = await Client.GetAsync(url);
+                    var urlWithParams = url + "?" + await Serializer.ToQueryStringParamsAsync(request);
+                    response = await Client.GetAsync(urlWithParams);
                     break;
 
                 case RequestType.PostWithJson:
-                    var jsonContent = Serializer.ToJson(request);
-                    response = await Client.PostAsync(requestUri, new StringContent(jsonContent, Encoding.UTF8, MediaType.Json));
+                    var json = Serializer.ToJson(request);
+                    var jsonContent = new StringContent(json, Encoding.UTF8, MediaType.Json);
+                    response = await Client.PostAsync(url, jsonContent);
                     break;
 
                 case RequestType.PostWithGraph:
-                    response = await Client.PostAsync(requestUri, new StringContent(request.Query, Encoding.UTF8, MediaType.GraphQL));
+                    var graphContent = new StringContent(request.Query, Encoding.UTF8, MediaType.GraphQL);
+                    response = await Client.PostAsync(url, graphContent);
                     break;
 
                 case RequestType.PostWithForm:
-                    response = await Client.PostAsync(requestUri, Serializer.ToFormUrlEncodedContent(request));
+                    var formContent = Serializer.ToFormUrlEncodedContent(request);
+                    response = await Client.PostAsync(url, formContent);
                     break;
 
                 default:
