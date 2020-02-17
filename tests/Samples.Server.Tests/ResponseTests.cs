@@ -91,7 +91,7 @@ namespace Samples.Server.Tests
             {
                 HttpMethod.Put,
                 _simpleQueryContent,
-                (int)HttpStatusCode.MethodNotAllowed,
+                HttpStatusCode.MethodNotAllowed,
                 "Invalid HTTP method. Only GET and POST are supported. See: http://graphql.org/learn/serving-over-http/.",
             },
 
@@ -103,7 +103,7 @@ namespace Samples.Server.Tests
             {
                 HttpMethod.Post,
                 new StringContent(_simpleQueryJson, Encoding.UTF8, "something/unknown"),
-                (int)HttpStatusCode.BadRequest,
+                HttpStatusCode.BadRequest,
                 "Invalid 'Content-Type' header: non-supported media type. Must be of 'application/json', 'application/graphql' or 'application/x-www-form-urlencoded'. See: http://graphql.org/learn/serving-over-http/."
             },
 
@@ -112,7 +112,7 @@ namespace Samples.Server.Tests
             {
                 HttpMethod.Post,
                 new StringContent("Oops", Encoding.UTF8, "application/json"),
-                (int)HttpStatusCode.BadRequest,
+                HttpStatusCode.BadRequest,
                 "Body text could not be parsed. Body text should start with '{' for normal graphql query or with '[' for batched query."
             }
         };
