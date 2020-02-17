@@ -135,12 +135,12 @@ namespace GraphQL.Server.Transports.AspNetCore
                 var executionResults = new ExecutionResult[bodyGQLBatchRequest.Length];
                 for (int i = 0; i < bodyGQLBatchRequest.Length; ++i)
                 {
-                    var request = bodyGQLBatchRequest[i];
+                    var gqlRequestInBatch = bodyGQLBatchRequest[i];
 
                     var stopwatch = ValueStopwatch.StartNew();
-                    var result = await ExecuteRequestAsync(request, userContext, executer, cancellationToken);
+                    var result = await ExecuteRequestAsync(gqlRequestInBatch, userContext, executer, cancellationToken);
 
-                    await RequestExecutedAsync(new GraphQLRequestExecutionResult(gqlRequest, result, stopwatch.Elapsed, i));
+                    await RequestExecutedAsync(new GraphQLRequestExecutionResult(gqlRequestInBatch, result, stopwatch.Elapsed, i));
 
                     executionResults[i] = result;
                 }
