@@ -53,7 +53,9 @@ namespace GraphQL.Server.Transports.AspNetCore
                 httpResponse.Headers["Allow"] = "GET, POST";
                 await WriteErrorResponseAsync(httpResponse, writer, cancellationToken,
                     $"Invalid HTTP method. Only GET and POST are supported. {DOCS_URL}",
-                    httpStatusCode: 405).ConfigureAwait(false);
+                    httpStatusCode: 405 // Method Not Allowed
+                ).ConfigureAwait(false);
+                return;
             }
 
             // Parse POST body

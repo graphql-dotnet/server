@@ -33,10 +33,13 @@ namespace Samples.Server.Tests
             Client = Server.CreateClient();
         }
 
-        protected async Task<string> SendRequestAsync(string text)
+        protected Task<HttpResponseMessage> SendRequestAsync(HttpMethod httpMethod, HttpContent httpContent)
         {
-            var response = await Client.PostAsync("graphql", new StringContent(text, Encoding.UTF8, "application/json"));
-            return await response.Content.ReadAsStringAsync();
+            var request = new HttpRequestMessage(httpMethod, "graphql")
+            {
+                Content = httpContent
+            };
+            return Client.SendAsync(request);
         }
 
         protected async Task<string> SendRequestAsync(GraphQLRequest request, RequestType requestType,

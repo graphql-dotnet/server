@@ -2,6 +2,11 @@ using System.Threading.Tasks;
 using Xunit;
 using GraphQL.Server.Common;
 using GraphQL;
+using Shouldly;
+using System.Net.Http;
+using System.Text;
+using System.Net;
+using System.Collections.Generic;
 
 #if NETCOREAPP2_2
 using GraphQL.NewtonsoftJson;
@@ -25,6 +30,9 @@ namespace Samples.Server.Tests
             response.ShouldBeEquivalentJson(@"{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}}", ignoreExtensions: true);
         }
 
+        /// <summary>
+        /// Tests that POST type requests are overridden by query string params. 
+        /// </summary>
         [Theory]
         [InlineData(RequestType.PostWithJson)]
         [InlineData(RequestType.PostWithGraph)]
@@ -62,14 +70,55 @@ namespace Samples.Server.Tests
             response.ShouldBeEquivalentJson(@"[{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}},{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}},{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}}]", ignoreExtensions: true);
         }
 
-        [Fact]
-        public async Task Wrong_Query_Should_Return_Error()
+        [Theory]
+        [MemberData(nameof(WrongQueryData))]
+        public async Task Wrong_Query_Should_Return_Error(HttpMethod httpMethod, HttpContent httpContent,
+            HttpStatusCode expectedStatusCode, string expectedErrorMsg)
         {
-            var response = await SendRequestAsync("Oops");
-            var expected = @"{""errors"":[{""message"":""Body text could not be parsed. Body text should start with '{' for normal graphql query or with '[' for batched query.""}]}";
+            var response = await SendRequestAsync(httpMethod, httpContent);
+            var expected = @"{""errors"":[{""message"":""" + expectedErrorMsg + @"""}]}";
+            
+            response.StatusCode.ShouldBe(expectedStatusCode);
 
-            response.ShouldBeEquivalentJson(expected);
+            var content = await response.Content.ReadAsStringAsync();
+            content.ShouldBeEquivalentJson(expected);
         }
+
+        public static IEnumerable<object[]> WrongQueryData => new object[][]
+        {
+            // Methods other than GET or POST shouldn't be allowed
+            new object[]
+            {
+                HttpMethod.Put,
+                _simpleQueryContent,
+                (int)HttpStatusCode.MethodNotAllowed,
+                "Invalid HTTP method. Only GET and POST are supported. See: http://graphql.org/learn/serving-over-http/.",
+            },
+
+            // POST with an invalid mimetype should be a bad request
+            // I couldn't manage to hit this, asp.net core kept rejecting it too early
+
+            // POST with unsupported mimetype should be a bad request
+            new object[]
+            {
+                HttpMethod.Post,
+                new StringContent(_simpleQueryJson, Encoding.UTF8, "something/unknown"),
+                (int)HttpStatusCode.BadRequest,
+                "Invalid 'Content-Type' header: non-supported media type. Must be of 'application/json', 'application/graphql' or 'application/x-www-form-urlencoded'. See: http://graphql.org/learn/serving-over-http/."
+            },
+
+            // POST with JSON mimetype that doesn't start with an object or array token should be a bad request
+            new object[]
+            {
+                HttpMethod.Post,
+                new StringContent("Oops", Encoding.UTF8, "application/json"),
+                (int)HttpStatusCode.BadRequest,
+                "Body text could not be parsed. Body text should start with '{' for normal graphql query or with '[' for batched query."
+            }
+        };
+
+        private static string _simpleQueryJson = Serializer.ToJson(new GraphQLRequest { Query = "query one { __schema { queryType { name } } }" });
+        private static StringContent _simpleQueryContent = new StringContent(_simpleQueryJson, Encoding.UTF8, "application/json");
 
         [Theory]
         [InlineData(RequestType.Get)]
