@@ -48,7 +48,7 @@ namespace GraphQL.Server.Transports.AspNetCore.SystemTextJson
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            var result = new GraphQLRequestDeserializationResult() { IsSuccessful = true };
+            var result = new GraphQLRequestDeserializationResult { IsSuccessful = true };
             switch (jsonTokenType)
             {
                 case JsonTokenType.StartObject:
