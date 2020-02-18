@@ -74,33 +74,21 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         private int _positionOffset;
         private long _position;
 
-        public override bool CanRead
-        {
-            get { return true; }
-        }
+        public override bool CanRead => true;
 
-        public override bool CanSeek
-        {
-            get { return true; }
-        }
+        public override bool CanSeek => true;
 
-        public override bool CanWrite
-        {
-            get { return true; }
-        }
+        public override bool CanWrite => true;
 
         public override void Flush()
         {
         }
 
-        public override long Length
-        {
-            get { return _chunks.Sum(c => c.Length); }
-        }
+        public override long Length => _chunks.Sum(c => c.Length);
 
         public override long Position
         {
-            get { return _position; }
+            get => _position;
             set
             {
                 _position = value;
