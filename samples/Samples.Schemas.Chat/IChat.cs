@@ -36,7 +36,7 @@ namespace GraphQL.Samples.Schemas.Chat
 
         public Message AddMessage(ReceivedMessage message)
         {
-            if (!Users.TryGetValue(message.FromId, out var displayName))
+            if (!Users.TryGetValue(message.FromId, out string displayName))
             {
                 displayName = "(unknown)";
             }

@@ -53,7 +53,7 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
 
             var result = Validate(config);
 
-            var message = "";
+            string message = "";
             if (result.Errors?.Any() == true)
             {
                 message = string.Join(", ", result.Errors.Select(x => x.Message));

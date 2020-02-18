@@ -60,7 +60,7 @@ namespace GraphQL.Server.Ui.Voyager
             if (_pageModel == null)
                 _pageModel = new VoyagerPageModel(_options);
 
-            var data = Encoding.UTF8.GetBytes(_pageModel.Render());
+            byte[] data = Encoding.UTF8.GetBytes(_pageModel.Render());
             return httpResponse.Body.WriteAsync(data, 0, data.Length);
         }
     }

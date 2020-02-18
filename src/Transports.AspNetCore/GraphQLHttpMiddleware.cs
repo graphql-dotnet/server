@@ -46,8 +46,8 @@ namespace GraphQL.Server.Transports.AspNetCore
             var cancellationToken = GetCancellationToken(context);
 
             // GraphQL HTTP only supports GET and POST methods
-            var isGet = HttpMethods.IsGet(httpRequest.Method);
-            var isPost = HttpMethods.IsPost(httpRequest.Method);
+            bool isGet = HttpMethods.IsGet(httpRequest.Method);
+            bool isPost = HttpMethods.IsPost(httpRequest.Method);
             if (!isGet && !isPost)
             {
                 httpResponse.Headers["Allow"] = "GET, POST";
@@ -115,7 +115,7 @@ namespace GraphQL.Server.Transports.AspNetCore
 
             // Prepare context and execute
             var userContextBuilder = context.RequestServices.GetService<IUserContextBuilder>();
-            IDictionary<string, object> userContext = userContextBuilder == null
+            var userContext = userContextBuilder == null
                 ? new Dictionary<string, object>() // in order to allow resolvers to exchange their state through this object
                 : await userContextBuilder.BuildUserContext(context).ConfigureAwait(false);
 
@@ -214,7 +214,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             // This leads to the inability to use the stream further by other consumers/middlewares of the request processing
             // pipeline. In fact, it is absolutely not dangerous not to dispose StreamReader as it does not perform any useful
             // work except for the disposing inner stream.
-            var query = await new StreamReader(bodyStream).ReadToEndAsync().ConfigureAwait(false);
+            string query = await new StreamReader(bodyStream).ReadToEndAsync().ConfigureAwait(false);
 
             return new GraphQLRequest { Query = query };
         }

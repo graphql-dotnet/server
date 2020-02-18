@@ -86,7 +86,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
             }
 
             var tasks = new List<Task<AuthorizationResult>>(policyNames.Count);
-            foreach (var policyName in policyNames)
+            foreach (string policyName in policyNames)
             {
                 var task = _authorizationService.AuthorizeAsync(_httpContextAccessor.HttpContext.User, policyName);
                 tasks.Add(task);
@@ -134,7 +134,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
                     }
                     break;
 
-                case DenyAnonymousAuthorizationRequirement denyAnonymousAuthorizationRequirement:
+                case DenyAnonymousAuthorizationRequirement _:
                     stringBuilder.AppendLine("The current user must be authenticated.");
                     break;
 
