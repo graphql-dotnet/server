@@ -39,17 +39,17 @@ namespace Samples.Server.Tests
 
             if (request.OperationName != null)
             {
-                dictionary[GraphQLRequest.OperationNameKey] = request.OperationName;
+                dictionary[GraphQLRequest.OPERATION_NAME_KEY] = request.OperationName;
             }
 
             if (request.Query != null)
             {
-                dictionary[GraphQLRequest.QueryKey] = request.Query;
+                dictionary[GraphQLRequest.QUERY_KEY] = request.Query;
             }
 
             if (request.Inputs != null)
             {
-                dictionary[GraphQLRequest.VariablesKey] = ToJson(request.Inputs);
+                dictionary[GraphQLRequest.VARIABLES_KEY] = ToJson(request.Inputs);
             }
 
             return new FormUrlEncodedContent(dictionary);
@@ -61,9 +61,9 @@ namespace Samples.Server.Tests
         private static Dictionary<string, object> ToDictionary(this GraphQLRequest request)
             =>  new Dictionary<string, object>
             {
-                { GraphQLRequest.OperationNameKey, request.OperationName },
-                { GraphQLRequest.QueryKey, request.Query },
-                { GraphQLRequest.VariablesKey, request.Inputs }
+                { GraphQLRequest.OPERATION_NAME_KEY, request.OperationName },
+                { GraphQLRequest.QUERY_KEY, request.Query },
+                { GraphQLRequest.VARIABLES_KEY, request.Inputs }
             };
     }
 }

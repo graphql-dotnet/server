@@ -71,7 +71,7 @@ namespace GraphQL.Server.Transports.AspNetCore
 
                 switch (mediaTypeHeader.MediaType)
                 {
-                    case MediaType.Json:
+                    case MediaType.JSON:
                         var deserializationResult = await _deserializer.DeserializeFromJsonBodyAsync(httpRequest, cancellationToken).ConfigureAwait(false);
                         if (!deserializationResult.IsSuccessful)
                         {
@@ -82,17 +82,17 @@ namespace GraphQL.Server.Transports.AspNetCore
                         bodyGQLBatchRequest = deserializationResult.Batch;
                         break;
 
-                    case MediaType.GraphQL:
+                    case MediaType.GRAPH_QL:
                         bodyGQLRequest = await DeserializeFromGraphBodyAsync(httpRequest.Body).ConfigureAwait(false);
                         break;
 
-                    case MediaType.Form:
+                    case MediaType.FORM:
                         var formCollection = await httpRequest.ReadFormAsync().ConfigureAwait(false);
                         bodyGQLRequest = DeserializeFromFormBody(formCollection);
                         break;
 
                     default:
-                        await WriteErrorResponseAsync(httpResponse, writer, cancellationToken, $"Invalid 'Content-Type' header: non-supported media type. Must be of '{MediaType.Json}', '{MediaType.GraphQL}' or '{MediaType.Form}'. {DOCS_URL}").ConfigureAwait(false);
+                        await WriteErrorResponseAsync(httpResponse, writer, cancellationToken, $"Invalid 'Content-Type' header: non-supported media type. Must be of '{MediaType.JSON}', '{MediaType.GRAPH_QL}' or '{MediaType.FORM}'. {DOCS_URL}").ConfigureAwait(false);
                         return;
                 }
             }
@@ -194,16 +194,16 @@ namespace GraphQL.Server.Transports.AspNetCore
 
         private GraphQLRequest DeserializeFromQueryString(IQueryCollection queryCollection) => new GraphQLRequest
         {
-            Query = queryCollection.TryGetValue(GraphQLRequest.QueryKey, out var queryValues) ? queryValues[0] : null,
-            Inputs = queryCollection.TryGetValue(GraphQLRequest.VariablesKey, out var variablesValues) ? _deserializer.DeserializeInputsFromJson(variablesValues[0]) : null,
-            OperationName = queryCollection.TryGetValue(GraphQLRequest.OperationNameKey, out var operationNameValues) ? operationNameValues[0] : null
+            Query = queryCollection.TryGetValue(GraphQLRequest.QUERY_KEY, out var queryValues) ? queryValues[0] : null,
+            Inputs = queryCollection.TryGetValue(GraphQLRequest.VARIABLES_KEY, out var variablesValues) ? _deserializer.DeserializeInputsFromJson(variablesValues[0]) : null,
+            OperationName = queryCollection.TryGetValue(GraphQLRequest.OPERATION_NAME_KEY, out var operationNameValues) ? operationNameValues[0] : null
         };
 
         private GraphQLRequest DeserializeFromFormBody(IFormCollection formCollection) => new GraphQLRequest
         {
-            Query = formCollection.TryGetValue(GraphQLRequest.QueryKey, out var queryValues) ? queryValues[0] : null,
-            Inputs = formCollection.TryGetValue(GraphQLRequest.VariablesKey, out var variablesValue) ? _deserializer.DeserializeInputsFromJson(variablesValue[0]) : null,
-            OperationName = formCollection.TryGetValue(GraphQLRequest.OperationNameKey, out var operationNameValues) ? operationNameValues[0] : null
+            Query = formCollection.TryGetValue(GraphQLRequest.QUERY_KEY, out var queryValues) ? queryValues[0] : null,
+            Inputs = formCollection.TryGetValue(GraphQLRequest.VARIABLES_KEY, out var variablesValue) ? _deserializer.DeserializeInputsFromJson(variablesValue[0]) : null,
+            OperationName = formCollection.TryGetValue(GraphQLRequest.OPERATION_NAME_KEY, out var operationNameValues) ? operationNameValues[0] : null
         };
 
         private async Task<GraphQLRequest> DeserializeFromGraphBodyAsync(Stream bodyStream)

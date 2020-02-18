@@ -95,7 +95,7 @@ namespace Samples.Server.Tests
                 case RequestType.PostWithJson:
                     // Details passed in body content as JSON, with url query string params also allowed
                     string json = Serializer.ToJson(request);
-                    var jsonContent = new StringContent(json, Encoding.UTF8, MediaType.Json);
+                    var jsonContent = new StringContent(json, Encoding.UTF8, MediaType.JSON);
                     response = await Client.PostAsync(url, jsonContent);
                     break;
 
@@ -108,7 +108,7 @@ namespace Samples.Server.Tests
                         OperationName = queryStringOverride?.OperationName ?? request.OperationName,
                         Inputs = queryStringOverride?.Inputs ?? request.Inputs
                     });
-                    var graphContent = new StringContent(request.Query, Encoding.UTF8, MediaType.GraphQL);
+                    var graphContent = new StringContent(request.Query, Encoding.UTF8, MediaType.GRAPH_QL);
                     response = await Client.PostAsync(urlWithParams, graphContent);
                     break;
 
