@@ -32,10 +32,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 
         public Subscription this[string id] => _subscriptions[id];
 
-        public IEnumerator<Subscription> GetEnumerator()
-        {
-            return _subscriptions.Values.GetEnumerator();
-        }
+        public IEnumerator<Subscription> GetEnumerator() => _subscriptions.Values.GetEnumerator();
 
         /// <inheritdoc />
         public async Task SubscribeOrExecuteAsync(
@@ -65,10 +62,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             return Task.CompletedTask;
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return _subscriptions.Values.GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => _subscriptions.Values.GetEnumerator();
 
         private async Task<Subscription> ExecuteAsync(
             string id,

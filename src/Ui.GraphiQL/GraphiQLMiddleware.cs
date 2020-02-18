@@ -49,9 +49,7 @@ namespace GraphQL.Server.Ui.GraphiQL
         }
 
         private bool IsGraphiQLRequest(HttpRequest httpRequest)
-        {
-            return HttpMethods.IsGet(httpRequest.Method) && httpRequest.Path.StartsWithSegments(_options.Path);
-        }
+            => HttpMethods.IsGet(httpRequest.Method) && httpRequest.Path.StartsWithSegments(_options.Path);
 
         private Task InvokeGraphiQL(HttpResponse httpResponse)
         {

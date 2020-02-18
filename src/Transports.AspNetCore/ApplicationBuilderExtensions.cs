@@ -19,9 +19,7 @@ namespace Microsoft.AspNetCore.Builder
         /// <returns>The <see cref="IApplicationBuilder"/> received as parameter</returns>
         public static IApplicationBuilder UseGraphQL<TSchema>(this IApplicationBuilder builder, string path = "/graphql")
             where TSchema : ISchema
-        {
-            return builder.UseGraphQL<TSchema>(new PathString(path));
-        }
+            => builder.UseGraphQL<TSchema>(new PathString(path));
 
         /// <summary>
         /// Add the GraphQL middleware to the HTTP request pipeline
@@ -32,9 +30,7 @@ namespace Microsoft.AspNetCore.Builder
         /// <returns>The <see cref="IApplicationBuilder"/> received as parameter</returns>
         public static IApplicationBuilder UseGraphQL<TSchema>(this IApplicationBuilder builder, PathString path)
             where TSchema : ISchema
-        {
-            return builder.UseMiddleware<GraphQLHttpMiddleware<TSchema>>(path);
-        }
+            => builder.UseMiddleware<GraphQLHttpMiddleware<TSchema>>(path);
 
         /// <summary>
         /// Add the GraphQL custom middleware to the HTTP request pipeline
@@ -47,9 +43,7 @@ namespace Microsoft.AspNetCore.Builder
         public static IApplicationBuilder UseGraphQL<TSchema, TMiddleware>(this IApplicationBuilder builder, string path = "/graphql")
             where TSchema : ISchema
             where TMiddleware : GraphQLHttpMiddleware<TSchema>
-        {
-            return builder.UseGraphQL<TSchema, TMiddleware>(new PathString(path));
-        }
+            => builder.UseGraphQL<TSchema, TMiddleware>(new PathString(path));
 
         /// <summary>
         /// Add the GraphQL custom middleware to the HTTP request pipeline
@@ -62,8 +56,6 @@ namespace Microsoft.AspNetCore.Builder
         public static IApplicationBuilder UseGraphQL<TSchema, TMiddleware>(this IApplicationBuilder builder, PathString path)
             where TSchema : ISchema
             where TMiddleware : GraphQLHttpMiddleware<TSchema>
-        {
-            return builder.UseMiddleware<TMiddleware>(path);
-        }
+            => builder.UseMiddleware<TMiddleware>(path);
     }
 }

@@ -19,27 +19,15 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         {
         }
 
-        public override Task CloseAsync(WebSocketCloseStatus closeStatus, string statusDescription,
-            CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
-        }
+        public override Task CloseAsync(WebSocketCloseStatus closeStatus, string statusDescription, CancellationToken cancellationToken) => Task.CompletedTask;
 
-        public override Task CloseOutputAsync(WebSocketCloseStatus closeStatus, string statusDescription,
-            CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
-        }
+        public override Task CloseOutputAsync(WebSocketCloseStatus closeStatus, string statusDescription, CancellationToken cancellationToken) => Task.CompletedTask;
 
         public override void Dispose()
         {
         }
 
-        public override Task<WebSocketReceiveResult> ReceiveAsync(ArraySegment<byte> buffer,
-            CancellationToken cancellationToken)
-        {
-            throw new NotSupportedException();
-        }
+        public override Task<WebSocketReceiveResult> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancellationToken) => throw new NotSupportedException();
 
         public override Task SendAsync(ArraySegment<byte> buffer, WebSocketMessageType messageType, bool endOfMessage,
             CancellationToken cancellationToken)
@@ -152,10 +140,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
             return newPos;
         }
 
-        public override void SetLength(long value)
-        {
-            throw new NotSupportedException();
-        }
+        public override void SetLength(long value) => throw new NotSupportedException();
 
         public override void Write(byte[] buffer, int offset, int count)
         {

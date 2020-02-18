@@ -71,9 +71,6 @@ namespace GraphQL.Samples.Schemas.Chat
                 .AsObservable();
         }
 
-        public void AddError(Exception exception)
-        {
-            _messageStream.OnError(exception);
-        }
+        public void AddError(Exception exception) => _messageStream.OnError(exception);
     }
 }

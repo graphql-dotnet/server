@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Threading.Tasks;
@@ -14,10 +14,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             _logger = logger;
         }
 
-        public Task BeforeHandleAsync(MessageHandlingContext context)
-        {
-            return Task.CompletedTask;
-        }
+        public Task BeforeHandleAsync(MessageHandlingContext context) => Task.CompletedTask;
 
         public Task HandleAsync(MessageHandlingContext context)
         {
@@ -40,10 +37,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             }
         }
 
-        public Task AfterHandleAsync(MessageHandlingContext context)
-        {
-            return Task.CompletedTask;
-        }
+        public Task AfterHandleAsync(MessageHandlingContext context) => Task.CompletedTask;
 
         private Task HandleUnknownAsync(MessageHandlingContext context)
         {

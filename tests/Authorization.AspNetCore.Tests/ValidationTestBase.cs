@@ -22,10 +22,7 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
         public ClaimsPrincipal User { get; set; }
         public Inputs Inputs { get; set; }
 
-        public void Rule(params IValidationRule[] rules)
-        {
-            _rules.AddRange(rules);
-        }
+        public void Rule(params IValidationRule[] rules) => _rules.AddRange(rules);
     }
     public class GraphQLUserContext : Dictionary<string, object>
     {

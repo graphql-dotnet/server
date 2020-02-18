@@ -29,10 +29,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
 
         public Task Completion => _readBuffer.Completion;
 
-        public bool AddMessageToRead(OperationMessage message)
-        {
-            return _readBuffer.Post(message);
-        }
+        public bool AddMessageToRead(OperationMessage message) => _readBuffer.Post(message);
     }
 
     public class TestableWriter : IWriterPipeline
@@ -47,15 +44,9 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
 
         public List<OperationMessage> WrittenMessages { get; }
 
-        public bool Post(OperationMessage message)
-        {
-            return _endBlock.Post(message);
-        }
+        public bool Post(OperationMessage message) => _endBlock.Post(message);
 
-        public Task SendAsync(OperationMessage message)
-        {
-            return _endBlock.SendAsync(message);
-        }
+        public Task SendAsync(OperationMessage message) => _endBlock.SendAsync(message);
 
         public Task Completion => _endBlock.Completion;
 

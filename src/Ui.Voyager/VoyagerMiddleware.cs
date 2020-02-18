@@ -1,4 +1,4 @@
-﻿using GraphQL.Server.Ui.Voyager.Internal;
+using GraphQL.Server.Ui.Voyager.Internal;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Text;
@@ -49,9 +49,7 @@ namespace GraphQL.Server.Ui.Voyager
         }
 
         private bool IsVoyagerRequest(HttpRequest httpRequest)
-        {
-            return HttpMethods.IsGet(httpRequest.Method) && httpRequest.Path.StartsWithSegments(_options.Path);
-        }
+            => HttpMethods.IsGet(httpRequest.Method) && httpRequest.Path.StartsWithSegments(_options.Path);
 
         private Task InvokeVoyager(HttpResponse httpResponse)
         {

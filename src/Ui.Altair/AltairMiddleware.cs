@@ -48,9 +48,7 @@ namespace GraphQL.Server.Ui.Altair
         }
 
         private bool IsAltairRequest(HttpRequest httpRequest)
-        {
-            return HttpMethods.IsGet(httpRequest.Method) && httpRequest.Path.StartsWithSegments(_options.Path);
-        }
+            => HttpMethods.IsGet(httpRequest.Method) && httpRequest.Path.StartsWithSegments(_options.Path);
 
         private Task InvokeAltair(HttpResponse httpResponse)
         {

@@ -48,9 +48,7 @@ namespace GraphQL.Server.Ui.Playground
         }
 
         private bool IsPlaygroundRequest(HttpRequest httpRequest)
-        {
-            return HttpMethods.IsGet(httpRequest.Method) && httpRequest.Path.StartsWithSegments(_options.Path);
-        }
+            => HttpMethods.IsGet(httpRequest.Method) && httpRequest.Path.StartsWithSegments(_options.Path);
 
         private Task InvokePlayground(HttpResponse httpResponse)
         {

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Reflection;
 using GraphQL.DataLoader;
@@ -37,9 +37,7 @@ namespace GraphQL.Server
         public static IGraphQLBuilder AddGraphTypes(
             this IGraphQLBuilder builder,
             ServiceLifetime serviceLifetime = ServiceLifetime.Singleton)
-        {
-            return builder.AddGraphTypes(Assembly.GetCallingAssembly(), serviceLifetime);
-        }
+            => builder.AddGraphTypes(Assembly.GetCallingAssembly(), serviceLifetime);
 
         /// <summary>
         /// Add all types that implement <seealso cref="IGraphType"/> in the assembly which <paramref name="typeFromAssembly"/> belongs to
@@ -52,9 +50,7 @@ namespace GraphQL.Server
             this IGraphQLBuilder builder,
             Type typeFromAssembly,
             ServiceLifetime serviceLifetime = ServiceLifetime.Singleton)
-        {
-            return builder.AddGraphTypes(typeFromAssembly.Assembly, serviceLifetime);
-        }
+            => builder.AddGraphTypes(typeFromAssembly.Assembly, serviceLifetime);
 
         /// <summary>
         /// Add all types that implement <seealso cref="IGraphType"/> in the specified assembly

@@ -167,20 +167,14 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
         [GraphQLAuthorize(Policy = "ClassPolicy")]
         public class BasicQueryWithAttributesAndClassPolicy
         {
-            public string Post(string id)
-            {
-                return "";
-            }
+            public string Post(string id) => "";
         }
 
         [GraphQLMetadata("Query")]
         public class BasicQueryWithAttributesAndFieldPolicy
         {
             [GraphQLAuthorize(Policy = "FieldPolicy")]
-            public string Post(string id)
-            {
-                return "";
-            }
+            public string Post(string id) => "";
         }
 
         private ISchema NestedSchema()
@@ -207,20 +201,11 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
         [GraphQLMetadata("Query")]
         public class NestedQueryWithAttributes
         {
-            public Post Post(string id)
-            {
-                return null;
-            }
+            public Post Post(string id) => null;
 
-            public IEnumerable<Post> Posts()
-            {
-                return null;
-            }
+            public IEnumerable<Post> Posts() => null;
 
-            public IEnumerable<Post> PostsNonNull()
-            {
-                return null;
-            }
+            public IEnumerable<Post> PostsNonNull() => null;
         }
 
         [GraphQLAuthorize(Policy = "PostPolicy")]
