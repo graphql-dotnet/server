@@ -1,4 +1,4 @@
-<!--
+﻿<!--
  *  Copyright (c) Facebook, Inc.
  *  All rights reserved.
  *
@@ -39,11 +39,11 @@
 	  copy them directly into your environment, or perhaps include them in your
 	  favored resource bundler.
 	 -->
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/graphiql/0.11.11/graphiql.css" />
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/graphiql/0.11.11/graphiql.min.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/graphiql/0.13.0/graphiql.min.css" />
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/graphiql/0.13.0/graphiql.min.js"></script>
 
-	<script src="https://unpkg.com/subscriptions-transport-ws@0.9.5/browser/client.js"></script>
-    <script src="https://unpkg.com/graphiql-subscriptions-fetcher@0.0.2/browser/client.js"></script>
+	<script src="https://unpkg.com/subscriptions-transport-ws@0.8.3/browser/client.js"></script>
+	<script src="https://unpkg.com/graphiql-subscriptions-fetcher@0.0.2/browser/client.js"></script>
 
 </head>
 <body>
@@ -135,7 +135,7 @@
 
 		// Enable Subscriptions via WebSocket
 		var subscriptionsClient = new window.SubscriptionsTransportWs.SubscriptionClient((window.location.protocol === "http:" ? "ws://" : "wss://") + window.location.host + "@Model.GraphQLEndPoint", { reconnect: true });
-    	var subscriptionsFetcher = window.GraphiQLSubscriptionsFetcher.graphQLFetcher(subscriptionsClient, graphQLFetcher);
+		var subscriptionsFetcher = window.GraphiQLSubscriptionsFetcher.graphQLFetcher(subscriptionsClient, graphQLFetcher);
 
 		// Render <GraphiQL /> into the body.
 		// See the README in the top level of this module to learn more about

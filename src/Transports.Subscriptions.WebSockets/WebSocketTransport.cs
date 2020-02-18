@@ -1,10 +1,9 @@
-using System.Net.WebSockets;
-using System.Threading;
-using System.Threading.Tasks;
-using GraphQL.Http;
 using GraphQL.Server.Transports.Subscriptions.Abstractions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using System.Net.WebSockets;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace GraphQL.Server.Transports.WebSockets
 {
@@ -25,7 +24,6 @@ namespace GraphQL.Server.Transports.WebSockets
             Reader = new WebSocketReaderPipeline(_socket, serializerSettings);
             Writer = new WebSocketWriterPipeline(_socket, documentWriter);
         }
-
 
         public WebSocketCloseStatus? CloseStatus => _socket.CloseStatus;
 

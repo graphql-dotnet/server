@@ -1,7 +1,7 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Threading.Tasks;
 
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 {
@@ -13,7 +13,6 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         {
             _logger = logger;
         }
-
 
         public Task BeforeHandleAsync(MessageHandlingContext context)
         {
@@ -77,7 +76,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             _logger.LogDebug("Handle start: {id}", message.Id);
             var payload = ((JObject)message.Payload).ToObject<OperationMessagePayload>();
             if (payload == null)
-                throw new InvalidOperationException($"Could not get OperationMessagePayload from message.Payload");
+                throw new InvalidOperationException("Could not get OperationMessagePayload from message.Payload");
 
             return context.Subscriptions.SubscribeOrExecuteAsync(
                 message.Id,

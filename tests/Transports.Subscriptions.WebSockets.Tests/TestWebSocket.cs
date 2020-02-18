@@ -61,7 +61,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         internal List<ChunkedMemoryStream> Messages { get; } = new List<ChunkedMemoryStream>();
         private ChunkedMemoryStream CurrentMessage { get; set; }
 
-        public override WebSocketCloseStatus? CloseStatus { get; } = null;
+        public override WebSocketCloseStatus? CloseStatus { get; }
         public override string CloseStatusDescription { get; } = "";
         public override string SubProtocol { get; } = "";
         public override WebSocketState State { get; } = WebSocketState.Open;

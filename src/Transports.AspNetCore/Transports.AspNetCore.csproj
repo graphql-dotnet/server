@@ -1,26 +1,23 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1;netcoreapp3.0;netstandard2.0</TargetFrameworks>
     <AssemblyName>GraphQL.Server.Transports.AspNetCore</AssemblyName>
     <RootNamespace>GraphQL.Server.Transports.AspNetCore</RootNamespace>
-    <Product>graphql-dotnet server</Product>
-    <Company>graphql-dotnet</Company>
-    <Authors>Pekka Heikura</Authors>
-    <Description>HTTP middleware for graphql</Description>
-    <PackageProjectUrl>https://github.com/graphql-dotnet/server</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/graphql-dotnet/server</RepositoryUrl>
-    <RepositoryType>Git</RepositoryType>
+    <Description>HTTP middleware for GraphQL</Description>
     <PackageTags>GraphQL middleware</PackageTags>
-    <Copyright>Pekka Heikura</Copyright>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="GraphQL" Version="2.3.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="2.0.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.0.2" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="2.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="$(MicrosoftExtensionsOptionsVersion)" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(IsNetCore3OnwardsTarget)' == 'True'">
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  
+  <ItemGroup Condition="'$(IsNetCore3OnwardsTarget)' == 'False'">
+    <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="$(MicrosoftAspNetCoreHostingAbstractionsVersion)" />
   </ItemGroup>
 
   <ItemGroup>

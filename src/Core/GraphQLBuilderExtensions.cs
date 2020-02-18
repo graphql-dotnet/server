@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Reflection;
 using GraphQL.DataLoader;
 using GraphQL.Execution;
@@ -9,13 +10,16 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace GraphQL.Server
 {
+    /// <summary>
+    /// GraphQL specific extension methods for <see cref="IGraphQLBuilder"/>.
+    /// </summary>
     public static class GraphQLBuilderExtensions
     {
         /// <summary>
         /// Add required services for GraphQL data loader support
         /// </summary>
         /// <param name="builder"></param>
-        /// <returns></returns>
+        /// <returns>Reference to <paramref name="builder"/>.</returns>
         public static IGraphQLBuilder AddDataLoader(this IGraphQLBuilder builder)
         {
             builder.Services.TryAddSingleton<IDataLoaderContextAccessor, DataLoaderContextAccessor>();
@@ -29,7 +33,7 @@ namespace GraphQL.Server
         /// </summary>
         /// <param name="builder"></param>
         /// <param name="serviceLifetime">The service lifetime to register the GraphQL types with</param>
-        /// <returns></returns>
+        /// <returns>Reference to <paramref name="builder"/>.</returns>
         public static IGraphQLBuilder AddGraphTypes(
             this IGraphQLBuilder builder,
             ServiceLifetime serviceLifetime = ServiceLifetime.Singleton)
@@ -38,12 +42,27 @@ namespace GraphQL.Server
         }
 
         /// <summary>
+        /// Add all types that implement <seealso cref="IGraphType"/> in the assembly which <paramref name="typeFromAssembly"/> belongs to
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <param name="typeFromAssembly">The type from assembly to register all GraphQL types from</param>
+        /// <param name="serviceLifetime">The service lifetime to register the GraphQL types with</param>
+        /// <returns>Reference to <paramref name="builder"/>.</returns>
+        public static IGraphQLBuilder AddGraphTypes(
+            this IGraphQLBuilder builder,
+            Type typeFromAssembly,
+            ServiceLifetime serviceLifetime = ServiceLifetime.Singleton)
+        {
+            return builder.AddGraphTypes(typeFromAssembly.Assembly, serviceLifetime);
+        }
+
+        /// <summary>
         /// Add all types that implement <seealso cref="IGraphType"/> in the specified assembly
         /// </summary>
         /// <param name="builder"></param>
         /// <param name="assembly">The assembly to register all GraphQL types from</param>
         /// <param name="serviceLifetime">The service lifetime to register the GraphQL types with</param>
-        /// <returns></returns>
+        /// <returns>Reference to <paramref name="builder"/>.</returns>
         public static IGraphQLBuilder AddGraphTypes(
             this IGraphQLBuilder builder,
             Assembly assembly,
@@ -64,7 +83,7 @@ namespace GraphQL.Server
         /// and <see cref="PageInfoType"/>.
         /// </summary>
         /// <param name="builder">The application builder.</param>
-        /// <returns>The application builder.</returns>
+        /// <returns>Reference to <paramref name="builder"/>.</returns>
         public static IGraphQLBuilder AddRelayGraphTypes(this IGraphQLBuilder builder)
         {
             builder
@@ -72,6 +91,7 @@ namespace GraphQL.Server
                 .AddSingleton(typeof(ConnectionType<>))
                 .AddSingleton(typeof(EdgeType<>))
                 .AddSingleton<PageInfoType>();
+
             return builder;
         }
     }

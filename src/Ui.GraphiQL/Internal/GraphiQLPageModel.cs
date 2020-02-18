@@ -1,35 +1,34 @@
 using System.IO;
-using System.Reflection;
 using System.Text;
 
-namespace GraphQL.Server.Ui.GraphiQL.Internal {
+namespace GraphQL.Server.Ui.GraphiQL.Internal
+{
+    // https://docs.microsoft.com/en-us/aspnet/core/mvc/razor-pages/?tabs=netcore-cli
+    internal class GraphiQLPageModel
+    {
+        private string _graphiQLCSHtml;
 
-	// https://docs.microsoft.com/en-us/aspnet/core/mvc/razor-pages/?tabs=netcore-cli
-	internal class GraphiQLPageModel {
+        private readonly GraphiQLOptions _options;
 
-		private string graphiQLCSHtml;
+        public GraphiQLPageModel(GraphiQLOptions options)
+        {
+            _options = options;
+        }
 
-		private readonly GraphiQLOptions settings;
+        public string Render()
+        {
+            if (_graphiQLCSHtml == null)
+            {
+                using var manifestResourceStream = typeof(GraphiQLPageModel).Assembly.GetManifestResourceStream("GraphQL.Server.Ui.GraphiQL.Internal.graphiql.cshtml");
+                using var streamReader = new StreamReader(manifestResourceStream);
 
-		public GraphiQLPageModel(GraphiQLOptions settings) {
-			this.settings = settings;
-		}
+                var builder = new StringBuilder(streamReader.ReadToEnd())
+                    .Replace("@Model.GraphQLEndPoint", _options.GraphQLEndPoint);
 
-		public string Render() {
-			if (graphiQLCSHtml != null) {
-				return graphiQLCSHtml;
-			}
-			var assembly = typeof(GraphiQLPageModel).GetTypeInfo().Assembly;
-            using (var manifestResourceStream = assembly.GetManifestResourceStream("GraphQL.Server.Ui.GraphiQL.Internal.graphiql.cshtml")) {
-                using (var streamReader = new StreamReader(manifestResourceStream)) {
-                    var builder = new StringBuilder(streamReader.ReadToEnd());
-                    builder.Replace("@Model.GraphQLEndPoint", this.settings.GraphQLEndPoint);
-                    graphiQLCSHtml = builder.ToString();
-                    return this.Render();
-                }
+                _graphiQLCSHtml = builder.ToString();
             }
-		}
 
-	}
-
+            return _graphiQLCSHtml;
+        }
+    }
 }

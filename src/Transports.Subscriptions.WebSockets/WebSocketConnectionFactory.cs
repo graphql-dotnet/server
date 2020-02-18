@@ -1,10 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Net.WebSockets;
-using GraphQL.Http;
 using GraphQL.Server.Internal;
 using GraphQL.Server.Transports.Subscriptions.Abstractions;
 using GraphQL.Types;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
+using System.Net.WebSockets;
 
 namespace GraphQL.Server.Transports.WebSockets
 {

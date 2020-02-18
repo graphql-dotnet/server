@@ -1,5 +1,6 @@
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace GraphQL.Server.Transports.AspNetCore
 {
@@ -13,6 +14,6 @@ namespace GraphQL.Server.Transports.AspNetCore
         /// </summary>
         /// <param name="httpContext">The <see cref="HttpContext"/> for the current request</param>
         /// <returns>Returns the UserContext</returns>
-        Task<object> BuildUserContext(HttpContext httpContext);
+        Task<IDictionary<string, object>> BuildUserContext(HttpContext httpContext);
     }
 }

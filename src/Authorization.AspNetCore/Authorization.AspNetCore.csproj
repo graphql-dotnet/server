@@ -1,24 +1,20 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup Label="Build">
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1;netcoreapp3.0;netstandard2.0</TargetFrameworks>
     <AssemblyName>GraphQL.Server.Authorization.AspNetCore</AssemblyName>
     <RootNamespace>GraphQL.Server.Authorization.AspNetCore</RootNamespace>
-    <Product>graphql-dotnet server</Product>
-    <Company>graphql-dotnet</Company>
-    <Authors>Pekka Heikura</Authors>
-    <Description>HTTP authorization middleware for graphql</Description>
-    <PackageProjectUrl>https://github.com/graphql-dotnet/server</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/graphql-dotnet/server</RepositoryUrl>
-    <RepositoryType>Git</RepositoryType>
+    <Description>HTTP authorization middleware for GraphQL</Description>
     <PackageTags>GraphQL authentication authorization middleware</PackageTags>
-    <Copyright>Pekka Heikura</Copyright>
   </PropertyGroup>
 
-  <ItemGroup Label="Package References">
-    <PackageReference Include="GraphQL" Version="2.3.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="2.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.0.0" />
+  <ItemGroup Label="Package references for .NET Core 3+" Condition="'$(IsNetCore3OnwardsTarget)' == 'True'">
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  
+  <ItemGroup Label="Package references for .NET Standard" Condition="'$(IsNetCore3OnwardsTarget)' == 'False'">
+    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="$(MicrosoftAspNetCoreAuthorizationVersion)" />
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="$(MicrosoftAspNetCoreHttpVersion)" />
   </ItemGroup>
 
   <ItemGroup Label="Project References">

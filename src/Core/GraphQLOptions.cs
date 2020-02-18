@@ -1,4 +1,8 @@
+using GraphQL.Conversion;
+using GraphQL.Execution;
+using GraphQL.Introspection;
 using GraphQL.Validation.Complexity;
+using System;
 
 namespace GraphQL.Server
 {
@@ -6,10 +10,17 @@ namespace GraphQL.Server
     {
         public ComplexityConfiguration ComplexityConfiguration { get; set; }
 
+        /// <summary>
+        /// This setting essentially allows Apollo Tracing.
+        /// </summary>
         public bool EnableMetrics { get; set; } = true;
 
         public bool ExposeExceptions { get; set; }
 
-        public bool SetFieldMiddleware { get; set; } = true;
+        public IFieldNameConverter FieldNameConverter { get; set; }
+
+        public Action<UnhandledExceptionContext> UnhandledExceptionDelegate = ctx => { };
+
+        public ISchemaFilter SchemaFilter { get; set; } = new DefaultSchemaFilter();
     }
 }

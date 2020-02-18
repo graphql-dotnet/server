@@ -8,7 +8,7 @@ namespace GraphQL.Samples.Schemas.Chat
         {
             Field<MessageType>("addMessage",
                 arguments: new QueryArguments(
-                    new QueryArgument<MessageInputType> {Name = "message"}
+                    new QueryArgument<MessageInputType> { Name = "message" }
                 ),
                 resolve: context =>
                 {
