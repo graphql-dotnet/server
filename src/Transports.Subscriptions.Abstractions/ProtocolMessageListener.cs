@@ -21,20 +21,14 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             if (context.Terminated)
                 return Task.CompletedTask;
 
-            var message = context.Message;
-            switch (message.Type)
+            return context.Message.Type switch
             {
-                case MessageType.GQL_CONNECTION_INIT:
-                    return HandleInitAsync(context);
-                case MessageType.GQL_START:
-                    return HandleStartAsync(context);
-                case MessageType.GQL_STOP:
-                    return HandleStopAsync(context);
-                case MessageType.GQL_CONNECTION_TERMINATE:
-                    return HandleTerminateAsync(context);
-                default:
-                    return HandleUnknownAsync(context);
-            }
+                MessageType.GQL_CONNECTION_INIT => HandleInitAsync(context),
+                MessageType.GQL_START => HandleStartAsync(context),
+                MessageType.GQL_STOP => HandleStopAsync(context),
+                MessageType.GQL_CONNECTION_TERMINATE => HandleTerminateAsync(context),
+                _ => HandleUnknownAsync(context),
+            };
         }
 
         public Task AfterHandleAsync(MessageHandlingContext context) => Task.CompletedTask;
