@@ -100,7 +100,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         public override int Read(byte[] buffer, int offset, int count)
         {
             int result = 0;
-            while ((count != 0) && (_positionChunk != _chunks.Count))
+            while (count != 0 && _positionChunk != _chunks.Count)
             {
                 int fromChunk = Math.Min(count, _chunks[_positionChunk].Length - _positionOffset);
                 if (fromChunk != 0)
@@ -144,7 +144,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
 
         public override void Write(byte[] buffer, int offset, int count)
         {
-            while ((count != 0) && (_positionChunk != _chunks.Count))
+            while (count != 0 && _positionChunk != _chunks.Count)
             {
                 int toChunk = Math.Min(count, _chunks[_positionChunk].Length - _positionOffset);
                 if (toChunk != 0)
