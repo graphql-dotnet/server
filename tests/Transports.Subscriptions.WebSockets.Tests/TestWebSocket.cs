@@ -173,7 +173,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         {
             using (var ms = new MemoryStream())
             {
-                foreach (var bytes in _chunks)
+                foreach (byte[] bytes in _chunks)
                 {
                     ms.Write(bytes, 0, bytes.Length);
                 }

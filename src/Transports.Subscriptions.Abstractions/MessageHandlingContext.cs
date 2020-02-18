@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -42,7 +42,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 
         public T Get<T>(string key)
         {
-            if (!Properties.TryGetValue(key, out var value)) return default;
+            if (!Properties.TryGetValue(key, out object value)) return default;
 
             if (value is T variable)
                 return variable;

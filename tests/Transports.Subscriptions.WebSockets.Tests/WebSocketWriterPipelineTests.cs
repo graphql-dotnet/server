@@ -123,7 +123,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
             await webSocketWriterPipeline.Completion;
             Assert.Single(_testWebSocket.Messages);
 
-            var resultingJson = Encoding.UTF8.GetString(_testWebSocket.Messages.First().ToArray());
+            string resultingJson = Encoding.UTF8.GetString(_testWebSocket.Messages.First().ToArray());
             Assert.Equal(
                 "{\"payload\":{\"data\":{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}}}",
                 resultingJson);
@@ -149,7 +149,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
             await webSocketWriterPipeline.Completion;
             Assert.Single(_testWebSocket.Messages);
 
-            var resultingJson = Encoding.UTF8.GetString(_testWebSocket.Messages.First().ToArray());
+            string resultingJson = Encoding.UTF8.GetString(_testWebSocket.Messages.First().ToArray());
             Assert.Equal(
                 "{\"payload\":" +
                     "{\"data\":[" +
@@ -214,7 +214,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
             await webSocketWriterPipeline.Complete();
             await webSocketWriterPipeline.Completion;
             Assert.Single(_testWebSocket.Messages);
-            var resultingJson = Encoding.UTF8.GetString(_testWebSocket.Messages.First().ToArray());
+            string resultingJson = Encoding.UTF8.GetString(_testWebSocket.Messages.First().ToArray());
             Assert.Equal(
                 "{\"id\":\"78F15F13-CA90-4BA6-AFF5-990C23FA882A\",\"type\":\"Type\",\"payload\":{\"data\":{\"Content\":\"Hello world\",\"SentAt\":\"2018-12-12T10:00:00+00:00\"}}}",
                 resultingJson);

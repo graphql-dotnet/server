@@ -66,7 +66,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
                 SentAt = DateTime.Now
             });
 
-            var id = "1";
+            string id = "1";
             _transportReader.AddMessageToRead(new OperationMessage
             {
                 Id = id,
@@ -122,7 +122,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
                 SentAt = DateTime.Now
             });
 
-            var id = "1";
+            string id = "1";
             _transportReader.AddMessageToRead(new OperationMessage
             {
                 Id = id,
@@ -167,7 +167,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
         {
             /* Given */
             // subscribe
-            var id = "1";
+            string id = "1";
             _transportReader.AddMessageToRead(new OperationMessage
             {
                 Id = id,
