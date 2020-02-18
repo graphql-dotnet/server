@@ -1,7 +1,7 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup Label="Build">
-    <TargetFrameworks>netcoreapp3.0;netcoreapp2.2</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1;netcoreapp3.0;netcoreapp2.2</TargetFrameworks>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
@@ -15,11 +15,11 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="$(xunitrunnervisualstudioVersion)" />
   </ItemGroup>
 
-  <ItemGroup Label="Package references for .NET Core 3" Condition="'$(IsNetCore30OnwardsTarget)' == 'True'">
+  <ItemGroup Label="Package references for .NET Core 3" Condition="'$(IsNetCore3OnwardsTarget)' == 'True'">
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   
-  <ItemGroup Label="Package references for .NET Core 2.2" Condition="'$(IsNetCore30OnwardsTarget)' == 'False'">
+  <ItemGroup Label="Package references for .NET Core 2.2" Condition="'$(IsNetCore3OnwardsTarget)' == 'False'">
     <PackageReference Include="Microsoft.AspNetCore.Http" Version="$(MicrosoftAspNetCoreHttpVersion)" />
   </ItemGroup>
 

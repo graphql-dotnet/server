@@ -1,4 +1,3 @@
-using GraphQL.Http;
 using GraphQL.Server.Transports.Subscriptions.Abstractions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;

@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Text;
 
 namespace GraphQL.Server.Ui.Voyager.Internal
@@ -19,17 +19,13 @@ namespace GraphQL.Server.Ui.Voyager.Internal
         {
             if (_voyagerCSHtml == null)
             {
-                using (var manifestResourceStream = typeof(VoyagerPageModel).Assembly.GetManifestResourceStream("GraphQL.Server.Ui.Voyager.Internal.voyager.cshtml"))
-                {
-                    using (var streamReader = new StreamReader(manifestResourceStream))
-                    {
-                        var builder = new StringBuilder(streamReader.ReadToEnd());
+                using var manifestResourceStream = typeof(VoyagerPageModel).Assembly.GetManifestResourceStream("GraphQL.Server.Ui.Voyager.Internal.voyager.cshtml");
+                using var streamReader = new StreamReader(manifestResourceStream);
 
-                        builder.Replace("@Model.GraphQLEndPoint", _options.GraphQLEndPoint);
+                var builder = new StringBuilder(streamReader.ReadToEnd())
+                    .Replace("@Model.GraphQLEndPoint", _options.GraphQLEndPoint);
 
-                        _voyagerCSHtml = builder.ToString();
-                    }
-                }
+                _voyagerCSHtml = builder.ToString();
             }
 
             return _voyagerCSHtml;

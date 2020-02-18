@@ -1,28 +1,28 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<TargetFrameworks>netcoreapp3.0;netstandard2.0</TargetFrameworks>
-		<AssemblyName>GraphQL.Server.Ui.Altair</AssemblyName>
-		<RootNamespace>GraphQL.Server.Ui.Altair</RootNamespace>
-		<Description>Altair GraphQL extension</Description>
-		<PackageTags>Altair GraphQL</PackageTags>
-		<PackageId>GraphQL.Server.Ui.Altair</PackageId>
-	</PropertyGroup>
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp3.1;netcoreapp3.0;netstandard2.0</TargetFrameworks>
+    <AssemblyName>GraphQL.Server.Ui.Altair</AssemblyName>
+    <RootNamespace>GraphQL.Server.Ui.Altair</RootNamespace>
+    <Description>Altair GraphQL extension</Description>
+    <PackageTags>Altair GraphQL</PackageTags>
+    <PackageId>GraphQL.Server.Ui.Altair</PackageId>
+  </PropertyGroup>
 
-	<ItemGroup>
-		<EmbeddedResource Include="Internal\altair.cshtml" />
-	</ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Internal\altair.cshtml" />
+    <Compile Include="..\Ui.Playground\Shared\**">
+      <Link>Shared\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Compile>
+  </ItemGroup>
 
-	<ItemGroup>
-		<PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonVersion)" />
-	</ItemGroup>
-
-  <ItemGroup Condition="'$(IsNetCore30OnwardsTarget)' == 'True'">
+  <ItemGroup Condition="'$(IsNetCore3OnwardsTarget)' == 'True'">
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(IsNetCore30OnwardsTarget)' == 'False'">
+  <ItemGroup Condition="'$(IsNetCore3OnwardsTarget)' == 'False'">
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="$(MicrosoftAspNetCoreHttpAbstractionsVersion)" />
+    <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonVersion)" />
   </ItemGroup>
 
 </Project>

@@ -18,18 +18,14 @@ namespace GraphQL.Server.Ui.GraphiQL.Internal
         public string Render()
         {
             if (_graphiQLCSHtml == null)
-            { 
-                using (var manifestResourceStream = typeof(GraphiQLPageModel).Assembly.GetManifestResourceStream("GraphQL.Server.Ui.GraphiQL.Internal.graphiql.cshtml"))
-                {
-                    using (var streamReader = new StreamReader(manifestResourceStream))
-                    {
-                        var builder = new StringBuilder(streamReader.ReadToEnd());
+            {
+                using var manifestResourceStream = typeof(GraphiQLPageModel).Assembly.GetManifestResourceStream("GraphQL.Server.Ui.GraphiQL.Internal.graphiql.cshtml");
+                using var streamReader = new StreamReader(manifestResourceStream);
 
-                        builder.Replace("@Model.GraphQLEndPoint", _options.GraphQLEndPoint);
+                var builder = new StringBuilder(streamReader.ReadToEnd())
+                    .Replace("@Model.GraphQLEndPoint", _options.GraphQLEndPoint);
 
-                        _graphiQLCSHtml = builder.ToString();
-                    }
-                }
+                _graphiQLCSHtml = builder.ToString();
             }
 
             return _graphiQLCSHtml;

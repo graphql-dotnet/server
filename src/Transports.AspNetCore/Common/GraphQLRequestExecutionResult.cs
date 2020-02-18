@@ -1,4 +1,5 @@
-﻿using System;
+using GraphQL.Server.Common;
+using System;
 
 namespace GraphQL.Server.Transports.AspNetCore.Common
 {

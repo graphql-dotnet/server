@@ -1,9 +1,9 @@
-﻿using GraphQL.Server.Transports.AspNetCore;
+using GraphQL.Server.Common;
+using GraphQL.Server.Transports.AspNetCore;
 using GraphQL.Server.Transports.AspNetCore.Common;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,8 +16,12 @@ namespace GraphQL.Samples.Server
     {
         private readonly ILogger _logger;
 
-        public GraphQLHttpMiddlewareWithLogs(ILogger<GraphQLHttpMiddleware<TSchema>> logger, RequestDelegate next, PathString path, Action<JsonSerializerSettings> configure)
-            : base(next, path, configure)
+        public GraphQLHttpMiddlewareWithLogs(
+            ILogger<GraphQLHttpMiddleware<TSchema>> logger,
+            RequestDelegate next,
+            PathString path,
+            IGraphQLRequestDeserializer requestDeserializer)
+            : base(next, path, requestDeserializer)
         {
             _logger = logger;
         }

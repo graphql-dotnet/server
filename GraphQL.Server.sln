@@ -18,7 +18,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{0FD61587
 		nuget.config = nuget.config
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{382C5C04-A34D-4C81-83D7-584C85FB9356}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".Solution Items", ".Solution Items", "{382C5C04-A34D-4C81-83D7-584C85FB9356}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 		Directory.Build.props = Directory.Build.props
@@ -54,6 +54,12 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{5C07AFA3-12F2-40EA-807D-7A1EEF29012B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ui.Altair", "src\Ui.Altair\Ui.Altair.csproj", "{008CFAAB-64B6-4948-99FA-E8735CA7E81A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Transports.AspNetCore.NewtonsoftJson", "src\Transports.AspNetCore.NewtonsoftJson\Transports.AspNetCore.NewtonsoftJson.csproj", "{24975BA5-46B0-4E3A-8703-9599483138B8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Transports.AspNetCore.SystemTextJson", "src\Transports.AspNetCore.SystemTextJson\Transports.AspNetCore.SystemTextJson.csproj", "{5CEB56EE-C58D-4EF8-90E3-5B53D9354C47}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Serialization", "Serialization", "{27A37AAB-90F9-4F1E-B1BB-AAF5A90D97AE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -121,6 +127,14 @@ Global
 		{008CFAAB-64B6-4948-99FA-E8735CA7E81A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{008CFAAB-64B6-4948-99FA-E8735CA7E81A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{008CFAAB-64B6-4948-99FA-E8735CA7E81A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{24975BA5-46B0-4E3A-8703-9599483138B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{24975BA5-46B0-4E3A-8703-9599483138B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{24975BA5-46B0-4E3A-8703-9599483138B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{24975BA5-46B0-4E3A-8703-9599483138B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5CEB56EE-C58D-4EF8-90E3-5B53D9354C47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5CEB56EE-C58D-4EF8-90E3-5B53D9354C47}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5CEB56EE-C58D-4EF8-90E3-5B53D9354C47}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5CEB56EE-C58D-4EF8-90E3-5B53D9354C47}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -136,6 +150,8 @@ Global
 		{741DEEE6-FD0B-4F99-8A6F-43584B3E8D5F} = {BBD07745-C962-4D2D-B302-6DA1BCC2FF43}
 		{62E7B30D-CB34-45EA-A410-2CAE127385D7} = {BBD07745-C962-4D2D-B302-6DA1BCC2FF43}
 		{008CFAAB-64B6-4948-99FA-E8735CA7E81A} = {EFEC04E1-42DD-4689-B808-5C630A9AA59D}
+		{24975BA5-46B0-4E3A-8703-9599483138B8} = {27A37AAB-90F9-4F1E-B1BB-AAF5A90D97AE}
+		{5CEB56EE-C58D-4EF8-90E3-5B53D9354C47} = {27A37AAB-90F9-4F1E-B1BB-AAF5A90D97AE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3FC7FA59-E938-453C-8C4A-9D5635A9489A}

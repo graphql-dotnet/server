@@ -1,23 +1,22 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.0;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1;netcoreapp3.0;netstandard2.0</TargetFrameworks>
     <AssemblyName>GraphQL.Server.Transports.AspNetCore</AssemblyName>
     <RootNamespace>GraphQL.Server.Transports.AspNetCore</RootNamespace>
-    <Description>HTTP middleware for graphql</Description>
+    <Description>HTTP middleware for GraphQL</Description>
     <PackageTags>GraphQL middleware</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="GraphQL" Version="$(GraphQLVersion)" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="$(MicrosoftExtensionsOptionsVersion)" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(IsNetCore30OnwardsTarget)' == 'True'">
+  <ItemGroup Condition="'$(IsNetCore3OnwardsTarget)' == 'True'">
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   
-  <ItemGroup Condition="'$(IsNetCore30OnwardsTarget)' == 'False'">
+  <ItemGroup Condition="'$(IsNetCore3OnwardsTarget)' == 'False'">
     <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="$(MicrosoftAspNetCoreHostingAbstractionsVersion)" />
   </ItemGroup>
 

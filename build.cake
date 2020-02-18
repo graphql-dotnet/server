@@ -5,10 +5,11 @@ var configuration = Argument<string>("configuration", "Release");
 var artifactsDir = Directory(Argument<string>("artifactsDir", "./artifacts"));
 var publishDir = Directory(Argument<string>("publishDir", "./publish"));
 var runtime = Argument<string>("runtime", "win-x64");
-var sln = "./GraphQL.Server.Transports.sln";
 var projectFiles = new [] {
   "./src/Core/Core.csproj",
   "./src/Transports.AspNetCore/Transports.AspNetCore.csproj",
+  "./src/Transports.AspNetCore.NewtonsoftJson/Transports.AspNetCore.NewtonsoftJson.csproj",
+  "./src/Transports.AspNetCore.SystemTextJson/Transports.AspNetCore.SystemTextJson.csproj",
   "./src/Transports.Subscriptions.Abstractions/Transports.Subscriptions.Abstractions.csproj",
   "./src/Transports.Subscriptions.WebSockets/Transports.Subscriptions.WebSockets.csproj",
   "./src/Ui.Playground/Ui.Playground.csproj",
@@ -113,8 +114,8 @@ Task("SetVersion")
 Task("Test")
   .Does(()=> 
   {
-      var projectFiles = GetFiles("./tests/**/*.csproj");
-      foreach (var file in projectFiles)
+      var testProjectFiles = GetFiles("./tests/**/*.csproj");
+      foreach (var file in testProjectFiles)
       {
           DotNetCoreTest(file.FullPath);
       }

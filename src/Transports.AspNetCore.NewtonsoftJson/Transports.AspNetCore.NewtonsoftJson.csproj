@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>GraphQL.Server.Transports.AspNetCore.NewtonsoftJson</AssemblyName>
+    <RootNamespace>GraphQL.Server.Transports.AspNetCore.NewtonsoftJson</RootNamespace>
+    <PackageId>GraphQL.Server.Transports.AspNetCore.NewtonsoftJson</PackageId>
+    <PackageTags>GraphQL middleware AspNetCore NewtonsoftJson</PackageTags>
+    <Description>GraphQL middleware using Newtonsoft.Json for serialization</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Transports.AspNetCore\Transports.AspNetCore.csproj" />
+    <PackageReference Include="GraphQL.NewtonsoftJson" Version="$(GraphQLVersion)" />
+  </ItemGroup>
+
+</Project>

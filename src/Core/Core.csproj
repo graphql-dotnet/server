@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
@@ -12,7 +12,6 @@
   
   <ItemGroup>
     <PackageReference Include="GraphQL" Version="$(GraphQLVersion)" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="$(MicrosoftExtensionsDependencyInjectionAbstractionsVersion)" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="$(MicrosoftExtensionsOptionsVersion)" />
   </ItemGroup>
   
