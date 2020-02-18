@@ -17,7 +17,7 @@ test: off
 skip_branch_with_pr: false
 
 install:
-  - ps: choco install dotnetcore-sdk --no-progress --confirm --version 3.0.100
+  - ps: choco install dotnetcore-sdk --no-progress --confirm --version 3.1.101
   - dotnet --version
 
 on_failure:

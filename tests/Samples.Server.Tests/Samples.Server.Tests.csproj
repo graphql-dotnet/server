@@ -1,12 +1,12 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.0;netcoreapp2.2</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1;netcoreapp3.0;netcoreapp2.2</TargetFrameworks>
     <Description>End to end tests for Samples.Server project</Description>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="GraphQL" Version="$(GraphQLVersion)" />
+    <PackageReference Include="GraphQL.NewtonsoftJson" Version="$(GraphQLVersion)" />
     <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="$(MicrosoftAspNetCoreTestHostVersion)" />
     <PackageReference Include="Shouldly" Version="$(ShouldlyVersion)" />
     <PackageReference Include="xunit" Version="$(xunitVersion)" />
@@ -17,11 +17,11 @@
     <ProjectReference Include="..\..\samples\Samples.Server\Samples.Server.csproj" />
   </ItemGroup>
 
-  <ItemGroup Label="References for .NET Core 3" Condition="'$(IsNetCore30OnwardsTarget)' == 'True'">
+  <ItemGroup Label="References for .NET Core 3" Condition="'$(IsNetCore3OnwardsTarget)' == 'True'">
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
-  <ItemGroup Label="References for .NET Core 2.2" Condition="'$(IsNetCore30OnwardsTarget)' == 'False'">
+  <ItemGroup Label="References for .NET Core 2.2" Condition="'$(IsNetCore3OnwardsTarget)' == 'False'">
     <PackageReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
