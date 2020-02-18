@@ -48,7 +48,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         private Task<WebSocket> ConnectAsync(string protocol)
         {
             var client = _server.CreateWebSocketClient();
-            client.ConfigureRequest = request => { request.Headers.Add("Sec-WebSocket-Protocol", protocol); };
+            client.ConfigureRequest = request => request.Headers.Add("Sec-WebSocket-Protocol", protocol);
             return client.ConnectAsync(new Uri("http://localhost/graphql"), CancellationToken.None);
         }
 

@@ -23,10 +23,7 @@ namespace Samples.Server.Tests
             Server = new TestServer(Program.CreateWebHostBuilder(Array.Empty<string>()));
 #else
             Host = Program.CreateHostBuilder(Array.Empty<string>())
-                 .ConfigureWebHost(webBuilder =>
-                 {
-                     webBuilder.UseTestServer();
-                 })
+                 .ConfigureWebHost(webBuilder => webBuilder.UseTestServer())
                  .Start();
 
             Server = Host.GetTestServer();

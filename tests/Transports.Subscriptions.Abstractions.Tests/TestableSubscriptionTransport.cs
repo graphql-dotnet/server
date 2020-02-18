@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
@@ -42,7 +42,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         public TestableWriter()
         {
             WrittenMessages = new List<OperationMessage>();
-            _endBlock = new ActionBlock<OperationMessage>(message => { WrittenMessages.Add(message); });
+            _endBlock = new ActionBlock<OperationMessage>(message => WrittenMessages.Add(message));
         }
 
         public List<OperationMessage> WrittenMessages { get; }

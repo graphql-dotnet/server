@@ -86,7 +86,7 @@ namespace GraphQL.Server.Transports.WebSockets
                     MaxDegreeOfParallelism = 1
                 });
 
-            Task.Run(async () => { await ReadMessageAsync(source).ConfigureAwait(false);  });
+            Task.Run(async () => await ReadMessageAsync(source).ConfigureAwait(false));
 
             return source;
         }

@@ -186,7 +186,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
 
         public byte[] ToArray()
         {
-            using (MemoryStream ms = new MemoryStream())
+            using (var ms = new MemoryStream())
             {
                 foreach (var bytes in _chunks)
                 {

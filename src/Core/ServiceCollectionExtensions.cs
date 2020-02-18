@@ -51,10 +51,7 @@ namespace GraphQL.Server
         /// <returns></returns>
         public static IGraphQLBuilder AddGraphQL(this IServiceCollection services, Action<GraphQLOptions> configureOptions)
         {
-            return services.AddGraphQL((provider, options) =>
-            {
-                configureOptions(options);
-            });
+            return services.AddGraphQL((provider, options) => configureOptions(options));
         }
 
         /// <summary>
