@@ -6,7 +6,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
 {
     public static class AuthorizationMetadataExtensions
     {
-        public const string PolicyKey = "Authorization__Policies";
+        public const string POLICY_KEY = "Authorization__Policies";
 
         public static bool RequiresAuthorization(this IProvideMetadata type)
         {
@@ -21,7 +21,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
             {
                 list.Add(policy);
             }
-            type.Metadata[PolicyKey] = list;
+            type.Metadata[POLICY_KEY] = list;
         }
 
         public static FieldBuilder<TSourceType, TReturnType> AuthorizeWith<TSourceType, TReturnType>(
@@ -30,15 +30,14 @@ namespace GraphQL.Server.Authorization.AspNetCore
             builder.FieldType.AuthorizeWith(policy);
             return builder;
         }
-        
-        public static ConnectionBuilder<TGraphType, TSourceType> AuthorizeWith<TGraphType, TSourceType>(
-            this ConnectionBuilder<TGraphType, TSourceType> builder, string policy)
-            where TGraphType : IGraphType
+
+        public static ConnectionBuilder<TSourceType> AuthorizeWith<TSourceType>(
+            this ConnectionBuilder<TSourceType> builder, string policy)
         {
             builder.FieldType.AuthorizeWith(policy);
             return builder;
         }
 
-        public static List<string> GetPolicies(this IProvideMetadata type) => type.GetMetadata<List<string>>(PolicyKey);
+        public static List<string> GetPolicies(this IProvideMetadata type) => type.GetMetadata<List<string>>(POLICY_KEY);
     }
 }
