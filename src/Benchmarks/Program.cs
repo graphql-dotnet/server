@@ -7,10 +7,7 @@ namespace GraphQL.Server.Benchmarks
         private static void Main(string[] args)
         {
             BenchmarkRunner.Run<DeserializeFromJsonBodyBenchmark>();
-
-            //var x = new DeserializeFromJsonBodyBenchmark();
-            //var result = x.NewtonsoftJson().GetAwaiter().GetResult();
-            //var result = x.SystemTextJson().GetAwaiter().GetResult();
+            //BenchmarkRunner.Run<DeserializeInputsFromJsonBenchmark>();
         }
     }
 }
