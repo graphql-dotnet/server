@@ -49,12 +49,12 @@ namespace GraphQL.Server.Transports.WebSockets
                         await _socket.CloseAsync(
                           closeStatus,
                           statusDescription,
-                          CancellationToken.None).ConfigureAwait(false); 
+                          CancellationToken.None); 
                     else
                         await _socket.CloseOutputAsync(
                           closeStatus,
                           statusDescription,
-                          CancellationToken.None).ConfigureAwait(false); 
+                          CancellationToken.None); 
                 }
                 finally
                 {
@@ -86,7 +86,7 @@ namespace GraphQL.Server.Transports.WebSockets
                     MaxDegreeOfParallelism = 1
                 });
 
-            Task.Run(async () => await ReadMessageAsync(source).ConfigureAwait(false));
+            Task.Run(async () => await ReadMessageAsync(source));
 
             return source;
         }
@@ -107,7 +107,7 @@ namespace GraphQL.Server.Transports.WebSockets
 
                         do
                         {
-                            receiveResult = await _socket.ReceiveAsync(segment, CancellationToken.None).ConfigureAwait(false);
+                            receiveResult = await _socket.ReceiveAsync(segment, CancellationToken.None);
 
                             if (receiveResult.CloseStatus.HasValue)
                                 target.Complete();
@@ -115,7 +115,7 @@ namespace GraphQL.Server.Transports.WebSockets
                             if (receiveResult.Count == 0)
                                 continue;
 
-                            await memoryStream.WriteAsync(segment.Array, segment.Offset, receiveResult.Count).ConfigureAwait(false);
+                            await memoryStream.WriteAsync(segment.Array, segment.Offset, receiveResult.Count);
                         } while (!receiveResult.EndOfMessage || memoryStream.Length == 0);
 
                         message = Encoding.UTF8.GetString(memoryStream.ToArray());
@@ -141,7 +141,7 @@ namespace GraphQL.Server.Transports.WebSockets
                                 break;
                         }
 
-                        await Complete(closeStatus, $"Closing socket connection due to {wx.WebSocketErrorCode}.").ConfigureAwait(false);
+                        await Complete(closeStatus, $"Closing socket connection due to {wx.WebSocketErrorCode}.");
                         break;
                     }
                     catch (Exception x)
@@ -151,7 +151,7 @@ namespace GraphQL.Server.Transports.WebSockets
                     }
                 }
 
-                await target.SendAsync(message).ConfigureAwait(false);
+                await target.SendAsync(message);
             }
         }
     }

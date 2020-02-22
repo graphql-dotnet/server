@@ -33,7 +33,7 @@ namespace GraphQL.Server.Transports.AspNetCore
         {
             if (context.WebSockets.IsWebSocketRequest || !context.Request.Path.StartsWithSegments(_path))
             {
-                await _next(context).ConfigureAwait(false);
+                await _next(context);
                 return;
             }
 
@@ -54,7 +54,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                 await WriteErrorResponseAsync(httpResponse, writer, cancellationToken,
                     $"Invalid HTTP method. Only GET and POST are supported. {DOCS_URL}",
                     httpStatusCode: 405 // Method Not Allowed
-                ).ConfigureAwait(false);
+                );
                 return;
             }
 
@@ -65,17 +65,17 @@ namespace GraphQL.Server.Transports.AspNetCore
             {
                 if (!MediaTypeHeaderValue.TryParse(httpRequest.ContentType, out var mediaTypeHeader))
                 {
-                    await WriteErrorResponseAsync(httpResponse, writer, cancellationToken, $"Invalid 'Content-Type' header: value '{httpRequest.ContentType}' could not be parsed.").ConfigureAwait(false);
+                    await WriteErrorResponseAsync(httpResponse, writer, cancellationToken, $"Invalid 'Content-Type' header: value '{httpRequest.ContentType}' could not be parsed.");
                     return;
                 }
 
                 switch (mediaTypeHeader.MediaType)
                 {
                     case MediaType.JSON:
-                        var deserializationResult = await _deserializer.DeserializeFromJsonBodyAsync(httpRequest, cancellationToken).ConfigureAwait(false);
+                        var deserializationResult = await _deserializer.DeserializeFromJsonBodyAsync(httpRequest, cancellationToken);
                         if (!deserializationResult.IsSuccessful)
                         {
-                            await WriteErrorResponseAsync(httpResponse, writer, cancellationToken, "Body text could not be parsed. Body text should start with '{' for normal graphql query or with '[' for batched query.").ConfigureAwait(false);
+                            await WriteErrorResponseAsync(httpResponse, writer, cancellationToken, "Body text could not be parsed. Body text should start with '{' for normal graphql query or with '[' for batched query.");
                             return;
                         }
                         bodyGQLRequest = deserializationResult.Single;
@@ -83,16 +83,16 @@ namespace GraphQL.Server.Transports.AspNetCore
                         break;
 
                     case MediaType.GRAPH_QL:
-                        bodyGQLRequest = await DeserializeFromGraphBodyAsync(httpRequest.Body).ConfigureAwait(false);
+                        bodyGQLRequest = await DeserializeFromGraphBodyAsync(httpRequest.Body);
                         break;
 
                     case MediaType.FORM:
-                        var formCollection = await httpRequest.ReadFormAsync().ConfigureAwait(false);
+                        var formCollection = await httpRequest.ReadFormAsync();
                         bodyGQLRequest = DeserializeFromFormBody(formCollection);
                         break;
 
                     default:
-                        await WriteErrorResponseAsync(httpResponse, writer, cancellationToken, $"Invalid 'Content-Type' header: non-supported media type. Must be of '{MediaType.JSON}', '{MediaType.GRAPH_QL}' or '{MediaType.FORM}'. {DOCS_URL}").ConfigureAwait(false);
+                        await WriteErrorResponseAsync(httpResponse, writer, cancellationToken, $"Invalid 'Content-Type' header: non-supported media type. Must be of '{MediaType.JSON}', '{MediaType.GRAPH_QL}' or '{MediaType.FORM}'. {DOCS_URL}");
                         return;
                 }
             }
@@ -117,7 +117,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             var userContextBuilder = context.RequestServices.GetService<IUserContextBuilder>();
             var userContext = userContextBuilder == null
                 ? new Dictionary<string, object>() // in order to allow resolvers to exchange their state through this object
-                : await userContextBuilder.BuildUserContext(context).ConfigureAwait(false);
+                : await userContextBuilder.BuildUserContext(context);
 
             var executer = context.RequestServices.GetRequiredService<IGraphQLExecuter<TSchema>>();
 
@@ -129,7 +129,7 @@ namespace GraphQL.Server.Transports.AspNetCore
 
                 await RequestExecutedAsync(new GraphQLRequestExecutionResult(gqlRequest, result, stopwatch.Elapsed));
 
-                await WriteResponseAsync(httpResponse, writer, cancellationToken, result).ConfigureAwait(false);
+                await WriteResponseAsync(httpResponse, writer, cancellationToken, result);
             }
             // Execute multiple graphql requests in one batch
             else
@@ -147,7 +147,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                     executionResults[i] = result;
                 }
 
-                await WriteResponseAsync(httpResponse, writer, cancellationToken, executionResults).ConfigureAwait(false);
+                await WriteResponseAsync(httpResponse, writer, cancellationToken, executionResults);
             }
         }
 
@@ -214,7 +214,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             // This leads to the inability to use the stream further by other consumers/middlewares of the request processing
             // pipeline. In fact, it is absolutely not dangerous not to dispose StreamReader as it does not perform any useful
             // work except for the disposing inner stream.
-            string query = await new StreamReader(bodyStream).ReadToEndAsync().ConfigureAwait(false);
+            string query = await new StreamReader(bodyStream).ReadToEndAsync();
 
             return new GraphQLRequest { Query = query };
         }

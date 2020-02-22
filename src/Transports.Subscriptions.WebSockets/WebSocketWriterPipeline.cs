@@ -50,12 +50,11 @@ namespace GraphQL.Server.Transports.WebSockets
             var stream = new WebsocketWriterStream(_socket);
             try
             {
-                await _documentWriter.WriteAsync(stream, message)
-                    .ConfigureAwait(false);
+                await _documentWriter.WriteAsync(stream, message);
             }
             finally
             {
-                await stream.FlushAsync().ConfigureAwait(false);
+                await stream.FlushAsync();
                 stream.Dispose();
             }
         }
