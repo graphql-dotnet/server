@@ -41,13 +41,13 @@ namespace GraphQL.Samples.Schemas.Chat
             var messageContext = context.UserContext.As<MessageHandlingContext>();
             var user = messageContext.Get<ClaimsPrincipal>("user");
 
-            var sub = "Anonymous";
+            string sub = "Anonymous";
             if (user != null)
                 sub = user.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
 
             var messages = _chat.Messages(sub);
 
-            var id = context.GetArgument<string>("id");
+            string id = context.GetArgument<string>("id");
             return messages.Where(message => message.From.Id == id);
         }
 
@@ -63,7 +63,7 @@ namespace GraphQL.Samples.Schemas.Chat
             var messageContext = context.UserContext.As<MessageHandlingContext>();
             var user = messageContext.Get<ClaimsPrincipal>("user");
 
-            var sub = "Anonymous";
+            string sub = "Anonymous";
             if (user != null)
                 sub = user.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
 

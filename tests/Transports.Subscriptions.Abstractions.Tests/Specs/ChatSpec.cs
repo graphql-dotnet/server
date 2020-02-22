@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -43,8 +43,8 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
         private readonly TestableSubscriptionTransport _transport;
         private readonly SubscriptionManager _subscriptions;
         private readonly SubscriptionServer _server;
-        private TestableReader _transportReader;
-        private TestableWriter _transportWriter;
+        private readonly TestableReader _transportReader;
+        private readonly TestableWriter _transportWriter;
 
         private void AssertReceivedData(List<OperationMessage> writtenMessages, Predicate<JObject> predicate)
         {
@@ -66,7 +66,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
                 SentAt = DateTime.Now
             });
 
-            var id = "1";
+            string id = "1";
             _transportReader.AddMessageToRead(new OperationMessage
             {
                 Id = id,
@@ -122,7 +122,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
                 SentAt = DateTime.Now
             });
 
-            var id = "1";
+            string id = "1";
             _transportReader.AddMessageToRead(new OperationMessage
             {
                 Id = id,
@@ -167,7 +167,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
         {
             /* Given */
             // subscribe
-            var id = "1";
+            string id = "1";
             _transportReader.AddMessageToRead(new OperationMessage
             {
                 Id = id,

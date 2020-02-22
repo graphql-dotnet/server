@@ -12,8 +12,6 @@ namespace Microsoft.AspNetCore.Builder
         /// <param name="options"> Options to customize <see cref="GraphiQLMiddleware"/>. If not set, then the default values will be used. </param>
         /// <returns> The reference to provided <paramref name="app"/> instance. </returns>
         public static IApplicationBuilder UseGraphiQLServer(this IApplicationBuilder applicationBuilder, GraphiQLOptions options = null)
-        {
-            return applicationBuilder.UseMiddleware<GraphiQLMiddleware>(options ?? new GraphiQLOptions());
-        }
+            => applicationBuilder.UseMiddleware<GraphiQLMiddleware>(options ?? new GraphiQLOptions());
     }
 }

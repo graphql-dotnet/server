@@ -39,7 +39,7 @@ namespace GraphQL.Server.Transports.AspNetCore.NewtonsoftJson
 
             using (var jsonReader = new JsonTextReader(reader) { CloseInput = false })
             {
-                var firstChar = reader.Peek();
+                int firstChar = reader.Peek();
 
                 cancellationToken.ThrowIfCancellationRequested();
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using GraphQL.Server.Internal;
@@ -36,7 +36,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         public async Task Failed_Subscribe_does_not_add()
         {
             /* Given */
-            var id = "1";
+            string id = "1";
             var payload = new OperationMessagePayload();
             var context = new MessageHandlingContext(_server, null);
 
@@ -60,7 +60,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         public async Task Failed_Subscribe_with_null_stream()
         {
             /* Given */
-            var id = "1";
+            string id = "1";
             var payload = new OperationMessagePayload();
             var context = new MessageHandlingContext(_server, null);
 
@@ -87,7 +87,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         public async Task Failed_Subscribe_writes_error()
         {
             /* Given */
-            var id = "1";
+            string id = "1";
             var payload = new OperationMessagePayload();
             var context = new MessageHandlingContext(_server, null);
 
@@ -114,7 +114,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         public async Task Subscribe_adds()
         {
             /* Given */
-            var id = "1";
+            string id = "1";
             var payload = new OperationMessagePayload();
             var context = new MessageHandlingContext(_server, null);
 
@@ -129,7 +129,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         public async Task Subscribe_executes()
         {
             /* Given */
-            var id = "1";
+            string id = "1";
             var payload = new OperationMessagePayload();
             var context = new MessageHandlingContext(_server, null);
 
@@ -148,7 +148,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         public async Task Unsubscribe_removes()
         {
             /* Given */
-            var id = "1";
+            string id = "1";
             var payload = new OperationMessagePayload();
             var context = new MessageHandlingContext(_server, null);
 
@@ -165,7 +165,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         public async Task Unsubscribe_writes_complete()
         {
             /* Given */
-            var id = "1";
+            string id = "1";
             var payload = new OperationMessagePayload();
             var context = new MessageHandlingContext(_server, null);
 

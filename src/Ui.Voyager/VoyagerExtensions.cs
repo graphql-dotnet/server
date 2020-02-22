@@ -1,4 +1,4 @@
-﻿using GraphQL.Server.Ui.Voyager;
+using GraphQL.Server.Ui.Voyager;
 
 namespace Microsoft.AspNetCore.Builder
 {
@@ -12,8 +12,6 @@ namespace Microsoft.AspNetCore.Builder
         /// <param name="options"> Options to customize <see cref="VoyagerMiddleware"/>. If not set, then the default values will be used. </param>
         /// <returns> The reference to provided <paramref name="app"/> instance. </returns>
         public static IApplicationBuilder UseGraphQLVoyager(this IApplicationBuilder app, GraphQLVoyagerOptions options = null)
-        {
-            return app.UseMiddleware<VoyagerMiddleware>(options ?? new GraphQLVoyagerOptions());
-        }
+            => app.UseMiddleware<VoyagerMiddleware>(options ?? new GraphQLVoyagerOptions());
     }
 }

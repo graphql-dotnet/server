@@ -27,9 +27,6 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         public object Payload { get; set; }
 
         /// <inheritdoc />
-        public override string ToString()
-        {
-            return $"Type: {Type} Id: {Id} Payload: {Payload}";
-        }
+        public override string ToString() => $"Type: {Type} Id: {Id} Payload: {Payload}";
     }
 }

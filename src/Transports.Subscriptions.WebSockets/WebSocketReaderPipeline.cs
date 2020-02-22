@@ -86,7 +86,7 @@ namespace GraphQL.Server.Transports.WebSockets
                     MaxDegreeOfParallelism = 1
                 });
 
-            Task.Run(async () => { await ReadMessageAsync(source).ConfigureAwait(false);  });
+            Task.Run(async () => await ReadMessageAsync(source).ConfigureAwait(false));
 
             return source;
         }
@@ -96,7 +96,7 @@ namespace GraphQL.Server.Transports.WebSockets
             while (!_socket.CloseStatus.HasValue)
             {
                 string message;
-                var buffer = new byte[1024 * 4];
+                byte[] buffer = new byte[1024 * 4];
                 var segment = new ArraySegment<byte>(buffer);
 
                 using (var memoryStream = new MemoryStream())

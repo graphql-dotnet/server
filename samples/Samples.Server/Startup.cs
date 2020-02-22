@@ -47,10 +47,7 @@ namespace GraphQL.Samples.Server
                 {
                     options.EnableMetrics = Environment.IsDevelopment();
                     options.ExposeExceptions = Environment.IsDevelopment();
-                    options.UnhandledExceptionDelegate = ctx =>
-                    {
-                        Console.WriteLine("error: " + ctx.OriginalException.Message);
-                    };
+                    options.UnhandledExceptionDelegate = ctx => Console.WriteLine("error: " + ctx.OriginalException.Message);
                 })
 #if NETCOREAPP2_2
                 .AddNewtonsoftJson(deserializerSettings => { }, serializerSettings => { })

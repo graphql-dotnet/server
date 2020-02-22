@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -52,10 +52,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             await TransportWriter.Completion.ConfigureAwait(false);
         }
 
-        public Task OnDisconnect()
-        {
-            return Terminate();
-        }
+        public Task OnDisconnect() => Terminate();
 
         public async Task Terminate()
         {
@@ -115,9 +112,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         }
 
         private Task<MessageHandlingContext> BuildMessageHandlingContext(OperationMessage message)
-        {
-            return Task.FromResult(new MessageHandlingContext(this, message));
-        }
+            => Task.FromResult(new MessageHandlingContext(this, message));
 
         private async Task OnHandleAsync(MessageHandlingContext context)
         {
