@@ -1,4 +1,5 @@
 using System;
+using GraphQL.Instrumentation;
 using GraphQL.Server.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -25,6 +26,7 @@ namespace GraphQL.Server
         public static IGraphQLBuilder AddGraphQL(this IServiceCollection services, Action<GraphQLOptions> configureOptions)
         {
             services.Configure(configureOptions ?? throw new ArgumentNullException(nameof(configureOptions)));
+            services.TryAddSingleton<InstrumentFieldsMiddleware>();
             services.TryAddSingleton<IDocumentExecuter, DocumentExecuter>();
             services.TryAddTransient(typeof(IGraphQLExecuter<>), typeof(DefaultGraphQLExecuter<>));
 

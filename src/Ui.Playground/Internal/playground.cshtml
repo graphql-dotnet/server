@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
   <meta charset=utf-8 />
@@ -54,7 +54,8 @@
           endpoint: window.location.protocol + "//" + window.location.host + "@Model.GraphQLEndPoint",
           subscriptionEndpoint: (window.location.protocol === "http:" ? "ws://" : "wss://") + window.location.host + "@Model.GraphQLEndPoint",
           config: @Model.GraphQLConfig,
-          settings: @Model.PlaygroundSettings
+          settings: @Model.PlaygroundSettings,
+          headers: @Model.Headers,
         });
     })
   </script>

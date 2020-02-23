@@ -27,5 +27,10 @@ namespace GraphQL.Server.Ui.Playground
         /// The GraphQL Playground Settings
         /// </summary>
         public Dictionary<string, object> PlaygroundSettings { get; set; }
+
+        /// <summary>
+        /// HTTP Headers with which the GraphQL Playground will be initialized
+        /// </summary>
+        public Dictionary<string, object> Headers { get; set; }
     }
 }

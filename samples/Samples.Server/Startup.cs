@@ -77,7 +77,12 @@ namespace GraphQL.Samples.Server
                 {
                     ["editor.theme"] = "light",
                     ["tracing.hideTracingResponse"] = false,
-                }
+                },
+                Headers = new Dictionary<string, object>
+                {
+                    ["MyHeader1"] = "MyValue",
+                    ["MyHeader2"] = 42,
+                },
             });
 
             app.UseGraphiQLServer(new GraphiQLOptions
