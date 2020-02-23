@@ -168,7 +168,7 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
                 _.Schema = TypedSchema();
                 _.User = CreatePrincipal(claims: new Dictionary<string, string>
                 {
-                    {"Admin", "true"}
+                    { "Admin", "true" }
                 });
             });
         }
