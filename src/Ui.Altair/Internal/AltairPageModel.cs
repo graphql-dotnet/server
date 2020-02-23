@@ -24,7 +24,7 @@ namespace GraphQL.Server.Ui.Altair.Internal
 
                 var builder = new StringBuilder(streamReader.ReadToEnd())
                     .Replace("@Model.GraphQLEndPoint", _options.GraphQLEndPoint)
-                    .Replace("@Model.AltairHeaders", Serializer.Serialize(_options.Headers));
+                    .Replace("@Model.Headers", Serializer.Serialize(_options.Headers));
 
                 _altairCSHtml = builder.ToString();
             }

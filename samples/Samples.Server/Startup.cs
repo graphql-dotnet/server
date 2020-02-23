@@ -105,6 +105,11 @@ namespace GraphQL.Samples.Server
             {
                 Path = "/ui/voyager",
                 GraphQLEndPoint = "/graphql",
+                Headers = new Dictionary<string, object>
+                {
+                    ["MyHeader1"] = "MyValue",
+                    ["MyHeader2"] = 42,
+                },
             });
         }
     }
