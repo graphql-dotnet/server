@@ -23,7 +23,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
             _transportWriter = _transport.Writer as TestableWriter;
             _subscriptions = new SubscriptionManager(
                 new DefaultGraphQLExecuter<ChatSchema>(
-                    new ChatSchema(_chat),
+                    new ChatSchema(_chat, new DefaultServiceProvider()),
                     new DocumentExecuter(),
                     Options.Create(new GraphQLOptions()),
                     Enumerable.Empty<IDocumentExecutionListener>(),

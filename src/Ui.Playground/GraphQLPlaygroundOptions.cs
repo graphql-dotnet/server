@@ -25,6 +25,11 @@ namespace GraphQL.Server.Ui.Playground
         public Dictionary<string, object> GraphQLConfig { get; set; }
 
         /// <summary>
+        /// HTTP Headers with which the GraphQL Playground will be initialized
+        /// </summary>
+        public Dictionary<string, object> Headers { get; set; }
+      
+        /// <summary>
         /// The GraphQL Playground Settings, see <see href="https://github.com/prisma-labs/graphql-playground/blob/master/README.md#settings"/>.
         /// </summary>
         public Dictionary<string, object> PlaygroundSettings { get; set; } = new Dictionary<string, object>();

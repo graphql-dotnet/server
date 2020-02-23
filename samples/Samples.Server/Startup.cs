@@ -91,6 +91,12 @@ namespace GraphQL.Samples.Server
                 SchemaPollingEnabled = true,
                 SchemaPollingEndpointFilter = "*localhost*",
                 SchemaPollingInterval = 5000,
+
+                Headers = new Dictionary<string, object>
+                {
+                    ["MyHeader1"] = "MyValue",
+                    ["MyHeader2"] = 42,
+                },
             });
 
             app.UseGraphiQLServer(new GraphiQLOptions
