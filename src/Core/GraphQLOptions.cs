@@ -6,6 +6,9 @@ using System;
 
 namespace GraphQL.Server
 {
+    /// <summary>
+    /// Options to configure <see cref="Internal.DefaultGraphQLExecuter{TSchema}"/>.
+    /// </summary>
     public class GraphQLOptions
     {
         public ComplexityConfiguration ComplexityConfiguration { get; set; }
