@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-#if (NETFRAMEWORK || NETCOREAPP2_2)
+#if NETFRAMEWORK || NETCOREAPP2_2
 using Microsoft.AspNetCore;
 #else
 using Microsoft.Extensions.Hosting;
@@ -16,7 +16,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
 {
     public class WebSocketsConnectionFacts : IDisposable
     {
-#if (NETFRAMEWORK || NETCOREAPP2_2)
+#if NETFRAMEWORK || NETCOREAPP2_2
         public WebSocketsConnectionFacts()
         {
             _server = new TestServer(WebHost
@@ -48,7 +48,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         private Task<WebSocket> ConnectAsync(string protocol)
         {
             var client = _server.CreateWebSocketClient();
-            client.ConfigureRequest = request => { request.Headers.Add("Sec-WebSocket-Protocol", protocol); };
+            client.ConfigureRequest = request => request.Headers.Add("Sec-WebSocket-Protocol", protocol);
             return client.ConnectAsync(new Uri("http://localhost/graphql"), CancellationToken.None);
         }
 

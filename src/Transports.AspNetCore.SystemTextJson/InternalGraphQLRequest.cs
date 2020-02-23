@@ -9,17 +9,17 @@ namespace GraphQL.Server.Transports.AspNetCore.SystemTextJson
     /// </summary>
     internal sealed class InternalGraphQLRequest
     {
-        [JsonPropertyName(GraphQLRequest.QueryKey)]
+        [JsonPropertyName(GraphQLRequest.QUERY_KEY)]
         public string Query { get; set; }
 
-        [JsonPropertyName(GraphQLRequest.OperationNameKey)]
+        [JsonPropertyName(GraphQLRequest.OPERATION_NAME_KEY)]
         public string OperationName { get; set; }
 
         /// <remarks>
         /// Population of this property during deserialization from JSON requires
         /// <see cref="GraphQL.SystemTextJson.ObjectDictionaryConverter"/>.
         /// </remarks>
-        [JsonPropertyName(GraphQLRequest.VariablesKey)]
+        [JsonPropertyName(GraphQLRequest.VARIABLES_KEY)]
         public Dictionary<string, object> Variables { get; set; }
     }
 }

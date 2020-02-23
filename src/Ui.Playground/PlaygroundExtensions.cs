@@ -12,8 +12,6 @@ namespace Microsoft.AspNetCore.Builder
         /// <param name="options"> Options to customize <see cref="PlaygroundMiddleware"/>. If not set, then the default values will be used. </param>
         /// <returns> The reference to provided <paramref name="app"/> instance. </returns>
         public static IApplicationBuilder UseGraphQLPlayground(this IApplicationBuilder app, GraphQLPlaygroundOptions options = null)
-        {
-            return app.UseMiddleware<PlaygroundMiddleware>(options ?? new GraphQLPlaygroundOptions());
-        }
+            => app.UseMiddleware<PlaygroundMiddleware>(options ?? new GraphQLPlaygroundOptions());
     }
 }

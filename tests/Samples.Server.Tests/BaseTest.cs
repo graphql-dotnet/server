@@ -23,10 +23,7 @@ namespace Samples.Server.Tests
             Server = new TestServer(Program.CreateWebHostBuilder(Array.Empty<string>()));
 #else
             Host = Program.CreateHostBuilder(Array.Empty<string>())
-                 .ConfigureWebHost(webBuilder =>
-                 {
-                     webBuilder.UseTestServer();
-                 })
+                 .ConfigureWebHost(webBuilder => webBuilder.UseTestServer())
                  .Start();
 
             Server = Host.GetTestServer();
@@ -64,7 +61,7 @@ namespace Samples.Server.Tests
             // https://github.com/graphql/express-graphql/blob/master/src/index.js
 
             // Build a url to call the api with
-            var url = GRAPHQL_URL;
+            string url = GRAPHQL_URL;
 
             // If query string override request details are provided,
             // use it where valid. For PostWithGraph, this is handled in its own part of the next
@@ -97,8 +94,8 @@ namespace Samples.Server.Tests
 
                 case RequestType.PostWithJson:
                     // Details passed in body content as JSON, with url query string params also allowed
-                    var json = Serializer.ToJson(request);
-                    var jsonContent = new StringContent(json, Encoding.UTF8, MediaType.Json);
+                    string json = Serializer.ToJson(request);
+                    var jsonContent = new StringContent(json, Encoding.UTF8, MediaType.JSON);
                     response = await Client.PostAsync(url, jsonContent);
                     break;
 
@@ -111,7 +108,7 @@ namespace Samples.Server.Tests
                         OperationName = queryStringOverride?.OperationName ?? request.OperationName,
                         Inputs = queryStringOverride?.Inputs ?? request.Inputs
                     });
-                    var graphContent = new StringContent(request.Query, Encoding.UTF8, MediaType.GraphQL);
+                    var graphContent = new StringContent(request.Query, Encoding.UTF8, MediaType.GRAPH_QL);
                     response = await Client.PostAsync(urlWithParams, graphContent);
                     break;
 
@@ -130,7 +127,7 @@ namespace Samples.Server.Tests
 
         protected async Task<string> SendBatchRequestAsync(params GraphQLRequest[] requests)
         {
-            var content = Serializer.ToJson(requests);
+            string content = Serializer.ToJson(requests);
             using var response = await Client.PostAsync("graphql", new StringContent(content, Encoding.UTF8, "application/json"));
             return await response.Content.ReadAsStringAsync();
         }

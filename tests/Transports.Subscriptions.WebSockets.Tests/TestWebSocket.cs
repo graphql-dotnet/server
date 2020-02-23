@@ -19,27 +19,15 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         {
         }
 
-        public override Task CloseAsync(WebSocketCloseStatus closeStatus, string statusDescription,
-            CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
-        }
+        public override Task CloseAsync(WebSocketCloseStatus closeStatus, string statusDescription, CancellationToken cancellationToken) => Task.CompletedTask;
 
-        public override Task CloseOutputAsync(WebSocketCloseStatus closeStatus, string statusDescription,
-            CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
-        }
+        public override Task CloseOutputAsync(WebSocketCloseStatus closeStatus, string statusDescription, CancellationToken cancellationToken) => Task.CompletedTask;
 
         public override void Dispose()
         {
         }
 
-        public override Task<WebSocketReceiveResult> ReceiveAsync(ArraySegment<byte> buffer,
-            CancellationToken cancellationToken)
-        {
-            throw new NotSupportedException();
-        }
+        public override Task<WebSocketReceiveResult> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancellationToken) => throw new NotSupportedException();
 
         public override Task SendAsync(ArraySegment<byte> buffer, WebSocketMessageType messageType, bool endOfMessage,
             CancellationToken cancellationToken)
@@ -74,33 +62,21 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         private int _positionOffset;
         private long _position;
 
-        public override bool CanRead
-        {
-            get { return true; }
-        }
+        public override bool CanRead => true;
 
-        public override bool CanSeek
-        {
-            get { return true; }
-        }
+        public override bool CanSeek => true;
 
-        public override bool CanWrite
-        {
-            get { return true; }
-        }
+        public override bool CanWrite => true;
 
         public override void Flush()
         {
         }
 
-        public override long Length
-        {
-            get { return _chunks.Sum(c => c.Length); }
-        }
+        public override long Length => _chunks.Sum(c => c.Length);
 
         public override long Position
         {
-            get { return _position; }
+            get => _position;
             set
             {
                 _position = value;
@@ -124,7 +100,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         public override int Read(byte[] buffer, int offset, int count)
         {
             int result = 0;
-            while ((count != 0) && (_positionChunk != _chunks.Count))
+            while (count != 0 && _positionChunk != _chunks.Count)
             {
                 int fromChunk = Math.Min(count, _chunks[_positionChunk].Length - _positionOffset);
                 if (fromChunk != 0)
@@ -164,14 +140,11 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
             return newPos;
         }
 
-        public override void SetLength(long value)
-        {
-            throw new NotSupportedException();
-        }
+        public override void SetLength(long value) => throw new NotSupportedException();
 
         public override void Write(byte[] buffer, int offset, int count)
         {
-            while ((count != 0) && (_positionChunk != _chunks.Count))
+            while (count != 0 && _positionChunk != _chunks.Count)
             {
                 int toChunk = Math.Min(count, _chunks[_positionChunk].Length - _positionOffset);
                 if (toChunk != 0)
@@ -198,9 +171,9 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
 
         public byte[] ToArray()
         {
-            using (MemoryStream ms = new MemoryStream())
+            using (var ms = new MemoryStream())
             {
-                foreach (var bytes in _chunks)
+                foreach (byte[] bytes in _chunks)
                 {
                     ms.Write(bytes, 0, bytes.Length);
                 }

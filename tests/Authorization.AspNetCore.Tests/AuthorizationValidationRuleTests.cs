@@ -11,10 +11,7 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
         public void class_policy_success()
         {
             ConfigureAuthorizationOptions(
-                options =>
-                {
-                    options.AddPolicy("ClassPolicy", x => x.RequireClaim("admin"));
-                });
+                options => options.AddPolicy("ClassPolicy", x => x.RequireClaim("admin")));
 
             ShouldPassRule(_ =>
             {
@@ -31,10 +28,7 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
         public void class_policy_fail()
         {
             ConfigureAuthorizationOptions(
-                options =>
-                {
-                    options.AddPolicy("ClassPolicy", x => x.RequireClaim("admin"));
-                });
+                options => options.AddPolicy("ClassPolicy", x => x.RequireClaim("admin")));
 
             ShouldFailRule(_ =>
             {
@@ -47,10 +41,7 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
         public void field_policy_success()
         {
             ConfigureAuthorizationOptions(
-                options =>
-                {
-                    options.AddPolicy("FieldPolicy", x => x.RequireClaim("admin"));
-                });
+                options => options.AddPolicy("FieldPolicy", x => x.RequireClaim("admin")));
 
             ShouldPassRule(_ =>
             {
@@ -67,10 +58,7 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
         public void field_policy_fail()
         {
             ConfigureAuthorizationOptions(
-                options =>
-                {
-                    options.AddPolicy("FieldPolicy", x => x.RequireClaim("admin"));
-                });
+                options => options.AddPolicy("FieldPolicy", x => x.RequireClaim("admin")));
 
             ShouldFailRule(_ =>
             {
@@ -83,10 +71,7 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
         public void nested_type_policy_success()
         {
             ConfigureAuthorizationOptions(
-                options =>
-                {
-                    options.AddPolicy("PostPolicy", x => x.RequireClaim("admin"));
-                });
+                options => options.AddPolicy("PostPolicy", x => x.RequireClaim("admin")));
 
             ShouldPassRule(_ =>
             {
@@ -103,10 +88,7 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
         public void nested_type_policy_fail()
         {
             ConfigureAuthorizationOptions(
-                options =>
-                {
-                    options.AddPolicy("PostPolicy", x => x.RequireClaim("admin"));
-                });
+                options => options.AddPolicy("PostPolicy", x => x.RequireClaim("admin")));
 
             ShouldFailRule(_ =>
             {
@@ -119,10 +101,7 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
         public void passes_with_claim_on_input_type()
         {
             ConfigureAuthorizationOptions(
-                options =>
-                {
-                    options.AddPolicy("FieldPolicy", x => x.RequireClaim("admin"));
-                });
+                options => options.AddPolicy("FieldPolicy", x => x.RequireClaim("admin")));
 
             ShouldPassRule(_ =>
             {
@@ -139,10 +118,7 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
         public void nested_type_list_policy_fail()
         {
             ConfigureAuthorizationOptions(
-                options =>
-                {
-                    options.AddPolicy("PostPolicy", x => x.RequireClaim("admin"));
-                });
+                options => options.AddPolicy("PostPolicy", x => x.RequireClaim("admin")));
 
             ShouldFailRule(_ =>
             {
@@ -155,10 +131,7 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
         public void nested_type_list_non_null_policy_fail()
         {
             ConfigureAuthorizationOptions(
-                options =>
-                {
-                    options.AddPolicy("PostPolicy", x => x.RequireClaim("admin"));
-                });
+                options => options.AddPolicy("PostPolicy", x => x.RequireClaim("admin")));
 
             ShouldFailRule(_ =>
             {
@@ -171,10 +144,7 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
         public void fails_on_missing_claim_on_input_type()
         {
             ConfigureAuthorizationOptions(
-                options =>
-                {
-                    options.AddPolicy("FieldPolicy", x => x.RequireClaim("admin"));
-                });
+                options => options.AddPolicy("FieldPolicy", x => x.RequireClaim("admin")));
 
             ShouldFailRule(_ =>
             {
@@ -228,30 +198,21 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
                 }
             ";
 
-            return Schema.For(defs, _ =>
-            {
-                _.Types.Include<T>();
-            });
+            return Schema.For(defs, _ => _.Types.Include<T>());
         }
 
         [GraphQLMetadata("Query")]
         [GraphQLAuthorize(Policy = "ClassPolicy")]
         public class BasicQueryWithAttributesAndClassPolicy
         {
-            public string Post(string id)
-            {
-                return "";
-            }
+            public string Post(string id) => "";
         }
 
         [GraphQLMetadata("Query")]
         public class BasicQueryWithAttributesAndFieldPolicy
         {
             [GraphQLAuthorize(Policy = "FieldPolicy")]
-            public string Post(string id)
-            {
-                return "";
-            }
+            public string Post(string id) => "";
         }
 
         private ISchema NestedSchema()
@@ -278,20 +239,11 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
         [GraphQLMetadata("Query")]
         public class NestedQueryWithAttributes
         {
-            public Post Post(string id)
-            {
-                return null;
-            }
+            public Post Post(string id) => null;
 
-            public IEnumerable<Post> Posts()
-            {
-                return null;
-            }
+            public IEnumerable<Post> Posts() => null;
 
-            public IEnumerable<Post> PostsNonNull()
-            {
-                return null;
-            }
+            public IEnumerable<Post> PostsNonNull() => null;
         }
 
         [GraphQLAuthorize(Policy = "PostPolicy")]

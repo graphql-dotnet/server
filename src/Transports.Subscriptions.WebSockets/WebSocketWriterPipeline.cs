@@ -19,15 +19,9 @@ namespace GraphQL.Server.Transports.WebSockets
             _startBlock = CreateMessageWriter();
         }
 
-        public bool Post(OperationMessage message)
-        {
-            return _startBlock.Post(message);
-        }
+        public bool Post(OperationMessage message) => _startBlock.Post(message);
 
-        public Task SendAsync(OperationMessage message)
-        {
-            return _startBlock.SendAsync(message);
-        }
+        public Task SendAsync(OperationMessage message) => _startBlock.SendAsync(message);
 
         public Task Completion => _startBlock.Completion;
 

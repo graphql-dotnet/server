@@ -1,3 +1,4 @@
+using GraphQL.Instrumentation;
 using GraphQL.Server.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -15,9 +16,7 @@ namespace GraphQL.Server
         /// <param name="options"></param>
         /// <returns></returns>
         public static IGraphQLBuilder AddGraphQL(this IServiceCollection services, GraphQLOptions options)
-        {
-            return services.AddGraphQL(p => options);
-        }
+            => services.AddGraphQL(p => options);
 
         /// <summary>
         /// Add required services for GraphQL.
@@ -27,6 +26,7 @@ namespace GraphQL.Server
         /// <returns></returns>
         public static IGraphQLBuilder AddGraphQL(this IServiceCollection services, Func<IServiceProvider, GraphQLOptions> options)
         {
+            services.TryAddSingleton<InstrumentFieldsMiddleware>();
             services.TryAddSingleton<IDocumentExecuter, DocumentExecuter>();
             services.TryAddTransient(typeof(IGraphQLExecuter<>), typeof(DefaultGraphQLExecuter<>));
             services.AddSingleton(p => Options.Create(options(p)));
@@ -50,12 +50,7 @@ namespace GraphQL.Server
         /// <param name="configureOptions">An action delegate to configure the provided <see cref="GraphQLOptions"/>.</param>
         /// <returns></returns>
         public static IGraphQLBuilder AddGraphQL(this IServiceCollection services, Action<GraphQLOptions> configureOptions)
-        {
-            return services.AddGraphQL((provider, options) =>
-            {
-                configureOptions(options);
-            });
-        }
+            => services.AddGraphQL((provider, options) => configureOptions(options));
 
         /// <summary>
         /// Add required services for GraphQL.
@@ -81,9 +76,6 @@ namespace GraphQL.Server
         /// </summary>
         /// <param name="services"></param>
         /// <returns></returns>
-        public static IGraphQLBuilder AddGraphQL(this IServiceCollection services)
-        {
-            return services.AddGraphQL(new GraphQLOptions());
-        }
+        public static IGraphQLBuilder AddGraphQL(this IServiceCollection services) => services.AddGraphQL(new GraphQLOptions());
     }
 }

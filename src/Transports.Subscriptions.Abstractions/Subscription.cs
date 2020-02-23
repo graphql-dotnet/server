@@ -50,10 +50,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             _unsubscribe?.Dispose();
         }
 
-        public void OnError(Exception error)
-        {
-            throw new NotImplementedException();
-        }
+        public void OnError(Exception error) => throw new NotImplementedException();
 
         public void OnNext(ExecutionResult value)
         {

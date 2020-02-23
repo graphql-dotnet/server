@@ -47,10 +47,7 @@ namespace GraphQL.Samples.Server
                 {
                     options.EnableMetrics = Environment.IsDevelopment();
                     options.ExposeExceptions = Environment.IsDevelopment();
-                    options.UnhandledExceptionDelegate = ctx =>
-                    {
-                        Console.WriteLine("error: " + ctx.OriginalException.Message);
-                    };
+                    options.UnhandledExceptionDelegate = ctx => Console.WriteLine("error: " + ctx.OriginalException.Message);
                 })
 #if NETCOREAPP2_2
                 .AddNewtonsoftJson(deserializerSettings => { }, serializerSettings => { })
@@ -80,7 +77,12 @@ namespace GraphQL.Samples.Server
                 {
                     ["editor.theme"] = "light",
                     ["tracing.hideTracingResponse"] = false,
-                }
+                },
+                Headers = new Dictionary<string, object>
+                {
+                    ["MyHeader1"] = "MyValue",
+                    ["MyHeader2"] = 42,
+                },
             });
 
             app.UseGraphiQLServer(new GraphiQLOptions

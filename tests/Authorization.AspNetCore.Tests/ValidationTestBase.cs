@@ -22,10 +22,7 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
         public ClaimsPrincipal User { get; set; }
         public Inputs Inputs { get; set; }
 
-        public void Rule(params IValidationRule[] rules)
-        {
-            _rules.AddRange(rules);
-        }
+        public void Rule(params IValidationRule[] rules) => _rules.AddRange(rules);
     }
     public class GraphQLUserContext : Dictionary<string, object>
     {
@@ -56,7 +53,7 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
 
             var result = Validate(config);
 
-            var message = "";
+            string message = "";
             if (result.Errors?.Any() == true)
             {
                 message = string.Join(", ", result.Errors.Select(x => x.Message));
@@ -95,7 +92,7 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
 
         private IValidationResult Validate(ValidationTestConfig config)
         {
-            this.HttpContext.User = config.User;
+            HttpContext.User = config.User;
             var userContext = new GraphQLUserContext { User = config.User };
             var documentBuilder = new GraphQLDocumentBuilder();
             var document = documentBuilder.Build(config.Query);
@@ -107,10 +104,7 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
         {
             var claimsList = new List<Claim>();
 
-            claims?.Apply(c =>
-            {
-                claimsList.Add(new Claim(c.Key, c.Value));
-            });
+            claims?.Apply(c => claimsList.Add(new Claim(c.Key, c.Value)));
 
             return new ClaimsPrincipal(new ClaimsIdentity(claimsList, authenticationType));
         }
