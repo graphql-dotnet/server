@@ -156,11 +156,7 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
         [Fact]
         public void passes_with_policy_on_connection_type()
         {
-            ConfigureAuthorizationOptions(
-                options =>
-                {
-                    options.AddPolicy("ConnectionPolicy", x => x.RequireClaim("admin"));
-                });
+            ConfigureAuthorizationOptions(options => options.AddPolicy("ConnectionPolicy", x => x.RequireClaim("admin")));
 
             ShouldPassRule(_ =>
             {
@@ -176,11 +172,7 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
         [Fact]
         public void fails_on_missing_claim_on_connection_type()
         {
-            ConfigureAuthorizationOptions(
-                options =>
-                {
-                    options.AddPolicy("ConnectionPolicy", x => x.RequireClaim("admin"));
-                });
+            ConfigureAuthorizationOptions(options => options.AddPolicy("ConnectionPolicy", x => x.RequireClaim("admin")));
 
             ShouldFailRule(_ =>
             {
