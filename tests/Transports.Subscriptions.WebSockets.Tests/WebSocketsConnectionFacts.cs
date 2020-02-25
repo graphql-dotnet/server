@@ -5,6 +5,7 @@ using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
+using Shouldly;
 
 #if NETFRAMEWORK || NETCOREAPP2_2
 using Microsoft.AspNetCore;
@@ -73,7 +74,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
             var received = await socket.ReceiveAsync(segment, CancellationToken.None).ConfigureAwait(false);
 
             /* Then */
-            Assert.Equal(WebSocketCloseStatus.ProtocolError, received.CloseStatus);
+            received.CloseStatus.ShouldBe(WebSocketCloseStatus.ProtocolError);
         }
 
         public void Dispose()
