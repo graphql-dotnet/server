@@ -58,7 +58,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         {
             /* Given */
             /* When */
-            var socket = await ConnectAsync("graphql-ws").ConfigureAwait(false);
+            var socket = await ConnectAsync("graphql-ws");
 
             /* Then */
             Assert.Equal(WebSocketState.Open, socket.State);
@@ -69,9 +69,9 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         {
             /* Given */
             /* When */
-            var socket = await ConnectAsync("do-not-accept").ConfigureAwait(false);
+            var socket = await ConnectAsync("do-not-accept");
             var segment = new ArraySegment<byte>(new byte[1024]);
-            var received = await socket.ReceiveAsync(segment, CancellationToken.None).ConfigureAwait(false);
+            var received = await socket.ReceiveAsync(segment, CancellationToken.None);
 
             /* Then */
             received.CloseStatus.ShouldBe(WebSocketCloseStatus.ProtocolError);
