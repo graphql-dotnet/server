@@ -73,11 +73,25 @@ namespace GraphQL.Samples.Server
             app.UseGraphQLPlayground(new GraphQLPlaygroundOptions
             {
                 Path = "/ui/playground",
-                PlaygroundSettings = new Dictionary<string, object>
-                {
-                    ["editor.theme"] = "light",
-                    ["tracing.hideTracingResponse"] = false,
-                },
+                BetaUpdates = true,
+                RequestCredentials = RequestCredentials.Omit,
+                HideTracingResponse = false,
+
+                EditorCursorShape = EditorCursorShape.Line,
+                EditorTheme = EditorTheme.Light,
+                EditorFontSize = 14,
+                EditorReuseHeaders = true,
+                EditorFontFamily = "Consolas",
+
+                PrettierPrintWidth = 80,
+                PrettierTabWidth = 2,
+                PrettierUseTabs = true,
+              
+                SchemaDisableComments = false,
+                SchemaPollingEnabled = true,
+                SchemaPollingEndpointFilter = "*localhost*",
+                SchemaPollingInterval = 5000,
+
                 Headers = new Dictionary<string, object>
                 {
                     ["MyHeader1"] = "MyValue",
