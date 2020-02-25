@@ -11,6 +11,9 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Internal\voyager.cshtml" />
+    <Compile Include="..\Ui.Playground\Shared\**">
+      <Link>Shared\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup Condition="'$(IsNetCore3OnwardsTarget)' == 'True'">
@@ -19,6 +22,7 @@
 
   <ItemGroup Condition="'$(IsNetCore3OnwardsTarget)' == 'False'">
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="$(MicrosoftAspNetCoreHttpAbstractionsVersion)" />
+    <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonVersion)" />
   </ItemGroup>
 
 </Project>

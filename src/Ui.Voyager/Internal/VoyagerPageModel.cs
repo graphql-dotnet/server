@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
@@ -22,8 +23,21 @@ namespace GraphQL.Server.Ui.Voyager.Internal
                 using var manifestResourceStream = typeof(VoyagerPageModel).Assembly.GetManifestResourceStream("GraphQL.Server.Ui.Voyager.Internal.voyager.cshtml");
                 using var streamReader = new StreamReader(manifestResourceStream);
 
+                var headers = new Dictionary<string, object>
+                {
+                    ["Accept"] = "application/json",
+                    ["Content-Type"] = "application/json",
+                };
+
+                if ( _options.Headers?.Count > 0)
+                {
+                    foreach (var item in _options.Headers)
+                        headers[item.Key] = item.Value;
+                }
+
                 var builder = new StringBuilder(streamReader.ReadToEnd())
-                    .Replace("@Model.GraphQLEndPoint", _options.GraphQLEndPoint);
+                    .Replace("@Model.GraphQLEndPoint", _options.GraphQLEndPoint)
+                    .Replace("@Model.Headers", Serializer.Serialize(headers));
 
                 _voyagerCSHtml = builder.ToString();
             }
