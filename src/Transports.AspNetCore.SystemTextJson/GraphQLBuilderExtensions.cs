@@ -1,9 +1,9 @@
-using GraphQL.Server.Transports.AspNetCore.Common;
+using System;
+using System.Text.Json;
+using GraphQL.Server.Transports.AspNetCore;
 using GraphQL.Server.Transports.AspNetCore.SystemTextJson;
 using GraphQL.SystemTextJson;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Text.Json;
 
 namespace GraphQL.Server
 {

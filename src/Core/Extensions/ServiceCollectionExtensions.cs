@@ -1,10 +1,10 @@
 using System;
+using GraphQL;
 using GraphQL.Instrumentation;
-using GraphQL.Server.Internal;
-using Microsoft.Extensions.DependencyInjection;
+using GraphQL.Server;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace GraphQL.Server
+namespace Microsoft.Extensions.DependencyInjection
 {
     public static class ServiceCollectionExtensions
     {

@@ -1,6 +1,4 @@
-using GraphQL.Server.Common;
-
-namespace GraphQL.Server.Transports.AspNetCore.Common
+namespace GraphQL.Server.Transports.AspNetCore
 {
     /// <summary>
     /// The result of a deserialization from a HTTP request body

@@ -2,7 +2,6 @@
 
   <PropertyGroup Label="Build">
     <TargetFrameworks>netcoreapp3.1;netcoreapp3.0;netcoreapp2.2</TargetFrameworks>
-    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup Label="Package References">

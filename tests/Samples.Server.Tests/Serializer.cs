@@ -1,8 +1,8 @@
 using System;
-using GraphQL.Server.Common;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
+using GraphQL.Server;
 
 #if NETCOREAPP2_2
 using Newtonsoft.Json;

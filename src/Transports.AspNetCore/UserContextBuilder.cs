@@ -1,9 +1,9 @@
-using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
-namespace GraphQL.Server.Transports.AspNetCore.Internal
+namespace GraphQL.Server.Transports.AspNetCore
 {
     public class UserContextBuilder<TUserContext> : IUserContextBuilder
         where TUserContext : IDictionary<string, object>

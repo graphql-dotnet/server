@@ -4,11 +4,13 @@
     <LangVersion>latest</LangVersion>
     <PackageProjectUrl>https://github.com/graphql-dotnet/server</PackageProjectUrl>
     <RepositoryUrl>https://github.com/graphql-dotnet/server</RepositoryUrl>
-    <RepositoryType>Git</RepositoryType>
+    <RepositoryType>git</RepositoryType>
     <Copyright>Pekka Heikura</Copyright>
     <Authors>Pekka Heikura</Authors>
     <Product>graphql-dotnet server</Product>
     <Company>graphql-dotnet</Company>
+    <VersionPrefix>3.5.0</VersionPrefix>
+    <VersionSuffix>alpha</VersionSuffix>
   </PropertyGroup>
 
   <PropertyGroup>

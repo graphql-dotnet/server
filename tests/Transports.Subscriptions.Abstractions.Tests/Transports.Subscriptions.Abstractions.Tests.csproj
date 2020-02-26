@@ -2,9 +2,6 @@
 
   <PropertyGroup>
     <TargetFrameworks>netcoreapp3.1;netcoreapp3.0;netcoreapp2.2;net471</TargetFrameworks>
-    <IsPackable>false</IsPackable>
-    <AssemblyName>GraphQL.Server.Transports.Subscriptions.Abstractions.Tests</AssemblyName>
-    <RootNamespace>GraphQL.Server.Transports.Subscriptions.Abstractions.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

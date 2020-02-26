@@ -58,7 +58,7 @@ where you may want to explicitly pull a certain version using `-v`.
 ```
 ### Configure
 
-See the sample project's Startup.cs for full details.
+See the sample project's [Startup.cs](samples/Samples.Server/Startup.cs) for full details.
 
 ``` csharp
 public void ConfigureServices(IServiceCollection services)
@@ -86,25 +86,24 @@ public void Configure(IApplicationBuilder app)
     // this is required for websockets support
     app.UseWebSockets();
 
-    // use websocket middleware for ChatSchema at path /graphql
-    app.UseGraphQLWebSockets<ChatSchema>("/graphql");
+    // use websocket middleware for ChatSchema at default url /graphql
+    app.UseGraphQLWebSockets<ChatSchema>();
 
-    // use HTTP middleware for ChatSchema at path /graphql
-    app.UseGraphQL<ChatSchema>("/graphql");
+    // use HTTP middleware for ChatSchema at default url /graphql
+    app.UseGraphQL<ChatSchema>();
 
     // use graphiQL middleware at default url /graphiql
-    app.UseGraphiQLServer(new GraphiQLOptions());
+    app.UseGraphiQLServer();
 
     // use graphql-playground middleware at default url /ui/playground
-    app.UseGraphQLPlayground(new GraphQLPlaygroundOptions());
+    app.UseGraphQLPlayground();
 
     // use altair middleware at default url /ui/altair
-    app.UseGraphQLAltair(new GraphQLAltairOptions());
+    app.UseGraphQLAltair();
     
     // use voyager middleware at default url /ui/voyager
-    app.UseGraphQLVoyager(new GraphQLVoyagerOptions());
+    app.UseGraphQLVoyager();
 }
-
 ```
 
 ### UserContext and resolvers

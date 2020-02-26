@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using GraphQL.Execution;
 using GraphQL.Samples.Schemas.Chat;
-using GraphQL.Server.Internal;
 using GraphQL.Validation;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;

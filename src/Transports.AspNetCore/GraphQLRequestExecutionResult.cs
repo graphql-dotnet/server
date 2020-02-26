@@ -1,7 +1,6 @@
-using GraphQL.Server.Common;
 using System;
 
-namespace GraphQL.Server.Transports.AspNetCore.Common
+namespace GraphQL.Server.Transports.AspNetCore
 {
     public readonly struct GraphQLRequestExecutionResult
     {

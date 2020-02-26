@@ -1,9 +1,9 @@
+using System;
 using GraphQL.NewtonsoftJson;
-using GraphQL.Server.Transports.AspNetCore.Common;
+using GraphQL.Server.Transports.AspNetCore;
 using GraphQL.Server.Transports.AspNetCore.NewtonsoftJson;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
-using System;
 
 namespace GraphQL.Server
 {

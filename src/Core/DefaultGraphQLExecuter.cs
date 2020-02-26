@@ -1,3 +1,8 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using GraphQL.Conversion;
 using GraphQL.Execution;
 using GraphQL.Instrumentation;
@@ -5,13 +10,8 @@ using GraphQL.Introspection;
 using GraphQL.Types;
 using GraphQL.Validation;
 using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace GraphQL.Server.Internal
+namespace GraphQL.Server
 {
     public class DefaultGraphQLExecuter<TSchema> : IGraphQLExecuter<TSchema>
         where TSchema : ISchema

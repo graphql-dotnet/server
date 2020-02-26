@@ -1,8 +1,8 @@
-﻿using GraphQL.Server.Authorization.AspNetCore;
+using System;
+using GraphQL.Server.Authorization.AspNetCore;
 using GraphQL.Validation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
-using System;
 
 namespace GraphQL.Server
 {

@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace GraphQL.Server.Internal
+namespace GraphQL.Server
 {
     internal sealed class GraphQLBuilder : IGraphQLBuilder
     {

@@ -4,8 +4,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.TestHost;
 using System;
-using GraphQL.Server.Common;
-using GraphQL.Server.Transports.AspNetCore.Common;
+using GraphQL.Server;
+using GraphQL.Server.Transports.AspNetCore;
 
 #if !NETCOREAPP2_2
 using Microsoft.Extensions.Hosting;
