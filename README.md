@@ -45,6 +45,11 @@ For the UI middleware/s:
 >`dotnet add package GraphQL.Server.Ui.Playground`  
 >`dotnet add package GraphQL.Server.Ui.Voyager`  
 
+You can get the latest pre-release packages from the [MyGet feed](https://www.myget.org/F/graphql-dotnet/api/v3/index.json),
+where you may want to explicitly pull a certain version using `-v`.
+```
+> dotnet add package GraphQL.Server.Transports.AspNetCore -v 3.5.0-alpha0046
+```
 ### Configure
 
 See the sample project's Startup.cs for full details.
