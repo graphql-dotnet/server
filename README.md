@@ -28,9 +28,9 @@ For just the HTTP middleware:
 
 The HTTP middleware needs an `IGraphQLRequestDeserializer` implementation:
 > .NET Core 3+:  
-> `dotnet add package GraphQL.Server.Serialization.SystemTextJson`  
+> `dotnet add package GraphQL.Server.Transports.AspNetCore.SystemTextJson`  
 > Legacy (prior to .NET Core 3):  
-> `dotnet add package GraphQL.Server.Serialization.NewtonsoftJson`  
+> `dotnet add package GraphQL.Server.Transports.AspNetCore.NewtonsoftJson`  
 > (or your own)
 
 For more information on how to migrate from Newtonsoft.Json to System.Text.Json see
