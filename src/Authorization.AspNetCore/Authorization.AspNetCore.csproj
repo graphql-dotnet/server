@@ -2,8 +2,6 @@
 
   <PropertyGroup Label="Build">
     <TargetFrameworks>netcoreapp3.1;netcoreapp3.0;netstandard2.0</TargetFrameworks>
-    <AssemblyName>GraphQL.Server.Authorization.AspNetCore</AssemblyName>
-    <RootNamespace>GraphQL.Server.Authorization.AspNetCore</RootNamespace>
     <Description>HTTP authorization middleware for GraphQL</Description>
     <PackageTags>GraphQL authentication authorization middleware</PackageTags>
   </PropertyGroup>

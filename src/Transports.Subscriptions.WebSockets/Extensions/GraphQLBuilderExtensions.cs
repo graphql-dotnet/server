@@ -1,10 +1,10 @@
-﻿using GraphQL.Server.Transports.Subscriptions.Abstractions;
+using GraphQL.Server.Transports.Subscriptions.Abstractions;
 using GraphQL.Server.Transports.WebSockets;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace GraphQL.Server
 {
-    public static class ServiceCollectionExtensions
+    public static class GraphQLBuilderExtensions
     {
         /// <summary>
         /// Add required services for GraphQL web sockets

@@ -86,22 +86,22 @@ public void Configure(IApplicationBuilder app)
     // this is required for websockets support
     app.UseWebSockets();
 
-    // use websocket middleware for ChatSchema at default url /graphql
+    // use websocket middleware for ChatSchema at default path /graphql
     app.UseGraphQLWebSockets<ChatSchema>();
 
-    // use HTTP middleware for ChatSchema at default url /graphql
+    // use HTTP middleware for ChatSchema at default path /graphql
     app.UseGraphQL<ChatSchema>();
 
-    // use graphiQL middleware at default url /graphiql
+    // use graphiQL middleware at default path /graphiql
     app.UseGraphiQLServer();
 
-    // use graphql-playground middleware at default url /ui/playground
+    // use graphql-playground middleware at default path /ui/playground
     app.UseGraphQLPlayground();
 
-    // use altair middleware at default url /ui/altair
+    // use altair middleware at default path /ui/altair
     app.UseGraphQLAltair();
     
-    // use voyager middleware at default url /ui/voyager
+    // use voyager middleware at default path /ui/voyager
     app.UseGraphQLVoyager();
 }
 ```

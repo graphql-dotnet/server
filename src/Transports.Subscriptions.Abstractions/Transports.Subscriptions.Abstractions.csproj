@@ -2,8 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <AssemblyName>GraphQL.Server.Transports.Subscriptions.Abstractions</AssemblyName>
-    <RootNamespace>GraphQL.Server.Transports.Subscriptions.Abstractions</RootNamespace>
     <PackageTags>graphql-dotnet graphql subscriptions</PackageTags>
   </PropertyGroup>
 

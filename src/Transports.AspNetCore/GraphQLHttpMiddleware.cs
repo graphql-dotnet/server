@@ -94,12 +94,11 @@ namespace GraphQL.Server.Transports.AspNetCore
                 }
             }
 
-            // If we don't have a batch request, parse the URL too to determine the actual request to run
-            // Querystring params take priority
+            // If we don't have a batch request, parse the query from URL too to determine the actual request to run.
+            // Query string params take priority.
             GraphQLRequest gqlRequest = null;
             if (bodyGQLBatchRequest == null)
             {
-                // Parse URL
                 var urlGQLRequest = DeserializeFromQueryString(httpRequest.Query);
 
                 gqlRequest = new GraphQLRequest

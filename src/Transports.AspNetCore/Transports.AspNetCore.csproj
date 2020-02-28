@@ -2,8 +2,6 @@
 
   <PropertyGroup>
     <TargetFrameworks>netcoreapp3.1;netcoreapp3.0;netstandard2.0</TargetFrameworks>
-    <AssemblyName>GraphQL.Server.Transports.AspNetCore</AssemblyName>
-    <RootNamespace>GraphQL.Server.Transports.AspNetCore</RootNamespace>
     <Description>HTTP middleware for GraphQL</Description>
     <PackageTags>GraphQL middleware</PackageTags>
   </PropertyGroup>

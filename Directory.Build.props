@@ -11,6 +11,9 @@
     <Company>graphql-dotnet</Company>
     <VersionPrefix>3.5.0</VersionPrefix>
     <VersionSuffix>alpha</VersionSuffix>
+    <AssemblyName>GraphQL.Server.$(MSBuildProjectName)</AssemblyName>
+    <RootNamespace>GraphQL.Server.$(MSBuildProjectName)</RootNamespace>
+    <PackageId>GraphQL.Server.$(MSBuildProjectName)</PackageId>
   </PropertyGroup>
 
   <PropertyGroup>
