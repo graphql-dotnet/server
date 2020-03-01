@@ -104,9 +104,16 @@ Task("SetVersion")
           RepositoryPath = "."
       });
       version = versionInfo.NuGetVersion;
-      Information($"Version: {version}, FullSemVer: {versionInfo.FullSemVer}");
+      
+      Information("MajorMinorPatch: {0}", versionInfo.MajorMinorPatch);
+      Information("FullSemVer: {0}", versionInfo.FullSemVer);
+      Information("InformationalVersion: {0}", versionInfo.InformationalVersion);
+      Information("LegacySemVer: {0}", versionInfo.LegacySemVer);
+      Information("Nuget v1 version: {0}", versionInfo.NuGetVersion);
+      Information("Nuget v2 version: {0}", versionInfo.NuGetVersionV2);
 
       if (AppVeyor.IsRunningOnAppVeyor) {
+          Information($"AppVeyor.UpdateBuildVersion with version: {version}");
           AppVeyor.UpdateBuildVersion(version);
       }
   });
