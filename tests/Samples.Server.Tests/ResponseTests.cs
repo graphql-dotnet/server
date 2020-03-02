@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Text;
 using System.Net;
 using System.Collections.Generic;
+using GraphQL.Server;
 
 #if NETCOREAPP2_2
 using GraphQL.NewtonsoftJson;

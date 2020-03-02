@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.TestHost;
 using System;
 using GraphQL.Server.Common;
 using GraphQL.Server.Transports.AspNetCore.Common;
+using GraphQL.Server;
 
 #if !NETCOREAPP2_2
 using Microsoft.Extensions.Hosting;

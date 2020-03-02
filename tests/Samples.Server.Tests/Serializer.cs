@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 using System.Text.Json;
 #endif
 
-namespace Samples.Server.Tests
+namespace GraphQL.Server
 {
     /// <summary>
     /// Shim and utility methods between our internal <see cref="GraphQLRequest"/> representation
