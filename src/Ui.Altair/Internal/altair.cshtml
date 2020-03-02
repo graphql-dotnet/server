@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html>
 
 <head>
@@ -39,7 +39,7 @@
     var altairOptions = {
         endpointURL: window.location.protocol + "//" + window.location.host + "@Model.GraphQLEndPoint",
         subscriptionsEndpoint: (window.location.protocol === "http:" ? "ws://" : "wss://") + window.location.host + "@Model.GraphQLEndPoint",
-        initialHeaders: @Model.AltairHeaders,
+        initialHeaders: @Model.Headers,
     };
 
     window.addEventListener("load", function() {

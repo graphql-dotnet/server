@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
@@ -22,7 +22,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         public void On_data_from_stream()
         {
             /* Given */
-            var id = "1";
+            string id = "1";
             var payload = new OperationMessagePayload();
             var stream = new ReplaySubject<ExecutionResult>(1);
             var result = new SubscriptionExecutionResult
@@ -49,7 +49,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         public void On_stream_complete()
         {
             /* Given */
-            var id = "1";
+            string id = "1";
             var payload = new OperationMessagePayload();
             var stream = new ReplaySubject<ExecutionResult>(1);
             var result = new SubscriptionExecutionResult
@@ -79,7 +79,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         public void Subscribe_to_stream()
         {
             /* Given */
-            var id = "1";
+            string id = "1";
             var payload = new OperationMessagePayload();
             var stream = new Subject<ExecutionResult>();
             var result = new SubscriptionExecutionResult
@@ -101,7 +101,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         public void Subscribe_to_completed_stream_should_not_throw()
         {
             /* Given */
-            var id = "1";
+            string id = "1";
             var payload = new OperationMessagePayload();
             var subject = new Subject<ExecutionResult>();
             subject.OnCompleted();
@@ -123,7 +123,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         public async Task Unsubscribe_from_stream()
         {
             /* Given */
-            var id = "1";
+            string id = "1";
             var payload = new OperationMessagePayload();
             var unsubscribe = Substitute.For<IDisposable>();
             var stream = Substitute.For<IObservable<ExecutionResult>>();
@@ -148,7 +148,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         public async Task Write_Complete_on_unsubscribe()
         {
             /* Given */
-            var id = "1";
+            string id = "1";
             var payload = new OperationMessagePayload();
             var result = new SubscriptionExecutionResult
             {

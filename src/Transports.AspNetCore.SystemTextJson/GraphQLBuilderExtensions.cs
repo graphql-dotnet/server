@@ -28,7 +28,11 @@ namespace GraphQL.Server
             Action<JsonSerializerOptions> configureSerializerSettings = null)
         {
             builder.Services.AddSingleton<IGraphQLRequestDeserializer>(p => new GraphQLRequestDeserializer(configureDeserializerSettings));
-            builder.Services.AddSingleton<IDocumentWriter>(p => new DocumentWriter(configureSerializerSettings));
+            builder.Services.AddSingleton<IDocumentWriter>(p => new DocumentWriter(opt =>
+            {
+                opt.Converters.Add(new OperationMessageConverter());
+                configureSerializerSettings?.Invoke(opt);
+            }));
 
             return builder;
         }

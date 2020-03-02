@@ -9,13 +9,13 @@ namespace GraphQL.Server.Transports.AspNetCore.NewtonsoftJson
     /// </summary>
     internal sealed class InternalGraphQLRequest
     {
-        [JsonProperty(GraphQLRequest.OperationNameKey)]
+        [JsonProperty(GraphQLRequest.OPERATION_NAME_KEY)]
         public string OperationName { get; set; }
 
-        [JsonProperty(GraphQLRequest.QueryKey)]
+        [JsonProperty(GraphQLRequest.QUERY_KEY)]
         public string Query { get; set; }
 
-        [JsonProperty(GraphQLRequest.VariablesKey)]
+        [JsonProperty(GraphQLRequest.VARIABLES_KEY)]
         public JObject Variables { get; set; }
     }
 }

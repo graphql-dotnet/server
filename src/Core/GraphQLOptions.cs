@@ -1,11 +1,14 @@
+using System;
 using GraphQL.Conversion;
 using GraphQL.Execution;
 using GraphQL.Introspection;
 using GraphQL.Validation.Complexity;
-using System;
 
 namespace GraphQL.Server
 {
+    /// <summary>
+    /// Options to configure <see cref="Internal.DefaultGraphQLExecuter{TSchema}"/>.
+    /// </summary>
     public class GraphQLOptions
     {
         public ComplexityConfiguration ComplexityConfiguration { get; set; }
@@ -17,7 +20,7 @@ namespace GraphQL.Server
 
         public bool ExposeExceptions { get; set; }
 
-        public IFieldNameConverter FieldNameConverter { get; set; }
+        public INameConverter NameConverter { get; set; }
 
         public Action<UnhandledExceptionContext> UnhandledExceptionDelegate = ctx => { };
 

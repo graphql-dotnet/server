@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -9,9 +9,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
     {
         private readonly IServerOperations _server;
 
-        public MessageHandlingContext(
-            IServerOperations server,
-            OperationMessage message)
+        public MessageHandlingContext(IServerOperations server, OperationMessage message)
         {
             _server = server;
             Reader = server.TransportReader;
@@ -28,8 +26,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 
         public OperationMessage Message { get; }
 
-        public ConcurrentDictionary<string, object> Properties { get; protected set; } =
-            new ConcurrentDictionary<string, object>();
+        public ConcurrentDictionary<string, object> Properties { get; protected set; } = new ConcurrentDictionary<string, object>();
 
         public bool Terminated { get; set; }
 
@@ -42,12 +39,9 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 
         public T Get<T>(string key)
         {
-            if (!Properties.TryGetValue(key, out var value)) return default;
+            if (!Properties.TryGetValue(key, out object value)) return default;
 
-            if (value is T variable)
-                return variable;
-
-            return default;
+            return value is T variable ? variable : default;
         }
 
         public Task Terminate()

@@ -19,15 +19,9 @@ namespace GraphQL.Server.Transports.WebSockets
             _startBlock = CreateMessageWriter();
         }
 
-        public bool Post(OperationMessage message)
-        {
-            return _startBlock.Post(message);
-        }
+        public bool Post(OperationMessage message) => _startBlock.Post(message);
 
-        public Task SendAsync(OperationMessage message)
-        {
-            return _startBlock.SendAsync(message);
-        }
+        public Task SendAsync(OperationMessage message) => _startBlock.SendAsync(message);
 
         public Task Completion => _startBlock.Completion;
 
@@ -56,12 +50,11 @@ namespace GraphQL.Server.Transports.WebSockets
             var stream = new WebsocketWriterStream(_socket);
             try
             {
-                await _documentWriter.WriteAsync(stream, message)
-                    .ConfigureAwait(false);
+                await _documentWriter.WriteAsync(stream, message);
             }
             finally
             {
-                await stream.FlushAsync().ConfigureAwait(false);
+                await stream.FlushAsync();
                 stream.Dispose();
             }
         }

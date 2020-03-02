@@ -47,10 +47,7 @@ namespace GraphQL.Samples.Server
                 {
                     options.EnableMetrics = Environment.IsDevelopment();
                     options.ExposeExceptions = Environment.IsDevelopment();
-                    options.UnhandledExceptionDelegate = ctx =>
-                    {
-                        Console.WriteLine("error: " + ctx.OriginalException.Message);
-                    };
+                    options.UnhandledExceptionDelegate = ctx => Console.WriteLine("error: " + ctx.OriginalException.Message);
                 })
 #if NETCOREAPP2_2
                 .AddNewtonsoftJson(deserializerSettings => { }, serializerSettings => { })
@@ -76,11 +73,30 @@ namespace GraphQL.Samples.Server
             app.UseGraphQLPlayground(new GraphQLPlaygroundOptions
             {
                 Path = "/ui/playground",
-                PlaygroundSettings = new Dictionary<string, object>
+                BetaUpdates = true,
+                RequestCredentials = RequestCredentials.Omit,
+                HideTracingResponse = false,
+
+                EditorCursorShape = EditorCursorShape.Line,
+                EditorTheme = EditorTheme.Light,
+                EditorFontSize = 14,
+                EditorReuseHeaders = true,
+                EditorFontFamily = "Consolas",
+
+                PrettierPrintWidth = 80,
+                PrettierTabWidth = 2,
+                PrettierUseTabs = true,
+              
+                SchemaDisableComments = false,
+                SchemaPollingEnabled = true,
+                SchemaPollingEndpointFilter = "*localhost*",
+                SchemaPollingInterval = 5000,
+
+                Headers = new Dictionary<string, object>
                 {
-                    ["editor.theme"] = "light",
-                    ["tracing.hideTracingResponse"] = false,
-                }
+                    ["MyHeader1"] = "MyValue",
+                    ["MyHeader2"] = 42,
+                },
             });
 
             app.UseGraphiQLServer(new GraphiQLOptions
@@ -103,6 +119,11 @@ namespace GraphQL.Samples.Server
             {
                 Path = "/ui/voyager",
                 GraphQLEndPoint = "/graphql",
+                Headers = new Dictionary<string, object>
+                {
+                    ["MyHeader1"] = "MyValue",
+                    ["MyHeader2"] = 42,
+                },
             });
         }
     }

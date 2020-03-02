@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Threading.Tasks;
 
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
@@ -9,10 +9,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
 
         public ConcurrentBag<OperationMessage> HandledMessages { get; } = new ConcurrentBag<OperationMessage>();
 
-        public Task BeforeHandleAsync(MessageHandlingContext context)
-        {
-            return Task.CompletedTask;
-        }
+        public Task BeforeHandleAsync(MessageHandlingContext context) => Task.CompletedTask;
 
         public Task HandleAsync(MessageHandlingContext context)
         {

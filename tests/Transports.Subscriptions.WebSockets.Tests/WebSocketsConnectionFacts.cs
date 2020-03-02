@@ -5,8 +5,9 @@ using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
+using Shouldly;
 
-#if (NETFRAMEWORK || NETCOREAPP2_2)
+#if NETFRAMEWORK || NETCOREAPP2_2
 using Microsoft.AspNetCore;
 #else
 using Microsoft.Extensions.Hosting;
@@ -16,7 +17,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
 {
     public class WebSocketsConnectionFacts : IDisposable
     {
-#if (NETFRAMEWORK || NETCOREAPP2_2)
+#if NETFRAMEWORK || NETCOREAPP2_2
         public WebSocketsConnectionFacts()
         {
             _server = new TestServer(WebHost
@@ -48,7 +49,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         private Task<WebSocket> ConnectAsync(string protocol)
         {
             var client = _server.CreateWebSocketClient();
-            client.ConfigureRequest = request => { request.Headers.Add("Sec-WebSocket-Protocol", protocol); };
+            client.ConfigureRequest = request => request.Headers.Add("Sec-WebSocket-Protocol", protocol);
             return client.ConnectAsync(new Uri("http://localhost/graphql"), CancellationToken.None);
         }
 
@@ -57,7 +58,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         {
             /* Given */
             /* When */
-            var socket = await ConnectAsync("graphql-ws").ConfigureAwait(false);
+            var socket = await ConnectAsync("graphql-ws");
 
             /* Then */
             Assert.Equal(WebSocketState.Open, socket.State);
@@ -68,12 +69,12 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         {
             /* Given */
             /* When */
-            var socket = await ConnectAsync("do-not-accept").ConfigureAwait(false);
+            var socket = await ConnectAsync("do-not-accept");
             var segment = new ArraySegment<byte>(new byte[1024]);
-            var received = await socket.ReceiveAsync(segment, CancellationToken.None).ConfigureAwait(false);
+            var received = await socket.ReceiveAsync(segment, CancellationToken.None);
 
             /* Then */
-            Assert.Equal(WebSocketCloseStatus.ProtocolError, received.CloseStatus);
+            received.CloseStatus.ShouldBe(WebSocketCloseStatus.ProtocolError);
         }
 
         public void Dispose()

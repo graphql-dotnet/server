@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Http;
 
 namespace GraphQL.Server.Ui.Voyager
 {
@@ -16,5 +17,10 @@ namespace GraphQL.Server.Ui.Voyager
         /// The GraphQL EndPoint
         /// </summary>
         public PathString GraphQLEndPoint { get; set; } = "/graphql";
+
+        /// <summary>
+        /// HTTP Headers with which the Voyager will send introspection query
+        /// </summary>
+        public Dictionary<string, object> Headers { get; set; }
     }
 }

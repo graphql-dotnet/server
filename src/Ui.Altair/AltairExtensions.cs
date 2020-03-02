@@ -12,8 +12,6 @@ namespace Microsoft.AspNetCore.Builder
         /// <param name="options"> Options to customize <see cref="AltairMiddleware"/>. If not set, then the default values will be used. </param>
         /// <returns> The reference to provided <paramref name="app"/> instance. </returns>
         public static IApplicationBuilder UseGraphQLAltair(this IApplicationBuilder app, GraphQLAltairOptions options = null)
-        {
-            return app.UseMiddleware<AltairMiddleware>(options ?? new GraphQLAltairOptions());
-        }
+            => app.UseMiddleware<AltairMiddleware>(options ?? new GraphQLAltairOptions());
     }
 }
