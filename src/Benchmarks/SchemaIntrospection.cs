@@ -92,6 +92,5 @@ namespace GraphQL.Server.Benchmarks
     }
   }
 ";
-
     }
 }
