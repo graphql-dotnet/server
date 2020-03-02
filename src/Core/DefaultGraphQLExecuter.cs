@@ -66,7 +66,7 @@ namespace GraphQL.Server
                 ComplexityConfiguration = _options.ComplexityConfiguration,
                 EnableMetrics = _options.EnableMetrics,
                 ExposeExceptions = _options.ExposeExceptions,
-                FieldNameConverter = _options.FieldNameConverter ?? CamelCaseFieldNameConverter.Instance,
+                NameConverter = _options.NameConverter ?? CamelCaseNameConverter.Instance,
                 UnhandledExceptionDelegate = _options.UnhandledExceptionDelegate,
                 SchemaFilter = _options.SchemaFilter ?? new DefaultSchemaFilter(),
             };

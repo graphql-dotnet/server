@@ -62,6 +62,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Transports.AspNetCore.Syste
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Serialization", "Serialization", "{27A37AAB-90F9-4F1E-B1BB-AAF5A90D97AE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Benchmarks", "src\Benchmarks\Benchmarks.csproj", "{C1FCE2C8-F6EF-48DA-ADD8-9159516D03DA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -136,6 +138,10 @@ Global
 		{5CEB56EE-C58D-4EF8-90E3-5B53D9354C47}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5CEB56EE-C58D-4EF8-90E3-5B53D9354C47}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5CEB56EE-C58D-4EF8-90E3-5B53D9354C47}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C1FCE2C8-F6EF-48DA-ADD8-9159516D03DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1FCE2C8-F6EF-48DA-ADD8-9159516D03DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1FCE2C8-F6EF-48DA-ADD8-9159516D03DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1FCE2C8-F6EF-48DA-ADD8-9159516D03DA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -153,6 +159,7 @@ Global
 		{008CFAAB-64B6-4948-99FA-E8735CA7E81A} = {EFEC04E1-42DD-4689-B808-5C630A9AA59D}
 		{24975BA5-46B0-4E3A-8703-9599483138B8} = {27A37AAB-90F9-4F1E-B1BB-AAF5A90D97AE}
 		{5CEB56EE-C58D-4EF8-90E3-5B53D9354C47} = {27A37AAB-90F9-4F1E-B1BB-AAF5A90D97AE}
+		{C1FCE2C8-F6EF-48DA-ADD8-9159516D03DA} = {BBD07745-C962-4D2D-B302-6DA1BCC2FF43}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3FC7FA59-E938-453C-8C4A-9D5635A9489A}
