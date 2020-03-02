@@ -12,10 +12,6 @@
   </ItemGroup>
   
   <ItemGroup>
-    <None Include="**\*.md" />
-  </ItemGroup>
-  
-  <ItemGroup>
     <Compile Include="..\..\tests\Samples.Server.Tests\Serializer.cs" Link="Shared\Serializer.cs" />
   </ItemGroup>
   

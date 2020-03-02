@@ -1,13 +1,24 @@
+using System.Linq;
 using BenchmarkDotNet.Running;
 
 namespace GraphQL.Server.Benchmarks
 {
-    class Program
+    public class Program
     {
-        private static void Main(string[] args)
+        // Call without args to just run the body deserializer benchmark
+        // Call with an int arg to toggle different tests
+        public static void Main(string[] args)
         {
-            BenchmarkRunner.Run<DeserializeFromJsonBodyBenchmark>();
-            //BenchmarkRunner.Run<DeserializeInputsFromJsonBenchmark>();
+            if (!args.Any() || !int.TryParse(args[0], out var benchmarkIndex))
+            {
+                benchmarkIndex = 0;
+            }
+
+            _ = benchmarkIndex switch
+            {
+                1 => BenchmarkRunner.Run<DeserializeInputsFromJsonBenchmark>(),
+                _ => BenchmarkRunner.Run<DeserializeFromJsonBodyBenchmark>(),
+            };
         }
     }
 }
