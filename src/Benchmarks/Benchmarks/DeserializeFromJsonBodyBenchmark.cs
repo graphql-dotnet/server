@@ -74,7 +74,7 @@ namespace GraphQL.Server.Benchmarks
         public Task<GraphQLRequestDeserializationResult> SystemTextJson() => _stjDeserializer.DeserializeFromJsonBodyAsync(_httpRequest);
 
         [Benchmark]
-        public Task<GraphQLRequestDeserializationResult> NewtonsoftJson_WithOpNameAndVariables() => _nsjDeserializer.DeserializeFromJsonBodyAsync(_httpRequest);
+        public Task<GraphQLRequestDeserializationResult> NewtonsoftJson_WithOpNameAndVariables() => _nsjDeserializer.DeserializeFromJsonBodyAsync(_httpRequest2);
 
         [Benchmark]
         public Task<GraphQLRequestDeserializationResult> SystemTextJson_WithOpNameAndVariables() => _stjDeserializer.DeserializeFromJsonBodyAsync(_httpRequest);
