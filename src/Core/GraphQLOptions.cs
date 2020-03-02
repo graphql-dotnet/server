@@ -1,8 +1,8 @@
+using System;
 using GraphQL.Conversion;
 using GraphQL.Execution;
 using GraphQL.Introspection;
 using GraphQL.Validation.Complexity;
-using System;
 
 namespace GraphQL.Server
 {
@@ -20,7 +20,7 @@ namespace GraphQL.Server
 
         public bool ExposeExceptions { get; set; }
 
-        public IFieldNameConverter FieldNameConverter { get; set; }
+        public INameConverter NameConverter { get; set; }
 
         public Action<UnhandledExceptionContext> UnhandledExceptionDelegate = ctx => { };
 

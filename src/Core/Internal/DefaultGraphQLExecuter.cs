@@ -1,3 +1,8 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using GraphQL.Conversion;
 using GraphQL.Execution;
 using GraphQL.Instrumentation;
@@ -5,11 +10,6 @@ using GraphQL.Introspection;
 using GraphQL.Types;
 using GraphQL.Validation;
 using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace GraphQL.Server.Internal
 {
@@ -66,7 +66,7 @@ namespace GraphQL.Server.Internal
                 ComplexityConfiguration = _options.ComplexityConfiguration,
                 EnableMetrics = _options.EnableMetrics,
                 ExposeExceptions = _options.ExposeExceptions,
-                FieldNameConverter = _options.FieldNameConverter ?? CamelCaseFieldNameConverter.Instance,
+                NameConverter = _options.NameConverter ?? CamelCaseNameConverter.Instance,
                 UnhandledExceptionDelegate = _options.UnhandledExceptionDelegate,
                 SchemaFilter = _options.SchemaFilter ?? new DefaultSchemaFilter(),
             };
