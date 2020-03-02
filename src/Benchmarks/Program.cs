@@ -9,7 +9,7 @@ namespace GraphQL.Server.Benchmarks
         // Call with an int arg to toggle different tests
         public static void Main(string[] args)
         {
-            if (!args.Any() || !int.TryParse(args[0], out var benchmarkIndex))
+            if (!args.Any() || !int.TryParse(args[0], out int benchmarkIndex))
             {
                 benchmarkIndex = 0;
             }

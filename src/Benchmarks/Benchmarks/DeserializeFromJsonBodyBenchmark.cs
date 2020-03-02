@@ -2,7 +2,6 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
-using GraphQL.Introspection;
 using GraphQL.Server.Common;
 using GraphQL.Server.Transports.AspNetCore.Common;
 using GraphQL.SystemTextJson;
