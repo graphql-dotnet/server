@@ -13,6 +13,17 @@ using System.Threading.Tasks;
 
 namespace GraphQL.Server.Transports.AspNetCore
 {
+    /// <summary>
+    /// ASP.NET Core middleware for processing GraphQL requests.
+    /// <br/><br/>
+    /// GraphQL over HTTP <see href="https://github.com/APIs-guru/graphql-over-http">spec</see> says:
+    /// GET requests can be used for executing ONLY queries. If the values of query and operationName indicates that
+    /// a non-query operation is to be executed, the server should immediately respond with an error status code, and
+    /// halt execution.
+    /// <br/><br/>
+    /// Attention! The current implementation does not impose such a restriction and allows mutations in GET requests.
+    /// </summary>
+    /// <typeparam name="TSchema">Type of GraphQL schema that is used to validate and process requests.</typeparam>
     public class GraphQLHttpMiddleware<TSchema>
         where TSchema : ISchema
     {
