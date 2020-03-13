@@ -69,6 +69,7 @@ namespace GraphQL.Server.Internal
                 NameConverter = _options.NameConverter ?? CamelCaseNameConverter.Instance,
                 UnhandledExceptionDelegate = _options.UnhandledExceptionDelegate,
                 SchemaFilter = _options.SchemaFilter ?? new DefaultSchemaFilter(),
+                MaxParallelExecutionCount = _options.MaxParallelExecutionCount,
             };
 
             if (opts.EnableMetrics)
