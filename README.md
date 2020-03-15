@@ -92,7 +92,7 @@ public void Configure(IApplicationBuilder app)
     // use HTTP middleware for ChatSchema at path /graphql
     app.UseGraphQL<ChatSchema>("/graphql");
 
-    // use graphiQL middleware at default url /graphiql
+    // use graphiQL middleware at default url /ui/graphiql
     app.UseGraphiQLServer(new GraphiQLOptions());
 
     // use graphql-playground middleware at default url /ui/playground
@@ -114,7 +114,6 @@ access the properties including your actual `UserContext` by using the
 `Get<YourContextType>("UserContext")` method. This will read the context from the properties of
 `MessageHandlingContext`. You can add any other properties as to the context in
 `IOperationMessageListeners`. See the sample for example of injecting `ClaimsPrincipal`.
-
 
 ## Sample
 
