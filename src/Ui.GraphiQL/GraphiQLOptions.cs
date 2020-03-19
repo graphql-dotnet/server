@@ -10,7 +10,7 @@ namespace GraphQL.Server.Ui.GraphiQL
         /// <summary>
         /// The GraphiQL Endpoint to listen
         /// </summary>
-        public PathString Path { get; set; } = "/graphiql";
+        public PathString Path { get; set; } = "/ui/graphiql";
 
         /// <summary>
         /// The GraphQL EndPoint
