@@ -25,7 +25,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
                 new DefaultGraphQLExecuter<ChatSchema>(
                     new ChatSchema(_chat, new DefaultServiceProvider()),
                     new DocumentExecuter(),
-                    Options.Create(new GraphQLOptions()),
+                    Options.Create(new GraphQLOptions { ExposeExceptions = true }),
                     Enumerable.Empty<IDocumentExecutionListener>(),
                     Enumerable.Empty<IValidationRule>()
                     ),
@@ -63,7 +63,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
             {
                 Content = "test",
                 FromId = "1",
-                SentAt = DateTime.Now
+                SentAt = DateTime.Now.Date
             });
 
             string id = "1";
@@ -119,7 +119,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
             {
                 Content = "test",
                 FromId = "1",
-                SentAt = DateTime.Now
+                SentAt = DateTime.Now.Date
             });
 
             string id = "1";
@@ -195,7 +195,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
             {
                 FromId = "1",
                 Content = "content",
-                SentAt = DateTime.Now
+                SentAt = DateTime.Now.Date
             });
 
             /* When */
