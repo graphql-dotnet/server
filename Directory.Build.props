@@ -50,7 +50,7 @@
     <CastleCoreVersion>4.4.0</CastleCoreVersion>
     <NSubstituteVersion>3.1.0</NSubstituteVersion>
     <NewtonsoftJsonVersion>12.0.3</NewtonsoftJsonVersion>
-    <GraphQLVersion>3.0.0-preview-1602</GraphQLVersion>
+    <GraphQLVersion>3.0.0-preview-1631</GraphQLVersion>
     <MoqVersion>4.13.1</MoqVersion>
     <ShouldlyVersion>3.0.2</ShouldlyVersion>
 
