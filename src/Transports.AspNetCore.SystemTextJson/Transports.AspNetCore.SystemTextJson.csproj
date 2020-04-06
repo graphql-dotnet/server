@@ -14,6 +14,7 @@
     <ProjectReference Include="..\Transports.AspNetCore\Transports.AspNetCore.csproj" />
     <ProjectReference Include="..\Transports.Subscriptions.Abstractions\Transports.Subscriptions.Abstractions.csproj" />
     <PackageReference Include="GraphQL.SystemTextJson" Version="$(GraphQLVersion)" />
+    <PackageReference Include="System.IO.Pipelines" Version="4.7.1" />
   </ItemGroup>
 
 </Project>
