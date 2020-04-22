@@ -29,6 +29,23 @@ Transport compatible with [Apollo](https://github.com/apollographql/subscription
 
 ## Getting started
 
+> WARNING: The latest stable version 3.4.0 has many known issues that have been fixed in 3.5.0-alphaXXXX versions.
+> If errors occur, it is recommended that you first check the behavior on the latest available alpha version before
+> reporting a issue. Latest 3.5.0-alphaXXXX versions are **backwards incompatible** with the latest stable 2.4.0
+> version of [GraphQL.NET](https://github.com/graphql-dotnet/graphql-dotnet). You can see the changes in public APIs
+> using [fuget.org](https://www.fuget.org/packages/GraphQL.Server.Transports.AspNetCore/3.5.0-alpha0046/lib/netstandard2.0/diff/3.4.0/).
+
+You can install the latest stable version via [NuGet](https://www.nuget.org/packages/GraphQL.Server.Transports.AspNetCore/).
+```
+> dotnet add package GraphQL.Server.Transports.AspNetCore
+```
+
+You can get the latest pre-release packages from the [MyGet feed](https://www.myget.org/F/graphql-dotnet/api/v3/index.json),
+where you may want to explicitly pull a certain version using `-v`.
+```
+> dotnet add package GraphQL.Server.Transports.AspNetCore -v 3.5.0-alpha0068
+```
+
 For just the HTTP middleware:
 >`dotnet add package GraphQL.Server.Transports.AspNetCore`
 
@@ -51,11 +68,6 @@ For the UI middleware/s:
 >`dotnet add package GraphQL.Server.Ui.Playground`  
 >`dotnet add package GraphQL.Server.Ui.Voyager`  
 
-You can get the latest pre-release packages from the [MyGet feed](https://www.myget.org/F/graphql-dotnet/api/v3/index.json),
-where you may want to explicitly pull a certain version using `-v`.
-```
-> dotnet add package GraphQL.Server.Transports.AspNetCore -v 3.5.0-alpha0046
-```
 ### Configure
 
 See the sample project's Startup.cs for full details.
