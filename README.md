@@ -79,11 +79,12 @@ public void ConfigureServices(IServiceCollection services)
     services
         .AddSingleton<IChat, Chat>()
         .AddSingleton<ChatSchema>()
-        .AddGraphQL(options =>
+        .AddGraphQL((options, provider) =>
         {
             options.EnableMetrics = Environment.IsDevelopment();
             options.ExposeExceptions = Environment.IsDevelopment();
-            options.UnhandledExceptionDelegate = ctx => { Console.WriteLine(ctx.OriginalException) };
+            var logger = provider.GetRequiredService<ILogger<Startup>>();
+            options.UnhandledExceptionDelegate = ctx => logger.LogError("{Error} occured", ctx.OriginalException.Message);
         })
         // Add required services for de/serialization
         .AddSystemTextJson(deserializerSettings => { }, serializerSettings => { }) // For .NET Core 3+
