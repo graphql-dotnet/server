@@ -3,6 +3,7 @@ using GraphQL.Instrumentation;
 using GraphQL.Server.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 
 namespace GraphQL.Server
 {
@@ -11,21 +12,40 @@ namespace GraphQL.Server
         /// <summary>
         /// Add required services for GraphQL.
         /// </summary>
-        /// <param name="services"></param>
+        /// <param name="services">Collection of registered services.</param>
         /// <returns>GraphQL builder used for GraphQL specific extension chaining.</returns>
         public static IGraphQLBuilder AddGraphQL(this IServiceCollection services) => services.AddGraphQL(_ => { });
 
         /// <summary>
         /// Add required services for GraphQL.
-        /// <br/><br/>
-        /// If dependencies are required to configure options see https://andrewlock.net/simplifying-dependency-injection-for-iconfigureoptions-with-the-configureoptions-helper/#using-services-to-configure-strongly-typed-options
         /// </summary>
-        /// <param name="services"></param>
+        /// <param name="services">Collection of registered services.</param>
         /// <param name="configureOptions">An action delegate to configure the provided <see cref="GraphQLOptions"/>.</param>
         /// <returns>GraphQL builder used for GraphQL specific extension chaining.</returns>
         public static IGraphQLBuilder AddGraphQL(this IServiceCollection services, Action<GraphQLOptions> configureOptions)
         {
-            services.Configure(configureOptions ?? throw new ArgumentNullException(nameof(configureOptions)));
+            if (configureOptions == null)
+                throw new ArgumentNullException(nameof(configureOptions));
+
+            return services.AddGraphQL((opt, _) => configureOptions(opt));
+        }
+
+        /// <summary>
+        /// Add required services for GraphQL.
+        /// </summary>
+        /// <param name="services">Collection of registered services.</param>
+        /// <param name="configureOptions">
+        /// An action delegate to configure the provided <see cref="GraphQLOptions"/>.
+        /// This delegate provides additional <see cref="IServiceProvider"/> parameter to resolve all necessary dependencies.
+        /// </param>
+        /// <returns>GraphQL builder used for GraphQL specific extension chaining.</returns>
+        public static IGraphQLBuilder AddGraphQL(this IServiceCollection services, Action<GraphQLOptions, IServiceProvider> configureOptions)
+        {
+            if (configureOptions == null)
+                throw new ArgumentNullException(nameof(configureOptions));
+
+            // This is used instead of "normal" services.Configure(configureOptions) to pass IServiceProvider to user code.
+            services.AddSingleton<IConfigureOptions<GraphQLOptions>>(x => new ConfigureNamedOptions<GraphQLOptions>(Options.DefaultName, opt => configureOptions(opt, x)));
             services.TryAddSingleton<InstrumentFieldsMiddleware>();
             services.TryAddSingleton<IDocumentExecuter, DocumentExecuter>();
             services.TryAddTransient(typeof(IGraphQLExecuter<>), typeof(DefaultGraphQLExecuter<>));
