@@ -1,10 +1,10 @@
-using System.Collections.Generic;
-using System.Net.WebSockets;
-using System.Threading.Tasks;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
+using System.Net.WebSockets;
+using System.Threading.Tasks;
 
 namespace GraphQL.Server.Transports.WebSockets
 {
@@ -40,8 +40,7 @@ namespace GraphQL.Server.Transports.WebSockets
 
                 _logger.LogDebug("Connection is a valid websocket request");
 
-                var socket = await context.WebSockets.AcceptWebSocketAsync("graphql-ws")
-                    .ConfigureAwait(false);
+                var socket = await context.WebSockets.AcceptWebSocketAsync("graphql-ws");
 
                 if (!context.WebSockets.WebSocketRequestedProtocols.Contains(socket.SubProtocol))
                 {
@@ -52,7 +51,7 @@ namespace GraphQL.Server.Transports.WebSockets
                     await socket.CloseAsync(
                         WebSocketCloseStatus.ProtocolError,
                         "Server only supports graphql-ws protocol",
-                        context.RequestAborted).ConfigureAwait(false);
+                        context.RequestAborted);
 
                     return;
                 }

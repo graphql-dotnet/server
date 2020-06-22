@@ -1,7 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using GraphQL.Server.Internal;
 using GraphQL.Subscription;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
@@ -20,7 +19,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
                 {
                     Streams = new Dictionary<string, IObservable<ExecutionResult>>
                     {
-                        {"1", Substitute.For<IObservable<ExecutionResult>>()}
+                        { "1", Substitute.For<IObservable<ExecutionResult>>() }
                     }
                 });
             _sut = new SubscriptionManager(_executer, new NullLoggerFactory());
@@ -36,7 +35,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         public async Task Failed_Subscribe_does_not_add()
         {
             /* Given */
-            var id = "1";
+            string id = "1";
             var payload = new OperationMessagePayload();
             var context = new MessageHandlingContext(_server, null);
 
@@ -60,8 +59,8 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         public async Task Failed_Subscribe_with_null_stream()
         {
             /* Given */
-            var id = "1";
-            var payload = new OperationMessagePayload();  
+            string id = "1";
+            var payload = new OperationMessagePayload();
             var context = new MessageHandlingContext(_server, null);
 
             _executer.ExecuteAsync(null, null, null, null).ReturnsForAnyArgs(
@@ -69,7 +68,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
                 {
                     Streams = new Dictionary<string, IObservable<ExecutionResult>>
                     {
-                        {"1", null}
+                        { "1", null }
                     }
                 });
 
@@ -87,7 +86,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         public async Task Failed_Subscribe_writes_error()
         {
             /* Given */
-            var id = "1";
+            string id = "1";
             var payload = new OperationMessagePayload();
             var context = new MessageHandlingContext(_server, null);
 
@@ -114,7 +113,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         public async Task Subscribe_adds()
         {
             /* Given */
-            var id = "1";
+            string id = "1";
             var payload = new OperationMessagePayload();
             var context = new MessageHandlingContext(_server, null);
 
@@ -129,7 +128,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         public async Task Subscribe_executes()
         {
             /* Given */
-            var id = "1";
+            string id = "1";
             var payload = new OperationMessagePayload();
             var context = new MessageHandlingContext(_server, null);
 
@@ -140,7 +139,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             await _executer.Received().ExecuteAsync(
                 Arg.Is(payload.OperationName),
                 Arg.Is(payload.Query),
-                Arg.Any<dynamic>(), 
+                Arg.Any<dynamic>(),
                 context);
         }
 
@@ -148,7 +147,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         public async Task Unsubscribe_removes()
         {
             /* Given */
-            var id = "1";
+            string id = "1";
             var payload = new OperationMessagePayload();
             var context = new MessageHandlingContext(_server, null);
 
@@ -165,7 +164,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         public async Task Unsubscribe_writes_complete()
         {
             /* Given */
-            var id = "1";
+            string id = "1";
             var payload = new OperationMessagePayload();
             var context = new MessageHandlingContext(_server, null);
 

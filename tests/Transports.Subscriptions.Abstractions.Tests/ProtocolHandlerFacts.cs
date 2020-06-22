@@ -1,7 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using GraphQL.Server.Internal;
 using GraphQL.Subscription;
 using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json.Linq;
@@ -12,13 +11,13 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
 {
     public class ProtocolHandlerFacts
     {
-        private TestableSubscriptionTransport _transport;
-        private TestableReader _transportReader;
-        private TestableWriter _transportWriter;
-        private IGraphQLExecuter _documentExecuter;
-        private SubscriptionManager _subscriptionManager;
-        private SubscriptionServer _server;
-        private ProtocolMessageListener _sut;
+        private readonly TestableSubscriptionTransport _transport;
+        private readonly TestableReader _transportReader;
+        private readonly TestableWriter _transportWriter;
+        private readonly IGraphQLExecuter _documentExecuter;
+        private readonly SubscriptionManager _subscriptionManager;
+        private readonly SubscriptionServer _server;
+        private readonly ProtocolMessageListener _sut;
 
         public ProtocolHandlerFacts()
         {
@@ -31,7 +30,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
                 {
                     Streams = new Dictionary<string, IObservable<ExecutionResult>>
                     {
-                        {"1", Substitute.For<IObservable<ExecutionResult>>()}
+                        { "1", Substitute.For<IObservable<ExecutionResult>>() }
                     }
                 });
             _subscriptionManager = new SubscriptionManager(_documentExecuter, new NullLoggerFactory());

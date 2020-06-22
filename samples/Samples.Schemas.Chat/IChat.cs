@@ -20,7 +20,6 @@ namespace GraphQL.Samples.Schemas.Chat
     {
         private readonly ISubject<Message> _messageStream = new ReplaySubject<Message>(1);
 
-
         public Chat()
         {
             AllMessages = new ConcurrentStack<Message>();
@@ -37,7 +36,7 @@ namespace GraphQL.Samples.Schemas.Chat
 
         public Message AddMessage(ReceivedMessage message)
         {
-            if (!Users.TryGetValue(message.FromId, out var displayName))
+            if (!Users.TryGetValue(message.FromId, out string displayName))
             {
                 displayName = "(unknown)";
             }
@@ -72,9 +71,6 @@ namespace GraphQL.Samples.Schemas.Chat
                 .AsObservable();
         }
 
-        public void AddError(Exception exception)
-        {
-            _messageStream.OnError(exception);
-        }
+        public void AddError(Exception exception) => _messageStream.OnError(exception);
     }
 }

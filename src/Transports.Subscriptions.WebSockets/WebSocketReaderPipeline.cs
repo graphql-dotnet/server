@@ -1,3 +1,5 @@
+using GraphQL.Server.Transports.Subscriptions.Abstractions;
+using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Net.WebSockets;
@@ -5,8 +7,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
-using GraphQL.Server.Transports.Subscriptions.Abstractions;
-using Newtonsoft.Json;
 
 namespace GraphQL.Server.Transports.WebSockets
 {
@@ -42,24 +42,24 @@ namespace GraphQL.Server.Transports.WebSockets
 
         public async Task Complete(WebSocketCloseStatus closeStatus, string statusDescription)
         {
-          if (_socket.State != WebSocketState.Closed && _socket.State != WebSocketState.CloseSent)
-            try
-            {
-              if (closeStatus == WebSocketCloseStatus.NormalClosure)
-                await _socket.CloseAsync(
-                  closeStatus,
-                  statusDescription,
-                  CancellationToken.None);
-              else
-                await _socket.CloseOutputAsync(
-                  closeStatus,
-                  statusDescription,
-                  CancellationToken.None);
-            }
-            finally
-            {
-              _startBlock.Complete();
-            }
+            if (_socket.State != WebSocketState.Closed && _socket.State != WebSocketState.CloseSent)
+                try
+                {
+                    if (closeStatus == WebSocketCloseStatus.NormalClosure)
+                        await _socket.CloseAsync(
+                          closeStatus,
+                          statusDescription,
+                          CancellationToken.None); 
+                    else
+                        await _socket.CloseOutputAsync(
+                          closeStatus,
+                          statusDescription,
+                          CancellationToken.None); 
+                }
+                finally
+                {
+                    _startBlock.Complete();
+                }
         }
 
         public Task Completion => _endBlock.Completion;
@@ -86,7 +86,7 @@ namespace GraphQL.Server.Transports.WebSockets
                     MaxDegreeOfParallelism = 1
                 });
 
-            Task.Run(async () => { await ReadMessageAsync(source); });
+            Task.Run(async () => await ReadMessageAsync(source));
 
             return source;
         }
@@ -96,7 +96,7 @@ namespace GraphQL.Server.Transports.WebSockets
             while (!_socket.CloseStatus.HasValue)
             {
                 string message;
-                var buffer = new byte[1024 * 4];
+                byte[] buffer = new byte[1024 * 4];
                 var segment = new ArraySegment<byte>(buffer);
 
                 using (var memoryStream = new MemoryStream())

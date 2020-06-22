@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
-using Microsoft.Extensions.Logging;
 
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 {
@@ -45,25 +45,22 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             LogServerInformation();
 
             // when transport reader is completed it should propagate here
-            await _handler.Completion;
+            await _handler.Completion.ConfigureAwait(false);
 
             // complete write buffer
-            await TransportWriter.Complete();
-            await TransportWriter.Completion;
+            await TransportWriter.Complete().ConfigureAwait(false);
+            await TransportWriter.Completion.ConfigureAwait(false);
         }
 
-        public Task OnDisconnect()
-        {
-            return Terminate();
-        }
+        public Task OnDisconnect() => Terminate();
 
         public async Task Terminate()
         {
             foreach (var subscription in Subscriptions)
-                await Subscriptions.UnsubscribeAsync(subscription.Id);
+                await Subscriptions.UnsubscribeAsync(subscription.Id).ConfigureAwait(false);
 
             // this should propagate to handler completion
-            await TransportReader.Complete();
+            await TransportReader.Complete().ConfigureAwait(false);
         }
 
         private void LogServerInformation()
@@ -94,15 +91,15 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         private async Task HandleMessageAsync(OperationMessage message)
         {
             _logger.LogDebug("Handling message: {id} of type: {type}", message.Id, message.Type);
-            using (var context = await BuildMessageHandlingContext(message))
+            using (var context = await BuildMessageHandlingContext(message).ConfigureAwait(false))
             {
-                await OnBeforeHandleAsync(context);
+                await OnBeforeHandleAsync(context).ConfigureAwait(false);
 
                 if (context.Terminated)
                     return;
 
-                await OnHandleAsync(context);
-                await OnAfterHandleAsync(context);
+                await OnHandleAsync(context).ConfigureAwait(false);
+                await OnAfterHandleAsync(context).ConfigureAwait(false);
             }
         }
 
@@ -110,20 +107,18 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         {
             foreach (var listener in _messageListeners)
             {
-                await listener.BeforeHandleAsync(context);
+                await listener.BeforeHandleAsync(context).ConfigureAwait(false);
             }
         }
 
         private Task<MessageHandlingContext> BuildMessageHandlingContext(OperationMessage message)
-        {
-            return Task.FromResult(new MessageHandlingContext(this, message));
-        }
+            => Task.FromResult(new MessageHandlingContext(this, message));
 
         private async Task OnHandleAsync(MessageHandlingContext context)
         {
             foreach (var listener in _messageListeners)
             {
-                await listener.HandleAsync(context);
+                await listener.HandleAsync(context).ConfigureAwait(false);
             }
         }
 
@@ -131,7 +126,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         {
             foreach (var listener in _messageListeners)
             {
-                await listener.AfterHandleAsync(context);
+                await listener.AfterHandleAsync(context).ConfigureAwait(false);
             }
         }
 

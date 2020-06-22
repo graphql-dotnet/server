@@ -1,5 +1,5 @@
-﻿using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 {
@@ -12,10 +12,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             _logger = logger;
         }
 
-        public Task BeforeHandleAsync(MessageHandlingContext context)
-        {
-            return Task.FromResult(true);
-        }
+        public Task BeforeHandleAsync(MessageHandlingContext context) => Task.FromResult(true);
 
         public Task HandleAsync(MessageHandlingContext context)
         {
@@ -23,9 +20,6 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             return Task.CompletedTask;
         }
 
-        public Task AfterHandleAsync(MessageHandlingContext context)
-        {
-            return Task.CompletedTask;
-        }
+        public Task AfterHandleAsync(MessageHandlingContext context) => Task.CompletedTask;
     }
 }

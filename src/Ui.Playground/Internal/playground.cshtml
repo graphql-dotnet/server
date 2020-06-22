@@ -53,9 +53,9 @@
           setTitle: true,
           endpoint: window.location.protocol + "//" + window.location.host + "@Model.GraphQLEndPoint",
           subscriptionEndpoint: (window.location.protocol === "http:" ? "ws://" : "wss://") + window.location.host + "@Model.GraphQLEndPoint",
-          settings: {
-            'tracing.hideTracingResponse': false
-          }
+          config: @Model.GraphQLConfig,
+          settings: @Model.PlaygroundSettings,
+          headers: @Model.Headers,
         });
     })
   </script>

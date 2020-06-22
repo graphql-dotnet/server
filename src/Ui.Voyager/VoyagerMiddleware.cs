@@ -1,8 +1,8 @@
-﻿using System;
-using System.Text;
-using System.Threading.Tasks;
 using GraphQL.Server.Ui.Voyager.Internal;
 using Microsoft.AspNetCore.Http;
+using System;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace GraphQL.Server.Ui.Voyager
 {
@@ -11,12 +11,12 @@ namespace GraphQL.Server.Ui.Voyager
     /// </summary>
     public class VoyagerMiddleware
     {
-        private readonly GraphQLVoyagerOptions _settings;
+        private readonly GraphQLVoyagerOptions _options;
 
         /// <summary>
-        /// The Next Middleware
+        /// The next middleware
         /// </summary>
-        private readonly RequestDelegate nextMiddleware;
+        private readonly RequestDelegate _nextMiddleware;
 
         /// <summary>
         /// The page model used to render Voyager
@@ -24,14 +24,14 @@ namespace GraphQL.Server.Ui.Voyager
         private VoyagerPageModel _pageModel;
 
         /// <summary>
-        /// Create a new VoyagerMiddleware
+        /// Create a new <see cref="VoyagerMiddleware"/>
         /// </summary>
-        /// <param name="nextMiddleware">The Next Middleware</param>
-        /// <param name="settings">The Settings of the Middleware</param>
-        public VoyagerMiddleware(RequestDelegate nextMiddleware, GraphQLVoyagerOptions settings)
+        /// <param name="nextMiddleware">The next middleware</param>
+        /// <param name="options">Options to customize middleware</param>
+        public VoyagerMiddleware(RequestDelegate nextMiddleware, GraphQLVoyagerOptions options)
         {
-            this.nextMiddleware = nextMiddleware ?? throw new ArgumentNullException(nameof(nextMiddleware));
-            this._settings = settings ?? throw new ArgumentNullException(nameof(settings));
+            _nextMiddleware = nextMiddleware ?? throw new ArgumentNullException(nameof(nextMiddleware));
+            _options = options ?? throw new ArgumentNullException(nameof(options));
         }
 
         /// <summary>
@@ -41,20 +41,15 @@ namespace GraphQL.Server.Ui.Voyager
         /// <returns></returns>
         public Task Invoke(HttpContext httpContext)
         {
-            if (httpContext == null) { throw new ArgumentNullException(nameof(httpContext)); }
+            if (httpContext == null) throw new ArgumentNullException(nameof(httpContext));
 
-            if (IsVoyagerRequest(httpContext.Request))
-            {
-                return InvokeVoyager(httpContext.Response);
-            }
-
-            return nextMiddleware(httpContext);
+            return IsVoyagerRequest(httpContext.Request)
+                ? InvokeVoyager(httpContext.Response)
+                : _nextMiddleware(httpContext);
         }
 
         private bool IsVoyagerRequest(HttpRequest httpRequest)
-        {
-            return HttpMethods.IsGet(httpRequest.Method) && httpRequest.Path.StartsWithSegments(this._settings.Path);
-        }
+            => HttpMethods.IsGet(httpRequest.Method) && httpRequest.Path.StartsWithSegments(_options.Path);
 
         private Task InvokeVoyager(HttpResponse httpResponse)
         {
@@ -63,9 +58,9 @@ namespace GraphQL.Server.Ui.Voyager
 
             // Initialize page model if null
             if (_pageModel == null)
-                _pageModel = new VoyagerPageModel(_settings);
+                _pageModel = new VoyagerPageModel(_options);
 
-            var data = Encoding.UTF8.GetBytes(_pageModel.Render());
+            byte[] data = Encoding.UTF8.GetBytes(_pageModel.Render());
             return httpResponse.Body.WriteAsync(data, 0, data.Length);
         }
     }

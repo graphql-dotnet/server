@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using GraphQL.Execution;
-using GraphQL.Http;
 using GraphQL.Types;
 using GraphQL.Validation;
 using Microsoft.AspNetCore.Authorization;
@@ -23,20 +22,14 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
         public ClaimsPrincipal User { get; set; }
         public Inputs Inputs { get; set; }
 
-        public void Rule(params IValidationRule[] rules)
-        {
-            _rules.AddRange(rules);
-        }
+        public void Rule(params IValidationRule[] rules) => _rules.AddRange(rules);
     }
-    public class GraphQLUserContext
+    public class GraphQLUserContext : Dictionary<string, object>
     {
         public ClaimsPrincipal User { get; set; }
     }
     public class ValidationTestBase
     {
-        private IDocumentExecuter _executor = new DocumentExecuter();
-        private IDocumentWriter _writer = new DocumentWriter(indent: true);
-
         protected HttpContext HttpContext { get; private set; }
 
         protected AuthorizationValidationRule Rule { get; private set; }
@@ -60,7 +53,7 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
 
             var result = Validate(config);
 
-            var message = "";
+            string message = "";
             if (result.Errors?.Any() == true)
             {
                 message = string.Join(", ", result.Errors.Select(x => x.Message));
@@ -99,22 +92,19 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
 
         private IValidationResult Validate(ValidationTestConfig config)
         {
-            this.HttpContext.User = config.User;
+            HttpContext.User = config.User;
             var userContext = new GraphQLUserContext { User = config.User };
             var documentBuilder = new GraphQLDocumentBuilder();
             var document = documentBuilder.Build(config.Query);
             var validator = new DocumentValidator();
-            return validator.Validate(config.Query, config.Schema, document, config.Rules, userContext, config.Inputs);
+            return validator.ValidateAsync(config.Query, config.Schema, document, config.Rules, userContext, config.Inputs).GetAwaiter().GetResult();
         }
 
         protected ClaimsPrincipal CreatePrincipal(string authenticationType = null, IDictionary<string, string> claims = null)
         {
             var claimsList = new List<Claim>();
 
-            claims?.Apply(c =>
-            {
-                claimsList.Add(new Claim(c.Key, c.Value));
-            });
+            claims?.Apply(c => claimsList.Add(new Claim(c.Key, c.Value)));
 
             return new ClaimsPrincipal(new ClaimsIdentity(claimsList, authenticationType));
         }
