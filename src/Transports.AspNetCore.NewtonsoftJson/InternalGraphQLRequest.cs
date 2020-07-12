@@ -17,5 +17,8 @@ namespace GraphQL.Server.Transports.AspNetCore.NewtonsoftJson
 
         [JsonProperty(GraphQLRequest.VARIABLES_KEY)]
         public JObject Variables { get; set; }
+
+        [JsonProperty(GraphQLRequest.EXTENSIONS_KEY)]
+        public JObject Extensions { get; set; }
     }
 }

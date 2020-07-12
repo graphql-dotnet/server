@@ -6,7 +6,7 @@ using GraphQL.Server.Transports.Subscriptions.Abstractions;
 namespace GraphQL.Server
 {
     /// <summary>
-    /// OperationMessage uses DataMemberAttribute but S.T.J does not support this:
+    /// OperationMessage uses DataMemberAttribute but System.Text.Json does not support this:
     /// https://docs.microsoft.com/en-us/dotnet/standard/serialization/system-text-json-migrate-from-newtonsoft-how-to#systemruntimeserialization-attributes
     ///
     /// TODO: it may be worth refactor since a reference to Transports.Subscriptions.Abstractions is required now
