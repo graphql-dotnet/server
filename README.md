@@ -43,7 +43,7 @@ You can install the latest stable version via [NuGet](https://www.nuget.org/pack
 You can get the latest pre-release packages from the [MyGet feed](https://www.myget.org/F/graphql-dotnet/api/v3/index.json),
 where you may want to explicitly pull a certain version using `-v`.
 ```
-> dotnet add package GraphQL.Server.Transports.AspNetCore -v 3.5.0-alpha0068
+> dotnet add package GraphQL.Server.Transports.AspNetCore -v 3.5.0-alpha0071
 ```
 
 For just the HTTP middleware:
