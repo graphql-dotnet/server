@@ -200,6 +200,11 @@ namespace GraphQL.Server.Transports.AspNetCore
             httpResponse.ContentType = "application/json";
             httpResponse.StatusCode = 200; // OK
 
+            if (result.Errors != null && result.Errors.Any())
+            {
+                result.Data = null;
+            }
+
             return writer.WriteAsync(httpResponse.Body, result, cancellationToken);
         }
 
