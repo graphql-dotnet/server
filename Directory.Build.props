@@ -46,24 +46,22 @@
   </PropertyGroup>
     
   <PropertyGroup Label="Package dependency versions">
-    <MicrosoftNETTestSdkVersion>16.6.1</MicrosoftNETTestSdkVersion>
-    <CastleCoreVersion>4.4.0</CastleCoreVersion>
+    <MicrosoftNETTestSdkVersion>16.7.0</MicrosoftNETTestSdkVersion>
+    <CastleCoreVersion>4.4.1</CastleCoreVersion>
     <NSubstituteVersion>3.1.0</NSubstituteVersion>
     <NewtonsoftJsonVersion>12.0.3</NewtonsoftJsonVersion>
-    <GraphQLVersion>3.0.0-preview-1675</GraphQLVersion>
-    <MoqVersion>4.13.1</MoqVersion>
+    <GraphQLVersion>3.0.0-preview-1719</GraphQLVersion>
+    <MoqVersion>4.14.5</MoqVersion>
     <ShouldlyVersion>3.0.2</ShouldlyVersion>
 
     <xunitVersion>2.4.1</xunitVersion>
-    <xunitrunnervisualstudioVersion>2.4.1</xunitrunnervisualstudioVersion>
+    <xunitrunnervisualstudioVersion>2.4.3</xunitrunnervisualstudioVersion>
 
     <SerilogVersion>2.8.0</SerilogVersion>
     <SerilogAspNetCoreVersion>2.1.1</SerilogAspNetCoreVersion>
     <SerilogSinksConsoleVersion>3.1.1</SerilogSinksConsoleVersion>
 
     <SystemThreadingTasksDataflowVersion>4.9.0</SystemThreadingTasksDataflowVersion>
-    <SystemThreadingTasksExtensionsVersion>4.5.3</SystemThreadingTasksExtensionsVersion>
-    <SystemReactiveVersion>4.1.5</SystemReactiveVersion>
   </PropertyGroup>
 
 </Project>
