@@ -1,3 +1,4 @@
+using GraphQL.Execution;
 using GraphQL.Server.Transports.AspNetCore.Common;
 using GraphQL.Server.Transports.AspNetCore.SystemTextJson;
 using GraphQL.SystemTextJson;
@@ -33,7 +34,7 @@ namespace GraphQL.Server
             {
                 opt.Converters.Add(new OperationMessageConverter());
                 configureSerializerSettings?.Invoke(opt);
-            })));
+            }, p.GetService<IErrorInfoProvider>() ?? new ErrorInfoProvider())));
 
             return builder;
         }

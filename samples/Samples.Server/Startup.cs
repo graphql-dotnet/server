@@ -46,7 +46,6 @@ namespace GraphQL.Samples.Server
                 .AddGraphQL((options, provider) =>
                 {
                     options.EnableMetrics = Environment.IsDevelopment();
-                    options.ExposeExceptions = Environment.IsDevelopment();
                     var logger = provider.GetRequiredService<ILogger<Startup>>();
                     options.UnhandledExceptionDelegate = ctx => logger.LogError("{Error} occured", ctx.OriginalException.Message);
                 })
@@ -55,6 +54,7 @@ namespace GraphQL.Samples.Server
 #else
                 .AddSystemTextJson(deserializerSettings => { }, serializerSettings => { })
 #endif
+                .AddErrorInfoProvider(opt => opt.ExposeExceptionStackTrace = Environment.IsDevelopment())
                 .AddWebSockets()
                 .AddDataLoader()
                 .AddGraphTypes(typeof(ChatSchema));

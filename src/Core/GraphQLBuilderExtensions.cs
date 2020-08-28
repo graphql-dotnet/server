@@ -7,6 +7,7 @@ using GraphQL.Types;
 using GraphQL.Types.Relay;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 
 namespace GraphQL.Server
 {
@@ -15,6 +16,34 @@ namespace GraphQL.Server
     /// </summary>
     public static class GraphQLBuilderExtensions
     {
+        // Provides integration with Microsoft.Extensions.Options so the caller may use services.Configure<ErrorInfoProviderOptions>(...)
+        private sealed class InternalErrorInfoProvider : ErrorInfoProvider
+        {
+            public InternalErrorInfoProvider(IOptions<ErrorInfoProviderOptions> options)
+                : base(options.Value) { }
+        }
+
+        public static IGraphQLBuilder AddErrorInfoProvider(this IGraphQLBuilder builder, Action<ErrorInfoProviderOptions> configureOptions)
+        {
+            if (configureOptions == null)
+                throw new ArgumentNullException(nameof(configureOptions));
+
+            return builder.AddErrorInfoProvider((opt, _) => configureOptions(opt));
+        }
+
+        public static IGraphQLBuilder AddErrorInfoProvider(this IGraphQLBuilder builder, Action<ErrorInfoProviderOptions, IServiceProvider> configureOptions)
+        {
+            if (configureOptions == null)
+                throw new ArgumentNullException(nameof(configureOptions));
+
+            // This is used instead of "normal" services.Configure(configureOptions) to pass IServiceProvider to user code.
+            builder.Services.AddSingleton<IConfigureOptions<ErrorInfoProviderOptions>>(x => new ConfigureNamedOptions<ErrorInfoProviderOptions>(Options.DefaultName, opt => configureOptions(opt, x)));
+            builder.Services.TryAddSingleton<IErrorInfoProvider, InternalErrorInfoProvider>();
+            builder.Services.AddOptions();
+
+            return builder;
+        }
+
         /// <summary>
         /// Add required services for GraphQL data loader support
         /// </summary>

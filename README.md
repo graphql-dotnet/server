@@ -82,13 +82,13 @@ public void ConfigureServices(IServiceCollection services)
         .AddGraphQL((options, provider) =>
         {
             options.EnableMetrics = Environment.IsDevelopment();
-            options.ExposeExceptions = Environment.IsDevelopment();
             var logger = provider.GetRequiredService<ILogger<Startup>>();
             options.UnhandledExceptionDelegate = ctx => logger.LogError("{Error} occured", ctx.OriginalException.Message);
         })
         // Add required services for de/serialization
         .AddSystemTextJson(deserializerSettings => { }, serializerSettings => { }) // For .NET Core 3+
         .AddNewtonsoftJson(deserializerSettings => { }, serializerSettings => { }) // For everything else
+        .AddErrorInfoProvider(opt => opt.ExposeExceptionStackTrace = Environment.IsDevelopment())
         .AddWebSockets() // Add required services for web socket support
         .AddDataLoader() // Add required services for DataLoader support
         .AddGraphTypes(typeof(ChatSchema)) // Add all IGraphType implementors in assembly which ChatSchema exists 

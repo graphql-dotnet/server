@@ -18,8 +18,6 @@ namespace GraphQL.Server
         /// </summary>
         public bool EnableMetrics { get; set; } = true;
 
-        public bool ExposeExceptions { get; set; }
-
         public INameConverter NameConverter { get; set; }
 
         public Action<UnhandledExceptionContext> UnhandledExceptionDelegate = ctx => { };

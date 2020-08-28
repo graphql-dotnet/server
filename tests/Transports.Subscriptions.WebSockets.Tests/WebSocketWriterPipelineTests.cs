@@ -1,3 +1,4 @@
+using GraphQL.Execution;
 using GraphQL.NewtonsoftJson;
 using GraphQL.Server.Transports.Subscriptions.Abstractions;
 using Newtonsoft.Json;
@@ -226,7 +227,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
             return new WebSocketWriterPipeline(_testWebSocket, new DocumentWriter(
                 new JsonSerializerSettings
                 {
-                    ContractResolver = new ExecutionResultContractResolver { NamingStrategy = namingStrategy },
+                    ContractResolver = new ExecutionResultContractResolver(new ErrorInfoProvider()) { NamingStrategy = namingStrategy },
                     NullValueHandling = NullValueHandling.Ignore,
                     Formatting = Formatting.None
                 }));

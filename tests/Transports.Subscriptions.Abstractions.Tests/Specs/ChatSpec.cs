@@ -25,7 +25,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
                 new DefaultGraphQLExecuter<ChatSchema>(
                     new ChatSchema(_chat, new DefaultServiceProvider()),
                     new DocumentExecuter(),
-                    Options.Create(new GraphQLOptions { ExposeExceptions = true }),
+                    Options.Create(new GraphQLOptions { }),
                     Enumerable.Empty<IDocumentExecutionListener>(),
                     Enumerable.Empty<IValidationRule>()
                     ),
