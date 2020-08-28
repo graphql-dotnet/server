@@ -9,6 +9,7 @@
     <Authors>Pekka Heikura</Authors>
     <Product>graphql-dotnet server</Product>
     <Company>graphql-dotnet</Company>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(MSBuildProjectName).xml</DocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -50,7 +51,7 @@
     <CastleCoreVersion>4.4.1</CastleCoreVersion>
     <NSubstituteVersion>3.1.0</NSubstituteVersion>
     <NewtonsoftJsonVersion>12.0.3</NewtonsoftJsonVersion>
-    <GraphQLVersion>3.0.0-preview-1719</GraphQLVersion>
+    <GraphQLVersion>3.0.0-preview-1956</GraphQLVersion>
     <MoqVersion>4.14.5</MoqVersion>
     <ShouldlyVersion>3.0.2</ShouldlyVersion>
 
