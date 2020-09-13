@@ -29,7 +29,7 @@ Transport compatible with [Apollo](https://github.com/apollographql/subscription
 
 ## Getting started
 
-> NOTE: You can see the changes in public APIs using [fuget.org](https://www.fuget.org/packages/GraphQL.Server.Transports.AspNetCore/4.0.0/lib/netstandard2.0/diff/3.4.0/).
+> NOTE: You can see the changes in public APIs using [fuget.org](https://www.fuget.org/packages/GraphQL.Server.Transports.AspNetCore/4.0.1/lib/netstandard2.0/diff/3.4.0/).
 
 You can install the latest stable version via [NuGet](https://www.nuget.org/packages/GraphQL.Server.Transports.AspNetCore/).
 ```
