@@ -1,4 +1,4 @@
-#tool "nuget:?package=GitVersion.CommandLine&version=4.0.0-beta0012&prerelease"
+#tool "nuget:?package=GitVersion.CommandLine&version=5.3.7"
 
 var target = Argument<string>("target", "Default");
 var configuration = Argument<string>("configuration", "Release");

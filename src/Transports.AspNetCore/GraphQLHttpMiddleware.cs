@@ -5,6 +5,7 @@ using GraphQL.Server.Transports.AspNetCore.Common;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http.Headers;
@@ -136,7 +137,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             if (bodyGQLBatchRequest == null)
             {
                 var stopwatch = ValueStopwatch.StartNew();
-                var result = await ExecuteRequestAsync(gqlRequest, userContext, executer, cancellationToken);
+                var result = await ExecuteRequestAsync(gqlRequest, userContext, executer, context.RequestServices, cancellationToken);
 
                 await RequestExecutedAsync(new GraphQLRequestExecutionResult(gqlRequest, result, stopwatch.Elapsed));
 
@@ -151,7 +152,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                     var gqlRequestInBatch = bodyGQLBatchRequest[i];
 
                     var stopwatch = ValueStopwatch.StartNew();
-                    var result = await ExecuteRequestAsync(gqlRequestInBatch, userContext, executer, cancellationToken);
+                    var result = await ExecuteRequestAsync(gqlRequestInBatch, userContext, executer,context.RequestServices, cancellationToken);
 
                     await RequestExecutedAsync(new GraphQLRequestExecutionResult(gqlRequestInBatch, result, stopwatch.Elapsed, i));
 
@@ -162,12 +163,13 @@ namespace GraphQL.Server.Transports.AspNetCore
             }
         }
 
-        private static Task<ExecutionResult> ExecuteRequestAsync(GraphQLRequest gqlRequest, IDictionary<string, object> userContext, IGraphQLExecuter<TSchema> executer, CancellationToken token)
+        private static Task<ExecutionResult> ExecuteRequestAsync(GraphQLRequest gqlRequest, IDictionary<string, object> userContext, IGraphQLExecuter<TSchema> executer, IServiceProvider requestServices, CancellationToken token)
             => executer.ExecuteAsync(
                 gqlRequest.OperationName,
                 gqlRequest.Query,
                 gqlRequest.Inputs,
                 userContext,
+                requestServices,
                 token);
 
         protected virtual CancellationToken GetCancellationToken(HttpContext context) => context.RequestAborted;
