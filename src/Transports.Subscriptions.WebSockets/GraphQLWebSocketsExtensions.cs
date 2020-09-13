@@ -18,9 +18,7 @@ namespace GraphQL.Server
             this IApplicationBuilder builder,
             string path = "/graphql")
             where TSchema : ISchema
-        {
-            return builder.UseGraphQLWebSockets<TSchema>(new PathString(path));
-        }
+            => builder.UseGraphQLWebSockets<TSchema>(new PathString(path));
 
         /// <summary>
         /// Add GraphQL web sockets middleware to the request pipeline
@@ -33,8 +31,6 @@ namespace GraphQL.Server
             this IApplicationBuilder builder,
             PathString path)
             where TSchema : ISchema
-        {
-            return builder.UseMiddleware<GraphQLWebSocketsMiddleware<TSchema>>(path);
-        }
+            => builder.UseMiddleware<GraphQLWebSocketsMiddleware<TSchema>>(path);
     }
 }

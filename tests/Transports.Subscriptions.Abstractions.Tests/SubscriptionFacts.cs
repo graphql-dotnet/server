@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
@@ -22,14 +22,14 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         public void On_data_from_stream()
         {
             /* Given */
-            var id = "1";
+            string id = "1";
             var payload = new OperationMessagePayload();
             var stream = new ReplaySubject<ExecutionResult>(1);
             var result = new SubscriptionExecutionResult
             {
                 Streams = new Dictionary<string, IObservable<ExecutionResult>>
                 {
-                    {"op", stream}
+                    { "op", stream }
                 }
             };
             var expected = new ExecutionResult();
@@ -37,7 +37,6 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
 
             /* When */
             stream.OnNext(expected);
-
 
             /* Then */
             _writer.Received().Post(
@@ -50,14 +49,14 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         public void On_stream_complete()
         {
             /* Given */
-            var id = "1";
+            string id = "1";
             var payload = new OperationMessagePayload();
             var stream = new ReplaySubject<ExecutionResult>(1);
             var result = new SubscriptionExecutionResult
             {
                 Streams = new Dictionary<string, IObservable<ExecutionResult>>
                 {
-                    {"op", stream}
+                    { "op", stream }
                 }
             };
 
@@ -66,7 +65,6 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
 
             /* When */
             stream.OnCompleted();
-
 
             /* Then */
             Assert.False(stream.HasObservers);
@@ -81,14 +79,14 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         public void Subscribe_to_stream()
         {
             /* Given */
-            var id = "1";
+            string id = "1";
             var payload = new OperationMessagePayload();
             var stream = new Subject<ExecutionResult>();
             var result = new SubscriptionExecutionResult
             {
                 Streams = new Dictionary<string, IObservable<ExecutionResult>>
                 {
-                    {"op", stream}
+                    { "op", stream }
                 }
             };
 
@@ -103,7 +101,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         public void Subscribe_to_completed_stream_should_not_throw()
         {
             /* Given */
-            var id = "1";
+            string id = "1";
             var payload = new OperationMessagePayload();
             var subject = new Subject<ExecutionResult>();
             subject.OnCompleted();
@@ -112,20 +110,20 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             {
                 Streams = new Dictionary<string, IObservable<ExecutionResult>>
                 {
-                    {"op", stream}
+                    { "op", stream }
                 }
             };
 
             /* When */
             /* Then */
-            var sut = new Subscription(id, payload, result, _writer, null, new NullLogger<Subscription>()); 
+            var sut = new Subscription(id, payload, result, _writer, null, new NullLogger<Subscription>());
         }
 
         [Fact]
         public async Task Unsubscribe_from_stream()
         {
             /* Given */
-            var id = "1";
+            string id = "1";
             var payload = new OperationMessagePayload();
             var unsubscribe = Substitute.For<IDisposable>();
             var stream = Substitute.For<IObservable<ExecutionResult>>();
@@ -134,14 +132,13 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             {
                 Streams = new Dictionary<string, IObservable<ExecutionResult>>
                 {
-                    {"op", stream}
+                    { "op", stream }
                 }
             };
             var sut = new Subscription(id, payload, result, _writer, null, new NullLogger<Subscription>());
 
             /* When */
             await sut.UnsubscribeAsync();
-
 
             /* Then */
             unsubscribe.Received().Dispose();
@@ -151,13 +148,13 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         public async Task Write_Complete_on_unsubscribe()
         {
             /* Given */
-            var id = "1";
+            string id = "1";
             var payload = new OperationMessagePayload();
             var result = new SubscriptionExecutionResult
             {
                 Streams = new Dictionary<string, IObservable<ExecutionResult>>
                 {
-                    {"1", Substitute.For<IObservable<ExecutionResult>>()}
+                    { "1", Substitute.For<IObservable<ExecutionResult>>() }
                 }
             };
 
@@ -165,7 +162,6 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
 
             /* When */
             await sut.UnsubscribeAsync();
-
 
             /* Then */
             await _writer.Received().SendAsync(

@@ -1,19 +1,20 @@
-#tool "nuget:?package=GitVersion.CommandLine&version=4.0.0-beta0012&prerelease"
+#tool "nuget:?package=GitVersion.CommandLine&version=5.3.7"
 
 var target = Argument<string>("target", "Default");
 var configuration = Argument<string>("configuration", "Release");
 var artifactsDir = Directory(Argument<string>("artifactsDir", "./artifacts"));
 var publishDir = Directory(Argument<string>("publishDir", "./publish"));
-var framework = Argument<string>("framework", "netstandard2.0");
 var runtime = Argument<string>("runtime", "win-x64");
-var sln = "./GraphQL.Server.Transports.sln";
 var projectFiles = new [] {
   "./src/Core/Core.csproj",
   "./src/Transports.AspNetCore/Transports.AspNetCore.csproj",
+  "./src/Transports.AspNetCore.NewtonsoftJson/Transports.AspNetCore.NewtonsoftJson.csproj",
+  "./src/Transports.AspNetCore.SystemTextJson/Transports.AspNetCore.SystemTextJson.csproj",
   "./src/Transports.Subscriptions.Abstractions/Transports.Subscriptions.Abstractions.csproj",
   "./src/Transports.Subscriptions.WebSockets/Transports.Subscriptions.WebSockets.csproj",
   "./src/Ui.Playground/Ui.Playground.csproj",
   "./src/Ui.GraphiQL/Ui.GraphiQL.csproj",
+  "./src/Ui.Altair/Ui.Altair.csproj",
   "./src/Ui.Voyager/Ui.Voyager.csproj",
   "./src/Authorization.AspNetCore/Authorization.AspNetCore.csproj"
   };
@@ -30,7 +31,6 @@ Task("Publish")
   {
       var settings = new DotNetCorePublishSettings
       {
-          Framework = framework,
           Configuration = configuration,
           OutputDirectory = publishDir,
           Runtime = runtime
@@ -38,7 +38,7 @@ Task("Publish")
 
       foreach(var projectFile in projectFiles)
       {
-        DotNetCorePublish(projectFile, settings);
+          DotNetCorePublish(projectFile, settings);
       }
   });
 
@@ -57,9 +57,9 @@ Task("Pack")
           MSBuildSettings = buildSettings
       };
 
-      foreach(var projectFile in projectFiles)
+      foreach (var projectFile in projectFiles)
       {
-        DotNetCorePack(projectFile, settings);
+          DotNetCorePack(projectFile, settings);
       }
   });
 
@@ -70,13 +70,12 @@ Task("Build")
   {
       var settings = new DotNetCoreBuildSettings
       {
-          Framework = framework,
           Configuration = configuration
       };
 
-      foreach(var projectFile in projectFiles)
+      foreach (var projectFile in projectFiles)
       {
-        DotNetCoreBuild(projectFile, settings);
+          DotNetCoreBuild(projectFile, settings);
       }
   });
 
@@ -92,32 +91,34 @@ Task("Clean")
 Task("Restore")
   .Does(()=>
   {
-      foreach(var projectFile in projectFiles)
+      foreach (var projectFile in projectFiles)
       {
-        DotNetCoreRestore(projectFile);
+          DotNetCoreRestore(projectFile);
       }
   });
 
 Task("SetVersion")
-    .Does(()=> {
-        var versionInfo = GitVersion(new GitVersionSettings {
-            RepositoryPath = "."
-        });
-        version = versionInfo.NuGetVersion;
-        Information($"Version: {version}, FullSemVer: {versionInfo.FullSemVer}");
+  .Does(()=> 
+  {
+      var versionInfo = GitVersion(new GitVersionSettings {
+          RepositoryPath = "."
+      });
+      version = versionInfo.NuGetVersion;
+      Information($"Version: {version}, FullSemVer: {versionInfo.FullSemVer}");
 
-        if(AppVeyor.IsRunningOnAppVeyor) {
-            AppVeyor.UpdateBuildVersion(version);
-        }
-    });
+      if (AppVeyor.IsRunningOnAppVeyor) {
+          AppVeyor.UpdateBuildVersion(version);
+      }
+  });
 
 Task("Test")
-  .Does(()=> {
-      var projectFiles = GetFiles("./tests/**/*.csproj");
-      foreach(var file in projectFiles)
+  .Does(()=> 
+  {
+      var testProjectFiles = GetFiles("./tests/**/*.csproj");
+      foreach (var file in testProjectFiles)
       {
           DotNetCoreTest(file.FullPath);
       }
-    });
+  });
 
 RunTarget(target);

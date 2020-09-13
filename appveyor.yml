@@ -1,6 +1,11 @@
-image: Visual Studio 2017
+os: Visual Studio 2019
 
 version: 0.0.0-{build}
+pull_requests:
+  do_not_increment_build_number: true
+
+skip_tags: true
+
 build_script:  
   - ps: .\build.ps1 -Target "Default"
 
@@ -9,7 +14,11 @@ artifacts:
     name: Packages
 
 test: off
-skip_branch_with_pr: true
+skip_branch_with_pr: false
+
+install:
+  - ps: choco install dotnetcore-sdk --no-progress --confirm --version 3.1.402
+  - dotnet --version
 
 on_failure:
   - ps: Update-AppveyorBuild -Version "$($env:appveyor_build_version)-$(Get-Date -format HHmmss)-failed"

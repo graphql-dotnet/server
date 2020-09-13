@@ -1,0 +1,68 @@
+<Project>
+
+  <PropertyGroup Label="Сommon properties">
+    <LangVersion>latest</LangVersion>
+    <PackageProjectUrl>https://github.com/graphql-dotnet/server</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/graphql-dotnet/server</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <Copyright>Pekka Heikura</Copyright>
+    <Authors>Pekka Heikura</Authors>
+    <Product>graphql-dotnet server</Product>
+    <Company>graphql-dotnet</Company>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(MSBuildProjectName).xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <IsNetCore3OnwardsTarget>$(TargetFramework.StartsWith('netcoreapp3.'))</IsNetCore3OnwardsTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Net Core 3.1" Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+    <MicrosoftAspNetCoreTestHostVersion>3.1.0</MicrosoftAspNetCoreTestHostVersion>
+    <MicrosoftExtensionsLoggingVersion>3.1.0</MicrosoftExtensionsLoggingVersion>
+    <MicrosoftExtensionsOptionsVersion>3.1.0</MicrosoftExtensionsOptionsVersion>
+    <MicrosoftExtensionsDependencyInjectionVersion>3.1.0</MicrosoftExtensionsDependencyInjectionVersion>
+    <MicrosoftExtensionsDependencyInjectionAbstractionsVersion>3.1.0</MicrosoftExtensionsDependencyInjectionAbstractionsVersion>
+  </PropertyGroup>
+  
+  <PropertyGroup Label="Net Core 3.0" Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
+    <MicrosoftAspNetCoreTestHostVersion>3.0.0</MicrosoftAspNetCoreTestHostVersion>
+    <MicrosoftExtensionsLoggingVersion>3.0.0</MicrosoftExtensionsLoggingVersion>
+    <MicrosoftExtensionsOptionsVersion>3.0.0</MicrosoftExtensionsOptionsVersion>
+    <MicrosoftExtensionsDependencyInjectionVersion>3.0.0</MicrosoftExtensionsDependencyInjectionVersion>
+    <MicrosoftExtensionsDependencyInjectionAbstractionsVersion>3.0.0</MicrosoftExtensionsDependencyInjectionAbstractionsVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Net Core 2.2" Condition="'$(IsNetCore3OnwardsTarget)' == 'False'">
+    <MicrosoftAspNetCoreVersion>2.2.0</MicrosoftAspNetCoreVersion>
+    <MicrosoftAspNetCoreAuthorizationVersion>2.2.0</MicrosoftAspNetCoreAuthorizationVersion>
+    <MicrosoftAspNetCoreHostingAbstractionsVersion>2.2.0</MicrosoftAspNetCoreHostingAbstractionsVersion>
+    <MicrosoftAspNetCoreHttpAbstractionsVersion>2.2.0</MicrosoftAspNetCoreHttpAbstractionsVersion>
+    <MicrosoftAspNetCoreHttpVersion>2.2.2</MicrosoftAspNetCoreHttpVersion>
+    <MicrosoftAspNetCoreTestHostVersion>2.2.0</MicrosoftAspNetCoreTestHostVersion>
+    <MicrosoftAspNetCoreWebSocketsVersion>2.2.1</MicrosoftAspNetCoreWebSocketsVersion>    
+    <MicrosoftExtensionsLoggingVersion>2.2.0</MicrosoftExtensionsLoggingVersion>
+    <MicrosoftExtensionsOptionsVersion>2.2.0</MicrosoftExtensionsOptionsVersion>
+    <MicrosoftExtensionsDependencyInjectionVersion>2.2.0</MicrosoftExtensionsDependencyInjectionVersion>
+    <MicrosoftExtensionsDependencyInjectionAbstractionsVersion>2.2.0</MicrosoftExtensionsDependencyInjectionAbstractionsVersion>
+  </PropertyGroup>
+    
+  <PropertyGroup Label="Package dependency versions">
+    <MicrosoftNETTestSdkVersion>16.7.1</MicrosoftNETTestSdkVersion>
+    <CastleCoreVersion>4.4.1</CastleCoreVersion>
+    <NSubstituteVersion>3.1.0</NSubstituteVersion>
+    <NewtonsoftJsonVersion>12.0.3</NewtonsoftJsonVersion>
+    <GraphQLVersion>3.0.0.2026</GraphQLVersion>
+    <MoqVersion>4.14.5</MoqVersion>
+    <ShouldlyVersion>3.0.2</ShouldlyVersion>
+
+    <xunitVersion>2.4.1</xunitVersion>
+    <xunitrunnervisualstudioVersion>2.4.3</xunitrunnervisualstudioVersion>
+
+    <SerilogVersion>2.8.0</SerilogVersion>
+    <SerilogAspNetCoreVersion>2.1.1</SerilogAspNetCoreVersion>
+    <SerilogSinksConsoleVersion>3.1.1</SerilogSinksConsoleVersion>
+
+    <SystemThreadingTasksDataflowVersion>4.9.0</SystemThreadingTasksDataflowVersion>
+  </PropertyGroup>
+
+</Project>

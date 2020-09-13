@@ -1,13 +1,13 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using GraphQL.Language.AST;
 using GraphQL.Types;
 using GraphQL.Validation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Http;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace GraphQL.Server.Authorization.AspNetCore
 {
@@ -24,9 +24,9 @@ namespace GraphQL.Server.Authorization.AspNetCore
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public INodeVisitor Validate(ValidationContext context)
+        public Task<INodeVisitor> ValidateAsync(ValidationContext context)
         {
-            return new EnterLeaveListener(_ =>
+            return Task.FromResult((INodeVisitor)new EnterLeaveListener(_ =>
             {
                 var operationType = OperationType.Query;
 
@@ -45,14 +45,11 @@ namespace GraphQL.Server.Authorization.AspNetCore
 
                 _.Match<ObjectField>(objectFieldAst =>
                 {
-                    var argumentType = context.TypeInfo.GetArgument().ResolvedType.GetNamedType() as IComplexGraphType;
-                    if (argumentType == null)
+                    if (context.TypeInfo.GetArgument().ResolvedType.GetNamedType() is IComplexGraphType argumentType)
                     {
-                        return;
+                        var fieldType = argumentType.GetField(objectFieldAst.Name);
+                        AuthorizeAsync(objectFieldAst, fieldType, context, operationType).GetAwaiter().GetResult();
                     }
-
-                    var fieldType = argumentType.GetField(objectFieldAst.Name);
-                    AuthorizeAsync(objectFieldAst, fieldType, context, operationType).GetAwaiter().GetResult();
                 });
 
                 _.Match<Field>(fieldAst =>
@@ -66,9 +63,9 @@ namespace GraphQL.Server.Authorization.AspNetCore
                     // check target field
                     AuthorizeAsync(fieldAst, fieldDef, context, operationType).GetAwaiter().GetResult();
                     // check returned graph type
-                    AuthorizeAsync(fieldAst, fieldDef.ResolvedType, context, operationType).GetAwaiter().GetResult();
+                    AuthorizeAsync(fieldAst, fieldDef.ResolvedType.GetNamedType(), context, operationType).GetAwaiter().GetResult();
                 });
-            });
+            }));
         }
 
         private async Task AuthorizeAsync(
@@ -89,9 +86,9 @@ namespace GraphQL.Server.Authorization.AspNetCore
             }
 
             var tasks = new List<Task<AuthorizationResult>>(policyNames.Count);
-            foreach (var policyName in policyNames)
+            foreach (string policyName in policyNames)
             {
-                var task = _authorizationService.AuthorizeAsync(this._httpContextAccessor.HttpContext.User, policyName);
+                var task = _authorizationService.AuthorizeAsync(_httpContextAccessor.HttpContext.User, policyName);
                 tasks.Add(task);
             }
             await Task.WhenAll(tasks);
@@ -136,19 +133,23 @@ namespace GraphQL.Server.Authorization.AspNetCore
                         stringBuilder.AppendLine("' is not present.");
                     }
                     break;
-                case DenyAnonymousAuthorizationRequirement denyAnonymousAuthorizationRequirement:
+
+                case DenyAnonymousAuthorizationRequirement _:
                     stringBuilder.AppendLine("The current user must be authenticated.");
                     break;
+
                 case NameAuthorizationRequirement nameAuthorizationRequirement:
                     stringBuilder.Append("The current user name must match the name '");
                     stringBuilder.Append(nameAuthorizationRequirement.RequiredName);
                     stringBuilder.AppendLine("'.");
                     break;
+
                 case OperationAuthorizationRequirement operationAuthorizationRequirement:
                     stringBuilder.Append("Required operation '");
                     stringBuilder.Append(operationAuthorizationRequirement.Name);
                     stringBuilder.AppendLine("' was not present.");
                     break;
+
                 case RolesAuthorizationRequirement rolesAuthorizationRequirement:
                     if (rolesAuthorizationRequirement.AllowedRoles == null || !rolesAuthorizationRequirement.AllowedRoles.Any())
                     {
@@ -162,6 +163,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
                         stringBuilder.AppendLine("' are not present.");
                     }
                     break;
+
                 default:
                     stringBuilder.Append("Requirement '");
                     stringBuilder.Append(authorizationRequirement.GetType().Name);

@@ -16,7 +16,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Internal
 
                 if (error.Path != null) builder.AppendLine($"Path: {string.Join(".", error.Path)}");
 
-                builder.AppendLine($"Locations:");
+                builder.AppendLine("Locations:");
                 if (error.Locations != null)
                     foreach (var location in error.Locations)
                         builder.AppendLine($"Line: {location.Line} Column: {location.Column}");

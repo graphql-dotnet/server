@@ -1,12 +1,14 @@
+using GraphQL.Execution;
+using GraphQL.NewtonsoftJson;
+using GraphQL.Server.Transports.Subscriptions.Abstractions;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using Shouldly;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using GraphQL.Http;
-using GraphQL.Server.Transports.Subscriptions.Abstractions;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using Xunit;
 
 namespace GraphQL.Server.Transports.WebSockets.Tests
@@ -18,7 +20,6 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         public WebSocketWriterPipelineFacts()
         {
             _testWebSocket = new TestWebSocket();
-
         }
 
         public static IEnumerable<object[]> TestData =>
@@ -33,7 +34,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
                             Data = new TestMessage
                             {
                                 Content = "Hello world",
-                                SentAt = new DateTimeOffset(2018, 12, 12, 10, 0,0, TimeSpan.Zero)
+                                SentAt = new DateTimeOffset(2018, 12, 12, 10, 0, 0, TimeSpan.Zero)
                             }
                         }
                     },
@@ -48,7 +49,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
                             Data = Enumerable.Repeat(new TestMessage
                             {
                                 Content = "Hello world",
-                                SentAt = new DateTimeOffset(2018, 12, 12, 10, 0,0, TimeSpan.Zero)
+                                SentAt = new DateTimeOffset(2018, 12, 12, 10, 0, 0, TimeSpan.Zero)
                             }, 10)
                         }
                     },
@@ -63,7 +64,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
                             Data = Enumerable.Repeat(new TestMessage
                             {
                                 Content = "Hello world",
-                                SentAt = new DateTimeOffset(2018, 12, 12, 10, 0,0, TimeSpan.Zero)
+                                SentAt = new DateTimeOffset(2018, 12, 12, 10, 0, 0, TimeSpan.Zero)
                             }, 16_000)
                         }
                     },
@@ -79,7 +80,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
                             Data = Enumerable.Repeat(new TestMessage
                             {
                                 Content = "Hello world",
-                                SentAt = new DateTimeOffset(2018, 12, 12, 10, 0,0, TimeSpan.Zero)
+                                SentAt = new DateTimeOffset(2018, 12, 12, 10, 0, 0, TimeSpan.Zero)
                             }, 160_000)
                         }
                     },
@@ -95,7 +96,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
                             Data = Enumerable.Repeat(new TestMessage
                             {
                                 Content = "Hello world",
-                                SentAt = new DateTimeOffset(2018, 12, 12, 10, 0,0, TimeSpan.Zero)
+                                SentAt = new DateTimeOffset(2018, 12, 12, 10, 0, 0, TimeSpan.Zero)
                             }, 1_600_000)
                         }
                     },
@@ -107,7 +108,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         [Fact]
         public async Task should_post_single_message()
         {
-            var webSocketWriterPipeline = CreateWebSocketWriterPipeline(new CamelCasePropertyNamesContractResolver());
+            var webSocketWriterPipeline = CreateWebSocketWriterPipeline(new CamelCaseNamingStrategy());
             var message = new OperationMessage
             {
                 Payload = new ExecutionResult
@@ -124,7 +125,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
             await webSocketWriterPipeline.Completion;
             Assert.Single(_testWebSocket.Messages);
 
-            var resultingJson = Encoding.UTF8.GetString(_testWebSocket.Messages.First().ToArray());
+            string resultingJson = Encoding.UTF8.GetString(_testWebSocket.Messages.First().ToArray());
             Assert.Equal(
                 "{\"payload\":{\"data\":{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}}}",
                 resultingJson);
@@ -133,7 +134,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         [Fact]
         public async Task should_post_array_of_10_messages()
         {
-            var webSocketWriterPipeline = CreateWebSocketWriterPipeline(new CamelCasePropertyNamesContractResolver());
+            var webSocketWriterPipeline = CreateWebSocketWriterPipeline(new CamelCaseNamingStrategy());
             var message = new OperationMessage
             {
                 Payload = new ExecutionResult
@@ -150,17 +151,22 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
             await webSocketWriterPipeline.Completion;
             Assert.Single(_testWebSocket.Messages);
 
-            var resultingJson = Encoding.UTF8.GetString(_testWebSocket.Messages.First().ToArray());
-            Assert.Equal("{\"payload\":{\"data\":[{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
-                         "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
-                         "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
-                         "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
-                         "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
-                         "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
-                         "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
-                         "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
-                         "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
-                         "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}]}}",
+            string resultingJson = Encoding.UTF8.GetString(_testWebSocket.Messages.First().ToArray());
+            Assert.Equal(
+                "{\"payload\":" +
+                    "{\"data\":[" +
+                        "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
+                        "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
+                        "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
+                        "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
+                        "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
+                        "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
+                        "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
+                        "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
+                        "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
+                        "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}" +
+                    "]}" +
+                "}",
                 resultingJson);
         }
 
@@ -168,19 +174,19 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         [MemberData(nameof(TestData))]
         public async Task should_post_for_any_message_length(OperationMessage message, long expectedLength)
         {
-            var webSocketWriterPipeline = CreateWebSocketWriterPipeline(new CamelCasePropertyNamesContractResolver());
+            var webSocketWriterPipeline = CreateWebSocketWriterPipeline(new CamelCaseNamingStrategy());
             Assert.True(webSocketWriterPipeline.Post(message));
             await webSocketWriterPipeline.Complete();
             await webSocketWriterPipeline.Completion;
             Assert.Single(_testWebSocket.Messages);
-            Assert.Equal(expectedLength, _testWebSocket.Messages.First().Length);
+            _testWebSocket.Messages.First().Length.ShouldBe(expectedLength);
         }
 
         [Theory]
         [MemberData(nameof(TestData))]
         public async Task should_send_for_any_message_length(OperationMessage message, long expectedLength)
         {
-            var webSocketWriterPipeline = CreateWebSocketWriterPipeline(new CamelCasePropertyNamesContractResolver());
+            var webSocketWriterPipeline = CreateWebSocketWriterPipeline(new CamelCaseNamingStrategy());
             await webSocketWriterPipeline.SendAsync(message);
             await webSocketWriterPipeline.Complete();
             await webSocketWriterPipeline.Completion;
@@ -191,7 +197,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         [Fact]
         public async Task should_support_correct_case()
         {
-            var webSocketWriterPipeline = CreateWebSocketWriterPipeline(new DefaultContractResolver());
+            var webSocketWriterPipeline = CreateWebSocketWriterPipeline(new DefaultNamingStrategy());
             var operationMessage = new OperationMessage
             {
                 Id = "78F15F13-CA90-4BA6-AFF5-990C23FA882A",
@@ -210,19 +216,20 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
             await webSocketWriterPipeline.Complete();
             await webSocketWriterPipeline.Completion;
             Assert.Single(_testWebSocket.Messages);
-            var resultingJson = Encoding.UTF8.GetString(_testWebSocket.Messages.First().ToArray());
+            string resultingJson = Encoding.UTF8.GetString(_testWebSocket.Messages.First().ToArray());
             Assert.Equal(
                 "{\"id\":\"78F15F13-CA90-4BA6-AFF5-990C23FA882A\",\"type\":\"Type\",\"payload\":{\"data\":{\"Content\":\"Hello world\",\"SentAt\":\"2018-12-12T10:00:00+00:00\"}}}",
                 resultingJson);
         }
 
-        private WebSocketWriterPipeline CreateWebSocketWriterPipeline(IContractResolver contractResolver)
+        private WebSocketWriterPipeline CreateWebSocketWriterPipeline(NamingStrategy namingStrategy)
         {
-            return new WebSocketWriterPipeline(_testWebSocket, new DocumentWriter(Formatting.None,
+            return new WebSocketWriterPipeline(_testWebSocket, new DocumentWriter(
                 new JsonSerializerSettings
                 {
-                    ContractResolver = contractResolver,
-                    NullValueHandling = NullValueHandling.Ignore
+                    ContractResolver = new ExecutionResultContractResolver(new ErrorInfoProvider()) { NamingStrategy = namingStrategy },
+                    NullValueHandling = NullValueHandling.Ignore,
+                    Formatting = Formatting.None
                 }));
         }
     }

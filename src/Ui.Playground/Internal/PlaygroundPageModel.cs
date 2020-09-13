@@ -1,35 +1,37 @@
 using System.IO;
-using System.Reflection;
 using System.Text;
 
-namespace GraphQL.Server.Ui.Playground.Internal {
+namespace GraphQL.Server.Ui.Playground.Internal
+{
+    // https://docs.microsoft.com/en-us/aspnet/core/mvc/razor-pages/?tabs=netcore-cli
+    internal class PlaygroundPageModel
+    {
+        private string _playgroundCSHtml;
 
-	// https://docs.microsoft.com/en-us/aspnet/core/mvc/razor-pages/?tabs=netcore-cli
-	internal class PlaygroundPageModel {
+        private readonly GraphQLPlaygroundOptions _options;
 
-		private string playgroundCSHtml;
+        public PlaygroundPageModel(GraphQLPlaygroundOptions options)
+        {
+            _options = options;
+        }
 
-		private readonly GraphQLPlaygroundOptions settings;
+        public string Render()
+        {
+            if (_playgroundCSHtml == null)
+            {
+                using var manifestResourceStream = typeof(PlaygroundPageModel).Assembly.GetManifestResourceStream("GraphQL.Server.Ui.Playground.Internal.playground.cshtml");
+                using var streamReader = new StreamReader(manifestResourceStream);
 
-		public PlaygroundPageModel(GraphQLPlaygroundOptions settings) {
-			this.settings = settings;
-		}
+                var builder = new StringBuilder(streamReader.ReadToEnd())
+                    .Replace("@Model.GraphQLEndPoint", _options.GraphQLEndPoint)
+                    .Replace("@Model.GraphQLConfig", Serializer.Serialize(_options.GraphQLConfig))
+                    .Replace("@Model.Headers", Serializer.Serialize(_options.Headers))
+                    .Replace("@Model.PlaygroundSettings", Serializer.Serialize(_options.PlaygroundSettings));
 
-		public string Render() {
-			if (playgroundCSHtml != null) {
-				return playgroundCSHtml;
-			}
-			var assembly = typeof(PlaygroundPageModel).GetTypeInfo().Assembly;
-            using (var manifestResourceStream = assembly.GetManifestResourceStream("GraphQL.Server.Ui.Playground.Internal.playground.cshtml")) {
-                using (var streamReader = new StreamReader(manifestResourceStream)) {
-                    var builder = new StringBuilder(streamReader.ReadToEnd());
-                    builder.Replace("@Model.GraphQLEndPoint", this.settings.GraphQLEndPoint);
-                    playgroundCSHtml = builder.ToString();
-                    return this.Render();
-                }
+                _playgroundCSHtml = builder.ToString();
             }
-		}
 
-	}
-
+            return _playgroundCSHtml;
+        }
+    }
 }

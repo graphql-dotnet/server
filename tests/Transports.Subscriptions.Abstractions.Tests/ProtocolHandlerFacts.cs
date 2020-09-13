@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using GraphQL.Server.Internal;
@@ -12,13 +12,13 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
 {
     public class ProtocolHandlerFacts
     {
-        private TestableSubscriptionTransport _transport;
-        private TestableReader _transportReader;
-        private TestableWriter _transportWriter;
-        private IGraphQLExecuter _documentExecuter;
-        private SubscriptionManager _subscriptionManager;
-        private SubscriptionServer _server;
-        private ProtocolMessageListener _sut;
+        private readonly TestableSubscriptionTransport _transport;
+        private readonly TestableReader _transportReader;
+        private readonly TestableWriter _transportWriter;
+        private readonly IGraphQLExecuter _documentExecuter;
+        private readonly SubscriptionManager _subscriptionManager;
+        private readonly SubscriptionServer _server;
+        private readonly ProtocolMessageListener _sut;
 
         public ProtocolHandlerFacts()
         {
@@ -26,12 +26,12 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             _transportReader = _transport.Reader as TestableReader;
             _transportWriter = _transport.Writer as TestableWriter;
             _documentExecuter = Substitute.For<IGraphQLExecuter>();
-            _documentExecuter.ExecuteAsync(null, null, null, null).ReturnsForAnyArgs(
+            _documentExecuter.ExecuteAsync(null, null, null, null, null).ReturnsForAnyArgs(
                 new SubscriptionExecutionResult
                 {
                     Streams = new Dictionary<string, IObservable<ExecutionResult>>
                     {
-                        {"1", Substitute.For<IObservable<ExecutionResult>>()}
+                        { "1", Substitute.For<IObservable<ExecutionResult>>() }
                     }
                 });
             _subscriptionManager = new SubscriptionManager(_documentExecuter, new NullLoggerFactory());
@@ -66,7 +66,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         public async Task Receive_start_mutation()
         {
             /* Given */
-            _documentExecuter.ExecuteAsync(null, null, null, null).ReturnsForAnyArgs(
+            _documentExecuter.ExecuteAsync(null, null, null, null, null).ReturnsForAnyArgs(
                 new ExecutionResult());
             var expected = new OperationMessage
             {
@@ -103,7 +103,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         public async Task Receive_start_query()
         {
             /* Given */
-            _documentExecuter.ExecuteAsync(null, null, null, null).ReturnsForAnyArgs(
+            _documentExecuter.ExecuteAsync(null, null, null, null, null).ReturnsForAnyArgs(
                 new ExecutionResult());
             var expected = new OperationMessage
             {

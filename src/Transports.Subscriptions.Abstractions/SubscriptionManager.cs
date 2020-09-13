@@ -1,14 +1,14 @@
+using GraphQL.NewtonsoftJson;
+using GraphQL.Server.Internal;
+using GraphQL.Server.Transports.Subscriptions.Abstractions.Internal;
+using GraphQL.Subscription;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using GraphQL.Server.Internal;
-using GraphQL.Server.Transports.Subscriptions.Abstractions.Internal;
-using GraphQL.Subscription;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
 
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 {
@@ -32,10 +32,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 
         public Subscription this[string id] => _subscriptions[id];
 
-        public IEnumerator<Subscription> GetEnumerator()
-        {
-            return _subscriptions.Values.GetEnumerator();
-        }
+        public IEnumerator<Subscription> GetEnumerator() => _subscriptions.Values.GetEnumerator();
 
         /// <inheritdoc />
         public async Task SubscribeOrExecuteAsync(
@@ -47,7 +44,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             if (payload == null) throw new ArgumentNullException(nameof(payload));
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            var subscription = await ExecuteAsync(id, payload, context);
+            var subscription = await ExecuteAsync(id, payload, context).ConfigureAwait(false);
 
             if (subscription == null)
                 return;
@@ -65,10 +62,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             return Task.CompletedTask;
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return _subscriptions.Values.GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => _subscriptions.Values.GetEnumerator();
 
         private async Task<Subscription> ExecuteAsync(
             string id,
@@ -84,7 +78,9 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
                 payload.OperationName,
                 payload.Query,
                 payload.Variables?.ToInputs(),
-                context);
+                context,
+                null // TODO: find later a better way to specify services
+            ).ConfigureAwait(false);
 
             if (result.Errors != null && result.Errors.Any())
             {
@@ -94,7 +90,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
                     Type = MessageType.GQL_ERROR,
                     Id = id,
                     Payload = result
-                });
+                }).ConfigureAwait(false);
 
                 return null;
             }
@@ -111,7 +107,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
                             Type = MessageType.GQL_ERROR,
                             Id = id,
                             Payload = result
-                        });
+                        }).ConfigureAwait(false);
 
                         return null;
                     }
@@ -132,13 +128,13 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
                 Type = MessageType.GQL_DATA,
                 Id = id,
                 Payload = result
-            });
+            }).ConfigureAwait(false);
 
             await writer.SendAsync(new OperationMessage
             {
                 Type = MessageType.GQL_COMPLETE,
                 Id = id
-            });
+            }).ConfigureAwait(false);
 
             return null;
         }

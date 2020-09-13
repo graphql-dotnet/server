@@ -1,12 +1,12 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using GraphQL.Samples.Schemas.Chat;
-using GraphQL.Server.Transports.Subscriptions.Abstractions;
-using GraphQL.Server.Transports.WebSockets;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Options;
-using MessageType = GraphQL.Server.Transports.Subscriptions.Abstractions.MessageType;
+//using System.IdentityModel.Tokens.Jwt;
+//using System.Security.Claims;
+//using System.Threading.Tasks;
+//using GraphQL.Samples.Schemas.Chat;
+//using GraphQL.Server.Transports.Subscriptions.Abstractions;
+//using GraphQL.Server.Transports.WebSockets;
+//using Microsoft.AspNetCore.Http;
+//using Microsoft.Extensions.Options;
+//using MessageType = GraphQL.Server.Transports.Subscriptions.Abstractions.MessageType;
 
 namespace GraphQL.Samples.Server
 {

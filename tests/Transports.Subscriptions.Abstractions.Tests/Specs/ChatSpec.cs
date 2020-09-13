@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -23,9 +23,9 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
             _transportWriter = _transport.Writer as TestableWriter;
             _subscriptions = new SubscriptionManager(
                 new DefaultGraphQLExecuter<ChatSchema>(
-                    new ChatSchema(_chat),
+                    new ChatSchema(_chat, new DefaultServiceProvider()),
                     new DocumentExecuter(),
-                    Options.Create(new GraphQLOptions()),
+                    Options.Create(new GraphQLOptions { }),
                     Enumerable.Empty<IDocumentExecutionListener>(),
                     Enumerable.Empty<IValidationRule>()
                     ),
@@ -34,7 +34,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
             _server = new SubscriptionServer(
                 _transport,
                 _subscriptions,
-                new []{ new ProtocolMessageListener(new NullLogger<ProtocolMessageListener>())},
+                new[] { new ProtocolMessageListener(new NullLogger<ProtocolMessageListener>()) },
                 new NullLogger<SubscriptionServer>()
             );
         }
@@ -43,8 +43,8 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
         private readonly TestableSubscriptionTransport _transport;
         private readonly SubscriptionManager _subscriptions;
         private readonly SubscriptionServer _server;
-        private TestableReader _transportReader;
-        private TestableWriter _transportWriter;
+        private readonly TestableReader _transportReader;
+        private readonly TestableWriter _transportWriter;
 
         private void AssertReceivedData(List<OperationMessage> writtenMessages, Predicate<JObject> predicate)
         {
@@ -63,10 +63,10 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
             {
                 Content = "test",
                 FromId = "1",
-                SentAt = DateTime.Now
+                SentAt = DateTime.Now.Date
             });
 
-            var id = "1";
+            string id = "1";
             _transportReader.AddMessageToRead(new OperationMessage
             {
                 Id = id,
@@ -119,10 +119,10 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
             {
                 Content = "test",
                 FromId = "1",
-                SentAt = DateTime.Now
+                SentAt = DateTime.Now.Date
             });
 
-            var id = "1";
+            string id = "1";
             _transportReader.AddMessageToRead(new OperationMessage
             {
                 Id = id,
@@ -167,7 +167,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
         {
             /* Given */
             // subscribe
-            var id = "1";
+            string id = "1";
             _transportReader.AddMessageToRead(new OperationMessage
             {
                 Id = id,
@@ -195,7 +195,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
             {
                 FromId = "1",
                 Content = "content",
-                SentAt = DateTime.Now
+                SentAt = DateTime.Now.Date
             });
 
             /* When */

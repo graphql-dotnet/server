@@ -1,8 +1,12 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using GraphQL.Conversion;
 using GraphQL.Execution;
+using GraphQL.Instrumentation;
+using GraphQL.Introspection;
 using GraphQL.Types;
 using GraphQL.Validation;
 using Microsoft.Extensions.Options;
@@ -34,15 +38,24 @@ namespace GraphQL.Server.Internal
             _validationRules = validationRules;
         }
 
-        public virtual Task<ExecutionResult> ExecuteAsync(string operationName, string query, Inputs variables, object context, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual async Task<ExecutionResult> ExecuteAsync(string operationName, string query, Inputs variables, IDictionary<string, object> context, IServiceProvider requestServices, CancellationToken cancellationToken = default)
         {
-            var options = GetOptions(operationName, query, variables, context, cancellationToken);
-            return _documentExecuter.ExecuteAsync(options);
+            var start = DateTime.UtcNow;
+
+            var options = GetOptions(operationName, query, variables, context, requestServices, cancellationToken);
+            var result = await _documentExecuter.ExecuteAsync(options);
+
+            if (options.EnableMetrics)
+            {
+                result.EnrichWithApolloTracing(start);
+            }
+
+            return result;
         }
 
-        protected virtual ExecutionOptions GetOptions(string operationName, string query, Inputs variables, object context, CancellationToken cancellationToken)
+        protected virtual ExecutionOptions GetOptions(string operationName, string query, Inputs variables, IDictionary<string, object> context, IServiceProvider requestServices, CancellationToken cancellationToken)
         {
-            var opts = new ExecutionOptions()
+            var opts = new ExecutionOptions
             {
                 Schema = Schema,
                 OperationName = operationName,
@@ -52,18 +65,32 @@ namespace GraphQL.Server.Internal
                 CancellationToken = cancellationToken,
                 ComplexityConfiguration = _options.ComplexityConfiguration,
                 EnableMetrics = _options.EnableMetrics,
-                ExposeExceptions = _options.ExposeExceptions,
-                SetFieldMiddleware = _options.SetFieldMiddleware
+                NameConverter = _options.NameConverter ?? CamelCaseNameConverter.Instance,
+                UnhandledExceptionDelegate = _options.UnhandledExceptionDelegate,
+                SchemaFilter = _options.SchemaFilter ?? new DefaultSchemaFilter(),
+                MaxParallelExecutionCount = _options.MaxParallelExecutionCount,
+                RequestServices = requestServices,
             };
+
+            if (opts.EnableMetrics)
+            {
+                opts.FieldMiddleware.Use<InstrumentFieldsMiddleware>();
+            }
 
             foreach (var listener in _listeners)
             {
                 opts.Listeners.Add(listener);
             }
 
-            opts.ValidationRules = _validationRules
-                .Concat(DocumentValidator.CoreRules())
-                .ToList();
+            var customRules = _validationRules.ToArray();
+            if (customRules.Length > 0)
+            {
+                // if not set then standard list of validation rules (DocumentValidator.CoreRules) will be used by DocumentValidator
+                // else concatenate standard rules with custom ones preferring the standard to go first
+                opts.ValidationRules = DocumentValidator.CoreRules
+                    .Concat(customRules)
+                    .ToList();
+            }
 
             return opts;
         }

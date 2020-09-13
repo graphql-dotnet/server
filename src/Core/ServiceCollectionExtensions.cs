@@ -1,61 +1,65 @@
-﻿using System;
-using GraphQL.Http;
+using System;
+using GraphQL.Instrumentation;
 using GraphQL.Server.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 
 namespace GraphQL.Server
 {
     public static class ServiceCollectionExtensions
     {
         /// <summary>
-        /// Add required services for GraphQL
+        /// Add required services for GraphQL.
         /// </summary>
-        /// <param name="services"></param>
-        /// <param name="options"></param>
-        /// <returns></returns>
-        public static IGraphQLBuilder AddGraphQL(this IServiceCollection services, GraphQLOptions options)
-        {
-            services.TryAddSingleton<IDocumentExecuter, DocumentExecuter>();
-            services.AddTransient(typeof(IGraphQLExecuter<>), typeof(DefaultGraphQLExecuter<>));
-            services.AddSingleton(Options.Create(options));
-
-            services.TryAddSingleton<IDocumentWriter>(x =>
-            {
-                var jsonSerializerSettings = x.GetRequiredService<IOptions<JsonSerializerSettings>>();
-                return new DocumentWriter(Formatting.None, jsonSerializerSettings.Value);
-            });
-
-            return new GraphQLBuilder(services);
-        }
+        /// <param name="services">Collection of registered services.</param>
+        /// <returns>GraphQL builder used for GraphQL specific extension chaining.</returns>
+        public static IGraphQLBuilder AddGraphQL(this IServiceCollection services) => services.AddGraphQL(_ => { });
 
         /// <summary>
-        /// Add required services for GraphQL
+        /// Add required services for GraphQL.
         /// </summary>
-        /// <param name="services"></param>
-        /// <param name="configureOptions"></param>
-        /// <returns></returns>
+        /// <param name="services">Collection of registered services.</param>
+        /// <param name="configureOptions">An action delegate to configure the provided <see cref="GraphQLOptions"/>.</param>
+        /// <returns>GraphQL builder used for GraphQL specific extension chaining.</returns>
         public static IGraphQLBuilder AddGraphQL(this IServiceCollection services, Action<GraphQLOptions> configureOptions)
         {
             if (configureOptions == null)
                 throw new ArgumentNullException(nameof(configureOptions));
 
-            var options = new GraphQLOptions();
-            configureOptions(options);
-
-            return services.AddGraphQL(options);
+            return services.AddGraphQL((opt, _) => configureOptions(opt));
         }
 
         /// <summary>
-        /// Add required services for GraphQL
+        /// Add required services for GraphQL.
         /// </summary>
-        /// <param name="services"></param>
-        /// <returns></returns>
-        public static IGraphQLBuilder AddGraphQL(this IServiceCollection services)
+        /// <param name="services">Collection of registered services.</param>
+        /// <param name="configureOptions">
+        /// An action delegate to configure the provided <see cref="GraphQLOptions"/>.
+        /// This delegate provides additional <see cref="IServiceProvider"/> parameter to resolve all necessary dependencies.
+        /// </param>
+        /// <returns>GraphQL builder used for GraphQL specific extension chaining.</returns>
+        public static IGraphQLBuilder AddGraphQL(this IServiceCollection services, Action<GraphQLOptions, IServiceProvider> configureOptions)
         {
-            return services.AddGraphQL(new GraphQLOptions());
+            if (configureOptions == null)
+                throw new ArgumentNullException(nameof(configureOptions));
+
+            // This is used instead of "normal" services.Configure(configureOptions) to pass IServiceProvider to user code.
+            services.AddSingleton<IConfigureOptions<GraphQLOptions>>(x => new ConfigureNamedOptions<GraphQLOptions>(Options.DefaultName, opt => configureOptions(opt, x)));
+            services.TryAddSingleton<InstrumentFieldsMiddleware>();
+            services.TryAddSingleton<IDocumentExecuter, DocumentExecuter>();
+            services.TryAddTransient(typeof(IGraphQLExecuter<>), typeof(DefaultGraphQLExecuter<>));
+
+            services.TryAddSingleton<IDocumentWriter>(x =>
+            {
+                throw new InvalidOperationException(
+                    "IDocumentWriter not set in DI container. " +
+                    "Add a IDocumentWriter implementation, for example " +
+                    "GraphQL.SystemTextJson.DocumentWriter or GraphQL.NewtonsoftJson.DocumentWriter." +
+                    "For more information, see: https://github.com/graphql-dotnet/graphql-dotnet/blob/master/README.md and https://github.com/graphql-dotnet/server/blob/develop/README.md.");
+            });
+
+            return new GraphQLBuilder(services);
         }
     }
 }

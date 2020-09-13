@@ -5,11 +5,12 @@
     <AssemblyName>GraphQL.Samples.Schemas.Chat</AssemblyName>
     <RootNamespace>GraphQL.Samples.Schemas.Chat</RootNamespace>
   </PropertyGroup>
-    <ItemGroup>
-        <PackageReference Include="GraphQL" Version="2.3.0" />
-        <PackageReference Include="System.Reactive" Version="3.1.1" />
-    </ItemGroup>
-    <ItemGroup>
-      <ProjectReference Include="..\..\src\Transports.Subscriptions.Abstractions\Transports.Subscriptions.Abstractions.csproj" />
-    </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="GraphQL.NewtonsoftJson" Version="$(GraphQLVersion)" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Transports.Subscriptions.Abstractions\Transports.Subscriptions.Abstractions.csproj" />
+  </ItemGroup>
+  
 </Project>

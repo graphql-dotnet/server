@@ -1,8 +1,7 @@
+using GraphQL.Server.Transports.Subscriptions.Abstractions;
 using System.Net.WebSockets;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
-using GraphQL.Http;
-using GraphQL.Server.Transports.Subscriptions.Abstractions;
 
 namespace GraphQL.Server.Transports.WebSockets
 {
@@ -20,15 +19,9 @@ namespace GraphQL.Server.Transports.WebSockets
             _startBlock = CreateMessageWriter();
         }
 
-        public bool Post(OperationMessage message)
-        {
-            return _startBlock.Post(message);
-        }
+        public bool Post(OperationMessage message) => _startBlock.Post(message);
 
-        public Task SendAsync(OperationMessage message)
-        {
-            return _startBlock.SendAsync(message);
-        }
+        public Task SendAsync(OperationMessage message) => _startBlock.SendAsync(message);
 
         public Task Completion => _startBlock.Completion;
 
@@ -43,7 +36,6 @@ namespace GraphQL.Server.Transports.WebSockets
             var target = new ActionBlock<OperationMessage>(
                 WriteMessageAsync, new ExecutionDataflowBlockOptions
                 {
-                    BoundedCapacity = 1,
                     MaxDegreeOfParallelism = 1,
                     EnsureOrdered = true
                 });

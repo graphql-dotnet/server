@@ -1,9 +1,10 @@
-﻿using System;
-using System.Threading.Tasks;
-using GraphQL.Server.Transports.AspNetCore;
+﻿using GraphQL.Server.Transports.AspNetCore;
 using GraphQL.Server.Transports.AspNetCore.Internal;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace GraphQL.Server
 {
@@ -12,7 +13,7 @@ namespace GraphQL.Server
         /// <summary>
         /// Adds an <see cref="IUserContextBuilder"/> as a singleton.
         /// </summary>
-        /// <typeparam name="TUserContext">The type of the <see cref="IUserContextBuilder"/> implementation.</typeparam>
+        /// <typeparam name="TUserContextBuilder">The type of the <see cref="IUserContextBuilder"/> implementation.</typeparam>
         /// <param name="builder">The GraphQL builder.</param>
         /// <returns>The GraphQL builder.</returns>
         public static IGraphQLBuilder AddUserContextBuilder<TUserContextBuilder>(this IGraphQLBuilder builder)
@@ -31,7 +32,7 @@ namespace GraphQL.Server
         /// <param name="creator">A delegate used to create the user context from the <see cref="HttpContext"/>.</param>
         /// <returns>The GraphQL builder.</returns>
         public static IGraphQLBuilder AddUserContextBuilder<TUserContext>(this IGraphQLBuilder builder, Func<HttpContext, TUserContext> creator)
-            where TUserContext : class
+            where TUserContext : class, IDictionary<string, object>
         {
             builder.Services.AddSingleton<IUserContextBuilder>(new UserContextBuilder<TUserContext>(creator));
 
@@ -46,7 +47,7 @@ namespace GraphQL.Server
         /// <param name="creator">A delegate used to create the user context from the <see cref="HttpContext"/>.</param>
         /// <returns>The GraphQL builder.</returns>
         public static IGraphQLBuilder AddUserContextBuilder<TUserContext>(this IGraphQLBuilder builder, Func<HttpContext, Task<TUserContext>> creator)
-            where TUserContext : class
+            where TUserContext : class, IDictionary<string, object>
         {
             builder.Services.AddSingleton<IUserContextBuilder>(new UserContextBuilder<TUserContext>(creator));
 

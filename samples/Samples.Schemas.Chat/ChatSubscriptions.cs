@@ -28,7 +28,7 @@ namespace GraphQL.Samples.Schemas.Chat
             {
                 Name = "messageAddedByUser",
                 Arguments = new QueryArguments(
-                    new QueryArgument<NonNullGraphType<StringGraphType>> {Name = "id"}
+                    new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "id" }
                 ),
                 Type = typeof(MessageType),
                 Resolver = new FuncFieldResolver<Message>(ResolveMessage),
@@ -36,34 +36,34 @@ namespace GraphQL.Samples.Schemas.Chat
             });
         }
 
-        private IObservable<Message> SubscribeById(ResolveEventStreamContext context)
+        private IObservable<Message> SubscribeById(IResolveEventStreamContext context)
         {
             var messageContext = context.UserContext.As<MessageHandlingContext>();
             var user = messageContext.Get<ClaimsPrincipal>("user");
 
-            var sub = "Anonymous";
+            string sub = "Anonymous";
             if (user != null)
                 sub = user.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
 
             var messages = _chat.Messages(sub);
 
-            var id = context.GetArgument<string>("id");
+            string id = context.GetArgument<string>("id");
             return messages.Where(message => message.From.Id == id);
         }
 
-        private Message ResolveMessage(ResolveFieldContext context)
+        private Message ResolveMessage(IResolveFieldContext context)
         {
             var message = context.Source as Message;
 
             return message;
         }
 
-        private IObservable<Message> Subscribe(ResolveEventStreamContext context)
+        private IObservable<Message> Subscribe(IResolveEventStreamContext context)
         {
             var messageContext = context.UserContext.As<MessageHandlingContext>();
             var user = messageContext.Get<ClaimsPrincipal>("user");
 
-            var sub = "Anonymous";
+            string sub = "Anonymous";
             if (user != null)
                 sub = user.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
 
