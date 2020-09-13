@@ -29,11 +29,7 @@ Transport compatible with [Apollo](https://github.com/apollographql/subscription
 
 ## Getting started
 
-> WARNING: The latest stable version 3.4.0 has many known issues that have been fixed in 3.5.0-alphaXXXX versions.
-> If errors occur, it is recommended that you first check the behavior on the latest available alpha version before
-> reporting a issue. Latest 3.5.0-alphaXXXX versions are **backwards incompatible** with the latest stable 2.4.0
-> version of [GraphQL.NET](https://github.com/graphql-dotnet/graphql-dotnet). You can see the changes in public APIs
-> using [fuget.org](https://www.fuget.org/packages/GraphQL.Server.Transports.AspNetCore/3.5.0-alpha0046/lib/netstandard2.0/diff/3.4.0/).
+> NOTE: You can see the changes in public APIs using [fuget.org](https://www.fuget.org/packages/GraphQL.Server.Transports.AspNetCore/4.0.0/lib/netstandard2.0/diff/3.4.0/).
 
 You can install the latest stable version via [NuGet](https://www.nuget.org/packages/GraphQL.Server.Transports.AspNetCore/).
 ```
@@ -72,7 +68,7 @@ For the UI middleware/s:
 
 See the sample project's Startup.cs for full details.
 
-``` csharp
+```csharp
 public void ConfigureServices(IServiceCollection services)
 {
     // Add GraphQL services and configure options
@@ -106,18 +102,17 @@ public void Configure(IApplicationBuilder app)
     app.UseGraphQL<ChatSchema>("/graphql");
 
     // use graphiQL middleware at default url /ui/graphiql
-    app.UseGraphiQLServer(new GraphiQLOptions());
+    app.UseGraphiQLServer();
 
     // use graphql-playground middleware at default url /ui/playground
-    app.UseGraphQLPlayground(new GraphQLPlaygroundOptions());
+    app.UseGraphQLPlayground();
 
     // use altair middleware at default url /ui/altair
-    app.UseGraphQLAltair(new GraphQLAltairOptions());
+    app.UseGraphQLAltair();
     
     // use voyager middleware at default url /ui/voyager
-    app.UseGraphQLVoyager(new GraphQLVoyagerOptions());
+    app.UseGraphQLVoyager();
 }
-
 ```
 
 ### UserContext and resolvers

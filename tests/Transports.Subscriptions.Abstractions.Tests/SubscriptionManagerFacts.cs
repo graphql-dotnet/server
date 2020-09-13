@@ -15,7 +15,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         {
             _writer = Substitute.For<IWriterPipeline>();
             _executer = Substitute.For<IGraphQLExecuter>();
-            _executer.ExecuteAsync(null, null, null, null).ReturnsForAnyArgs(
+            _executer.ExecuteAsync(null, null, null, null, null).ReturnsForAnyArgs(
                 new SubscriptionExecutionResult
                 {
                     Streams = new Dictionary<string, IObservable<ExecutionResult>>
@@ -40,7 +40,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             var payload = new OperationMessagePayload();
             var context = new MessageHandlingContext(_server, null);
 
-            _executer.ExecuteAsync(null, null, null, null).ReturnsForAnyArgs(
+            _executer.ExecuteAsync(null, null, null, null, null).ReturnsForAnyArgs(
                 new SubscriptionExecutionResult
                 {
                     Errors = new ExecutionErrors
@@ -64,7 +64,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             var payload = new OperationMessagePayload();
             var context = new MessageHandlingContext(_server, null);
 
-            _executer.ExecuteAsync(null, null, null, null).ReturnsForAnyArgs(
+            _executer.ExecuteAsync(null, null, null, null, null).ReturnsForAnyArgs(
                 new SubscriptionExecutionResult
                 {
                     Streams = new Dictionary<string, IObservable<ExecutionResult>>
@@ -91,7 +91,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             var payload = new OperationMessagePayload();
             var context = new MessageHandlingContext(_server, null);
 
-            _executer.ExecuteAsync(null, null, null, null).ReturnsForAnyArgs(
+            _executer.ExecuteAsync(null, null, null, null, null).ReturnsForAnyArgs(
                 new SubscriptionExecutionResult
                 {
                     Errors = new ExecutionErrors
@@ -141,7 +141,8 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
                 Arg.Is(payload.OperationName),
                 Arg.Is(payload.Query),
                 Arg.Any<dynamic>(),
-                context);
+                context,
+                null);
         }
 
         [Fact]
