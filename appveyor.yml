@@ -35,7 +35,6 @@ deploy:
         - master
 
 for:
-
 -
   branches:
     only:
