@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace GraphQL.Server.Transports.WebSockets.Tests
 {
@@ -10,6 +11,11 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
             services.AddSingleton<TestSchema>();
             services.AddGraphQL()
                 .AddWebSockets();
+            services.AddLogging(builder =>
+            {
+                builder.ClearProviders();
+                builder.AddDebug();
+            });
         }
 
         public void Configure(IApplicationBuilder app)
