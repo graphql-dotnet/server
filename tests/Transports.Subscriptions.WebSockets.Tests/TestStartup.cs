@@ -13,6 +13,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
                 .AddWebSockets();
             services.AddLogging(builder =>
             {
+                // prevent writing errors to Console.Error during tests (required for testing on ubuntu)
                 builder.ClearProviders();
                 builder.AddDebug();
             });
