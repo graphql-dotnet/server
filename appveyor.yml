@@ -4,7 +4,12 @@ version: 0.0.0-{build}
 pull_requests:
   do_not_increment_build_number: true
 
+branches:
+  only:
+    - master
+
 skip_tags: true
+skip_non_tags: true
 
 build_script:  
   - ps: .\build.ps1 -Target "Default"
@@ -33,11 +38,3 @@ deploy:
       branch:
         - develop
         - master
-
-for:
--
-  branches:
-    only:
-      - master
-
-  skip_non_tags: true
