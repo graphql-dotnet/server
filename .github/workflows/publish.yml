@@ -41,6 +41,6 @@ jobs:
         with:
           name: Nuget packages
           path: |
-            out/*.nupkg
+            out/*
       - name: Publish Nuget packages to Nuget registry
-        run: dotnet nuget push out/*.nupkg
+        run: dotnet nuget push out/*
