@@ -16,14 +16,14 @@
     <Deterministic>true</Deterministic>
     <!-- https://help.github.com/en/actions/configuring-and-managing-workflows/using-environment-variables -->
     <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">True</ContinuousIntegrationBuild>
-  </PropertyGroup>
 
-  <ItemGroup>
     <!-- Generate symbol packages (.snupkg) -->
     <!-- You must publish both packages, the package that contains the dll (.nupkg) and the one that contains the symbols (.snupkg) -->
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    
+  </PropertyGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-*" PrivateAssets="All"/>
   </ItemGroup>
   
