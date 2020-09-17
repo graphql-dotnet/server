@@ -4,9 +4,9 @@ name: Build artifacts
 
 on:
   push:
-    branches:
-      - master
-      - develop
+#    branches:
+#      - master
+#      - develop
 
 jobs:
   build:
@@ -31,6 +31,6 @@ jobs:
         with:
           name: Nuget packages
           path: |
-            out/*.nupkg
-      - name: Publish Nuget packages to GitHub registry
-        run: dotnet nuget push out/*.nupkg
+            out/*
+#      - name: Publish Nuget packages to GitHub registry
+#        run: dotnet nuget push out/*.nupkg
