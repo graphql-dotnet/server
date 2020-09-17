@@ -32,6 +32,7 @@ deploy:
       branch:
         - develop
         - master
+        - /\d*\.\d*\.\d*/
 
 for:
 -
