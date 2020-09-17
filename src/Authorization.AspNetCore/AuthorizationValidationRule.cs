@@ -107,8 +107,10 @@ namespace GraphQL.Server.Authorization.AspNetCore
                         AppendFailureLine(stringBuilder, failure);
                     }
 
-                    context.ReportError(
-                        new ValidationError(context.OriginalQuery, "authorization", stringBuilder.ToString(), node));
+                    context.ReportError(new ValidationError(context.OriginalQuery, "6.1.1", stringBuilder.ToString(), node)
+                    {
+                        Code = "authorization",
+                    });
                 }
             }
         }
