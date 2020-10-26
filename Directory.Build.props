@@ -28,7 +28,7 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Net Core 3.1" Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <MicrosoftAspNetCoreTestHostVersion>3.1.0</MicrosoftAspNetCoreTestHostVersion>
+    <MicrosoftAspNetCoreTestHostVersion>3.1.9</MicrosoftAspNetCoreTestHostVersion>
     <MicrosoftExtensionsLoggingVersion>3.1.0</MicrosoftExtensionsLoggingVersion>
     <MicrosoftExtensionsOptionsVersion>3.1.0</MicrosoftExtensionsOptionsVersion>
     <MicrosoftExtensionsDependencyInjectionVersion>3.1.0</MicrosoftExtensionsDependencyInjectionVersion>
