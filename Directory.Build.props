@@ -3,7 +3,7 @@
   <PropertyGroup Label="Сommon properties">
     <LangVersion>latest</LangVersion>
     <PackageProjectUrl>https://github.com/graphql-dotnet/server</PackageProjectUrl>
-    <RepositoryType>Git</RepositoryType>
+    <RepositoryType>git</RepositoryType>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <Copyright>Pekka Heikura</Copyright>
     <Authors>Pekka Heikura</Authors>
