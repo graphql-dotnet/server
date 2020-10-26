@@ -22,6 +22,9 @@ jobs:
           NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - name: Install dependencies
         run: dotnet restore
+        env:
+          DOTNET_NOLOGO: true
+          DOTNET_CLI_TELEMETRY_OPTOUT: true
       - name: Build solution (release config)
         run: dotnet build --no-restore -c Release -p:NoWarn=CS1591 -p:VersionSuffix=$GITHUB_RUN_NUMBER
       - name: Pack solution (release config)
@@ -33,4 +36,4 @@ jobs:
           path: |
             out/*
       - name: Publish Nuget packages to GitHub registry
-        run: dotnet nuget push out/*
+        run: dotnet nuget push "out/*" -k ${{secrets.GITHUB_TOKEN}}
