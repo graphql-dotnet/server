@@ -1,6 +1,7 @@
 <Project>
 
   <PropertyGroup Label="Сommon properties">
+    <VersionPrefix>4.1.0-preview</VersionPrefix>
     <LangVersion>latest</LangVersion>
     <PackageProjectUrl>https://github.com/graphql-dotnet/server</PackageProjectUrl>
     <RepositoryType>git</RepositoryType>
@@ -10,7 +11,6 @@
     <Product>graphql-dotnet server</Product>
     <Company>graphql-dotnet</Company>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <VersionPrefix>4.1.0-preview</VersionPrefix>
     <Deterministic>true</Deterministic>
     <!-- https://help.github.com/en/actions/configuring-and-managing-workflows/using-environment-variables -->
     <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">True</ContinuousIntegrationBuild>
