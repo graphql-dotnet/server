@@ -11,7 +11,7 @@
     <Product>graphql-dotnet server</Product>
     <Company>graphql-dotnet</Company>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <VersionPrefix>4.0.3-preview</VersionPrefix>
+    <VersionPrefix>4.1.0-preview</VersionPrefix>
     <VersionSuffix>dev</VersionSuffix>
     <Deterministic>true</Deterministic>
     <!-- https://help.github.com/en/actions/configuring-and-managing-workflows/using-environment-variables -->
