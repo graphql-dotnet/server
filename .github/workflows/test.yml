@@ -1,0 +1,41 @@
+name: Run code tests
+
+on:
+  pull_request:
+    branches:
+      - master
+      - develop
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: 
+          - ubuntu-latest
+          - windows-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+      - name: Use .NET Core 2.2 SDK
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '2.2.x'
+      - name: Use .NET Core 3.1 LTS SDK
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '3.1.x'
+          source-url: https://nuget.pkg.github.com/graphql-dotnet/index.json
+        env:
+          NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      - name: Install dependencies
+        run: dotnet restore
+        env:
+          DOTNET_NOLOGO: true
+          DOTNET_CLI_TELEMETRY_OPTOUT: true
+      - name: Build solution [Release]
+        run: dotnet build --no-restore -c Release -p:NoWarn=CS1591
+      - name: Build solution [Debug]
+        run: dotnet build --no-restore -p:NoWarn=CS1591
+      - name: Test solution [Debug]
+        run: dotnet test --no-restore --no-build

@@ -1,17 +1,28 @@
 <Project>
 
   <PropertyGroup Label="Сommon properties">
+    <VersionPrefix>4.1.0-preview</VersionPrefix>
     <LangVersion>latest</LangVersion>
     <PackageProjectUrl>https://github.com/graphql-dotnet/server</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/graphql-dotnet/server</RepositoryUrl>
-    <RepositoryType>Git</RepositoryType>
+    <RepositoryType>git</RepositoryType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <Copyright>Pekka Heikura</Copyright>
     <Authors>Pekka Heikura</Authors>
     <Product>graphql-dotnet server</Product>
     <Company>graphql-dotnet</Company>
-    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(MSBuildProjectName).xml</DocumentationFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Deterministic>true</Deterministic>
+    <!-- https://help.github.com/en/actions/configuring-and-managing-workflows/using-environment-variables -->
+    <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">True</ContinuousIntegrationBuild>
+
+    <DebugType>embedded</DebugType>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" Condition="'$(IsPackable)' == 'true'"/>
+  </ItemGroup>
+  
   <PropertyGroup>
     <IsNetCore3OnwardsTarget>$(TargetFramework.StartsWith('netcoreapp3.'))</IsNetCore3OnwardsTarget>
   </PropertyGroup>
