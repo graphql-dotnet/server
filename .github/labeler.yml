@@ -1,0 +1,11 @@
+"test":
+  - Tests/**/*
+
+"CI":
+  - .github/workflows/**/*
+
+"code style":
+  - .editorconfig
+
+"performance":
+  - src/Benchmarks/**/*

@@ -4,8 +4,6 @@
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <AssemblyName>GraphQL.Server.Core</AssemblyName>
     <RootNamespace>GraphQL.Server</RootNamespace>
-    <VersionPrefix>0.0.0</VersionPrefix>
-    <VersionSuffix>dev</VersionSuffix>
     <Description>GraphQL Server Core</Description>
     <PackageTags>GraphQL transport server</PackageTags>
   </PropertyGroup>
