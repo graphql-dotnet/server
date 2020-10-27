@@ -60,7 +60,7 @@
   <PropertyGroup Label="Package dependency versions">
     <MicrosoftNETTestSdkVersion>16.7.1</MicrosoftNETTestSdkVersion>
     <CastleCoreVersion>4.4.1</CastleCoreVersion>
-    <NSubstituteVersion>3.1.0</NSubstituteVersion>
+    <NSubstituteVersion>4.2.2</NSubstituteVersion>
     <NewtonsoftJsonVersion>12.0.3</NewtonsoftJsonVersion>
     <GraphQLVersion>3.1.0</GraphQLVersion>
     <MoqVersion>4.14.7</MoqVersion>
