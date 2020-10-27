@@ -69,7 +69,7 @@
     <xunitVersion>2.4.1</xunitVersion>
     <xunitrunnervisualstudioVersion>2.4.3</xunitrunnervisualstudioVersion>
 
-    <SerilogVersion>2.8.0</SerilogVersion>
+    <SerilogVersion>2.10.0</SerilogVersion>
     <SerilogAspNetCoreVersion>2.1.1</SerilogAspNetCoreVersion>
     <SerilogSinksConsoleVersion>3.1.1</SerilogSinksConsoleVersion>
 
