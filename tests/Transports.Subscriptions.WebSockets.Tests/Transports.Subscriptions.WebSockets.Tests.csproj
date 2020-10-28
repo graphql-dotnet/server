@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../../Tests.props" />
 
   <PropertyGroup>
     <TargetFrameworks>netcoreapp3.1;netcoreapp3.0;netcoreapp2.2</TargetFrameworks>
-    <IsPackable>false</IsPackable>
     <AssemblyName>GraphQL.Server.Transports.WebSockets.Tests</AssemblyName>
     <RootNamespace>GraphQL.Server.Transports.WebSockets.Tests</RootNamespace>
   </PropertyGroup>
@@ -16,13 +16,7 @@
   <ItemGroup>
     <PackageReference Include="Castle.Core" Version="$(CastleCoreVersion)" />
     <PackageReference Include="GraphQL.NewtonsoftJson" Version="$(GraphQLVersion)" />
-    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="$(MicrosoftAspNetCoreTestHostVersion)" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="$(MicrosoftExtensionsLoggingVersion)" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="$(MicrosoftNETTestSdkVersion)" />
-    <PackageReference Include="NSubstitute" Version="$(NSubstituteVersion)" />
-    <PackageReference Include="Shouldly" Version="$(ShouldlyVersion)" />
-    <PackageReference Include="xunit" Version="$(xunitVersion)" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="$(xunitrunnervisualstudioVersion)" />
   </ItemGroup>
 
   <ItemGroup Label="References for .NET Core 3" Condition="'$(IsNetCore3OnwardsTarget)' == 'True'">

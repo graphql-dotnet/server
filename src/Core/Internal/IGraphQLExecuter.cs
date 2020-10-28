@@ -7,7 +7,7 @@ using GraphQL.Types;
 namespace GraphQL.Server.Internal
 {
     /// <summary>
-    /// GraphQL query, mutation and subscription executer
+    /// GraphQL query, mutation and subscription executer.
     /// </summary>
     public interface IGraphQLExecuter
     {

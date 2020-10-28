@@ -36,7 +36,7 @@ namespace Microsoft.AspNetCore.Builder
         /// Add the GraphQL custom middleware to the HTTP request pipeline
         /// </summary>
         /// <typeparam name="TSchema">The implementation of <see cref="ISchema"/> to use</typeparam>
-        /// <typeparam name="TMiddleware">Custom middleware inherited from <see cref="GraphQLHttpMiddleware<TSchema>"/></typeparam>
+        /// <typeparam name="TMiddleware">Custom middleware inherited from <see cref="GraphQLHttpMiddleware{TSchema}"/></typeparam>
         /// <param name="builder">The application builder.</param>
         /// <param name="path">The path to the GraphQL endpoint which defaults to '/graphql'</param>
         /// <returns>The <see cref="IApplicationBuilder"/> received as parameter</returns>
@@ -49,7 +49,7 @@ namespace Microsoft.AspNetCore.Builder
         /// Add the GraphQL custom middleware to the HTTP request pipeline
         /// </summary>
         /// <typeparam name="TSchema">The implementation of <see cref="ISchema"/> to use</typeparam>
-        /// <typeparam name="TMiddleware">Custom middleware inherited from <see cref="GraphQLHttpMiddleware<TSchema>"/></typeparam>
+        /// <typeparam name="TMiddleware">Custom middleware inherited from <see cref="GraphQLHttpMiddleware{TSchema}"/></typeparam>
         /// <param name="builder">The application builder.</param>
         /// <param name="path">The path to the GraphQL endpoint</param>
         /// <returns>The <see cref="IApplicationBuilder"/> received as parameter</returns>
