@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace GraphQL.Server.Transports.AspNetCore.Common
 {
     /// <summary>
-    /// An interface for deserializers of GraphQL requests.
+    /// An interface for GraphQL request deserializer.
     /// </summary>
     /// <remarks>
     /// Various forms of requests should be supported by a GraphQL HTTP endpoint.
@@ -20,6 +20,7 @@ namespace GraphQL.Server.Transports.AspNetCore.Common
         /// Supports single or batch GraphQL requests.
         /// </summary>
         /// <param name="httpRequest">Incoming HTTP request.</param>
+        /// <param name="cancellationToken">Token to cancel deserialization.</param>
         /// <returns>Result containing success flag and deserialized request/s.</returns>
         Task<GraphQLRequestDeserializationResult> DeserializeFromJsonBodyAsync(HttpRequest httpRequest, CancellationToken cancellationToken = default);
 

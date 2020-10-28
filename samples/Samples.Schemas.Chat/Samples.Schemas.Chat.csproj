@@ -5,6 +5,7 @@
     <AssemblyName>GraphQL.Samples.Schemas.Chat</AssemblyName>
     <RootNamespace>GraphQL.Samples.Schemas.Chat</RootNamespace>
     <IsPackable>false</IsPackable>
+    <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
   
   <ItemGroup>
