@@ -5,6 +5,7 @@
     <AssemblyName>GraphQL.Samples.Server</AssemblyName>
     <RootNamespace>GraphQL.Samples.Server</RootNamespace>
     <IsPackable>false</IsPackable>
+    <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

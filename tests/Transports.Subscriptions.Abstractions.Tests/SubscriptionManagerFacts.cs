@@ -140,7 +140,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             await _executer.Received().ExecuteAsync(
                 Arg.Is(payload.OperationName),
                 Arg.Is(payload.Query),
-                Arg.Any<dynamic>(),
+                Arg.Any<Inputs>(),
                 context,
                 null);
         }

@@ -8,10 +8,10 @@ namespace Microsoft.AspNetCore.Builder
     public static class GraphiQLMiddlewareExtensions
     {
         /// <summary> Adds middleware for GraphiQL using the specified options. </summary>
-        /// <param name="applicationBuilder"> <see cref="IApplicationBuilder"/> to configure an application's request pipeline. </param>
+        /// <param name="app"> <see cref="IApplicationBuilder"/> to configure an application's request pipeline. </param>
         /// <param name="options"> Options to customize <see cref="GraphiQLMiddleware"/>. If not set, then the default values will be used. </param>
         /// <returns> The reference to provided <paramref name="app"/> instance. </returns>
-        public static IApplicationBuilder UseGraphiQLServer(this IApplicationBuilder applicationBuilder, GraphiQLOptions options = null)
-            => applicationBuilder.UseMiddleware<GraphiQLMiddleware>(options ?? new GraphiQLOptions());
+        public static IApplicationBuilder UseGraphiQLServer(this IApplicationBuilder app, GraphiQLOptions options = null)
+            => app.UseMiddleware<GraphiQLMiddleware>(options ?? new GraphiQLOptions());
     }
 }

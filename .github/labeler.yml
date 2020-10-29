@@ -1,5 +1,5 @@
 "test":
-  - Tests/**/*
+  - tests/**/*
 
 "CI":
   - .github/workflows/**/*

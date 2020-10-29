@@ -9,17 +9,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples.Schemas.Chat", "sam
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples.Server", "samples\Samples.Server\Samples.Server.csproj", "{85FBD882-AC9F-419F-95ED-42BBBC199CC2}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{0FD61587-8BE6-4C62-9E3A-0B977AA42CA2}"
-	ProjectSection(SolutionItems) = preProject
-		appveyor.yml = appveyor.yml
-		build.cake = build.cake
-		build.ps1 = build.ps1
-		build.sh = build.sh
-		Directory.Build.props = Directory.Build.props
-		GitVersion.yml = GitVersion.yml
-		nuget.config = nuget.config
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".Solution Items", ".Solution Items", "{382C5C04-A34D-4C81-83D7-584C85FB9356}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
@@ -28,6 +17,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".Solution Items", ".Solutio
 		Directory.Build.props = Directory.Build.props
 		LICENSE.md = LICENSE.md
 		README.md = README.md
+		Tests.props = Tests.props
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Transports.AspNetCore", "src\Transports.AspNetCore\Transports.AspNetCore.csproj", "{77231A45-EB53-4548-A9A6-D2F6891E32F9}"
@@ -67,6 +57,21 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Serialization", "Serialization", "{27A37AAB-90F9-4F1E-B1BB-AAF5A90D97AE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Benchmarks", "src\Benchmarks\Benchmarks.csproj", "{C1FCE2C8-F6EF-48DA-ADD8-9159516D03DA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{592C7A03-4F0C-40C2-86F9-C7A4E03504A7}"
+	ProjectSection(SolutionItems) = preProject
+		.github\dependabot.yml = .github\dependabot.yml
+		.github\labeler.yml = .github\labeler.yml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{17945A3F-4C80-43B3-BBD7-6FE0EA107799}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\build.yml = .github\workflows\build.yml
+		.github\workflows\label.yml = .github\workflows\label.yml
+		.github\workflows\publish.yml = .github\workflows\publish.yml
+		.github\workflows\test.yml = .github\workflows\test.yml
+		.github\workflows\wipcheck.yml = .github\workflows\wipcheck.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -164,6 +169,7 @@ Global
 		{24975BA5-46B0-4E3A-8703-9599483138B8} = {27A37AAB-90F9-4F1E-B1BB-AAF5A90D97AE}
 		{5CEB56EE-C58D-4EF8-90E3-5B53D9354C47} = {27A37AAB-90F9-4F1E-B1BB-AAF5A90D97AE}
 		{C1FCE2C8-F6EF-48DA-ADD8-9159516D03DA} = {BBD07745-C962-4D2D-B302-6DA1BCC2FF43}
+		{17945A3F-4C80-43B3-BBD7-6FE0EA107799} = {592C7A03-4F0C-40C2-86F9-C7A4E03504A7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3FC7FA59-E938-453C-8C4A-9D5635A9489A}

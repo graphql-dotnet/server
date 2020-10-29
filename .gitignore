@@ -4,22 +4,6 @@
 .idea/
 *.user
 *.suo
-*.nupkg
-*.project.lock.json
-project.lock.json
-npm-debug.log
-yarn-error.log
-bundle.js
-fixie-results.xml
 
-TestResults/
 [Oo]bj/
 [Bb]in/
-packages/
-node_modules/
-nuget/lib
-artifacts
-
-# cake
-tools/*
-!tools/packages.config

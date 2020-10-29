@@ -118,7 +118,7 @@ namespace GraphQL.Server
         }
 
         /// <summary>
-        /// Adds the GraphQL Relay types <see cref="ConnectionType<>"/>, <see cref="EdgeType<>"/>
+        /// Adds the GraphQL Relay types <see cref="ConnectionType{TNodeType}"/>, <see cref="EdgeType{TNodeType}"/>
         /// and <see cref="PageInfoType"/>.
         /// </summary>
         /// <param name="builder">GraphQL builder used for GraphQL specific extension methods as 'this' argument.</param>

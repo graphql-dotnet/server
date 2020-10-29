@@ -7,6 +7,9 @@ using Microsoft.Extensions.Options;
 
 namespace GraphQL.Server
 {
+    /// <summary>
+    /// Extension methods for <see cref="IServiceCollection"/> to add GraphQL execution engine.
+    /// </summary>
     public static class ServiceCollectionExtensions
     {
         /// <summary>
