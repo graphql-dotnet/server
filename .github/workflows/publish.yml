@@ -47,3 +47,21 @@ jobs:
             out/*
       - name: Publish Nuget packages to Nuget registry
         run: dotnet nuget push "out/*" -k ${{secrets.NUGET_AUTH_TOKEN}}
+      - name: Upload Nuget packages as release artifacts
+        uses: actions/github-script@v2
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            console.log('environment', process.versions);
+            const fs = require('fs').promises;
+            const { repo: { owner, repo }, sha } = context;
+            for (let file of await fs.readdir('src/out')) {
+              console.log('uploading', file);
+              await github.repos.uploadReleaseAsset({
+                owner,
+                repo,
+                release_id: ${{ github.event.release.id }},
+                name: file,
+                data: await fs.readFile(`src/out/${file}`)
+              });
+            }
