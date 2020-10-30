@@ -6,6 +6,10 @@ on:
       - master
       - develop
 
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
 jobs:
   test:
     runs-on: ${{ matrix.os }}
@@ -30,9 +34,6 @@ jobs:
           NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - name: Install dependencies
         run: dotnet restore
-        env:
-          DOTNET_NOLOGO: true
-          DOTNET_CLI_TELEMETRY_OPTOUT: true
       - name: Build solution [Release]
         run: dotnet build --no-restore -c Release -p:NoWarn=CS1591
       - name: Build solution [Debug]
