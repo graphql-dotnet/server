@@ -9,3 +9,6 @@
 
 "performance":
   - src/Benchmarks/**/*
+
+"documentation":
+  - README.md

@@ -73,6 +73,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{
 		.github\workflows\wipcheck.yml = .github\workflows\wipcheck.yml
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiApprovalTests", "tests\ApiApprovalTests\ApiApprovalTests.csproj", "{9F1A96BC-FF87-427F-8284-5A0670CA596C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -151,6 +153,10 @@ Global
 		{C1FCE2C8-F6EF-48DA-ADD8-9159516D03DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C1FCE2C8-F6EF-48DA-ADD8-9159516D03DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C1FCE2C8-F6EF-48DA-ADD8-9159516D03DA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F1A96BC-FF87-427F-8284-5A0670CA596C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F1A96BC-FF87-427F-8284-5A0670CA596C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F1A96BC-FF87-427F-8284-5A0670CA596C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F1A96BC-FF87-427F-8284-5A0670CA596C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -170,6 +176,7 @@ Global
 		{5CEB56EE-C58D-4EF8-90E3-5B53D9354C47} = {27A37AAB-90F9-4F1E-B1BB-AAF5A90D97AE}
 		{C1FCE2C8-F6EF-48DA-ADD8-9159516D03DA} = {BBD07745-C962-4D2D-B302-6DA1BCC2FF43}
 		{17945A3F-4C80-43B3-BBD7-6FE0EA107799} = {592C7A03-4F0C-40C2-86F9-C7A4E03504A7}
+		{9F1A96BC-FF87-427F-8284-5A0670CA596C} = {BBD07745-C962-4D2D-B302-6DA1BCC2FF43}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3FC7FA59-E938-453C-8C4A-9D5635A9489A}

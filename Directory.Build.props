@@ -1,7 +1,7 @@
 <Project>
 
   <PropertyGroup Label="Сommon properties">
-    <VersionPrefix>4.2.0-preview</VersionPrefix>
+    <VersionPrefix>4.2.1-preview</VersionPrefix>
     <LangVersion>latest</LangVersion>
     <Copyright>Pekka Heikura</Copyright>
     <Authors>Pekka Heikura</Authors>
