@@ -1,0 +1,32 @@
+namespace GraphQL.Server.Authorization.AspNetCore
+{
+    public static class AuthorizationMetadataExtensions
+    {
+        public const string POLICY_KEY = "Authorization__Policies";
+        public static void AuthorizeWith(this GraphQL.Types.IProvideMetadata type, string policy) { }
+        public static GraphQL.Builders.ConnectionBuilder<TSourceType> AuthorizeWith<TSourceType>(this GraphQL.Builders.ConnectionBuilder<TSourceType> builder, string policy) { }
+        public static GraphQL.Builders.FieldBuilder<TSourceType, TReturnType> AuthorizeWith<TSourceType, TReturnType>(this GraphQL.Builders.FieldBuilder<TSourceType, TReturnType> builder, string policy) { }
+        public static System.Collections.Generic.List<string> GetPolicies(this GraphQL.Types.IProvideMetadata type) { }
+        public static bool RequiresAuthorization(this GraphQL.Types.IProvideMetadata type) { }
+    }
+    public class AuthorizationValidationRule : GraphQL.Validation.IValidationRule
+    {
+        public AuthorizationValidationRule(Microsoft.AspNetCore.Authorization.IAuthorizationService authorizationService, Microsoft.AspNetCore.Http.IHttpContextAccessor httpContextAccessor) { }
+        public System.Threading.Tasks.Task<GraphQL.Validation.INodeVisitor> ValidateAsync(GraphQL.Validation.ValidationContext context) { }
+    }
+    public class GraphQLAuthorizeAttribute : GraphQL.GraphQLAttribute
+    {
+        public GraphQLAuthorizeAttribute() { }
+        public string Policy { get; set; }
+        public override void Modify(GraphQL.Utilities.FieldConfig field) { }
+        public override void Modify(GraphQL.Utilities.TypeConfig type) { }
+    }
+}
+namespace GraphQL.Server
+{
+    public static class GraphQLBuilderExtensions
+    {
+        public static GraphQL.Server.IGraphQLBuilder AddGraphQLAuthorization(this GraphQL.Server.IGraphQLBuilder builder) { }
+        public static GraphQL.Server.IGraphQLBuilder AddGraphQLAuthorization(this GraphQL.Server.IGraphQLBuilder builder, System.Action<Microsoft.AspNetCore.Authorization.AuthorizationOptions> options) { }
+    }
+}
