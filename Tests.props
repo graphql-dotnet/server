@@ -11,10 +11,7 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3" />
     <PackageReference Include="Moq" Version="4.14.7" />
     <PackageReference Include="NSubstitute" Version="4.2.2" />
-
-    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="3.1.9" Condition="'$(TargetFramework)' == 'netcoreapp3.1'" />
-    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="3.0.0" Condition="'$(TargetFramework)' == 'netcoreapp3.0'" />
-    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="2.2.0" Condition="'$(IsNetCore3OnwardsTarget)' == 'False'" />
+    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="3.1.9" />
   </ItemGroup>
 
 </Project>

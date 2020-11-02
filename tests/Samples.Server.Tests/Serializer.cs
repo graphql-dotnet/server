@@ -1,14 +1,9 @@
 using System;
-using GraphQL.Server.Common;
 using System.Collections.Generic;
 using System.Net.Http;
-using System.Threading.Tasks;
-
-#if NETCOREAPP2_2
-using Newtonsoft.Json;
-#else
 using System.Text.Json;
-#endif
+using System.Threading.Tasks;
+using GraphQL.Server.Common;
 
 namespace GraphQL.Server
 {
@@ -25,11 +20,7 @@ namespace GraphQL.Server
             => ToJson(Array.ConvertAll(requests, r => r.ToDictionary()));
 
         public static string ToJson(object obj)
-#if NETCOREAPP2_2
-            => JsonConvert.SerializeObject(obj, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
-#else
             => JsonSerializer.Serialize(obj, new JsonSerializerOptions { IgnoreNullValues = true });
-#endif
 
         internal static FormUrlEncodedContent ToFormUrlEncodedContent(GraphQLRequest request)
         {

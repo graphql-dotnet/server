@@ -1,8 +1,8 @@
-﻿using GraphQL.Server.Authorization.AspNetCore;
+using System;
+using GraphQL.Server.Authorization.AspNetCore;
 using GraphQL.Validation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
-using System;
 
 namespace GraphQL.Server
 {
@@ -27,11 +27,7 @@ namespace GraphQL.Server
             builder.Services
                 .AddHttpContextAccessor()
                 .AddTransient<IValidationRule, AuthorizationValidationRule>()
-#if NETCOREAPP3_0
                 .AddAuthorizationCore(options);
-#else
-                .AddAuthorization(options);
-#endif
 
             return builder;
         }
