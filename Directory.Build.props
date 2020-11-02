@@ -56,7 +56,7 @@
   <PropertyGroup Label="Package dependency versions">
     <CastleCoreVersion>4.4.1</CastleCoreVersion>
     <NewtonsoftJsonVersion>12.0.3</NewtonsoftJsonVersion>
-    <GraphQLVersion>3.1.2</GraphQLVersion>
+    <GraphQLVersion>3.1.3</GraphQLVersion>
     <SerilogVersion>2.10.0</SerilogVersion>
     <SerilogAspNetCoreVersion>2.1.1</SerilogAspNetCoreVersion>
     <SerilogSinksConsoleVersion>3.1.1</SerilogSinksConsoleVersion>
