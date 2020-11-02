@@ -8,8 +8,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System;
 using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 
 #if !NETCOREAPP2_2
 using Microsoft.Extensions.Hosting;
@@ -43,17 +43,18 @@ namespace GraphQL.Samples.Server
             services
                 .AddSingleton<IChat, Chat>()
                 .AddSingleton<ChatSchema>()
-                .AddGraphQL(options =>
+                .AddGraphQL((options, provider) =>
                 {
                     options.EnableMetrics = Environment.IsDevelopment();
-                    options.ExposeExceptions = Environment.IsDevelopment();
-                    options.UnhandledExceptionDelegate = ctx => Console.WriteLine("error: " + ctx.OriginalException.Message);
+                    var logger = provider.GetRequiredService<ILogger<Startup>>();
+                    options.UnhandledExceptionDelegate = ctx => logger.LogError("{Error} occured", ctx.OriginalException.Message);
                 })
 #if NETCOREAPP2_2
                 .AddNewtonsoftJson(deserializerSettings => { }, serializerSettings => { })
 #else
                 .AddSystemTextJson(deserializerSettings => { }, serializerSettings => { })
 #endif
+                .AddErrorInfoProvider(opt => opt.ExposeExceptionStackTrace = Environment.IsDevelopment())
                 .AddWebSockets()
                 .AddDataLoader()
                 .AddGraphTypes(typeof(ChatSchema));

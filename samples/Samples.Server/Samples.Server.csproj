@@ -4,6 +4,8 @@
     <TargetFrameworks>netcoreapp3.1;netcoreapp3.0;netcoreapp2.2</TargetFrameworks>
     <AssemblyName>GraphQL.Samples.Server</AssemblyName>
     <RootNamespace>GraphQL.Samples.Server</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

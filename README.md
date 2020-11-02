@@ -29,6 +29,19 @@ Transport compatible with [Apollo](https://github.com/apollographql/subscription
 
 ## Getting started
 
+> NOTE: You can see the changes in public APIs using [fuget.org](https://www.fuget.org/packages/GraphQL.Server.Transports.AspNetCore/4.0.1/lib/netstandard2.0/diff/3.4.0/).
+
+You can install the latest stable version via [NuGet](https://www.nuget.org/packages/GraphQL.Server.Transports.AspNetCore/).
+```
+> dotnet add package GraphQL.Server.Transports.AspNetCore
+```
+
+You can get the latest pre-release packages from the [MyGet feed](https://www.myget.org/F/graphql-dotnet/api/v3/index.json),
+where you may want to explicitly pull a certain version using `-v`.
+```
+> dotnet add package GraphQL.Server.Transports.AspNetCore -v 3.5.0-alpha0071
+```
+
 For just the HTTP middleware:
 >`dotnet add package GraphQL.Server.Transports.AspNetCore`
 
@@ -51,31 +64,27 @@ For the UI middleware/s:
 >`dotnet add package GraphQL.Server.Ui.Playground`  
 >`dotnet add package GraphQL.Server.Ui.Voyager`  
 
-You can get the latest pre-release packages from the [MyGet feed](https://www.myget.org/F/graphql-dotnet/api/v3/index.json),
-where you may want to explicitly pull a certain version using `-v`.
-```
-> dotnet add package GraphQL.Server.Transports.AspNetCore -v 3.5.0-alpha0046
-```
 ### Configure
 
 See the sample project's [Startup.cs](samples/Samples.Server/Startup.cs) for full details.
 
-``` csharp
+```csharp
 public void ConfigureServices(IServiceCollection services)
 {
     // Add GraphQL services and configure options
     services
         .AddSingleton<IChat, Chat>()
         .AddSingleton<ChatSchema>()
-        .AddGraphQL(options =>
+        .AddGraphQL((options, provider) =>
         {
             options.EnableMetrics = Environment.IsDevelopment();
-            options.ExposeExceptions = Environment.IsDevelopment();
-            options.UnhandledExceptionDelegate = ctx => { Console.WriteLine(ctx.OriginalException) };
+            var logger = provider.GetRequiredService<ILogger<Startup>>();
+            options.UnhandledExceptionDelegate = ctx => logger.LogError("{Error} occured", ctx.OriginalException.Message);
         })
         // Add required services for de/serialization
         .AddSystemTextJson(deserializerSettings => { }, serializerSettings => { }) // For .NET Core 3+
         .AddNewtonsoftJson(deserializerSettings => { }, serializerSettings => { }) // For everything else
+        .AddErrorInfoProvider(opt => opt.ExposeExceptionStackTrace = Environment.IsDevelopment())
         .AddWebSockets() // Add required services for web socket support
         .AddDataLoader() // Add required services for DataLoader support
         .AddGraphTypes(typeof(ChatSchema)) // Add all IGraphType implementors in assembly which ChatSchema exists 
@@ -92,7 +101,7 @@ public void Configure(IApplicationBuilder app)
     // use HTTP middleware for ChatSchema at default path /graphql
     app.UseGraphQL<ChatSchema>();
 
-    // use graphiQL middleware at default path /graphiql
+    // use graphiQL middleware at default path /ui/graphiql
     app.UseGraphiQLServer();
 
     // use graphql-playground middleware at default path /ui/playground
@@ -113,7 +122,6 @@ access the properties including your actual `UserContext` by using the
 `Get<YourContextType>("UserContext")` method. This will read the context from the properties of
 `MessageHandlingContext`. You can add any other properties as to the context in
 `IOperationMessageListeners`. See the sample for example of injecting `ClaimsPrincipal`.
-
 
 ## Sample
 

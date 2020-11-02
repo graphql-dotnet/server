@@ -1,0 +1,84 @@
+namespace GraphQL.Server
+{
+    public static class GraphQLBuilderExtensions
+    {
+        public static GraphQL.Server.IGraphQLBuilder AddWebSockets(this GraphQL.Server.IGraphQLBuilder builder) { }
+    }
+}
+namespace GraphQL.Server.Transports.WebSockets
+{
+    public class GraphQLWebSocketsMiddleware<TSchema>
+        where TSchema : GraphQL.Types.ISchema
+    {
+        public GraphQLWebSocketsMiddleware(Microsoft.AspNetCore.Http.RequestDelegate next, Microsoft.AspNetCore.Http.PathString path, Microsoft.Extensions.Logging.ILogger<GraphQL.Server.Transports.WebSockets.GraphQLWebSocketsMiddleware<TSchema>> logger) { }
+        public System.Threading.Tasks.Task InvokeAsync(Microsoft.AspNetCore.Http.HttpContext context) { }
+    }
+    public interface IWebSocketConnectionFactory<TSchema>
+        where TSchema : GraphQL.Types.ISchema
+    {
+        GraphQL.Server.Transports.WebSockets.WebSocketConnection CreateConnection(System.Net.WebSockets.WebSocket socket, string connectionId);
+    }
+    public class WebSocketConnection
+    {
+        public WebSocketConnection(GraphQL.Server.Transports.WebSockets.WebSocketTransport transport, GraphQL.Server.Transports.Subscriptions.Abstractions.SubscriptionServer subscriptionServer) { }
+        public System.Threading.Tasks.Task Connect() { }
+    }
+    public class WebSocketConnectionFactory<TSchema> : GraphQL.Server.Transports.WebSockets.IWebSocketConnectionFactory<TSchema>
+        where TSchema : GraphQL.Types.ISchema
+    {
+        public WebSocketConnectionFactory(Microsoft.Extensions.Logging.ILogger<GraphQL.Server.Transports.WebSockets.WebSocketConnectionFactory<TSchema>> logger, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory, GraphQL.Server.IGraphQLExecuter<TSchema> executer, System.Collections.Generic.IEnumerable<GraphQL.Server.Transports.Subscriptions.Abstractions.IOperationMessageListener> messageListeners, GraphQL.IDocumentWriter documentWriter) { }
+        public GraphQL.Server.Transports.WebSockets.WebSocketConnection CreateConnection(System.Net.WebSockets.WebSocket socket, string connectionId) { }
+    }
+    public class WebSocketReaderPipeline : GraphQL.Server.Transports.Subscriptions.Abstractions.IReaderPipeline
+    {
+        public WebSocketReaderPipeline(System.Net.WebSockets.WebSocket socket, Newtonsoft.Json.JsonSerializerSettings serializerSettings) { }
+        public System.Threading.Tasks.Task Completion { get; }
+        public System.Threading.Tasks.Task Complete() { }
+        public System.Threading.Tasks.Task Complete(System.Net.WebSockets.WebSocketCloseStatus closeStatus, string statusDescription) { }
+        protected System.Threading.Tasks.Dataflow.ISourceBlock<string> CreateMessageReader() { }
+        protected System.Threading.Tasks.Dataflow.IPropagatorBlock<string, GraphQL.Server.Transports.Subscriptions.Abstractions.OperationMessage> CreateReaderJsonTransformer() { }
+        public void LinkTo(System.Threading.Tasks.Dataflow.ITargetBlock<GraphQL.Server.Transports.Subscriptions.Abstractions.OperationMessage> target) { }
+    }
+    public class WebSocketTransport : GraphQL.Server.Transports.Subscriptions.Abstractions.IMessageTransport
+    {
+        public WebSocketTransport(System.Net.WebSockets.WebSocket socket, GraphQL.IDocumentWriter documentWriter) { }
+        public System.Net.WebSockets.WebSocketCloseStatus? CloseStatus { get; }
+        public GraphQL.Server.Transports.Subscriptions.Abstractions.IReaderPipeline Reader { get; }
+        public GraphQL.Server.Transports.Subscriptions.Abstractions.IWriterPipeline Writer { get; }
+        public System.Threading.Tasks.Task CloseAsync() { }
+    }
+    public class WebSocketWriterPipeline : GraphQL.Server.Transports.Subscriptions.Abstractions.IWriterPipeline
+    {
+        public WebSocketWriterPipeline(System.Net.WebSockets.WebSocket socket, GraphQL.IDocumentWriter documentWriter) { }
+        public System.Threading.Tasks.Task Completion { get; }
+        public System.Threading.Tasks.Task Complete() { }
+        public bool Post(GraphQL.Server.Transports.Subscriptions.Abstractions.OperationMessage message) { }
+        public System.Threading.Tasks.Task SendAsync(GraphQL.Server.Transports.Subscriptions.Abstractions.OperationMessage message) { }
+    }
+    public class WebsocketWriterStream : System.IO.Stream
+    {
+        public WebsocketWriterStream(System.Net.WebSockets.WebSocket webSocket) { }
+        public override bool CanRead { get; }
+        public override bool CanSeek { get; }
+        public override bool CanWrite { get; }
+        public override long Length { get; }
+        public override long Position { get; set; }
+        public override void Flush() { }
+        public override System.Threading.Tasks.Task FlushAsync(System.Threading.CancellationToken cancellationToken) { }
+        public override int Read(byte[] buffer, int offset, int count) { }
+        public override long Seek(long offset, System.IO.SeekOrigin origin) { }
+        public override void SetLength(long value) { }
+        public override void Write(byte[] buffer, int offset, int count) { }
+        public override System.Threading.Tasks.Task WriteAsync(byte[] buffer, int offset, int count, System.Threading.CancellationToken cancellationToken) { }
+    }
+}
+namespace Microsoft.AspNetCore.Builder
+{
+    public static class GraphQLWebSocketsExtensions
+    {
+        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQLWebSockets<TSchema>(this Microsoft.AspNetCore.Builder.IApplicationBuilder builder, Microsoft.AspNetCore.Http.PathString path)
+            where TSchema : GraphQL.Types.ISchema { }
+        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQLWebSockets<TSchema>(this Microsoft.AspNetCore.Builder.IApplicationBuilder builder, string path = "/graphql")
+            where TSchema : GraphQL.Types.ISchema { }
+    }
+}

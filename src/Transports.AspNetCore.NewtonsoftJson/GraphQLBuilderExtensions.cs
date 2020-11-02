@@ -1,8 +1,10 @@
+using GraphQL.Execution;
 using System;
 using GraphQL.NewtonsoftJson;
 using GraphQL.Server.Transports.AspNetCore;
 using GraphQL.Server.Transports.AspNetCore.NewtonsoftJson;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Newtonsoft.Json;
 
 namespace GraphQL.Server
@@ -28,7 +30,7 @@ namespace GraphQL.Server
             Action<JsonSerializerSettings> configureSerializerSettings = null)
         {
             builder.Services.AddSingleton<IGraphQLRequestDeserializer>(p => new GraphQLRequestDeserializer(configureDeserializerSettings));
-            builder.Services.AddSingleton<IDocumentWriter>(p => new DocumentWriter(configureSerializerSettings));
+            builder.Services.Replace(ServiceDescriptor.Singleton<IDocumentWriter>(p => new DocumentWriter(configureSerializerSettings, p.GetService<IErrorInfoProvider>() ?? new ErrorInfoProvider())));
 
             return builder;
         }

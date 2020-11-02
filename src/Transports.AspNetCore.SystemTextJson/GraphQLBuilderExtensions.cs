@@ -1,9 +1,11 @@
 using System;
 using System.Text.Json;
+using GraphQL.Execution;
 using GraphQL.Server.Transports.AspNetCore;
 using GraphQL.Server.Transports.AspNetCore.SystemTextJson;
 using GraphQL.SystemTextJson;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace GraphQL.Server
 {
@@ -28,11 +30,11 @@ namespace GraphQL.Server
             Action<JsonSerializerOptions> configureSerializerSettings = null)
         {
             builder.Services.AddSingleton<IGraphQLRequestDeserializer>(p => new GraphQLRequestDeserializer(configureDeserializerSettings));
-            builder.Services.AddSingleton<IDocumentWriter>(p => new DocumentWriter(opt =>
+            builder.Services.Replace(ServiceDescriptor.Singleton<IDocumentWriter>(p => new DocumentWriter(opt =>
             {
                 opt.Converters.Add(new OperationMessageConverter());
                 configureSerializerSettings?.Invoke(opt);
-            }));
+            }, p.GetService<IErrorInfoProvider>() ?? new ErrorInfoProvider())));
 
             return builder;
         }

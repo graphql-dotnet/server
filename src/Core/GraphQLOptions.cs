@@ -18,12 +18,13 @@ namespace GraphQL.Server
         /// </summary>
         public bool EnableMetrics { get; set; } = true;
 
-        public bool ExposeExceptions { get; set; }
-
         public INameConverter NameConverter { get; set; }
 
         public Action<UnhandledExceptionContext> UnhandledExceptionDelegate = ctx => { };
 
         public ISchemaFilter SchemaFilter { get; set; } = new DefaultSchemaFilter();
+
+        /// <summary>If set, limits the maximum number of nodes executed in parallel</summary>
+        public int? MaxParallelExecutionCount { get; set; }
     }
 }

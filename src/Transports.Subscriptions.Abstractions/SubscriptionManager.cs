@@ -77,7 +77,9 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
                 payload.OperationName,
                 payload.Query,
                 payload.Variables?.ToInputs(),
-                context).ConfigureAwait(false);
+                context,
+                null // TODO: find later a better way to specify services
+            ).ConfigureAwait(false);
 
             if (result.Errors != null && result.Errors.Any())
             {

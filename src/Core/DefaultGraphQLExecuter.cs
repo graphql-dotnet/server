@@ -38,11 +38,11 @@ namespace GraphQL.Server
             _validationRules = validationRules;
         }
 
-        public virtual async Task<ExecutionResult> ExecuteAsync(string operationName, string query, Inputs variables, IDictionary<string, object> context, CancellationToken cancellationToken = default)
+        public virtual async Task<ExecutionResult> ExecuteAsync(string operationName, string query, Inputs variables, IDictionary<string, object> context, IServiceProvider requestServices, CancellationToken cancellationToken = default)
         {
             var start = DateTime.UtcNow;
 
-            var options = GetOptions(operationName, query, variables, context, cancellationToken);
+            var options = GetOptions(operationName, query, variables, context, requestServices, cancellationToken);
             var result = await _documentExecuter.ExecuteAsync(options);
 
             if (options.EnableMetrics)
@@ -53,7 +53,7 @@ namespace GraphQL.Server
             return result;
         }
 
-        protected virtual ExecutionOptions GetOptions(string operationName, string query, Inputs variables, IDictionary<string, object> context, CancellationToken cancellationToken)
+        protected virtual ExecutionOptions GetOptions(string operationName, string query, Inputs variables, IDictionary<string, object> context, IServiceProvider requestServices, CancellationToken cancellationToken)
         {
             var opts = new ExecutionOptions
             {
@@ -65,10 +65,11 @@ namespace GraphQL.Server
                 CancellationToken = cancellationToken,
                 ComplexityConfiguration = _options.ComplexityConfiguration,
                 EnableMetrics = _options.EnableMetrics,
-                ExposeExceptions = _options.ExposeExceptions,
                 NameConverter = _options.NameConverter ?? CamelCaseNameConverter.Instance,
                 UnhandledExceptionDelegate = _options.UnhandledExceptionDelegate,
                 SchemaFilter = _options.SchemaFilter ?? new DefaultSchemaFilter(),
+                MaxParallelExecutionCount = _options.MaxParallelExecutionCount,
+                RequestServices = requestServices,
             };
 
             if (opts.EnableMetrics)
