@@ -10,20 +10,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
-
-#if !NETCOREAPP2_2
 using Microsoft.Extensions.Hosting;
-#endif
 
 namespace GraphQL.Samples.Server
 {
     public class Startup
     {
-#if NETCOREAPP2_2
-        public Startup(IConfiguration configuration, IHostingEnvironment environment)
-#else
         public Startup(IConfiguration configuration, IWebHostEnvironment environment)
-#endif
         {
             Configuration = configuration;
             Environment = environment;
@@ -31,11 +24,7 @@ namespace GraphQL.Samples.Server
 
         public IConfiguration Configuration { get; }
 
-#if NETCOREAPP2_2
-        public IHostingEnvironment Environment { get; }
-#else
         public IWebHostEnvironment Environment { get; }
-#endif
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -49,11 +38,7 @@ namespace GraphQL.Samples.Server
                     var logger = provider.GetRequiredService<ILogger<Startup>>();
                     options.UnhandledExceptionDelegate = ctx => logger.LogError("{Error} occured", ctx.OriginalException.Message);
                 })
-#if NETCOREAPP2_2
-                .AddNewtonsoftJson(deserializerSettings => { }, serializerSettings => { })
-#else
                 .AddSystemTextJson(deserializerSettings => { }, serializerSettings => { })
-#endif
                 .AddErrorInfoProvider(opt => opt.ExposeExceptionStackTrace = Environment.IsDevelopment())
                 .AddWebSockets()
                 .AddDataLoader()

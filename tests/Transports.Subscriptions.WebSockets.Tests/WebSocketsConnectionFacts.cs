@@ -1,32 +1,17 @@
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.TestHost;
 using System;
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
-using Xunit;
-using Shouldly;
-
-#if NETFRAMEWORK || NETCOREAPP2_2
-using Microsoft.AspNetCore;
-#else
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Hosting;
-#endif
+using Shouldly;
+using Xunit;
 
 namespace GraphQL.Server.Transports.WebSockets.Tests
 {
     public class WebSocketsConnectionFacts : IDisposable
     {
-#if NETFRAMEWORK || NETCOREAPP2_2
-        public WebSocketsConnectionFacts()
-        {
-            _server = new TestServer(WebHost
-                .CreateDefaultBuilder()
-                .UseStartup<TestStartup>());
-        }
-
-        private readonly TestServer _server;
-#else
         public WebSocketsConnectionFacts()
         {
             _host = Host
@@ -44,7 +29,6 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
 
         private readonly IHost _host;
         private readonly TestServer _server;
-#endif
 
         private Task<WebSocket> ConnectAsync(string protocol)
         {
@@ -80,9 +64,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         public void Dispose()
         {
             _server.Dispose();
-#if !(NETFRAMEWORK || NETCOREAPP2_2)
             _host.Dispose();
-#endif
         }
     }
 }

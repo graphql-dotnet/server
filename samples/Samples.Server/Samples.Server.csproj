@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1;netcoreapp3.0;netcoreapp2.2</TargetFrameworks>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <AssemblyName>GraphQL.Samples.Server</AssemblyName>
     <RootNamespace>GraphQL.Samples.Server</RootNamespace>
     <IsPackable>false</IsPackable>
@@ -9,32 +9,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\" />
+    <PackageReference Include="Serilog.AspNetCore" Version="3.4.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Serilog" Version="$(SerilogVersion)" />
-    <PackageReference Include="Serilog.AspNetCore" Version="$(SerilogAspNetCoreVersion)" />
-    <PackageReference Include="Serilog.Sinks.Console" Version="$(SerilogSinksConsoleVersion)" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <ProjectReference Include="..\..\src\Transports.AspNetCore.SystemTextJson\Transports.AspNetCore.SystemTextJson.csproj" />
     <ProjectReference Include="..\..\src\Transports.Subscriptions.WebSockets\Transports.Subscriptions.WebSockets.csproj" />
     <ProjectReference Include="..\..\src\Ui.GraphiQL\Ui.GraphiQL.csproj" />
     <ProjectReference Include="..\..\src\Ui.Playground\Ui.Playground.csproj" />
     <ProjectReference Include="..\..\src\Ui.Altair\Ui.Altair.csproj" />
     <ProjectReference Include="..\..\src\Ui.Voyager\Ui.Voyager.csproj" />
     <ProjectReference Include="..\Samples.Schemas.Chat\Samples.Schemas.Chat.csproj" />
-  </ItemGroup>
-
-  <ItemGroup Label="References for .NET Core 3.0+" Condition="'$(IsNetCore3OnwardsTarget)' == 'True'">
-    <ProjectReference Include="..\..\src\Transports.AspNetCore.SystemTextJson\Transports.AspNetCore.SystemTextJson.csproj" />
-  </ItemGroup>
-
-  <ItemGroup Label="References for .NET Core 2.2" Condition="'$(IsNetCore3OnwardsTarget)' == 'False'">
-    <PackageReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Microsoft.AspNetCore.WebSockets" Version="$(MicrosoftAspNetCoreWebSocketsVersion)" />
-    <ProjectReference Include="..\..\src\Transports.AspNetCore.NewtonsoftJson\Transports.AspNetCore.NewtonsoftJson.csproj" />
   </ItemGroup>
 
 </Project>

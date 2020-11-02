@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Text.Json;
 
 namespace GraphQL.Server.Ui.Voyager.Internal
 {
@@ -37,7 +38,7 @@ namespace GraphQL.Server.Ui.Voyager.Internal
 
                 var builder = new StringBuilder(streamReader.ReadToEnd())
                     .Replace("@Model.GraphQLEndPoint", _options.GraphQLEndPoint)
-                    .Replace("@Model.Headers", Serializer.Serialize(headers));
+                    .Replace("@Model.Headers", JsonSerializer.Serialize<object>(headers));
 
                 _voyagerCSHtml = builder.ToString();
             }

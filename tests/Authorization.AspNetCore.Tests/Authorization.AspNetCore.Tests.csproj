@@ -1,33 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../../Tests.props" />
 
-  <PropertyGroup Label="Build">
-    <TargetFrameworks>netcoreapp3.1;netcoreapp3.0;netcoreapp2.2</TargetFrameworks>
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
-  <ItemGroup Label="Package References">
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="$(MicrosoftExtensionsDependencyInjectionVersion)" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="$(MicrosoftExtensionsLoggingVersion)" />
-  </ItemGroup>
-
-  <ItemGroup Label="Package references for .NET Core 3" Condition="'$(IsNetCore3OnwardsTarget)' == 'True'">
+  <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-  
-  <ItemGroup Label="Package references for .NET Core 2.2" Condition="'$(IsNetCore3OnwardsTarget)' == 'False'">
-    <PackageReference Include="Microsoft.AspNetCore.Http" Version="$(MicrosoftAspNetCoreHttpVersion)" />
-  </ItemGroup>
-
-  <ItemGroup Label="Project References">
     <ProjectReference Include="..\..\src\Authorization.AspNetCore\Authorization.AspNetCore.csproj" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.9" />
   </ItemGroup>
 
   <PropertyGroup>
     <AssemblyName>GraphQL.Server.Authorization.AspNetCore.Tests</AssemblyName>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
-  </ItemGroup>
 
 </Project>
