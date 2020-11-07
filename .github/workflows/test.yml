@@ -5,6 +5,8 @@ on:
     branches:
       - master
       - develop
+    paths:
+      - !README.md
 
 env:
   DOTNET_NOLOGO: true
