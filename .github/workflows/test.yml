@@ -11,7 +11,7 @@ env:
   DOTNET_CLI_TELEMETRY_OPTOUT: true
 
 jobs:
-  pre_test:
+  should_test:
     runs-on: ubuntu-latest
     outputs:
       should_skip: ${{ steps.skip_check.outputs.should_skip }}
@@ -22,8 +22,8 @@ jobs:
           github_token: ${{ github.token }}
           paths_ignore: '["README.md", "LICENSE.md", ".gitignore"]'
   test:
-    needs: pre_test
-    if: ${{ needs.pre_test.outputs.should_skip != 'true' }}
+    needs: should_test
+    if: ${{ needs.should_test.outputs.should_skip != 'true' }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
