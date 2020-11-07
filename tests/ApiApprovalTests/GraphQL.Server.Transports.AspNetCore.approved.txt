@@ -48,6 +48,7 @@ namespace GraphQL.Server.Transports.AspNetCore
         protected virtual System.Threading.CancellationToken GetCancellationToken(Microsoft.AspNetCore.Http.HttpContext context) { }
         public System.Threading.Tasks.Task InvokeAsync(Microsoft.AspNetCore.Http.HttpContext context) { }
         protected virtual System.Threading.Tasks.Task RequestExecutedAsync(in GraphQL.Server.Transports.AspNetCore.Common.GraphQLRequestExecutionResult requestExecutionResult) { }
+        protected virtual System.Threading.Tasks.Task RequestExecutingAsync(GraphQL.Server.Common.GraphQLRequest request, int? indexInBatch = default) { }
     }
     public interface IUserContextBuilder
     {
