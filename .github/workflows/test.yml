@@ -5,15 +5,25 @@ on:
     branches:
       - master
       - develop
-    paths:
-      - !README.md
 
 env:
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
 
 jobs:
+  should_test:
+    runs-on: ubuntu-latest
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@v2.1.0
+        with:
+          github_token: ${{ github.token }}
+          paths_ignore: '["README.md", "LICENSE.md", ".gitignore"]'
   test:
+    needs: should_test
+    if: ${{ needs.should_test.outputs.should_skip != 'true' }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:

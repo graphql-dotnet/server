@@ -82,8 +82,8 @@ public void ConfigureServices(IServiceCollection services)
             options.UnhandledExceptionDelegate = ctx => logger.LogError("{Error} occured", ctx.OriginalException.Message);
         })
         // Add required services for de/serialization
-        .AddSystemTextJson(deserializerSettings => { }, serializerSettings => { }) // For .NET Core 3+
-        .AddNewtonsoftJson(deserializerSettings => { }, serializerSettings => { }) // For everything else
+        .AddSystemTextJson() // For .NET Core 3+
+        .AddNewtonsoftJson() // For everything else
         .AddErrorInfoProvider(opt => opt.ExposeExceptionStackTrace = Environment.IsDevelopment())
         .AddWebSockets() // Add required services for web socket support
         .AddDataLoader() // Add required services for DataLoader support
