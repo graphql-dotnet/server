@@ -29,8 +29,8 @@ namespace GraphQL.Server
             Action<JsonSerializerSettings> configureDeserializerSettings = null,
             Action<JsonSerializerSettings> configureSerializerSettings = null)
         {
-            builder.Services.AddSingleton<IGraphQLRequestDeserializer>(p => new GraphQLRequestDeserializer(configureDeserializerSettings));
-            builder.Services.Replace(ServiceDescriptor.Singleton<IDocumentWriter>(p => new DocumentWriter(configureSerializerSettings, p.GetService<IErrorInfoProvider>() ?? new ErrorInfoProvider())));
+            builder.Services.AddSingleton<IGraphQLRequestDeserializer>(p => new GraphQLRequestDeserializer(configureDeserializerSettings ?? (_ => { })));
+            builder.Services.Replace(ServiceDescriptor.Singleton<IDocumentWriter>(p => new DocumentWriter(configureSerializerSettings ?? (_ => { }), p.GetService<IErrorInfoProvider>() ?? new ErrorInfoProvider())));
 
             return builder;
         }

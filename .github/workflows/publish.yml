@@ -56,7 +56,7 @@ jobs:
             console.log('environment', process.versions);
             const fs = require('fs').promises;
             const { repo: { owner, repo }, sha } = context;
-            for (let file of await fs.readdir('src/out')) {
+            for (let file of await fs.readdir('out')) {
               console.log('uploading', file);
               await github.repos.uploadReleaseAsset({
                 owner,
