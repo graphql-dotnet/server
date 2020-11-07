@@ -59,4 +59,7 @@ jobs:
     if: always()
     steps:
       - name: Set job exit code
-        run: exit ${{ needs.test.result == 'success' || needs.test.result == 'skipped' }}
+        run: |
+          exitcode=1
+          exitcode=${{ needs.test.result != 'success' && needs.test.result != 'skipped' }}
+          exit {{ exitcode }}
