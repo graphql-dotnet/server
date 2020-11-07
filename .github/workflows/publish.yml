@@ -5,13 +5,13 @@ on:
     types:
       - published
 
-env:
-  DOTNET_NOLOGO: true
-  DOTNET_CLI_TELEMETRY_OPTOUT: true
-  
+ 
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
     steps:
       - uses: actions/checkout@v2
       - name: Check github.ref starts with 'refs/tags/'
