@@ -81,7 +81,7 @@ public void ConfigureServices(IServiceCollection services)
             var logger = provider.GetRequiredService<ILogger<Startup>>();
             options.UnhandledExceptionDelegate = ctx => logger.LogError("{Error} occurred", ctx.OriginalException.Message);
         })
-        // Add required services for de/serialization
+        // Add required services for GraphQL request/response de/serialization
         .AddSystemTextJson() // For .NET Core 3+
         .AddNewtonsoftJson() // For everything else
         .AddErrorInfoProvider(opt => opt.ExposeExceptionStackTrace = Environment.IsDevelopment())
