@@ -58,8 +58,9 @@ jobs:
     runs-on: ubuntu-latest
     if: always()
     steps:
-      - name: Set job exit code
-        run: |
-          exitcode=1
-          exitcode=${{ needs.test.result != 'success' && needs.test.result != 'skipped' }}
-          exit {{ exitcode }}
+      - name: Pass build check
+        if: ${{ needs.test.result == 'success' || needs.test.result == 'skipped' }}
+        run: exit 0
+      - name: Fail build check
+        if: ${{ needs.test.result != 'success' && needs.test.result != 'skipped' }}
+        run: exit 1
