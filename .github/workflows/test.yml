@@ -6,10 +6,6 @@ on:
       - master
       - develop
 
-env:
-  DOTNET_NOLOGO: true
-  DOTNET_CLI_TELEMETRY_OPTOUT: true
-
 jobs:
   should_test:
     runs-on: ubuntu-latest
@@ -25,6 +21,9 @@ jobs:
     needs: should_test
     if: ${{ needs.should_test.outputs.should_skip != 'true' }}
     runs-on: ${{ matrix.os }}
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
     strategy:
       matrix:
         os: 
@@ -52,3 +51,15 @@ jobs:
         run: dotnet build --no-restore -p:NoWarn=CS1591
       - name: Test solution [Debug]
         run: dotnet test --no-restore --no-build
+
+  buildcheck:
+    needs: test
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Pass build check
+        if: ${{ needs.test.result == 'success' || needs.test.result == 'skipped' }}
+        run: exit 0
+      - name: Fail build check
+        if: ${{ needs.test.result != 'success' && needs.test.result != 'skipped' }}
+        run: exit 1

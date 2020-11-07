@@ -79,7 +79,7 @@ public void ConfigureServices(IServiceCollection services)
         {
             options.EnableMetrics = Environment.IsDevelopment();
             var logger = provider.GetRequiredService<ILogger<Startup>>();
-            options.UnhandledExceptionDelegate = ctx => logger.LogError("{Error} occured", ctx.OriginalException.Message);
+            options.UnhandledExceptionDelegate = ctx => logger.LogError("{Error} occurred", ctx.OriginalException.Message);
         })
         // Add required services for de/serialization
         .AddSystemTextJson() // For .NET Core 3+
