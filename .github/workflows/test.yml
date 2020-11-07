@@ -6,6 +6,10 @@ on:
       - master
       - develop
 
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
 jobs:
   should_test:
     runs-on: ubuntu-latest
@@ -33,9 +37,6 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '2.2.x'
-        env:
-          DOTNET_NOLOGO: true
-          DOTNET_CLI_TELEMETRY_OPTOUT: true
       - name: Use .NET Core 3.1 LTS SDK
         uses: actions/setup-dotnet@v1
         with:
@@ -43,8 +44,6 @@ jobs:
           source-url: https://nuget.pkg.github.com/graphql-dotnet/index.json
         env:
           NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
-          DOTNET_NOLOGO: true
-          DOTNET_CLI_TELEMETRY_OPTOUT: true
       - name: Install dependencies
         run: dotnet restore
       - name: Build solution [Release]

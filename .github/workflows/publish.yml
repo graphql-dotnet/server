@@ -4,6 +4,10 @@ on:
   release:
     types:
       - published
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
   
 jobs:
   build:
@@ -30,8 +34,6 @@ jobs:
           source-url: https://api.nuget.org/v3/index.json
         env:
           NUGET_AUTH_TOKEN: ${{secrets.NUGET_AUTH_TOKEN}}
-          DOTNET_NOLOGO: true
-          DOTNET_CLI_TELEMETRY_OPTOUT: true
       - name: Install dependencies
         run: dotnet restore
       - name: Build solution [Release]
