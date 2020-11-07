@@ -27,11 +27,7 @@ namespace GraphQL.Server
             builder.Services
                 .AddHttpContextAccessor()
                 .AddTransient<IValidationRule, AuthorizationValidationRule>()
-#if NETCOREAPP3_0
                 .AddAuthorizationCore(options);
-#else
-                .AddAuthorization(options);
-#endif
 
             return builder;
         }
