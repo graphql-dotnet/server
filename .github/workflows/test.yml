@@ -52,3 +52,11 @@ jobs:
         run: dotnet build --no-restore -p:NoWarn=CS1591
       - name: Test solution [Debug]
         run: dotnet test --no-restore --no-build
+
+  buildcheck:
+    needs: test
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Set job exit code
+        run: exit ${{ needs.test.result == 'success' || needs.test.result == 'skipped' }}
