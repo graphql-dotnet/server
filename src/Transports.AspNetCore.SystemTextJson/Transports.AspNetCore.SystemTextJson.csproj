@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1;netcoreapp3.0</TargetFrameworks>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <AssemblyName>GraphQL.Server.Transports.AspNetCore.SystemTextJson</AssemblyName>
     <RootNamespace>GraphQL.Server.Transports.AspNetCore.SystemTextJson</RootNamespace>
     <PackageId>GraphQL.Server.Transports.AspNetCore.SystemTextJson</PackageId>
@@ -13,7 +13,7 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <ProjectReference Include="..\Transports.AspNetCore\Transports.AspNetCore.csproj" />
     <ProjectReference Include="..\Transports.Subscriptions.Abstractions\Transports.Subscriptions.Abstractions.csproj" />
-    <PackageReference Include="GraphQL.SystemTextJson" Version="$(GraphQLVersion)" />
+    <PackageReference Include="GraphQL.SystemTextJson" Version="3.1.3" />
     <PackageReference Include="System.IO.Pipelines" Version="4.7.3" />
   </ItemGroup>
 

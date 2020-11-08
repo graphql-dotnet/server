@@ -1,16 +1,13 @@
-using GraphQL.Samples.Server;
+using System;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.TestHost;
-using System;
+using GraphQL.Samples.Server;
+using GraphQL.Server;
 using GraphQL.Server.Common;
 using GraphQL.Server.Transports.AspNetCore.Common;
-using GraphQL.Server;
-
-#if !NETCOREAPP2_2
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Hosting;
-#endif
 
 namespace Samples.Server.Tests
 {
@@ -20,16 +17,11 @@ namespace Samples.Server.Tests
 
         protected BaseTest()
         {
-#if NETCOREAPP2_2
-            Server = new TestServer(Program.CreateWebHostBuilder(Array.Empty<string>()));
-#else
             Host = Program.CreateHostBuilder(Array.Empty<string>())
                  .ConfigureWebHost(webBuilder => webBuilder.UseTestServer())
                  .Start();
 
             Server = Host.GetTestServer();
-#endif
-
             Client = Server.CreateClient();
         }
 
@@ -137,17 +129,13 @@ namespace Samples.Server.Tests
         {
             Client.Dispose();
             Server.Dispose();
-#if !NETCOREAPP2_2
             Host.Dispose();
-#endif
         }
 
         private TestServer Server { get; }
 
         private HttpClient Client { get; }
 
-#if !NETCOREAPP2_2
         private IHost Host { get; }
-#endif
     }
 }

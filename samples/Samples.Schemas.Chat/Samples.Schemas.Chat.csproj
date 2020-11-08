@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>GraphQL.Samples.Schemas.Chat</AssemblyName>
     <RootNamespace>GraphQL.Samples.Schemas.Chat</RootNamespace>
     <IsPackable>false</IsPackable>
@@ -9,10 +9,8 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="GraphQL.NewtonsoftJson" Version="$(GraphQLVersion)" />
-  </ItemGroup>
-  <ItemGroup>
+    <PackageReference Include="GraphQL.NewtonsoftJson" Version="3.1.3" />
     <ProjectReference Include="..\..\src\Transports.Subscriptions.Abstractions\Transports.Subscriptions.Abstractions.csproj" />
   </ItemGroup>
-  
+
 </Project>

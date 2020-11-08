@@ -1,19 +1,14 @@
-using System.Threading.Tasks;
-using Xunit;
-using GraphQL.Server.Common;
-using GraphQL;
-using Shouldly;
+using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Text;
-using System.Net;
-using System.Collections.Generic;
+using System.Threading.Tasks;
+using GraphQL;
 using GraphQL.Server;
-
-#if NETCOREAPP2_2
-using GraphQL.NewtonsoftJson;
-#else
+using GraphQL.Server.Common;
 using GraphQL.SystemTextJson;
-#endif
+using Shouldly;
+using Xunit;
 
 namespace Samples.Server.Tests
 {

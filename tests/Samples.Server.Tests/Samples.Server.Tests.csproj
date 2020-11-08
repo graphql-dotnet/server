@@ -2,24 +2,14 @@
   <Import Project="../../Tests.props" />
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1;netcoreapp3.0;netcoreapp2.2</TargetFrameworks>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <Description>End to end tests for Samples.Server project</Description>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="GraphQL.NewtonsoftJson" Version="$(GraphQLVersion)" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\samples\Samples.Server\Samples.Server.csproj" />
-  </ItemGroup>
-
-  <ItemGroup Label="References for .NET Core 3" Condition="'$(IsNetCore3OnwardsTarget)' == 'True'">
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-
-  <ItemGroup Label="References for .NET Core 2.2" Condition="'$(IsNetCore3OnwardsTarget)' == 'False'">
-    <PackageReference Include="Microsoft.AspNetCore.App" />
+    <ProjectReference Include="..\..\samples\Samples.Server\Samples.Server.csproj" />
+    <PackageReference Include="GraphQL.NewtonsoftJson" Version="3.1.3" />
   </ItemGroup>
 
 </Project>
