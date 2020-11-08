@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <Description>GraphQL voyager extension</Description>
-    <PackageTags>GraphQL Voyager</PackageTags>
+    <Description>GraphQL Voyager integration for ASP.NET Core</Description>
+    <PackageTags>GraphQL;Voyager</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

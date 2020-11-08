@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <Description>HTTP middleware for GraphQL</Description>
-    <PackageTags>GraphQL middleware</PackageTags>
+    <PackageTags>GraphQL;middleware</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
