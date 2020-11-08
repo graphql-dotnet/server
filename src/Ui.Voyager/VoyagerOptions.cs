@@ -4,22 +4,17 @@ using Microsoft.AspNetCore.Http;
 namespace GraphQL.Server.Ui.Voyager
 {
     /// <summary>
-    /// Options to customize <see cref="VoyagerMiddleware"/>
+    /// Options to customize <see cref="VoyagerMiddleware"/>.
     /// </summary>
-    public class GraphQLVoyagerOptions
+    public class VoyagerOptions
     {
         /// <summary>
-        /// The Voyager EndPoint to listen
-        /// </summary>
-        public PathString Path { get; set; } = "/ui/voyager";
-
-        /// <summary>
-        /// The GraphQL EndPoint
+        /// The GraphQL EndPoint.
         /// </summary>
         public PathString GraphQLEndPoint { get; set; } = "/graphql";
 
         /// <summary>
-        /// HTTP Headers with which the Voyager will send introspection query
+        /// HTTP headers with which the Voyager will send introspection query.
         /// </summary>
         public Dictionary<string, object> Headers { get; set; }
     }

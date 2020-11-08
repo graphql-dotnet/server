@@ -8,9 +8,6 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Internal\voyager.cshtml" />
-    <Compile Include="..\Ui.Playground\Shared\**">
-      <Link>Shared\%(RecursiveDir)%(Filename)%(Extension)</Link>
-    </Compile>
   </ItemGroup>
 
   <ItemGroup>

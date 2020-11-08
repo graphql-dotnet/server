@@ -2,6 +2,7 @@ namespace GraphQL.Server
 {
     public static class GraphQLBuilderExtensions
     {
+        public static GraphQL.Server.IGraphQLBuilder AddDefaultEndpointSelectorPolicy(this GraphQL.Server.IGraphQLBuilder builder) { }
         public static GraphQL.Server.IGraphQLBuilder AddUserContextBuilder<TUserContextBuilder>(this GraphQL.Server.IGraphQLBuilder builder)
             where TUserContextBuilder :  class, GraphQL.Server.Transports.AspNetCore.IUserContextBuilder { }
         public static GraphQL.Server.IGraphQLBuilder AddUserContextBuilder<TUserContext>(this GraphQL.Server.IGraphQLBuilder builder, System.Func<Microsoft.AspNetCore.Http.HttpContext, System.Threading.Tasks.Task<TUserContext>> creator)
@@ -15,7 +16,7 @@ namespace GraphQL.Server.Transports.AspNetCore
     public class GraphQLHttpMiddleware<TSchema>
         where TSchema : GraphQL.Types.ISchema
     {
-        public GraphQLHttpMiddleware(Microsoft.AspNetCore.Http.RequestDelegate next, Microsoft.AspNetCore.Http.PathString path, GraphQL.Server.Transports.AspNetCore.IGraphQLRequestDeserializer deserializer) { }
+        public GraphQLHttpMiddleware(Microsoft.AspNetCore.Http.RequestDelegate next, GraphQL.Server.Transports.AspNetCore.IGraphQLRequestDeserializer deserializer) { }
         protected virtual System.Threading.CancellationToken GetCancellationToken(Microsoft.AspNetCore.Http.HttpContext context) { }
         public System.Threading.Tasks.Task InvokeAsync(Microsoft.AspNetCore.Http.HttpContext context) { }
         protected virtual System.Threading.Tasks.Task RequestExecutedAsync(in GraphQL.Server.Transports.AspNetCore.GraphQLRequestExecutionResult requestExecutionResult) { }
@@ -61,7 +62,7 @@ namespace GraphQL.Server.Transports.AspNetCore
 }
 namespace Microsoft.AspNetCore.Builder
 {
-    public static class ApplicationBuilderExtensions
+    public static class GraphQLHttpApplicationBuilderExtensions
     {
         public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQL<TSchema>(this Microsoft.AspNetCore.Builder.IApplicationBuilder builder, Microsoft.AspNetCore.Http.PathString path)
             where TSchema : GraphQL.Types.ISchema { }
@@ -71,6 +72,18 @@ namespace Microsoft.AspNetCore.Builder
             where TSchema : GraphQL.Types.ISchema
             where TMiddleware : GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddleware<TSchema> { }
         public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQL<TSchema, TMiddleware>(this Microsoft.AspNetCore.Builder.IApplicationBuilder builder, string path = "/graphql")
+            where TSchema : GraphQL.Types.ISchema
+            where TMiddleware : GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddleware<TSchema> { }
+    }
+    public class GraphQLHttpEndpointConventionBuilder : Microsoft.AspNetCore.Builder.IEndpointConventionBuilder
+    {
+        public void Add(System.Action<Microsoft.AspNetCore.Builder.EndpointBuilder> convention) { }
+    }
+    public static class GraphQLHttpEndpointRouteBuilderExtensions
+    {
+        public static Microsoft.AspNetCore.Builder.GraphQLHttpEndpointConventionBuilder MapGraphQL<TSchema>(this Microsoft.AspNetCore.Routing.IEndpointRouteBuilder endpoints, string pattern = "graphql")
+            where TSchema : GraphQL.Types.ISchema { }
+        public static Microsoft.AspNetCore.Builder.GraphQLHttpEndpointConventionBuilder MapGraphQL<TSchema, TMiddleware>(this Microsoft.AspNetCore.Routing.IEndpointRouteBuilder endpoints, string pattern = "graphql")
             where TSchema : GraphQL.Types.ISchema
             where TMiddleware : GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddleware<TSchema> { }
     }

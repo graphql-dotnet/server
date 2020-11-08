@@ -14,7 +14,7 @@ namespace GraphQL.Server.Transports.AspNetCore
     /// <summary>
     /// ASP.NET Core middleware for processing GraphQL requests. Can processes both single and batch requests.
     /// See <see href="https://www.apollographql.com/blog/query-batching-in-apollo-63acfd859862/">Transport-level batching</see>
-    /// for more information.
+    /// for more information. This middleware useful with and without ASP.NET Core routing.
     /// <br/><br/>
     /// GraphQL over HTTP <see href="https://github.com/APIs-guru/graphql-over-http">spec</see> says:
     /// GET requests can be used for executing ONLY queries. If the values of query and operationName indicates that
@@ -30,19 +30,17 @@ namespace GraphQL.Server.Transports.AspNetCore
         private const string DOCS_URL = "See: http://graphql.org/learn/serving-over-http/.";
 
         private readonly RequestDelegate _next;
-        private readonly PathString _path;
         private readonly IGraphQLRequestDeserializer _deserializer;
 
-        public GraphQLHttpMiddleware(RequestDelegate next, PathString path, IGraphQLRequestDeserializer deserializer)
+        public GraphQLHttpMiddleware(RequestDelegate next, IGraphQLRequestDeserializer deserializer)
         {
             _next = next;
-            _path = path;
             _deserializer = deserializer;
         }
 
         public async Task InvokeAsync(HttpContext context)
         {
-            if (context.WebSockets.IsWebSocketRequest || !context.Request.Path.StartsWithSegments(_path))
+            if (context.WebSockets.IsWebSocketRequest)
             {
                 await _next(context);
                 return;

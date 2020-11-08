@@ -2,21 +2,31 @@ namespace GraphQL.Server.Ui.Altair
 {
     public class AltairMiddleware
     {
-        public AltairMiddleware(Microsoft.AspNetCore.Http.RequestDelegate nextMiddleware, GraphQL.Server.Ui.Altair.GraphQLAltairOptions options) { }
+        public AltairMiddleware(Microsoft.AspNetCore.Http.RequestDelegate next, GraphQL.Server.Ui.Altair.AltairOptions options) { }
         public System.Threading.Tasks.Task Invoke(Microsoft.AspNetCore.Http.HttpContext httpContext) { }
     }
-    public class GraphQLAltairOptions
+    public class AltairOptions
     {
-        public GraphQLAltairOptions() { }
+        public AltairOptions() { }
         public Microsoft.AspNetCore.Http.PathString GraphQLEndPoint { get; set; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; set; }
-        public Microsoft.AspNetCore.Http.PathString Path { get; set; }
+        public Microsoft.AspNetCore.Http.PathString SubscriptionsEndPoint { get; set; }
     }
 }
 namespace Microsoft.AspNetCore.Builder
 {
-    public static class AltairExtensions
+    public static class AltairApplicationBuilderExtensions
     {
-        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQLAltair(this Microsoft.AspNetCore.Builder.IApplicationBuilder app, GraphQL.Server.Ui.Altair.GraphQLAltairOptions options = null) { }
+        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQLAltair(this Microsoft.AspNetCore.Builder.IApplicationBuilder app, string path = "/ui/altair") { }
+        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQLAltair(this Microsoft.AspNetCore.Builder.IApplicationBuilder app, GraphQL.Server.Ui.Altair.AltairOptions options, string path = "/ui/altair") { }
+    }
+    public class AltairEndpointConventionBuilder : Microsoft.AspNetCore.Builder.IEndpointConventionBuilder
+    {
+        public void Add(System.Action<Microsoft.AspNetCore.Builder.EndpointBuilder> convention) { }
+    }
+    public static class AltairEndpointRouteBuilderExtensions
+    {
+        public static Microsoft.AspNetCore.Builder.AltairEndpointConventionBuilder MapGraphQLAltair(this Microsoft.AspNetCore.Routing.IEndpointRouteBuilder endpoints, string pattern = "ui/altair") { }
+        public static Microsoft.AspNetCore.Builder.AltairEndpointConventionBuilder MapGraphQLAltair(this Microsoft.AspNetCore.Routing.IEndpointRouteBuilder endpoints, GraphQL.Server.Ui.Altair.AltairOptions options, string pattern = "ui/altair") { }
     }
 }
