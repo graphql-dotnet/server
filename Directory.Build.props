@@ -3,6 +3,7 @@
   <PropertyGroup>
     <VersionPrefix>5.0.0-preview</VersionPrefix>
     <LangVersion>latest</LangVersion>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Copyright>Pekka Heikura</Copyright>
     <Authors>Pekka Heikura</Authors>
     <Product>graphql-dotnet server</Product>
