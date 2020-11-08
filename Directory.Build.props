@@ -4,6 +4,7 @@
     <VersionPrefix>5.0.0-preview</VersionPrefix>
     <LangVersion>latest</LangVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageIcon>logo.64x64.png</PackageIcon>
     <Copyright>Pekka Heikura</Copyright>
     <Authors>Pekka Heikura</Authors>
     <Product>graphql-dotnet server</Product>
@@ -20,10 +21,15 @@
     <AssemblyName>GraphQL.Server.$(MSBuildProjectName)</AssemblyName>
     <RootNamespace>GraphQL.Server.$(MSBuildProjectName)</RootNamespace>
     <PackageId>GraphQL.Server.$(MSBuildProjectName)</PackageId>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" Condition="'$(IsPackable)' == 'true'"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\assets\logo.64x64.png" Pack="true" PackagePath="\"/>
   </ItemGroup>
 
 </Project>
