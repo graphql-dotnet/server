@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <Description>A GraphiQL Integration for AspNetCore</Description>
-    <PackageTags>GraphiQL GraphQL</PackageTags>
+    <Description>GraphiQL integration for ASP.NET Core</Description>
+    <PackageTags>GraphiQL;GraphQL</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

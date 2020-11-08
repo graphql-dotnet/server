@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <Description>Altair GraphQL extension</Description>
-    <PackageTags>Altair GraphQL</PackageTags>
+    <Description>GraphQL Altair integration for ASP.NET Core</Description>
+    <PackageTags>Altair;GraphQL</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <PackageTags>GraphQL middleware AspNetCore NewtonsoftJson</PackageTags>
     <Description>GraphQL middleware using Newtonsoft.Json for serialization</Description>
+    <PackageTags>GraphQL;middleware;AspNetCore;Newtonsoft.Json</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
