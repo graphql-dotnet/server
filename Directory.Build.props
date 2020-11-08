@@ -21,6 +21,7 @@
     <AssemblyName>GraphQL.Server.$(MSBuildProjectName)</AssemblyName>
     <RootNamespace>GraphQL.Server.$(MSBuildProjectName)</RootNamespace>
     <PackageId>GraphQL.Server.$(MSBuildProjectName)</PackageId>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
