@@ -3,15 +3,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <AssemblyName>GraphQL.Server.Transports.WebSockets.Tests</AssemblyName>
-    <RootNamespace>GraphQL.Server.Transports.WebSockets.Tests</RootNamespace>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Remove="Subscriptions\**" />
-    <EmbeddedResource Remove="Subscriptions\**" />
-    <None Remove="Subscriptions\**" />
-  </ItemGroup>
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

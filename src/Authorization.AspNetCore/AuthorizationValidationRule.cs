@@ -1,13 +1,13 @@
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using GraphQL.Language.AST;
 using GraphQL.Types;
 using GraphQL.Validation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Http;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GraphQL.Server.Authorization.AspNetCore
 {

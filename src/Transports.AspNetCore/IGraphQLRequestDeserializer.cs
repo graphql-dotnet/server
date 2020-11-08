@@ -1,8 +1,8 @@
-using Microsoft.AspNetCore.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
-namespace GraphQL.Server.Transports.AspNetCore.Common
+namespace GraphQL.Server.Transports.AspNetCore
 {
     /// <summary>
     /// An interface for GraphQL request deserializer.

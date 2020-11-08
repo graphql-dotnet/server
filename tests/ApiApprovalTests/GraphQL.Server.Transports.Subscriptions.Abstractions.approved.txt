@@ -108,7 +108,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
     }
     public class SubscriptionManager : GraphQL.Server.Transports.Subscriptions.Abstractions.ISubscriptionManager, System.Collections.Generic.IEnumerable<GraphQL.Server.Transports.Subscriptions.Abstractions.Subscription>, System.Collections.IEnumerable
     {
-        public SubscriptionManager(GraphQL.Server.Internal.IGraphQLExecuter executer, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory) { }
+        public SubscriptionManager(GraphQL.Server.IGraphQLExecuter executer, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory) { }
         public GraphQL.Server.Transports.Subscriptions.Abstractions.Subscription this[string id] { get; }
         public System.Collections.Generic.IEnumerator<GraphQL.Server.Transports.Subscriptions.Abstractions.Subscription> GetEnumerator() { }
         public System.Threading.Tasks.Task SubscribeOrExecuteAsync(string id, GraphQL.Server.Transports.Subscriptions.Abstractions.OperationMessagePayload payload, GraphQL.Server.Transports.Subscriptions.Abstractions.MessageHandlingContext context) { }

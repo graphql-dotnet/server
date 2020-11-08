@@ -1,9 +1,8 @@
 using GraphQL.Server.Transports.WebSockets;
 using GraphQL.Types;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 
-namespace GraphQL.Server
+namespace Microsoft.AspNetCore.Builder
 {
     public static class GraphQLWebSocketsExtensions
     {

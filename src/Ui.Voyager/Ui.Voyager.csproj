@@ -2,11 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <AssemblyName>GraphQL.Server.Ui.Voyager</AssemblyName>
-    <RootNamespace>GraphQL.Server.Ui.Voyager</RootNamespace>
     <Description>GraphQL voyager extension</Description>
     <PackageTags>GraphQL Voyager</PackageTags>
-    <PackageId>GraphQL.Server.Ui.Voyager</PackageId>
   </PropertyGroup>
 
   <ItemGroup>

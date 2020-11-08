@@ -1,4 +1,4 @@
-namespace GraphQL.Server.Transports.AspNetCore.Common
+namespace GraphQL.Server.Transports.AspNetCore
 {
     public static class MediaType
     {

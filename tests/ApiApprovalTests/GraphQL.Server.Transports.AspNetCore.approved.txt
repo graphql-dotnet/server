@@ -10,27 +10,40 @@ namespace GraphQL.Server
             where TUserContext :  class, System.Collections.Generic.IDictionary<string, object> { }
     }
 }
-namespace GraphQL.Server.Transports.AspNetCore.Common
+namespace GraphQL.Server.Transports.AspNetCore
 {
+    public class GraphQLHttpMiddleware<TSchema>
+        where TSchema : GraphQL.Types.ISchema
+    {
+        public GraphQLHttpMiddleware(Microsoft.AspNetCore.Http.RequestDelegate next, Microsoft.AspNetCore.Http.PathString path, GraphQL.Server.Transports.AspNetCore.IGraphQLRequestDeserializer deserializer) { }
+        protected virtual System.Threading.CancellationToken GetCancellationToken(Microsoft.AspNetCore.Http.HttpContext context) { }
+        public System.Threading.Tasks.Task InvokeAsync(Microsoft.AspNetCore.Http.HttpContext context) { }
+        protected virtual System.Threading.Tasks.Task RequestExecutedAsync(in GraphQL.Server.Transports.AspNetCore.GraphQLRequestExecutionResult requestExecutionResult) { }
+        protected virtual System.Threading.Tasks.Task RequestExecutingAsync(GraphQL.Server.GraphQLRequest request, int? indexInBatch = default) { }
+    }
     public class GraphQLRequestDeserializationResult
     {
         public GraphQLRequestDeserializationResult() { }
-        public GraphQL.Server.Common.GraphQLRequest[] Batch { get; set; }
+        public GraphQL.Server.GraphQLRequest[] Batch { get; set; }
         public bool IsSuccessful { get; set; }
-        public GraphQL.Server.Common.GraphQLRequest Single { get; set; }
+        public GraphQL.Server.GraphQLRequest Single { get; set; }
     }
     public readonly struct GraphQLRequestExecutionResult
     {
-        public GraphQLRequestExecutionResult(GraphQL.Server.Common.GraphQLRequest request, GraphQL.ExecutionResult result, System.TimeSpan elapsed, int? indexInBatch = default) { }
+        public GraphQLRequestExecutionResult(GraphQL.Server.GraphQLRequest request, GraphQL.ExecutionResult result, System.TimeSpan elapsed, int? indexInBatch = default) { }
         public System.TimeSpan Elapsed { get; }
         public int? IndexInBatch { get; }
-        public GraphQL.Server.Common.GraphQLRequest Request { get; }
+        public GraphQL.Server.GraphQLRequest Request { get; }
         public GraphQL.ExecutionResult Result { get; }
     }
     public interface IGraphQLRequestDeserializer
     {
-        System.Threading.Tasks.Task<GraphQL.Server.Transports.AspNetCore.Common.GraphQLRequestDeserializationResult> DeserializeFromJsonBodyAsync(Microsoft.AspNetCore.Http.HttpRequest httpRequest, System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task<GraphQL.Server.Transports.AspNetCore.GraphQLRequestDeserializationResult> DeserializeFromJsonBodyAsync(Microsoft.AspNetCore.Http.HttpRequest httpRequest, System.Threading.CancellationToken cancellationToken = default);
         GraphQL.Inputs DeserializeInputsFromJson(string json);
+    }
+    public interface IUserContextBuilder
+    {
+        System.Threading.Tasks.Task<System.Collections.Generic.IDictionary<string, object>> BuildUserContext(Microsoft.AspNetCore.Http.HttpContext httpContext);
     }
     public static class MediaType
     {
@@ -38,25 +51,6 @@ namespace GraphQL.Server.Transports.AspNetCore.Common
         public const string GRAPH_QL = "application/graphql";
         public const string JSON = "application/json";
     }
-}
-namespace GraphQL.Server.Transports.AspNetCore
-{
-    public class GraphQLHttpMiddleware<TSchema>
-        where TSchema : GraphQL.Types.ISchema
-    {
-        public GraphQLHttpMiddleware(Microsoft.AspNetCore.Http.RequestDelegate next, Microsoft.AspNetCore.Http.PathString path, GraphQL.Server.Transports.AspNetCore.Common.IGraphQLRequestDeserializer deserializer) { }
-        protected virtual System.Threading.CancellationToken GetCancellationToken(Microsoft.AspNetCore.Http.HttpContext context) { }
-        public System.Threading.Tasks.Task InvokeAsync(Microsoft.AspNetCore.Http.HttpContext context) { }
-        protected virtual System.Threading.Tasks.Task RequestExecutedAsync(in GraphQL.Server.Transports.AspNetCore.Common.GraphQLRequestExecutionResult requestExecutionResult) { }
-        protected virtual System.Threading.Tasks.Task RequestExecutingAsync(GraphQL.Server.Common.GraphQLRequest request, int? indexInBatch = default) { }
-    }
-    public interface IUserContextBuilder
-    {
-        System.Threading.Tasks.Task<System.Collections.Generic.IDictionary<string, object>> BuildUserContext(Microsoft.AspNetCore.Http.HttpContext httpContext);
-    }
-}
-namespace GraphQL.Server.Transports.AspNetCore.Internal
-{
     public class UserContextBuilder<TUserContext> : GraphQL.Server.Transports.AspNetCore.IUserContextBuilder
         where TUserContext : System.Collections.Generic.IDictionary<string, object>
     {

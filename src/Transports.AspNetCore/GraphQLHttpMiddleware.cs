@@ -1,16 +1,13 @@
-using GraphQL.Instrumentation;
-using GraphQL.Server.Common;
-using GraphQL.Server.Internal;
-using GraphQL.Server.Transports.AspNetCore.Common;
-using GraphQL.Types;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
+using GraphQL.Instrumentation;
+using GraphQL.Types;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace GraphQL.Server.Transports.AspNetCore
 {
@@ -111,12 +108,11 @@ namespace GraphQL.Server.Transports.AspNetCore
                 }
             }
 
-            // If we don't have a batch request, parse the URL too to determine the actual request to run
-            // Querystring params take priority
+            // If we don't have a batch request, parse the query from URL too to determine the actual request to run.
+            // Query string params take priority.
             GraphQLRequest gqlRequest = null;
             if (bodyGQLBatchRequest == null)
             {
-                // Parse URL
                 var urlGQLRequest = DeserializeFromQueryString(httpRequest.Query);
 
                 gqlRequest = new GraphQLRequest

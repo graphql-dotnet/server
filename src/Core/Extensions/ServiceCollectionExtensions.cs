@@ -1,11 +1,11 @@
 using System;
+using GraphQL;
 using GraphQL.Instrumentation;
-using GraphQL.Server.Internal;
-using Microsoft.Extensions.DependencyInjection;
+using GraphQL.Server;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 
-namespace GraphQL.Server
+namespace Microsoft.Extensions.DependencyInjection
 {
     /// <summary>
     /// Extension methods for <see cref="IServiceCollection"/> to add GraphQL execution engine.
@@ -48,7 +48,7 @@ namespace GraphQL.Server
                 throw new ArgumentNullException(nameof(configureOptions));
 
             // This is used instead of "normal" services.Configure(configureOptions) to pass IServiceProvider to user code.
-            services.AddSingleton<IConfigureOptions<GraphQLOptions>>(x => new ConfigureNamedOptions<GraphQLOptions>(Options.DefaultName, opt => configureOptions(opt, x)));
+            services.AddSingleton<IConfigureOptions<GraphQLOptions>>(x => new ConfigureNamedOptions<GraphQLOptions>(Options.Options.DefaultName, opt => configureOptions(opt, x)));
             services.TryAddSingleton<InstrumentFieldsMiddleware>();
             services.TryAddSingleton<IDocumentExecuter, DocumentExecuter>();
             services.TryAddTransient(typeof(IGraphQLExecuter<>), typeof(DefaultGraphQLExecuter<>));

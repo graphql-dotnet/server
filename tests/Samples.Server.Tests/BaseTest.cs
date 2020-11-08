@@ -4,8 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using GraphQL.Samples.Server;
 using GraphQL.Server;
-using GraphQL.Server.Common;
-using GraphQL.Server.Transports.AspNetCore.Common;
+using GraphQL.Server.Transports.AspNetCore;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Hosting;
 

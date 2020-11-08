@@ -2,8 +2,6 @@
   
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <AssemblyName>GraphQL.Server.Transports.WebSockets</AssemblyName>
-    <RootNamespace>GraphQL.Server.Transports.WebSockets</RootNamespace>
     <Description>WebSockets transport for subscriptions</Description>
     <PackageTags>GraphQL WebSockets subscriptions transport</PackageTags>
   </PropertyGroup>

@@ -1,6 +1,6 @@
+using System.Collections.Generic;
 using GraphQL.Builders;
 using GraphQL.Types;
-using System.Collections.Generic;
 
 namespace GraphQL.Server.Authorization.AspNetCore
 {

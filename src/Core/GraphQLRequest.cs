@@ -1,4 +1,4 @@
-namespace GraphQL.Server.Common
+namespace GraphQL.Server
 {
     /// <summary>
     /// Represents data sent by client to GraphQL server.

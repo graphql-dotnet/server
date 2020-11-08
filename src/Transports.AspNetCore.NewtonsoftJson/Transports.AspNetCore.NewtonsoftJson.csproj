@@ -2,9 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <AssemblyName>GraphQL.Server.Transports.AspNetCore.NewtonsoftJson</AssemblyName>
-    <RootNamespace>GraphQL.Server.Transports.AspNetCore.NewtonsoftJson</RootNamespace>
-    <PackageId>GraphQL.Server.Transports.AspNetCore.NewtonsoftJson</PackageId>
     <PackageTags>GraphQL middleware AspNetCore NewtonsoftJson</PackageTags>
     <Description>GraphQL middleware using Newtonsoft.Json for serialization</Description>
   </PropertyGroup>

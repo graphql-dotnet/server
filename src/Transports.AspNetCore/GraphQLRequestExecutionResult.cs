@@ -1,7 +1,6 @@
-using GraphQL.Server.Common;
 using System;
 
-namespace GraphQL.Server.Transports.AspNetCore.Common
+namespace GraphQL.Server.Transports.AspNetCore
 {
     /// <summary>
     /// Represents the result of a GraphQL operation. Single GraphQL request may contain several operations, that is, be a batched request.

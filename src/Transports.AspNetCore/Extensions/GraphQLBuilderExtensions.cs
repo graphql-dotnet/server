@@ -1,10 +1,9 @@
-﻿using GraphQL.Server.Transports.AspNetCore;
-using GraphQL.Server.Transports.AspNetCore.Internal;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using GraphQL.Server.Transports.AspNetCore;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace GraphQL.Server
 {

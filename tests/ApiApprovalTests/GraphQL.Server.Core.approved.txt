@@ -1,20 +1,13 @@
-namespace GraphQL.Server.Common
-{
-    public class GraphQLRequest
-    {
-        public const string EXTENSIONS_KEY = "extensions";
-        public const string OPERATION_NAME_KEY = "operationName";
-        public const string QUERY_KEY = "query";
-        public const string VARIABLES_KEY = "variables";
-        public GraphQLRequest() { }
-        public GraphQL.Inputs Extensions { get; set; }
-        public GraphQL.Inputs Inputs { get; set; }
-        public string OperationName { get; set; }
-        public string Query { get; set; }
-    }
-}
 namespace GraphQL.Server
 {
+    public class DefaultGraphQLExecuter<TSchema> : GraphQL.Server.IGraphQLExecuter, GraphQL.Server.IGraphQLExecuter<TSchema>
+        where TSchema : GraphQL.Types.ISchema
+    {
+        public DefaultGraphQLExecuter(TSchema schema, GraphQL.IDocumentExecuter documentExecuter, Microsoft.Extensions.Options.IOptions<GraphQL.Server.GraphQLOptions> options, System.Collections.Generic.IEnumerable<GraphQL.Execution.IDocumentExecutionListener> listeners, System.Collections.Generic.IEnumerable<GraphQL.Validation.IValidationRule> validationRules) { }
+        public TSchema Schema { get; }
+        public virtual System.Threading.Tasks.Task<GraphQL.ExecutionResult> ExecuteAsync(string operationName, string query, GraphQL.Inputs variables, System.Collections.Generic.IDictionary<string, object> context, System.IServiceProvider requestServices, System.Threading.CancellationToken cancellationToken = default) { }
+        protected virtual GraphQL.ExecutionOptions GetOptions(string operationName, string query, GraphQL.Inputs variables, System.Collections.Generic.IDictionary<string, object> context, System.IServiceProvider requestServices, System.Threading.CancellationToken cancellationToken) { }
+    }
     public static class GraphQLBuilderExtensions
     {
         public static GraphQL.Server.IGraphQLBuilder AddDataLoader(this GraphQL.Server.IGraphQLBuilder builder) { }
@@ -35,34 +28,38 @@ namespace GraphQL.Server
         public GraphQL.Conversion.INameConverter NameConverter { get; set; }
         public GraphQL.Introspection.ISchemaFilter SchemaFilter { get; set; }
     }
+    public class GraphQLRequest
+    {
+        public const string EXTENSIONS_KEY = "extensions";
+        public const string OPERATION_NAME_KEY = "operationName";
+        public const string QUERY_KEY = "query";
+        public const string VARIABLES_KEY = "variables";
+        public GraphQLRequest() { }
+        public GraphQL.Inputs Extensions { get; set; }
+        public GraphQL.Inputs Inputs { get; set; }
+        public string OperationName { get; set; }
+        public string Query { get; set; }
+    }
     public interface IGraphQLBuilder
     {
         Microsoft.Extensions.DependencyInjection.IServiceCollection Services { get; }
-    }
-    public static class ServiceCollectionExtensions
-    {
-        public static GraphQL.Server.IGraphQLBuilder AddGraphQL(this Microsoft.Extensions.DependencyInjection.IServiceCollection services) { }
-        public static GraphQL.Server.IGraphQLBuilder AddGraphQL(this Microsoft.Extensions.DependencyInjection.IServiceCollection services, System.Action<GraphQL.Server.GraphQLOptions> configureOptions) { }
-        public static GraphQL.Server.IGraphQLBuilder AddGraphQL(this Microsoft.Extensions.DependencyInjection.IServiceCollection services, System.Action<GraphQL.Server.GraphQLOptions, System.IServiceProvider> configureOptions) { }
-    }
-}
-namespace GraphQL.Server.Internal
-{
-    public class DefaultGraphQLExecuter<TSchema> : GraphQL.Server.Internal.IGraphQLExecuter, GraphQL.Server.Internal.IGraphQLExecuter<TSchema>
-        where TSchema : GraphQL.Types.ISchema
-    {
-        public DefaultGraphQLExecuter(TSchema schema, GraphQL.IDocumentExecuter documentExecuter, Microsoft.Extensions.Options.IOptions<GraphQL.Server.GraphQLOptions> options, System.Collections.Generic.IEnumerable<GraphQL.Execution.IDocumentExecutionListener> listeners, System.Collections.Generic.IEnumerable<GraphQL.Validation.IValidationRule> validationRules) { }
-        public TSchema Schema { get; }
-        public virtual System.Threading.Tasks.Task<GraphQL.ExecutionResult> ExecuteAsync(string operationName, string query, GraphQL.Inputs variables, System.Collections.Generic.IDictionary<string, object> context, System.IServiceProvider requestServices, System.Threading.CancellationToken cancellationToken = default) { }
-        protected virtual GraphQL.ExecutionOptions GetOptions(string operationName, string query, GraphQL.Inputs variables, System.Collections.Generic.IDictionary<string, object> context, System.IServiceProvider requestServices, System.Threading.CancellationToken cancellationToken) { }
     }
     public interface IGraphQLExecuter
     {
         System.Threading.Tasks.Task<GraphQL.ExecutionResult> ExecuteAsync(string operationName, string query, GraphQL.Inputs variables, System.Collections.Generic.IDictionary<string, object> context, System.IServiceProvider requestServices, System.Threading.CancellationToken cancellationToken = default);
     }
-    public interface IGraphQLExecuter<TSchema> : GraphQL.Server.Internal.IGraphQLExecuter
+    public interface IGraphQLExecuter<TSchema> : GraphQL.Server.IGraphQLExecuter
         where TSchema : GraphQL.Types.ISchema
     {
         TSchema Schema { get; }
+    }
+}
+namespace Microsoft.Extensions.DependencyInjection
+{
+    public static class ServiceCollectionExtensions
+    {
+        public static GraphQL.Server.IGraphQLBuilder AddGraphQL(this Microsoft.Extensions.DependencyInjection.IServiceCollection services) { }
+        public static GraphQL.Server.IGraphQLBuilder AddGraphQL(this Microsoft.Extensions.DependencyInjection.IServiceCollection services, System.Action<GraphQL.Server.GraphQLOptions> configureOptions) { }
+        public static GraphQL.Server.IGraphQLBuilder AddGraphQL(this Microsoft.Extensions.DependencyInjection.IServiceCollection services, System.Action<GraphQL.Server.GraphQLOptions, System.IServiceProvider> configureOptions) { }
     }
 }

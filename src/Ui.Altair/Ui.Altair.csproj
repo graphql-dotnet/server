@@ -2,11 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <AssemblyName>GraphQL.Server.Ui.Altair</AssemblyName>
-    <RootNamespace>GraphQL.Server.Ui.Altair</RootNamespace>
     <Description>Altair GraphQL extension</Description>
     <PackageTags>Altair GraphQL</PackageTags>
-    <PackageId>GraphQL.Server.Ui.Altair</PackageId>
   </PropertyGroup>
 
   <ItemGroup>

@@ -11,7 +11,7 @@ using GraphQL.Types;
 using GraphQL.Validation;
 using Microsoft.Extensions.Options;
 
-namespace GraphQL.Server.Internal
+namespace GraphQL.Server
 {
     public class DefaultGraphQLExecuter<TSchema> : IGraphQLExecuter<TSchema>
         where TSchema : ISchema

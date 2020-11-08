@@ -2,7 +2,6 @@
   
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <AssemblyName>GraphQL.Server.Core</AssemblyName>
     <RootNamespace>GraphQL.Server</RootNamespace>
     <Description>GraphQL Server Core</Description>
     <PackageTags>GraphQL transport server</PackageTags>

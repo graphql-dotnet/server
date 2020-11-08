@@ -2,11 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <AssemblyName>GraphQL.Server.Ui.Playground</AssemblyName>
-    <RootNamespace>GraphQL.Server.Ui.Playground</RootNamespace>
     <Description>GraphQL Playground extension</Description>
     <PackageTags>GraphQL Playground</PackageTags>
-    <PackageId>GraphQL.Server.Ui.Playground</PackageId>
   </PropertyGroup>
 
   <ItemGroup>
