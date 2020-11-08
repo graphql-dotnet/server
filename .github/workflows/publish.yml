@@ -5,13 +5,13 @@ on:
     types:
       - published
 
-env:
-  DOTNET_NOLOGO: true
-  DOTNET_CLI_TELEMETRY_OPTOUT: true
-  
+ 
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
     steps:
       - uses: actions/checkout@v2
       - name: Check github.ref starts with 'refs/tags/'
@@ -63,6 +63,6 @@ jobs:
                 repo,
                 release_id: ${{ github.event.release.id }},
                 name: file,
-                data: await fs.readFile(`src/out/${file}`)
+                data: await fs.readFile(`out/${file}`)
               });
             }

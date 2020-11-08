@@ -15,7 +15,9 @@ using System.Threading.Tasks;
 namespace GraphQL.Server.Transports.AspNetCore
 {
     /// <summary>
-    /// ASP.NET Core middleware for processing GraphQL requests.
+    /// ASP.NET Core middleware for processing GraphQL requests. Can processes both single and batch requests.
+    /// See <see href="https://www.apollographql.com/blog/query-batching-in-apollo-63acfd859862/">Transport-level batching</see>
+    /// for more information.
     /// <br/><br/>
     /// GraphQL over HTTP <see href="https://github.com/APIs-guru/graphql-over-http">spec</see> says:
     /// GET requests can be used for executing ONLY queries. If the values of query and operationName indicates that
@@ -137,6 +139,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             if (bodyGQLBatchRequest == null)
             {
                 var stopwatch = ValueStopwatch.StartNew();
+                await RequestExecutingAsync(gqlRequest);
                 var result = await ExecuteRequestAsync(gqlRequest, userContext, executer, context.RequestServices, cancellationToken);
 
                 await RequestExecutedAsync(new GraphQLRequestExecutionResult(gqlRequest, result, stopwatch.Elapsed));
@@ -152,7 +155,8 @@ namespace GraphQL.Server.Transports.AspNetCore
                     var gqlRequestInBatch = bodyGQLBatchRequest[i];
 
                     var stopwatch = ValueStopwatch.StartNew();
-                    var result = await ExecuteRequestAsync(gqlRequestInBatch, userContext, executer,context.RequestServices, cancellationToken);
+                    await RequestExecutingAsync(gqlRequestInBatch, i);
+                    var result = await ExecuteRequestAsync(gqlRequestInBatch, userContext, executer, context.RequestServices, cancellationToken);
 
                     await RequestExecutedAsync(new GraphQLRequestExecutionResult(gqlRequestInBatch, result, stopwatch.Elapsed, i));
 
@@ -173,6 +177,12 @@ namespace GraphQL.Server.Transports.AspNetCore
                 token);
 
         protected virtual CancellationToken GetCancellationToken(HttpContext context) => context.RequestAborted;
+
+        protected virtual Task RequestExecutingAsync(GraphQLRequest request, int? indexInBatch = null)
+        {
+            // nothing to do in this middleware
+            return Task.CompletedTask;
+        }
 
         protected virtual Task RequestExecutedAsync(in GraphQLRequestExecutionResult requestExecutionResult)
         {
