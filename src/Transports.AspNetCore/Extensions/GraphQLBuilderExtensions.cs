@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using GraphQL.Server.Transports.AspNetCore;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace GraphQL.Server
 {
@@ -49,6 +51,19 @@ namespace GraphQL.Server
             where TUserContext : class, IDictionary<string, object>
         {
             builder.Services.AddSingleton<IUserContextBuilder>(new UserContextBuilder<TUserContext>(creator));
+
+            return builder;
+        }
+
+        /// <summary>
+        /// Set up default policy for matching endpoints. It is required when both GraphQL HTTP and
+        /// GraphQL WebSockets middlewares are mapped to the same endpoint (by default 'graphql').
+        /// </summary>
+        /// <param name="builder">The GraphQL builder.</param>
+        /// <returns>The GraphQL builder.</returns>
+        public static IGraphQLBuilder AddDefaultEndpointSelectorPolicy(this IGraphQLBuilder builder)
+        {
+            builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<MatcherPolicy, GraphQLDefaultEndpointSelectorPolicy>());
 
             return builder;
         }

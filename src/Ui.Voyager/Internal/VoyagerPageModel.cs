@@ -6,13 +6,13 @@ using System.Text.Json;
 namespace GraphQL.Server.Ui.Voyager.Internal
 {
     // https://docs.microsoft.com/en-us/aspnet/core/mvc/razor-pages/?tabs=netcore-cli
-    internal class VoyagerPageModel
+    internal sealed class VoyagerPageModel
     {
         private string _voyagerCSHtml;
 
-        private readonly GraphQLVoyagerOptions _options;
+        private readonly VoyagerOptions _options;
 
-        public VoyagerPageModel(GraphQLVoyagerOptions options)
+        public VoyagerPageModel(VoyagerOptions options)
         {
             _options = options;
         }

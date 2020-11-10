@@ -5,27 +5,27 @@ using Microsoft.AspNetCore.Http;
 namespace GraphQL.Server.Ui.Playground
 {
     /// <summary>
-    /// Options to customize <see cref="PlaygroundMiddleware"/>
+    /// Options to customize <see cref="PlaygroundMiddleware"/>.
     /// </summary>
-    public class GraphQLPlaygroundOptions
+    public class PlaygroundOptions
     {
         /// <summary>
-        /// The Playground EndPoint to listen
-        /// </summary>
-        public PathString Path { get; set; } = "/ui/playground";
-
-        /// <summary>
-        /// The GraphQL EndPoint
+        /// The GraphQL EndPoint.
         /// </summary>
         public PathString GraphQLEndPoint { get; set; } = "/graphql";
 
         /// <summary>
-        /// The GraphQL Config
+        /// Subscriptions EndPoint.
+        /// </summary>
+        public PathString SubscriptionsEndPoint { get; set; } = "/graphql";
+
+        /// <summary>
+        /// The GraphQL configuration.
         /// </summary>
         public Dictionary<string, object> GraphQLConfig { get; set; }
 
         /// <summary>
-        /// HTTP Headers with which the GraphQL Playground will be initialized
+        /// HTTP headers with which the GraphQL Playground will be initialized.
         /// </summary>
         public Dictionary<string, object> Headers { get; set; }
       
@@ -43,7 +43,7 @@ namespace GraphQL.Server.Ui.Playground
         }
 
         /// <summary>
-        /// Source Code Pro, Consolas, Inconsolata, Droid Sans Mono, Monaco, monospace
+        /// Source Code Pro, Consolas, Inconsolata, Droid Sans Mono, Monaco, monospace.
         /// </summary>
         public string EditorFontFamily
         {
@@ -58,7 +58,7 @@ namespace GraphQL.Server.Ui.Playground
         }
 
         /// <summary>
-        /// New tab reuses headers from last tab
+        /// New tab reuses headers from last tab.
         /// </summary>
         public bool EditorReuseHeaders
         {
@@ -115,7 +115,7 @@ namespace GraphQL.Server.Ui.Playground
         }
 
         /// <summary>
-        /// Enables automatic schema polling
+        /// Enables automatic schema polling.
         /// </summary>
         public bool SchemaPollingEnabled
         {
@@ -124,7 +124,7 @@ namespace GraphQL.Server.Ui.Playground
         }
 
         /// <summary>
-        /// Endpoint filter for schema polling, for example *localhost*
+        /// Endpoint filter for schema polling, for example *localhost*.
         /// </summary>
         public string SchemaPollingEndpointFilter
         {
@@ -133,7 +133,7 @@ namespace GraphQL.Server.Ui.Playground
         }
 
         /// <summary>
-        /// Schema polling interval in ms
+        /// Schema polling interval in ms.
         /// </summary>
         public int SchemaPollingInterval
         {

@@ -17,9 +17,8 @@ namespace GraphQL.Samples.Server
         public GraphQLHttpMiddlewareWithLogs(
             ILogger<GraphQLHttpMiddleware<TSchema>> logger,
             RequestDelegate next,
-            PathString path,
             IGraphQLRequestDeserializer requestDeserializer)
-            : base(next, path, requestDeserializer)
+            : base(next, requestDeserializer)
         {
             _logger = logger;
         }

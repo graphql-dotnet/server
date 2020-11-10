@@ -1,16 +1,16 @@
+using System.Collections.Generic;
 using GraphQL.Samples.Schemas.Chat;
 using GraphQL.Server;
+using GraphQL.Server.Ui.Altair;
 using GraphQL.Server.Ui.GraphiQL;
 using GraphQL.Server.Ui.Playground;
-using GraphQL.Server.Ui.Altair;
 using GraphQL.Server.Ui.Voyager;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System.Collections.Generic;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace GraphQL.Samples.Server
 {
@@ -36,7 +36,7 @@ namespace GraphQL.Samples.Server
                 {
                     options.EnableMetrics = Environment.IsDevelopment();
                     var logger = provider.GetRequiredService<ILogger<Startup>>();
-                    options.UnhandledExceptionDelegate = ctx => logger.LogError("{Error} occured", ctx.OriginalException.Message);
+                    options.UnhandledExceptionDelegate = ctx => logger.LogError("{Error} occurred", ctx.OriginalException.Message);
                 })
                 .AddSystemTextJson(deserializerSettings => { }, serializerSettings => { })
                 .AddErrorInfoProvider(opt => opt.ExposeExceptionStackTrace = Environment.IsDevelopment())
@@ -52,13 +52,12 @@ namespace GraphQL.Samples.Server
                 app.UseDeveloperExceptionPage();
 
             app.UseWebSockets();
-            app.UseGraphQLWebSockets<ChatSchema>("/graphql");
 
-            app.UseGraphQL<ChatSchema, GraphQLHttpMiddlewareWithLogs<ChatSchema>>("/graphql");
-            
-            app.UseGraphQLPlayground(new GraphQLPlaygroundOptions
+            app.UseGraphQLWebSockets<ChatSchema>();
+            app.UseGraphQL<ChatSchema, GraphQLHttpMiddlewareWithLogs<ChatSchema>>();
+
+            app.UseGraphQLPlayground(new PlaygroundOptions
             {
-                Path = "/ui/playground",
                 BetaUpdates = true,
                 RequestCredentials = RequestCredentials.Omit,
                 HideTracingResponse = false,
@@ -85,26 +84,24 @@ namespace GraphQL.Samples.Server
                 },
             });
 
-            app.UseGraphiQLServer(new GraphiQLOptions
+            app.UseGraphQLGraphiQL(new GraphiQLOptions
             {
-                Path = "/ui/graphiql",
-                GraphQLEndPoint = "/graphql",
-            });
-
-            app.UseGraphQLAltair(new GraphQLAltairOptions
-            {
-                Path = "/ui/altair",
-                GraphQLEndPoint = "/graphql",
                 Headers = new Dictionary<string, string>
                 {
                     ["X-api-token"] = "130fh9823bd023hd892d0j238dh",
                 }
             });
 
-            app.UseGraphQLVoyager(new GraphQLVoyagerOptions
+            app.UseGraphQLAltair(new AltairOptions
             {
-                Path = "/ui/voyager",
-                GraphQLEndPoint = "/graphql",
+                Headers = new Dictionary<string, string>
+                {
+                    ["X-api-token"] = "130fh9823bd023hd892d0j238dh",
+                }
+            });
+
+            app.UseGraphQLVoyager(new VoyagerOptions
+            {
                 Headers = new Dictionary<string, object>
                 {
                     ["MyHeader1"] = "MyValue",

@@ -1,20 +1,26 @@
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 
 namespace GraphQL.Server.Ui.GraphiQL
 {
     /// <summary>
-    /// Options to customize the <see cref="GraphiQLMiddleware"/>
+    /// Options to customize the <see cref="GraphiQLMiddleware"/>.
     /// </summary>
     public class GraphiQLOptions
     {
         /// <summary>
-        /// The GraphiQL Endpoint to listen
-        /// </summary>
-        public PathString Path { get; set; } = "/ui/graphiql";
-
-        /// <summary>
-        /// The GraphQL EndPoint
+        /// The GraphQL EndPoint.
         /// </summary>
         public PathString GraphQLEndPoint { get; set; } = "/graphql";
+
+        /// <summary>
+        /// Subscriptions EndPoint.
+        /// </summary>
+        public PathString SubscriptionsEndPoint { get; set; } = "/graphql";
+
+        /// <summary>
+        /// HTTP headers with which the GraphiQL will be initialized.
+        /// </summary>
+        public Dictionary<string, string> Headers { get; set; }
     }
 }

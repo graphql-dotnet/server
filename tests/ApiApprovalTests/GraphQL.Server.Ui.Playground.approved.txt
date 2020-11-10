@@ -11,9 +11,14 @@ namespace GraphQL.Server.Ui.Playground
         Dark = 0,
         Light = 1,
     }
-    public class GraphQLPlaygroundOptions
+    public class PlaygroundMiddleware
     {
-        public GraphQLPlaygroundOptions() { }
+        public PlaygroundMiddleware(Microsoft.AspNetCore.Http.RequestDelegate next, GraphQL.Server.Ui.Playground.PlaygroundOptions options) { }
+        public System.Threading.Tasks.Task Invoke(Microsoft.AspNetCore.Http.HttpContext httpContext) { }
+    }
+    public class PlaygroundOptions
+    {
+        public PlaygroundOptions() { }
         public bool BetaUpdates { get; set; }
         public GraphQL.Server.Ui.Playground.EditorCursorShape EditorCursorShape { get; set; }
         public string EditorFontFamily { get; set; }
@@ -24,7 +29,6 @@ namespace GraphQL.Server.Ui.Playground
         public Microsoft.AspNetCore.Http.PathString GraphQLEndPoint { get; set; }
         public System.Collections.Generic.Dictionary<string, object> Headers { get; set; }
         public bool HideTracingResponse { get; set; }
-        public Microsoft.AspNetCore.Http.PathString Path { get; set; }
         public System.Collections.Generic.Dictionary<string, object> PlaygroundSettings { get; set; }
         public int PrettierPrintWidth { get; set; }
         public int PrettierTabWidth { get; set; }
@@ -34,11 +38,7 @@ namespace GraphQL.Server.Ui.Playground
         public bool SchemaPollingEnabled { get; set; }
         public string SchemaPollingEndpointFilter { get; set; }
         public int SchemaPollingInterval { get; set; }
-    }
-    public class PlaygroundMiddleware
-    {
-        public PlaygroundMiddleware(Microsoft.AspNetCore.Http.RequestDelegate nextMiddleware, GraphQL.Server.Ui.Playground.GraphQLPlaygroundOptions options) { }
-        public System.Threading.Tasks.Task Invoke(Microsoft.AspNetCore.Http.HttpContext httpContext) { }
+        public Microsoft.AspNetCore.Http.PathString SubscriptionsEndPoint { get; set; }
     }
     public enum RequestCredentials
     {
@@ -49,8 +49,18 @@ namespace GraphQL.Server.Ui.Playground
 }
 namespace Microsoft.AspNetCore.Builder
 {
-    public static class PlaygroundExtensions
+    public static class PlaygroundApplicationBuilderExtensions
     {
-        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQLPlayground(this Microsoft.AspNetCore.Builder.IApplicationBuilder app, GraphQL.Server.Ui.Playground.GraphQLPlaygroundOptions options = null) { }
+        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQLPlayground(this Microsoft.AspNetCore.Builder.IApplicationBuilder app, string path = "/ui/playground") { }
+        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQLPlayground(this Microsoft.AspNetCore.Builder.IApplicationBuilder app, GraphQL.Server.Ui.Playground.PlaygroundOptions options, string path = "/ui/playground") { }
+    }
+    public class PlaygroundEndpointConventionBuilder : Microsoft.AspNetCore.Builder.IEndpointConventionBuilder
+    {
+        public void Add(System.Action<Microsoft.AspNetCore.Builder.EndpointBuilder> convention) { }
+    }
+    public static class PlaygroundEndpointRouteBuilderExtensions
+    {
+        public static Microsoft.AspNetCore.Builder.PlaygroundEndpointConventionBuilder MapGraphQLPlayground(this Microsoft.AspNetCore.Routing.IEndpointRouteBuilder endpoints, string pattern = "ui/playground") { }
+        public static Microsoft.AspNetCore.Builder.PlaygroundEndpointConventionBuilder MapGraphQLPlayground(this Microsoft.AspNetCore.Routing.IEndpointRouteBuilder endpoints, GraphQL.Server.Ui.Playground.PlaygroundOptions options, string pattern = "ui/playground") { }
     }
 }
