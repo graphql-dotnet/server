@@ -61,7 +61,7 @@
     <SerilogVersion>2.10.0</SerilogVersion>
     <SerilogAspNetCoreVersion>2.1.1</SerilogAspNetCoreVersion>
     <SerilogSinksConsoleVersion>3.1.1</SerilogSinksConsoleVersion>
-    <SystemThreadingTasksDataflowVersion>4.9.0</SystemThreadingTasksDataflowVersion>
+    <SystemThreadingTasksDataflowVersion>5.0.0</SystemThreadingTasksDataflowVersion>
   </PropertyGroup>
 
 </Project>
