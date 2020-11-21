@@ -39,10 +39,10 @@
 	  copy them directly into your environment, or perhaps include them in your
 	  favored resource bundler.
 	 -->
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/graphiql/0.13.0/graphiql.min.css" />
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/graphiql/0.13.0/graphiql.min.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/graphiql/1.0.6/graphiql.min.css" />
+	<script src="https://cdn.jsdelivr.net/npm/graphiql-with-extensions@0.14.3/graphiqlWithExtensions.min.js"></script>
 
-	<script src="https://unpkg.com/subscriptions-transport-ws@0.8.3/browser/client.js"></script>
+	<script src="https://unpkg.com/subscriptions-transport-ws@0.9.18/browser/client.js"></script>
 	<script src="https://unpkg.com/graphiql-subscriptions-fetcher@0.0.2/browser/client.js"></script>
 
 </head>
@@ -142,7 +142,7 @@
 		// how you can customize GraphiQL by providing different values or
 		// additional child elements.
 		ReactDOM.render(
-			React.createElement(GraphiQL, {
+			React.createElement(GraphiQLWithExtensions.GraphiQLWithExtensions, {
 				fetcher: subscriptionsFetcher,
 				query: parameters.query,
 				variables: parameters.variables,
