@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace GraphQL.Server
 {
-    public static class GraphQLBuilderExtensions
+    public static class GraphQLBuilderSystemTextJsonExtensions
     {
         /// <summary>
         /// Adds a <see cref="IGraphQLRequestDeserializer"/> and a <see cref="IDocumentWriter"/>

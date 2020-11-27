@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace GraphQL.Server
 {
-    public static class GraphQLBuilderExtensions
+    public static class GraphQLBuilderWebSocketsExtensions
     {
         /// <summary>
         /// Add required services for GraphQL web sockets

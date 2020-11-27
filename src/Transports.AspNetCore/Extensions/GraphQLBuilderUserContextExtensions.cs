@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace GraphQL.Server
 {
-    public static class GraphQLBuilderExtensions
+    public static class GraphQLBuilderUserContextExtensions
     {
         /// <summary>
         /// Adds an <see cref="IUserContextBuilder"/> as a singleton.
