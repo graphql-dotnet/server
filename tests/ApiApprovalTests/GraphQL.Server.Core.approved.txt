@@ -8,7 +8,7 @@ namespace GraphQL.Server
         public virtual System.Threading.Tasks.Task<GraphQL.ExecutionResult> ExecuteAsync(string operationName, string query, GraphQL.Inputs variables, System.Collections.Generic.IDictionary<string, object> context, System.IServiceProvider requestServices, System.Threading.CancellationToken cancellationToken = default) { }
         protected virtual GraphQL.ExecutionOptions GetOptions(string operationName, string query, GraphQL.Inputs variables, System.Collections.Generic.IDictionary<string, object> context, System.IServiceProvider requestServices, System.Threading.CancellationToken cancellationToken) { }
     }
-    public static class GraphQLBuilderExtensions
+    public static class GraphQLBuilderCoreExtensions
     {
         public static GraphQL.Server.IGraphQLBuilder AddDataLoader(this GraphQL.Server.IGraphQLBuilder builder) { }
         public static GraphQL.Server.IGraphQLBuilder AddErrorInfoProvider(this GraphQL.Server.IGraphQLBuilder builder, System.Action<GraphQL.Execution.ErrorInfoProviderOptions> configureOptions) { }

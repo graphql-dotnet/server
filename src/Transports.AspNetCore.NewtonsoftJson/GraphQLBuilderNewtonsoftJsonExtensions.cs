@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 
 namespace GraphQL.Server
 {
-    public static class GraphQLBuilderExtensions
+    public static class GraphQLBuilderNewtonsoftJsonExtensions
     {
         /// <summary>
         /// Adds a <see cref="IGraphQLRequestDeserializer"/> and a <see cref="IDocumentWriter"/>

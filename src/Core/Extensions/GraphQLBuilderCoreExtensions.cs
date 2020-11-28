@@ -14,7 +14,7 @@ namespace GraphQL.Server
     /// <summary>
     /// GraphQL specific extension methods for <see cref="IGraphQLBuilder"/>.
     /// </summary>
-    public static class GraphQLBuilderExtensions
+    public static class GraphQLBuilderCoreExtensions
     {
         // Provides integration with Microsoft.Extensions.Options so the caller may use services.Configure<ErrorInfoProviderOptions>(...)
         private sealed class InternalErrorInfoProvider : ErrorInfoProvider

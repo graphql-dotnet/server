@@ -1,6 +1,6 @@
 namespace GraphQL.Server
 {
-    public static class GraphQLBuilderExtensions
+    public static class GraphQLBuilderUserContextExtensions
     {
         public static GraphQL.Server.IGraphQLBuilder AddDefaultEndpointSelectorPolicy(this GraphQL.Server.IGraphQLBuilder builder) { }
         public static GraphQL.Server.IGraphQLBuilder AddUserContextBuilder<TUserContextBuilder>(this GraphQL.Server.IGraphQLBuilder builder)
