@@ -16,7 +16,7 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
-      "applicationUrl": "http://localhost:60341/"
+      "applicationUrl": "http://localhost:60342/"
     },
     "Altair": {
       "commandName": "Project",
@@ -25,7 +25,7 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
-      "applicationUrl": "http://localhost:60341/"
+      "applicationUrl": "http://localhost:60343/"
     },
     "Voyager": {
       "commandName": "Project",
@@ -34,7 +34,7 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
-      "applicationUrl": "http://localhost:60341/"
+      "applicationUrl": "http://localhost:60344/"
     }
   }
 }
