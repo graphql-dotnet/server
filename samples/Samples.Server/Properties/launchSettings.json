@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "Playgroud": {
+    "Playground": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "ui/playground",
