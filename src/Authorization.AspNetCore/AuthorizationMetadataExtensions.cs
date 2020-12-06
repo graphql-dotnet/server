@@ -4,6 +4,9 @@ using System.Collections.Generic;
 
 namespace GraphQL.Server.Authorization.AspNetCore
 {
+    /// <summary>
+    /// Extension methods for authorizing GraphQL requests.
+    /// </summary>
     public static class AuthorizationMetadataExtensions
     {
         public const string POLICY_KEY = "Authorization__Policies";

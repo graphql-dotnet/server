@@ -1,13 +1,14 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using GraphQL.Language.AST;
 using GraphQL.Types;
 using GraphQL.Validation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Http;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GraphQL.Server.Authorization.AspNetCore
 {
@@ -28,6 +29,8 @@ namespace GraphQL.Server.Authorization.AspNetCore
         {
             return Task.FromResult((INodeVisitor)new EnterLeaveListener(_ =>
             {
+                AuthorizeAsync(null, context.Schema as IProvideMetadata, context, null).GetAwaiter().GetResult();
+
                 var operationType = OperationType.Query;
 
                 // this could leak info about hidden fields or types in error messages
@@ -68,46 +71,47 @@ namespace GraphQL.Server.Authorization.AspNetCore
             }));
         }
 
-        private async Task AuthorizeAsync(
-            INode node,
-            IProvideMetadata type,
-            ValidationContext context,
-            OperationType operationType)
+        private async Task AuthorizeAsync(INode node, IProvideMetadata type, ValidationContext context, OperationType? operationType)
         {
-            if (type == null || !type.RequiresAuthorization())
+            var policyNames = type?.GetPolicies();
+
+            if (policyNames?.Count == 1)
             {
-                return;
+                // small optimization for the single policy - no 'new List<>()', no 'await Task.WhenAll()'
+                var authorizationResult = await _authorizationService.AuthorizeAsync(_httpContextAccessor.HttpContext.User, policyNames[0]);
+                AddValidationError(node, context, operationType, authorizationResult);
+            }
+            else if (policyNames?.Count > 1)
+            {
+                var tasks = new List<Task<AuthorizationResult>>(policyNames.Count);
+                foreach (string policyName in policyNames)
+                {
+                    var task = _authorizationService.AuthorizeAsync(_httpContextAccessor.HttpContext.User, policyName);
+                    tasks.Add(task);
+                }
+
+                var authorizationResults = await Task.WhenAll(tasks);
+
+                foreach (var result in authorizationResults)
+                {
+                    AddValidationError(node, context, operationType, result);
+                }
             }
 
-            var policyNames = type.GetPolicies();
-            if (policyNames.Count == 0)
+            static void AddValidationError(INode node, ValidationContext context, OperationType? operationType, AuthorizationResult result)
             {
-                return;
-            }
-
-            var tasks = new List<Task<AuthorizationResult>>(policyNames.Count);
-            foreach (string policyName in policyNames)
-            {
-                var task = _authorizationService.AuthorizeAsync(_httpContextAccessor.HttpContext.User, policyName);
-                tasks.Add(task);
-            }
-            await Task.WhenAll(tasks);
-
-            foreach (var task in tasks)
-            {
-                var result = task.Result;
                 if (!result.Succeeded)
                 {
-                    var stringBuilder = new StringBuilder("You are not authorized to run this ");
-                    stringBuilder.Append(operationType.ToString().ToLower());
-                    stringBuilder.AppendLine(".");
+                    var error = new StringBuilder("You are not authorized to run this ")
+                                .Append(GetOperationType(operationType))
+                                .Append(".");
 
                     foreach (var failure in result.Failure.FailedRequirements)
                     {
-                        AppendFailureLine(stringBuilder, failure);
+                        AppendFailureLine(error, failure);
                     }
 
-                    context.ReportError(new ValidationError(context.OriginalQuery, "6.1.1", stringBuilder.ToString(), node)
+                    context.ReportError(new ValidationError(context.OriginalQuery, "6.1.1", error.ToString(), node == null ? Array.Empty<INode>() : new INode[] { node })
                     {
                         Code = "authorization",
                     });
@@ -115,61 +119,72 @@ namespace GraphQL.Server.Authorization.AspNetCore
             }
         }
 
-        private static void AppendFailureLine(
-            StringBuilder stringBuilder,
-            IAuthorizationRequirement authorizationRequirement)
+        private static string GetOperationType(OperationType? operationType)
         {
+            return operationType switch
+            {
+                OperationType.Query => "query",
+                OperationType.Mutation => "mutation",
+                OperationType.Subscription => "subscription",
+                _ => "operation",
+            };
+        }
+
+        private static void AppendFailureLine(StringBuilder error, IAuthorizationRequirement authorizationRequirement)
+        {
+            error.AppendLine();
+
             switch (authorizationRequirement)
             {
                 case ClaimsAuthorizationRequirement claimsAuthorizationRequirement:
-                    stringBuilder.Append("Required claim '");
-                    stringBuilder.Append(claimsAuthorizationRequirement.ClaimType);
+                    error.Append("Required claim '");
+                    error.Append(claimsAuthorizationRequirement.ClaimType);
                     if (claimsAuthorizationRequirement.AllowedValues == null || !claimsAuthorizationRequirement.AllowedValues.Any())
                     {
-                        stringBuilder.AppendLine("' is not present.");
+                        error.Append("' is not present.");
                     }
                     else
                     {
-                        stringBuilder.Append("' with any value of '");
-                        stringBuilder.Append(string.Join(", ", claimsAuthorizationRequirement.AllowedValues));
-                        stringBuilder.AppendLine("' is not present.");
+                        error.Append("' with any value of '");
+                        error.Append(string.Join(", ", claimsAuthorizationRequirement.AllowedValues));
+                        error.Append("' is not present.");
                     }
                     break;
 
                 case DenyAnonymousAuthorizationRequirement _:
-                    stringBuilder.AppendLine("The current user must be authenticated.");
+                    error.Append("The current user must be authenticated.");
                     break;
 
                 case NameAuthorizationRequirement nameAuthorizationRequirement:
-                    stringBuilder.Append("The current user name must match the name '");
-                    stringBuilder.Append(nameAuthorizationRequirement.RequiredName);
-                    stringBuilder.AppendLine("'.");
+                    error.Append("The current user name must match the name '");
+                    error.Append(nameAuthorizationRequirement.RequiredName);
+                    error.Append("'.");
                     break;
 
                 case OperationAuthorizationRequirement operationAuthorizationRequirement:
-                    stringBuilder.Append("Required operation '");
-                    stringBuilder.Append(operationAuthorizationRequirement.Name);
-                    stringBuilder.AppendLine("' was not present.");
+                    error.Append("Required operation '");
+                    error.Append(operationAuthorizationRequirement.Name);
+                    error.Append("' was not present.");
                     break;
 
                 case RolesAuthorizationRequirement rolesAuthorizationRequirement:
                     if (rolesAuthorizationRequirement.AllowedRoles == null || !rolesAuthorizationRequirement.AllowedRoles.Any())
                     {
                         // This should never happen.
-                        stringBuilder.AppendLine("Required roles are not present.");
+                        error.Append("Required roles are not present.");
                     }
                     else
                     {
-                        stringBuilder.Append("Required roles '");
-                        stringBuilder.Append(string.Join(", ", rolesAuthorizationRequirement.AllowedRoles));
-                        stringBuilder.AppendLine("' are not present.");
+                        error.Append("Required roles '");
+                        error.Append(string.Join(", ", rolesAuthorizationRequirement.AllowedRoles));
+                        error.Append("' are not present.");
                     }
                     break;
 
                 default:
-                    stringBuilder.Append("Requirement '");
-                    stringBuilder.Append(authorizationRequirement.GetType().Name);
-                    stringBuilder.AppendLine("' was not satisfied.");
+                    error.Append("Requirement '");
+                    error.Append(authorizationRequirement.GetType().Name);
+                    error.Append("' was not satisfied.");
                     break;
             }
         }
