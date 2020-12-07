@@ -1,155 +1,231 @@
+using System.Collections.Generic;
 using GraphQL.Types;
 using GraphQL.Types.Relay.DataObjects;
-using System.Collections.Generic;
+using Shouldly;
 using Xunit;
 
 namespace GraphQL.Server.Authorization.AspNetCore.Tests
 {
     public class AuthorizationValidationRuleTests : ValidationTestBase
     {
+        // https://github.com/graphql-dotnet/server/issues/463
+        [Fact]
+        public void policy_on_schema_success()
+        {
+            ConfigureAuthorizationOptions(options =>
+            {
+                options.AddPolicy("ClassPolicy", x => x.RequireClaim("admin"));
+                options.AddPolicy("SchemaPolicy", x => x.RequireClaim("some"));
+            });
+
+            ShouldPassRule(config =>
+            {
+                config.Query = @"query { post }";
+                config.Schema = BasicSchema<BasicQueryWithAttributesAndClassPolicy>().AuthorizeWith("SchemaPolicy");
+                config.User = CreatePrincipal(claims: new Dictionary<string, string>
+                {
+                    { "Admin", "true" },
+                    { "some", "abcdef" }
+                });
+            });
+        }
+
+        // https://github.com/graphql-dotnet/server/issues/463
+        [Fact]
+        public void policy_on_schema_fail()
+        {
+            ConfigureAuthorizationOptions(options =>
+            {
+                options.AddPolicy("ClassPolicy", x => x.RequireClaim("admin"));
+                options.AddPolicy("SchemaPolicy", x => x.RequireClaim("some"));
+            });
+
+            ShouldFailRule(config =>
+            {
+                config.Query = @"query { post }";
+                config.Schema = BasicSchema<BasicQueryWithAttributesAndClassPolicy>().AuthorizeWith("SchemaPolicy");
+                config.User = CreatePrincipal(claims: new Dictionary<string, string>
+                {
+                    { "Admin", "true" },
+                });
+                config.ValidateResult = result =>
+                {
+                    result.Errors.Count.ShouldBe(1);
+                    result.Errors[0].Message.ShouldBe(@"You are not authorized to run this operation.
+Required claim 'some' is not present.");
+                };
+            });
+        }
+
         [Fact]
         public void class_policy_success()
         {
-            ConfigureAuthorizationOptions(
-                options => options.AddPolicy("ClassPolicy", x => x.RequireClaim("admin")));
+            ConfigureAuthorizationOptions(options => options.AddPolicy("ClassPolicy", x => x.RequireClaim("admin")));
 
-            ShouldPassRule(_ =>
+            ShouldPassRule(config =>
             {
-                _.Query = @"query { post }";
-                _.Schema = BasicSchema<BasicQueryWithAttributesAndClassPolicy>();
-                _.User = CreatePrincipal(claims: new Dictionary<string, string>
-                    {
-                        { "Admin", "true" }
-                    });
+                config.Query = @"query { post }";
+                config.Schema = BasicSchema<BasicQueryWithAttributesAndClassPolicy>();
+                config.User = CreatePrincipal(claims: new Dictionary<string, string>
+                {
+                    { "Admin", "true" }
+                });
             });
         }
 
         [Fact]
         public void class_policy_fail()
         {
-            ConfigureAuthorizationOptions(
-                options => options.AddPolicy("ClassPolicy", x => x.RequireClaim("admin")));
+            ConfigureAuthorizationOptions(options => options.AddPolicy("ClassPolicy", x => x.RequireClaim("admin")));
 
-            ShouldFailRule(_ =>
+            ShouldFailRule(config =>
             {
-                _.Query = @"query { post }";
-                _.Schema = BasicSchema<BasicQueryWithAttributesAndClassPolicy>();
+                config.Query = @"query { post }";
+                config.Schema = BasicSchema<BasicQueryWithAttributesAndClassPolicy>();
+                config.ValidateResult = result =>
+                {
+                    result.Errors.Count.ShouldBe(1);
+                    result.Errors[0].Message.ShouldBe(@"You are not authorized to run this query.
+Required claim 'admin' is not present.");
+                };
             });
         }
 
         [Fact]
         public void field_policy_success()
         {
-            ConfigureAuthorizationOptions(
-                options => options.AddPolicy("FieldPolicy", x => x.RequireClaim("admin")));
+            ConfigureAuthorizationOptions(options => options.AddPolicy("FieldPolicy", x => x.RequireClaim("admin")));
 
-            ShouldPassRule(_ =>
+            ShouldPassRule(config =>
             {
-                _.Query = @"query { post }";
-                _.Schema = BasicSchema<BasicQueryWithAttributesAndFieldPolicy>();
-                _.User = CreatePrincipal(claims: new Dictionary<string, string>
-                    {
-                        { "Admin", "true" }
-                    });
+                config.Query = @"query { post }";
+                config.Schema = BasicSchema<BasicQueryWithAttributesAndFieldPolicy>();
+                config.User = CreatePrincipal(claims: new Dictionary<string, string>
+                {
+                    { "Admin", "true" }
+                });
             });
         }
 
         [Fact]
         public void field_policy_fail()
         {
-            ConfigureAuthorizationOptions(
-                options => options.AddPolicy("FieldPolicy", x => x.RequireClaim("admin")));
+            ConfigureAuthorizationOptions(options => options.AddPolicy("FieldPolicy", x => x.RequireClaim("admin")));
 
-            ShouldFailRule(_ =>
+            ShouldFailRule(config =>
             {
-                _.Query = @"query { post }";
-                _.Schema = BasicSchema<BasicQueryWithAttributesAndFieldPolicy>();
+                config.Query = @"query { post }";
+                config.Schema = BasicSchema<BasicQueryWithAttributesAndFieldPolicy>();
+                config.ValidateResult = result =>
+                {
+                    result.Errors.Count.ShouldBe(1);
+                    result.Errors[0].Message.ShouldBe(@"You are not authorized to run this query.
+Required claim 'admin' is not present.");
+                };
             });
         }
 
         [Fact]
         public void nested_type_policy_success()
         {
-            ConfigureAuthorizationOptions(
-                options => options.AddPolicy("PostPolicy", x => x.RequireClaim("admin")));
+            ConfigureAuthorizationOptions(options => options.AddPolicy("PostPolicy", x => x.RequireClaim("admin")));
 
-            ShouldPassRule(_ =>
+            ShouldPassRule(config =>
             {
-                _.Query = @"query { post }";
-                _.Schema = NestedSchema();
-                _.User = CreatePrincipal(claims: new Dictionary<string, string>
-                    {
-                        { "Admin", "true" }
-                    });
+                config.Query = @"query { post }";
+                config.Schema = NestedSchema();
+                config.User = CreatePrincipal(claims: new Dictionary<string, string>
+                {
+                    { "Admin", "true" }
+                });
             });
         }
 
         [Fact]
         public void nested_type_policy_fail()
         {
-            ConfigureAuthorizationOptions(
-                options => options.AddPolicy("PostPolicy", x => x.RequireClaim("admin")));
+            ConfigureAuthorizationOptions(options => options.AddPolicy("PostPolicy", x => x.RequireClaim("admin")));
 
-            ShouldFailRule(_ =>
+            ShouldFailRule(config =>
             {
-                _.Query = @"query { post }";
-                _.Schema = NestedSchema();
+                config.Query = @"query { post }";
+                config.Schema = NestedSchema();
+                config.ValidateResult = result =>
+                {
+                    result.Errors.Count.ShouldBe(1);
+                    result.Errors[0].Message.ShouldBe(@"You are not authorized to run this query.
+Required claim 'admin' is not present.");
+                };
             });
         }
 
         [Fact]
         public void passes_with_claim_on_input_type()
         {
-            ConfigureAuthorizationOptions(
-                options => options.AddPolicy("FieldPolicy", x => x.RequireClaim("admin")));
+            ConfigureAuthorizationOptions(options => options.AddPolicy("FieldPolicy", x => x.RequireClaim("admin")));
 
-            ShouldPassRule(_ =>
+            ShouldPassRule(config =>
             {
-                _.Query = @"query { author(input: { name: ""Quinn"" }) }";
-                _.Schema = TypedSchema();
-                _.User = CreatePrincipal(claims: new Dictionary<string, string>
-                    {
-                        { "Admin", "true" }
-                    });
+                config.Query = @"query { author(input: { name: ""Quinn"" }) }";
+                config.Schema = TypedSchema();
+                config.User = CreatePrincipal(claims: new Dictionary<string, string>
+                {
+                    { "Admin", "true" }
+                });
             });
         }
 
         [Fact]
         public void nested_type_list_policy_fail()
         {
-            ConfigureAuthorizationOptions(
-                options => options.AddPolicy("PostPolicy", x => x.RequireClaim("admin")));
+            ConfigureAuthorizationOptions(options => options.AddPolicy("PostPolicy", x => x.RequireClaim("admin")));
 
-            ShouldFailRule(_ =>
+            ShouldFailRule(config =>
             {
-                _.Query = @"query { posts }";
-                _.Schema = NestedSchema();
+                config.Query = @"query { posts }";
+                config.Schema = NestedSchema();
+                config.ValidateResult = result =>
+                {
+                    result.Errors.Count.ShouldBe(1);
+                    result.Errors[0].Message.ShouldBe(@"You are not authorized to run this query.
+Required claim 'admin' is not present.");
+                };
             });
         }
 
         [Fact]
         public void nested_type_list_non_null_policy_fail()
         {
-            ConfigureAuthorizationOptions(
-                options => options.AddPolicy("PostPolicy", x => x.RequireClaim("admin")));
+            ConfigureAuthorizationOptions(options => options.AddPolicy("PostPolicy", x => x.RequireClaim("admin")));
 
-            ShouldFailRule(_ =>
+            ShouldFailRule(config =>
             {
-                _.Query = @"query { postsNonNull }";
-                _.Schema = NestedSchema();
+                config.Query = @"query { postsNonNull }";
+                config.Schema = NestedSchema();
+                config.ValidateResult = result =>
+                {
+                    result.Errors.Count.ShouldBe(1);
+                    result.Errors[0].Message.ShouldBe(@"You are not authorized to run this query.
+Required claim 'admin' is not present.");
+                };
             });
         }
 
         [Fact]
         public void fails_on_missing_claim_on_input_type()
         {
-            ConfigureAuthorizationOptions(
-                options => options.AddPolicy("FieldPolicy", x => x.RequireClaim("admin")));
+            ConfigureAuthorizationOptions(options => options.AddPolicy("FieldPolicy", x => x.RequireClaim("admin")));
 
-            ShouldFailRule(_ =>
+            ShouldFailRule(config =>
             {
-                _.Query = @"query { author(input: { name: ""Quinn"" }) }";
-                _.Schema = TypedSchema();
+                config.Query = @"query { author(input: { name: ""Quinn"" }) }";
+                config.Schema = TypedSchema();
+                config.ValidateResult = result =>
+                {
+                    result.Errors.Count.ShouldBe(1);
+                    result.Errors[0].Message.ShouldBe(@"You are not authorized to run this query.
+Required claim 'admin' is not present.");
+                };
             });
         }
 
@@ -158,11 +234,11 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
         {
             ConfigureAuthorizationOptions(options => options.AddPolicy("ConnectionPolicy", x => x.RequireClaim("admin")));
 
-            ShouldPassRule(_ =>
+            ShouldPassRule(config =>
             {
-                _.Query = @"query { posts { items { id } } }";
-                _.Schema = TypedSchema();
-                _.User = CreatePrincipal(claims: new Dictionary<string, string>
+                config.Query = @"query { posts { items { id } } }";
+                config.Schema = TypedSchema();
+                config.User = CreatePrincipal(claims: new Dictionary<string, string>
                 {
                     { "Admin", "true" }
                 });
@@ -174,11 +250,17 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
         {
             ConfigureAuthorizationOptions(options => options.AddPolicy("ConnectionPolicy", x => x.RequireClaim("admin")));
 
-            ShouldFailRule(_ =>
+            ShouldFailRule(config =>
             {
-                _.Query = @"query { posts { items { id } } }";
-                _.Schema = TypedSchema();
-                _.User = CreatePrincipal();
+                config.Query = @"query { posts { items { id } } }";
+                config.Schema = TypedSchema();
+                config.User = CreatePrincipal();
+                config.ValidateResult = result =>
+                {
+                    result.Errors.Count.ShouldBe(1);
+                    result.Errors[0].Message.ShouldBe(@"You are not authorized to run this query.
+Required claim 'admin' is not present.");
+                };
             });
         }
 
