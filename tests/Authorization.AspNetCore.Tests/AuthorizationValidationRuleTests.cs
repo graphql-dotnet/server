@@ -20,11 +20,8 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
 
             ShouldPassRule(config =>
             {
-                var schema = BasicSchema<BasicQueryWithAttributesAndClassPolicy>();
-                (schema as IProvideMetadata).AuthorizeWith("SchemaPolicy");
-
                 config.Query = @"query { post }";
-                config.Schema = schema;
+                config.Schema = BasicSchema<BasicQueryWithAttributesAndClassPolicy>().AuthorizeWith("SchemaPolicy");
                 config.User = CreatePrincipal(claims: new Dictionary<string, string>
                 {
                     { "Admin", "true" },
@@ -45,11 +42,8 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
 
             ShouldFailRule(config =>
             {
-                var schema = BasicSchema<BasicQueryWithAttributesAndClassPolicy>();
-                (schema as IProvideMetadata).AuthorizeWith("SchemaPolicy");
-
                 config.Query = @"query { post }";
-                config.Schema = schema;
+                config.Schema = BasicSchema<BasicQueryWithAttributesAndClassPolicy>().AuthorizeWith("SchemaPolicy");
                 config.User = CreatePrincipal(claims: new Dictionary<string, string>
                 {
                     { "Admin", "true" },

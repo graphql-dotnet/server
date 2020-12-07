@@ -12,24 +12,32 @@ using Microsoft.AspNetCore.Http;
 
 namespace GraphQL.Server.Authorization.AspNetCore
 {
+    /// <summary>
+    /// GraphQL authorization validation rule which integrates to ASP.NET Core authorization mechanism.
+    /// For more information see https://docs.microsoft.com/en-us/aspnet/core/security/authorization/introduction.
+    /// </summary>
     public class AuthorizationValidationRule : IValidationRule
     {
         private readonly IAuthorizationService _authorizationService;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public AuthorizationValidationRule(
-            IAuthorizationService authorizationService,
-            IHttpContextAccessor httpContextAccessor)
+        /// <summary>
+        /// Creates an instance of <see cref="AuthorizationValidationRule"/>.
+        /// </summary>
+        /// <param name="authorizationService"> ASP.NET Core <see cref="IAuthorizationService"/> to authorize against. </param>
+        /// <param name="httpContextAccessor"> ASP.NET Core <see cref="IHttpContextAccessor"/> to take user (HttpContext.User) from. </param>
+        public AuthorizationValidationRule(IAuthorizationService authorizationService, IHttpContextAccessor httpContextAccessor)
         {
             _authorizationService = authorizationService;
             _httpContextAccessor = httpContextAccessor;
         }
 
+        /// <inheritdoc />
         public Task<INodeVisitor> ValidateAsync(ValidationContext context)
         {
             return Task.FromResult((INodeVisitor)new EnterLeaveListener(_ =>
             {
-                AuthorizeAsync(null, context.Schema as IProvideMetadata, context, null).GetAwaiter().GetResult();
+                AuthorizeAsync(null, context.Schema, context, null).GetAwaiter().GetResult(); // TODO: need to think of something to avoid this
 
                 var operationType = OperationType.Query;
 
@@ -43,7 +51,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
                     operationType = astType.OperationType;
 
                     var type = context.TypeInfo.GetLastType();
-                    AuthorizeAsync(astType, type, context, operationType).GetAwaiter().GetResult();
+                    AuthorizeAsync(astType, type, context, operationType).GetAwaiter().GetResult(); // TODO: need to think of something to avoid this
                 });
 
                 _.Match<ObjectField>(objectFieldAst =>
@@ -51,7 +59,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
                     if (context.TypeInfo.GetArgument().ResolvedType.GetNamedType() is IComplexGraphType argumentType)
                     {
                         var fieldType = argumentType.GetField(objectFieldAst.Name);
-                        AuthorizeAsync(objectFieldAst, fieldType, context, operationType).GetAwaiter().GetResult();
+                        AuthorizeAsync(objectFieldAst, fieldType, context, operationType).GetAwaiter().GetResult(); // TODO: need to think of something to avoid this
                     }
                 });
 
@@ -64,9 +72,9 @@ namespace GraphQL.Server.Authorization.AspNetCore
                     }
 
                     // check target field
-                    AuthorizeAsync(fieldAst, fieldDef, context, operationType).GetAwaiter().GetResult();
+                    AuthorizeAsync(fieldAst, fieldDef, context, operationType).GetAwaiter().GetResult(); // TODO: need to think of something to avoid this
                     // check returned graph type
-                    AuthorizeAsync(fieldAst, fieldDef.ResolvedType.GetNamedType(), context, operationType).GetAwaiter().GetResult();
+                    AuthorizeAsync(fieldAst, fieldDef.ResolvedType.GetNamedType(), context, operationType).GetAwaiter().GetResult(); // TODO: need to think of something to avoid this
                 });
             }));
         }
@@ -151,7 +159,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
                     }
                     break;
 
-                case DenyAnonymousAuthorizationRequirement _:
+                case DenyAnonymousAuthorizationRequirement:
                     error.Append("The current user must be authenticated.");
                     break;
 
@@ -181,6 +189,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
                     }
                     break;
 
+                case AssertionRequirement:
                 default:
                     error.Append("Requirement '");
                     error.Append(authorizationRequirement.GetType().Name);
