@@ -159,7 +159,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
                     }
                     break;
 
-                case DenyAnonymousAuthorizationRequirement:
+                case DenyAnonymousAuthorizationRequirement _:
                     error.Append("The current user must be authenticated.");
                     break;
 
@@ -189,7 +189,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
                     }
                     break;
 
-                case AssertionRequirement:
+                case AssertionRequirement _:
                 default:
                     error.Append("Requirement '");
                     error.Append(authorizationRequirement.GetType().Name);
