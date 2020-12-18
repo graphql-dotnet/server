@@ -43,7 +43,7 @@
 
   <PropertyGroup Label="Net Core 2.2" Condition="'$(IsNetCore3OnwardsTarget)' == 'False'">
     <MicrosoftAspNetCoreVersion>2.2.0</MicrosoftAspNetCoreVersion>
-    <MicrosoftAspNetCoreAuthorizationVersion>2.2.0</MicrosoftAspNetCoreAuthorizationVersion>
+    <MicrosoftAspNetCoreAuthorizationVersion>5.0.1</MicrosoftAspNetCoreAuthorizationVersion>
     <MicrosoftAspNetCoreHostingAbstractionsVersion>2.2.0</MicrosoftAspNetCoreHostingAbstractionsVersion>
     <MicrosoftAspNetCoreHttpAbstractionsVersion>2.2.0</MicrosoftAspNetCoreHttpAbstractionsVersion>
     <MicrosoftAspNetCoreHttpVersion>2.2.2</MicrosoftAspNetCoreHttpVersion>
