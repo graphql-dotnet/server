@@ -8,11 +8,7 @@
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <ProjectReference Include="..\..\src\Authorization.AspNetCore\Authorization.AspNetCore.csproj" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.9" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.10" />
   </ItemGroup>
-
-  <PropertyGroup>
-    <AssemblyName>GraphQL.Server.Authorization.AspNetCore.Tests</AssemblyName>
-  </PropertyGroup>
 
 </Project>

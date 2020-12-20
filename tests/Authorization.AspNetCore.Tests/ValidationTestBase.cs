@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using GraphQL.Execution;
-using GraphQL.Types;
 using GraphQL.Validation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -12,24 +11,10 @@ using Shouldly;
 
 namespace GraphQL.Server.Authorization.AspNetCore.Tests
 {
-    public class ValidationTestConfig
+    public class ValidationTestBase : IDisposable
     {
-        private readonly List<IValidationRule> _rules = new List<IValidationRule>();
+        protected ServiceProvider ServiceProvider { get; private set; }
 
-        public string Query { get; set; }
-        public ISchema Schema { get; set; }
-        public IEnumerable<IValidationRule> Rules => _rules;
-        public ClaimsPrincipal User { get; set; }
-        public Inputs Inputs { get; set; }
-
-        public void Rule(params IValidationRule[] rules) => _rules.AddRange(rules);
-    }
-    public class GraphQLUserContext : Dictionary<string, object>
-    {
-        public ClaimsPrincipal User { get; set; }
-    }
-    public class ValidationTestBase
-    {
         protected HttpContext HttpContext { get; private set; }
 
         protected AuthorizationValidationRule Rule { get; private set; }
@@ -44,7 +29,7 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
         protected void ShouldPassRule(Action<ValidationTestConfig> configure)
         {
             var config = new ValidationTestConfig();
-            config.Rule(Rule);
+            config.Rules.Add(Rule);
             configure(config);
 
             config.Rules.Any().ShouldBeTrue("Must provide at least one rule to validate against.");
@@ -59,12 +44,13 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
                 message = string.Join(", ", result.Errors.Select(x => x.Message));
             }
             result.IsValid.ShouldBeTrue(message);
+            config.ValidateResult(result);
         }
 
         protected void ShouldFailRule(Action<ValidationTestConfig> configure)
         {
             var config = new ValidationTestConfig();
-            config.Rule(Rule);
+            config.Rules.Add(Rule);
             configure(config);
 
             config.Rules.Any().ShouldBeTrue("Must provide at least one rule to validate against.");
@@ -74,18 +60,25 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
             var result = Validate(config);
 
             result.IsValid.ShouldBeFalse("Expected validation errors though there were none.");
+            config.ValidateResult(result);
         }
 
         private (IAuthorizationService, IHttpContextAccessor) BuildServices(Action<AuthorizationOptions> setupOptions)
         {
-            var services = new ServiceCollection();
-            services.AddAuthorization(setupOptions);
-            services.AddLogging();
-            services.AddOptions();
-            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            var serviceProvider = services.BuildServiceProvider();
-            var authorizationService = serviceProvider.GetRequiredService<IAuthorizationService>();
-            var httpContextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
+            if (ServiceProvider != null)
+                throw new InvalidOperationException("BuildServices has been already called");
+
+            var services = new ServiceCollection()
+                           .AddAuthorization(setupOptions)
+                           .AddLogging()
+                           .AddOptions()
+                           .AddHttpContextAccessor();
+
+            ServiceProvider = services.BuildServiceProvider();
+
+            var authorizationService = ServiceProvider.GetRequiredService<IAuthorizationService>();
+            var httpContextAccessor = ServiceProvider.GetRequiredService<IHttpContextAccessor>();
+
             httpContextAccessor.HttpContext = new DefaultHttpContext();
             return (authorizationService, httpContextAccessor);
         }
@@ -93,11 +86,10 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
         private IValidationResult Validate(ValidationTestConfig config)
         {
             HttpContext.User = config.User;
-            var userContext = new GraphQLUserContext { User = config.User };
             var documentBuilder = new GraphQLDocumentBuilder();
             var document = documentBuilder.Build(config.Query);
             var validator = new DocumentValidator();
-            return validator.ValidateAsync(config.Query, config.Schema, document, config.Rules, userContext, config.Inputs).GetAwaiter().GetResult();
+            return validator.ValidateAsync(config.Query, config.Schema, document, config.Rules, null, config.Inputs).GetAwaiter().GetResult();
         }
 
         protected ClaimsPrincipal CreatePrincipal(string authenticationType = null, IDictionary<string, string> claims = null)
@@ -107,6 +99,11 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
             claims?.Apply(c => claimsList.Add(new Claim(c.Key, c.Value)));
 
             return new ClaimsPrincipal(new ClaimsIdentity(claimsList, authenticationType));
+        }
+
+        public void Dispose()
+        {
+            ServiceProvider.Dispose();
         }
     }
 }

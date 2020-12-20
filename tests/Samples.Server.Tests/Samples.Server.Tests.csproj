@@ -9,7 +9,7 @@
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <ProjectReference Include="..\..\samples\Samples.Server\Samples.Server.csproj" />
-    <PackageReference Include="GraphQL.NewtonsoftJson" Version="3.1.3" />
+    <PackageReference Include="GraphQL.NewtonsoftJson" Version="3.2.0" />
   </ItemGroup>
 
 </Project>
