@@ -5,6 +5,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
         public AuthorizationError(GraphQL.Language.AST.INode node, GraphQL.Validation.ValidationContext context, GraphQL.Language.AST.OperationType? operationType, Microsoft.AspNetCore.Authorization.AuthorizationResult result) { }
         public AuthorizationError(GraphQL.Language.AST.INode node, GraphQL.Validation.ValidationContext context, string message, Microsoft.AspNetCore.Authorization.AuthorizationResult result) { }
         public virtual Microsoft.AspNetCore.Authorization.AuthorizationResult AuthorizationResult { get; }
+        protected static string GenerateMessage(GraphQL.Language.AST.OperationType? operationType, Microsoft.AspNetCore.Authorization.AuthorizationResult result) { }
     }
     public static class AuthorizationMetadataExtensions
     {
