@@ -15,8 +15,15 @@ namespace GraphQL.Server.Authorization.AspNetCore
     }
     public class AuthorizationValidationRule : GraphQL.Validation.IValidationRule
     {
-        public AuthorizationValidationRule(Microsoft.AspNetCore.Authorization.IAuthorizationService authorizationService, Microsoft.AspNetCore.Http.IHttpContextAccessor httpContextAccessor) { }
+        public AuthorizationValidationRule(Microsoft.AspNetCore.Authorization.IAuthorizationService authorizationService, Microsoft.AspNetCore.Http.IHttpContextAccessor httpContextAccessor, GraphQL.Server.Authorization.AspNetCore.IAuthorizationFailureDescriptionGenerator failureDescriptionGenerator) { }
         public System.Threading.Tasks.Task<GraphQL.Validation.INodeVisitor> ValidateAsync(GraphQL.Validation.ValidationContext context) { }
+    }
+    public class DefaultAuthorizationFailureDescriptionGenerator : GraphQL.Server.Authorization.AspNetCore.IAuthorizationFailureDescriptionGenerator
+    {
+        public DefaultAuthorizationFailureDescriptionGenerator() { }
+        protected virtual void AppendFailureLine(System.Text.StringBuilder messageBuilder, Microsoft.AspNetCore.Authorization.IAuthorizationRequirement authorizationRequirement) { }
+        public virtual string GenerateFailureDescription(Microsoft.AspNetCore.Authorization.AuthorizationResult result, GraphQL.Language.AST.OperationType? operationType) { }
+        protected virtual string GetOperationType(GraphQL.Language.AST.OperationType? operationType) { }
     }
     public class GraphQLAuthorizeAttribute : GraphQL.GraphQLAttribute
     {
@@ -24,6 +31,10 @@ namespace GraphQL.Server.Authorization.AspNetCore
         public string Policy { get; set; }
         public override void Modify(GraphQL.Utilities.FieldConfig field) { }
         public override void Modify(GraphQL.Utilities.TypeConfig type) { }
+    }
+    public interface IAuthorizationFailureDescriptionGenerator
+    {
+        string GenerateFailureDescription(Microsoft.AspNetCore.Authorization.AuthorizationResult result, GraphQL.Language.AST.OperationType? operationType);
     }
 }
 namespace GraphQL.Server

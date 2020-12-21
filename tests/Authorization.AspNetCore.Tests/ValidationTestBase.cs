@@ -21,9 +21,9 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
 
         protected void ConfigureAuthorizationOptions(Action<AuthorizationOptions> setupOptions)
         {
-            var (authorizationService, httpContextAccessor) = BuildServices(setupOptions);
+            var (authorizationService, httpContextAccessor, failureDescriptionGenerator) = BuildServices(setupOptions);
             HttpContext = httpContextAccessor.HttpContext;
-            Rule = new AuthorizationValidationRule(authorizationService, httpContextAccessor);
+            Rule = new AuthorizationValidationRule(authorizationService, httpContextAccessor, failureDescriptionGenerator);
         }
 
         protected void ShouldPassRule(Action<ValidationTestConfig> configure)
@@ -63,7 +63,7 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
             config.ValidateResult(result);
         }
 
-        private (IAuthorizationService, IHttpContextAccessor) BuildServices(Action<AuthorizationOptions> setupOptions)
+        private (IAuthorizationService, IHttpContextAccessor, IAuthorizationFailureDescriptionGenerator) BuildServices(Action<AuthorizationOptions> setupOptions)
         {
             if (ServiceProvider != null)
                 throw new InvalidOperationException("BuildServices has been already called");
@@ -72,15 +72,17 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
                            .AddAuthorization(setupOptions)
                            .AddLogging()
                            .AddOptions()
-                           .AddHttpContextAccessor();
+                           .AddHttpContextAccessor()
+                           .AddTransient<IAuthorizationFailureDescriptionGenerator, DefaultAuthorizationFailureDescriptionGenerator>();
 
             ServiceProvider = services.BuildServiceProvider();
 
             var authorizationService = ServiceProvider.GetRequiredService<IAuthorizationService>();
             var httpContextAccessor = ServiceProvider.GetRequiredService<IHttpContextAccessor>();
+            var failureDescriptionGenerator = ServiceProvider.GetRequiredService<IAuthorizationFailureDescriptionGenerator>();
 
             httpContextAccessor.HttpContext = new DefaultHttpContext();
-            return (authorizationService, httpContextAccessor);
+            return (authorizationService, httpContextAccessor, failureDescriptionGenerator);
         }
 
         private IValidationResult Validate(ValidationTestConfig config)
