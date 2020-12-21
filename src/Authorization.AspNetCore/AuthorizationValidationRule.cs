@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using GraphQL.Language.AST;
@@ -8,7 +9,6 @@ using GraphQL.Types;
 using GraphQL.Validation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
-using Microsoft.AspNetCore.Http;
 
 namespace GraphQL.Server.Authorization.AspNetCore
 {
@@ -25,7 +25,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
         /// Creates an instance of <see cref="AuthorizationValidationRule"/>.
         /// </summary>
         /// <param name="authorizationService"> ASP.NET Core <see cref="IAuthorizationService"/> to authorize against. </param>
-        /// <param name="claimsPrincipalAccessor"> ASP.NET Core <see cref="IHttpContextAccessor"/> to take user (HttpContext.User) from. </param>
+        /// <param name="claimsPrincipalAccessor"> The <see cref="IClaimsPrincipalAccessor"/> which provides the <see cref="ClaimsPrincipal"/> for authorization. </param>
         public AuthorizationValidationRule(IAuthorizationService authorizationService, IClaimsPrincipalAccessor claimsPrincipalAccessor)
         {
             _authorizationService = authorizationService;
@@ -82,11 +82,12 @@ namespace GraphQL.Server.Authorization.AspNetCore
         private async Task AuthorizeAsync(INode node, IProvideMetadata type, ValidationContext context, OperationType? operationType)
         {
             var policyNames = type?.GetPolicies();
+            var claimsPrincipal = _claimsPrincipalAccessor.GetClaimsPrincipal(context);
 
             if (policyNames?.Count == 1)
             {
                 // small optimization for the single policy - no 'new List<>()', no 'await Task.WhenAll()'
-                var authorizationResult = await _authorizationService.AuthorizeAsync(_claimsPrincipalAccessor.GetClaimsPrincipal(context), policyNames[0]);
+                var authorizationResult = await _authorizationService.AuthorizeAsync(claimsPrincipal, policyNames[0]);
                 AddValidationError(node, context, operationType, authorizationResult);
             }
             else if (policyNames?.Count > 1)
@@ -94,7 +95,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
                 var tasks = new List<Task<AuthorizationResult>>(policyNames.Count);
                 foreach (string policyName in policyNames)
                 {
-                    var task = _authorizationService.AuthorizeAsync(_claimsPrincipalAccessor.GetClaimsPrincipal(context), policyName);
+                    var task = _authorizationService.AuthorizeAsync(claimsPrincipal, policyName);
                     tasks.Add(task);
                 }
 
