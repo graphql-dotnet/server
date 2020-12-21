@@ -87,7 +87,8 @@ namespace GraphQL.Server.Authorization.AspNetCore
             {
                 // small optimization for the single policy - no 'new List<>()', no 'await Task.WhenAll()'
                 var authorizationResult = await _authorizationService.AuthorizeAsync(_claimsPrincipalAccessor.GetClaimsPrincipal(context), policyNames[0]);
-                AddValidationError(node, context, operationType, authorizationResult);
+                if (!authorizationResult.Succeeded)
+                    AddValidationError(node, context, operationType, authorizationResult);
             }
             else if (policyNames?.Count > 1)
             {
@@ -103,17 +104,21 @@ namespace GraphQL.Server.Authorization.AspNetCore
 
                 foreach (var result in authorizationResults)
                 {
-                    AddValidationError(node, context, operationType, result);
+                    if (!result.Succeeded)
+                        AddValidationError(node, context, operationType, result);
                 }
             }
+        }
 
-            static void AddValidationError(INode node, ValidationContext context, OperationType? operationType, AuthorizationResult result)
-            {
-                if (!result.Succeeded)
-                {
-                    context.ReportError(new AuthorizationError(node, context, operationType, result));
-                }
-            }
+        /// <summary>
+        /// Adds an authorization failure error to the document response
+        /// </summary>
+        protected void AddValidationError(INode node, ValidationContext context, OperationType? operationType, AuthorizationResult result)
+        {
+            // TODO: check to see if only a single failure result is returned in result.Failure.FailedRequirements,
+            //         and report a single specific error class for that result.  fall back to the below when multiple
+            //         errors are reported.  or instead of the fallback, report separate error instances for each entry.
+            context.ReportError(new AuthorizationError(node, context, operationType, result));
         }
     }
 }
