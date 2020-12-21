@@ -24,6 +24,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
         /// </summary>
         /// <param name="authorizationService"> ASP.NET Core <see cref="IAuthorizationService"/> to authorize against. </param>
         /// <param name="httpContextAccessor"> ASP.NET Core <see cref="IHttpContextAccessor"/> to take user (HttpContext.User) from. </param>
+        /// <param name="failureDescriptionGenerator"> The generator for authorization failure description messages</param>
         public AuthorizationValidationRule(IAuthorizationService authorizationService, IHttpContextAccessor httpContextAccessor, IAuthorizationFailureDescriptionGenerator failureDescriptionGenerator)
         {
             _authorizationService = authorizationService;

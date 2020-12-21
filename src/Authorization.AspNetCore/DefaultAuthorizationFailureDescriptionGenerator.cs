@@ -14,14 +14,14 @@ namespace GraphQL.Server.Authorization.AspNetCore
         /// <inheritdoc />
         public virtual string GenerateFailureDescription(AuthorizationResult result, OperationType? operationType)
         {
-            var messageBuilder = new StringBuilder("You are not authorized to run this ")
+            var error = new StringBuilder("You are not authorized to run this ")
                 .Append(GetOperationType(operationType))
                 .Append(".");
 
             foreach (var failure in result.Failure.FailedRequirements)
-                AppendFailureLine(messageBuilder, failure);
+                AppendFailureLine(error, failure);
 
-            return messageBuilder.ToString();
+            return error.ToString();
         }
 
         /// <summary>
@@ -41,64 +41,64 @@ namespace GraphQL.Server.Authorization.AspNetCore
         /// <summary>
         /// Generates a description for a single failed <see cref="IAuthorizationRequirement"/>
         /// </summary>
-        /// <param name="messageBuilder">The message string builder to accumulate generated text</param>
+        /// <param name="error">The error string builder to accumulate generated text</param>
         /// <param name="authorizationRequirement">the failed authorization requirement</param>
-        protected virtual void AppendFailureLine(StringBuilder messageBuilder, IAuthorizationRequirement authorizationRequirement)
+        protected virtual void AppendFailureLine(StringBuilder error, IAuthorizationRequirement authorizationRequirement)
         {
-            messageBuilder.AppendLine();
+            error.AppendLine();
 
             switch (authorizationRequirement)
             {
                 case ClaimsAuthorizationRequirement claimsAuthorizationRequirement:
-                    messageBuilder.Append("Required claim '");
-                    messageBuilder.Append(claimsAuthorizationRequirement.ClaimType);
+                    error.Append("Required claim '");
+                    error.Append(claimsAuthorizationRequirement.ClaimType);
                     if (claimsAuthorizationRequirement.AllowedValues == null || !claimsAuthorizationRequirement.AllowedValues.Any())
                     {
-                        messageBuilder.Append("' is not present.");
+                        error.Append("' is not present.");
                     }
                     else
                     {
-                        messageBuilder.Append("' with any value of '");
-                        messageBuilder.Append(string.Join(", ", claimsAuthorizationRequirement.AllowedValues));
-                        messageBuilder.Append("' is not present.");
+                        error.Append("' with any value of '");
+                        error.Append(string.Join(", ", claimsAuthorizationRequirement.AllowedValues));
+                        error.Append("' is not present.");
                     }
                     break;
 
                 case DenyAnonymousAuthorizationRequirement _:
-                    messageBuilder.Append("The current user must be authenticated.");
+                    error.Append("The current user must be authenticated.");
                     break;
 
                 case NameAuthorizationRequirement nameAuthorizationRequirement:
-                    messageBuilder.Append("The current user name must match the name '");
-                    messageBuilder.Append(nameAuthorizationRequirement.RequiredName);
-                    messageBuilder.Append("'.");
+                    error.Append("The current user name must match the name '");
+                    error.Append(nameAuthorizationRequirement.RequiredName);
+                    error.Append("'.");
                     break;
 
                 case OperationAuthorizationRequirement operationAuthorizationRequirement:
-                    messageBuilder.Append("Required operation '");
-                    messageBuilder.Append(operationAuthorizationRequirement.Name);
-                    messageBuilder.Append("' was not present.");
+                    error.Append("Required operation '");
+                    error.Append(operationAuthorizationRequirement.Name);
+                    error.Append("' was not present.");
                     break;
 
                 case RolesAuthorizationRequirement rolesAuthorizationRequirement:
                     if (rolesAuthorizationRequirement.AllowedRoles == null || !rolesAuthorizationRequirement.AllowedRoles.Any())
                     {
                         // This should never happen.
-                        messageBuilder.Append("Required roles are not present.");
+                        error.Append("Required roles are not present.");
                     }
                     else
                     {
-                        messageBuilder.Append("Required roles '");
-                        messageBuilder.Append(string.Join(", ", rolesAuthorizationRequirement.AllowedRoles));
-                        messageBuilder.Append("' are not present.");
+                        error.Append("Required roles '");
+                        error.Append(string.Join(", ", rolesAuthorizationRequirement.AllowedRoles));
+                        error.Append("' are not present.");
                     }
                     break;
 
                 case AssertionRequirement _:
                 default:
-                    messageBuilder.Append("Requirement '");
-                    messageBuilder.Append(authorizationRequirement.GetType().Name);
-                    messageBuilder.Append("' was not satisfied.");
+                    error.Append("Requirement '");
+                    error.Append(authorizationRequirement.GetType().Name);
+                    error.Append("' was not satisfied.");
                     break;
             }
         }
