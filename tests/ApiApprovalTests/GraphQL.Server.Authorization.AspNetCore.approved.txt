@@ -15,8 +15,13 @@ namespace GraphQL.Server.Authorization.AspNetCore
     }
     public class AuthorizationValidationRule : GraphQL.Validation.IValidationRule
     {
-        public AuthorizationValidationRule(Microsoft.AspNetCore.Authorization.IAuthorizationService authorizationService, Microsoft.AspNetCore.Http.IHttpContextAccessor httpContextAccessor) { }
+        public AuthorizationValidationRule(Microsoft.AspNetCore.Authorization.IAuthorizationService authorizationService, GraphQL.Server.Authorization.AspNetCore.IClaimsPrincipalAccessor claimsPrincipalAccessor) { }
         public System.Threading.Tasks.Task<GraphQL.Validation.INodeVisitor> ValidateAsync(GraphQL.Validation.ValidationContext context) { }
+    }
+    public class DefaultClaimsPrincipalAccessor : GraphQL.Server.Authorization.AspNetCore.IClaimsPrincipalAccessor
+    {
+        public DefaultClaimsPrincipalAccessor(Microsoft.AspNetCore.Http.IHttpContextAccessor contextAccessor) { }
+        public System.Security.Claims.ClaimsPrincipal GetClaimsPrincipal(GraphQL.Validation.ValidationContext context) { }
     }
     public class GraphQLAuthorizeAttribute : GraphQL.GraphQLAttribute
     {
@@ -24,6 +29,10 @@ namespace GraphQL.Server.Authorization.AspNetCore
         public string Policy { get; set; }
         public override void Modify(GraphQL.Utilities.FieldConfig field) { }
         public override void Modify(GraphQL.Utilities.TypeConfig type) { }
+    }
+    public interface IClaimsPrincipalAccessor
+    {
+        System.Security.Claims.ClaimsPrincipal GetClaimsPrincipal(GraphQL.Validation.ValidationContext context);
     }
 }
 namespace GraphQL.Server
