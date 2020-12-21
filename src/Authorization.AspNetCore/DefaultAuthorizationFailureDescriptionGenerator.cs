@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Authorization.Infrastructure;
 namespace GraphQL.Server.Authorization.AspNetCore
 {
     /// <summary>
-    /// The default authorization failure description generator for this library
+    /// The default authorization failure description generator.
     /// </summary>
     public class DefaultAuthorizationFailureDescriptionGenerator: IAuthorizationFailureDescriptionGenerator
     {
@@ -27,7 +27,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
         /// <summary>
         /// Transforms the given <paramref name="operationType"/> into a string to be used in a failure description
         /// </summary>
-        /// <param name="operationType">the GraphQL operation type</param>
+        /// <param name="operationType">The GraphQL operation type</param>
         /// <returns></returns>
         protected virtual string GetOperationType(OperationType? operationType) =>
             operationType switch
@@ -41,7 +41,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
         /// <summary>
         /// Generates a description for a single failed <see cref="IAuthorizationRequirement"/>
         /// </summary>
-        /// <param name="messageBuilder">the message string builder</param>
+        /// <param name="messageBuilder">The message string builder to accumulate generated text</param>
         /// <param name="authorizationRequirement">the failed authorization requirement</param>
         protected virtual void AppendFailureLine(StringBuilder messageBuilder, IAuthorizationRequirement authorizationRequirement)
         {
