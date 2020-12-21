@@ -112,7 +112,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
         /// <summary>
         /// Adds an authorization failure error to the document response
         /// </summary>
-        protected void AddValidationError(INode node, ValidationContext context, OperationType? operationType, AuthorizationResult result)
+        protected virtual void AddValidationError(INode node, ValidationContext context, OperationType? operationType, AuthorizationResult result)
         {
             // TODO: check to see if only a single failure result is returned in result.Failure.FailedRequirements,
             //         and report a single specific error class for that result.  fall back to the below when multiple
