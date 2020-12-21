@@ -32,7 +32,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
         }
 
         /// <summary>
-        /// Returns the result of the Asp.Net Core authorization request
+        /// Returns the result of the ASP.NET Core authorization request
         /// </summary>
         public virtual AuthorizationResult AuthorizationResult { get; }
 
