@@ -11,7 +11,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
         /// <summary>
         /// Generates a failure description for the given <paramref name="result"/> 
         /// </summary>
-        /// <param name="result">the ASP.NET Core authorization result</param>
+        /// <param name="result">The ASP.NET Core authorization result</param>
         /// <param name="operationType">the GraphQL operation type</param>
         /// <returns></returns>
         string GenerateFailureDescription(AuthorizationResult result, OperationType? operationType);
