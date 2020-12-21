@@ -36,7 +36,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
         /// </summary>
         public virtual AuthorizationResult AuthorizationResult { get; }
 
-        private static string GenerateMessage(OperationType? operationType, AuthorizationResult result)
+        protected static string GenerateMessage(OperationType? operationType, AuthorizationResult result)
         {
             var error = new StringBuilder("You are not authorized to run this ")
             .Append(GetOperationType(operationType))
