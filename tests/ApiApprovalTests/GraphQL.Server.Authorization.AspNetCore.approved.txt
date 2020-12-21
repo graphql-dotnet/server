@@ -23,7 +23,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
     public class AuthorizationValidationRule : GraphQL.Validation.IValidationRule
     {
         public AuthorizationValidationRule(Microsoft.AspNetCore.Authorization.IAuthorizationService authorizationService, Microsoft.AspNetCore.Http.IHttpContextAccessor httpContextAccessor) { }
-        protected void AddValidationError(GraphQL.Language.AST.INode node, GraphQL.Validation.ValidationContext context, GraphQL.Language.AST.OperationType? operationType, Microsoft.AspNetCore.Authorization.AuthorizationResult result) { }
+        protected virtual void AddValidationError(GraphQL.Language.AST.INode node, GraphQL.Validation.ValidationContext context, GraphQL.Language.AST.OperationType? operationType, Microsoft.AspNetCore.Authorization.AuthorizationResult result) { }
         public System.Threading.Tasks.Task<GraphQL.Validation.INodeVisitor> ValidateAsync(GraphQL.Validation.ValidationContext context) { }
     }
     public class GraphQLAuthorizeAttribute : GraphQL.GraphQLAttribute
