@@ -11,7 +11,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
         /// <summary>
         /// Provides the <see cref="ClaimsPrincipal"/> for the current <see cref="ValidationContext"/>
         /// </summary>
-        /// <param name="context">the <see cref="ValidationContext"/> of the current operation</param>
+        /// <param name="context">The <see cref="ValidationContext"/> of the current operation</param>
         /// <returns></returns>
         ClaimsPrincipal GetClaimsPrincipal(ValidationContext context);
     }

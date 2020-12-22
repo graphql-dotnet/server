@@ -21,7 +21,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
         }
 
         /// <summary>
-        /// Returns the <see cref="HttpContext.User"/> of the current http query
+        /// Returns the <see cref="HttpContext.User"/>.
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
