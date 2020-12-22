@@ -82,16 +82,16 @@ namespace GraphQL.Server.Authorization.AspNetCore
         private async Task AuthorizeAsync(INode node, IProvideMetadata type, ValidationContext context, OperationType? operationType)
         {
             var policyNames = type?.GetPolicies();
-            var claimsPrincipal = _claimsPrincipalAccessor.GetClaimsPrincipal(context);
 
             if (policyNames?.Count == 1)
             {
                 // small optimization for the single policy - no 'new List<>()', no 'await Task.WhenAll()'
-                var authorizationResult = await _authorizationService.AuthorizeAsync(claimsPrincipal, policyNames[0]);
+                var authorizationResult = await _authorizationService.AuthorizeAsync(_claimsPrincipalAccessor.GetClaimsPrincipal(context), policyNames[0]);
                 AddValidationError(node, context, operationType, authorizationResult);
             }
             else if (policyNames?.Count > 1)
             {
+                var claimsPrincipal = _claimsPrincipalAccessor.GetClaimsPrincipal(context);
                 var tasks = new List<Task<AuthorizationResult>>(policyNames.Count);
                 foreach (string policyName in policyNames)
                 {
