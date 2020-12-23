@@ -17,7 +17,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
         /// <param name="contextAccessor">ASP.NET Core <see cref="IHttpContextAccessor"/> to take claims principal (<see cref="HttpContext.User"/>) from.</param>
         public DefaultClaimsPrincipalAccessor(IHttpContextAccessor contextAccessor)
         {
-            _contextAccessor = contextAccessor;
+            _contextAccessor = contextAccessor ?? throw new ArgumentNullException(nameof(contextAccessor));
         }
 
         /// <summary>
@@ -27,7 +27,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
         /// <returns></returns>
         public ClaimsPrincipal GetClaimsPrincipal(ValidationContext context)
         {
-            return _contextAccessor.HttpContext.User;
+            return _contextAccessor.HttpContext?.User;
         }
     }
 }
