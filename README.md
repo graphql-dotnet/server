@@ -4,6 +4,10 @@
 
 [![Build status](https://github.com/graphql-dotnet/server/workflows/Build%20artifacts/badge.svg)](https://github.com/graphql-dotnet/server/actions)
 [![Build status](https://github.com/graphql-dotnet/server/workflows/Publish%20release/badge.svg)](https://github.com/graphql-dotnet/server/actions)
+[![CodeQL analysis](https://github.com/graphql-dotnet/server/workflows/CodeQL%20analysis/badge.svg)](https://github.com/graphql-dotnet/server/actions?query=workflow%3A%22%22CodeQL+analysis%22%22)
+
+[![Total alerts](https://img.shields.io/lgtm/alerts/g/graphql-dotnet/server.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/graphql-dotnet/server/alerts/)
+[![Language grade: C#](https://img.shields.io/lgtm/grade/csharp/g/graphql-dotnet/server.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/graphql-dotnet/server/context:csharp)
 
 ![Activity](https://img.shields.io/github/commit-activity/w/graphql-dotnet/server)
 ![Activity](https://img.shields.io/github/commit-activity/m/graphql-dotnet/server)

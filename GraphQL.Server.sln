@@ -66,6 +66,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{17945A3F-4C80-43B3-BBD7-6FE0EA107799}"
 	ProjectSection(SolutionItems) = preProject
 		.github\workflows\build.yml = .github\workflows\build.yml
+		.github\workflows\codeql-analysis.yml = .github\workflows\codeql-analysis.yml
 		.github\workflows\label.yml = .github\workflows\label.yml
 		.github\workflows\publish.yml = .github\workflows\publish.yml
 		.github\workflows\test.yml = .github\workflows\test.yml
@@ -74,7 +75,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiApprovalTests", "tests\ApiApprovalTests\ApiApprovalTests.csproj", "{9F1A96BC-FF87-427F-8284-5A0670CA596C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "All", "src\All\All.csproj", "{B39BC064-B96A-442D-89A0-79B750F88ADD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "All", "src\All\All.csproj", "{B39BC064-B96A-442D-89A0-79B750F88ADD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

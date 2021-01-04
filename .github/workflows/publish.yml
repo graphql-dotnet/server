@@ -37,7 +37,7 @@ jobs:
       - name: Install dependencies
         run: dotnet restore
       - name: Build solution [Release]
-        run: dotnet build --no-restore -c Release -p:NoWarn=CS1591 -p:Version=$version
+        run: dotnet build --no-restore -c Release -p:Version=$version
       - name: Pack solution [Release]
         run: dotnet pack --no-restore --no-build -c Release -p:Version=$version -o out
       - name: Upload artifacts

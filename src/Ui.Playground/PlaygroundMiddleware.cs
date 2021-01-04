@@ -23,6 +23,7 @@ namespace GraphQL.Server.Ui.Playground
         /// </summary>
         /// <param name="next">The next request delegate; not used, this is a terminal middleware.</param>
         /// <param name="options">Options to customize middleware</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "ASP.NET Core conventions")]
         public PlaygroundMiddleware(RequestDelegate next, PlaygroundOptions options)
         {
             _options = options ?? throw new ArgumentNullException(nameof(options));
