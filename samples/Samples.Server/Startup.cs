@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using GraphQL.Execution;
 using GraphQL.Samples.Schemas.Chat;
 using GraphQL.Server;
 using GraphQL.Server.Ui.Altair;
