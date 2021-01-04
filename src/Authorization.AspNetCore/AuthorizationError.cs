@@ -13,12 +13,14 @@ namespace GraphQL.Server.Authorization.AspNetCore
     /// </summary>
     public class AuthorizationError : ValidationError
     {
+
         /// <summary>
         /// Initializes a new instance of the <see cref="AuthorizationError"/> class for a specified authorization result
         /// </summary>
         public AuthorizationError(INode node, ValidationContext context, OperationType? operationType, AuthorizationResult result)
             : this(node, context, GenerateMessage(operationType, result), result)
         {
+            OperationType = operationType;
         }
 
         /// <summary>
@@ -36,11 +38,20 @@ namespace GraphQL.Server.Authorization.AspNetCore
         /// </summary>
         public virtual AuthorizationResult AuthorizationResult { get; }
 
+        /// <summary>
+        /// The GraphQL operation type
+        /// </summary>
+        public OperationType? OperationType { get; }
+
+        /// <summary>
+        /// Gets a <see cref="StringBuilder"/> containing the error message header for this <see cref="AuthorizationError"/>
+        /// </summary>
+        /// <returns></returns>
+        public StringBuilder GetErrorStringBuilder() => GetErrorStringBuilder(OperationType);
+
         protected static string GenerateMessage(OperationType? operationType, AuthorizationResult result)
         {
-            var error = new StringBuilder("You are not authorized to run this ")
-            .Append(GetOperationType(operationType))
-            .Append(".");
+            var error = GetErrorStringBuilder(operationType);
 
             foreach (var failure in result.Failure.FailedRequirements)
             {
@@ -49,19 +60,32 @@ namespace GraphQL.Server.Authorization.AspNetCore
 
             return error.ToString();
         }
+        
+        private static StringBuilder GetErrorStringBuilder(OperationType? operationType)
+        {
+            var error = new StringBuilder("You are not authorized to run this ")
+                .Append(GetOperationType(operationType))
+                .Append(".");
+            return error;
+        }
 
         private static string GetOperationType(OperationType? operationType)
         {
             return operationType switch
             {
-                OperationType.Query => "query",
-                OperationType.Mutation => "mutation",
-                OperationType.Subscription => "subscription",
+                Language.AST.OperationType.Query => "query",
+                Language.AST.OperationType.Mutation => "mutation",
+                Language.AST.OperationType.Subscription => "subscription",
                 _ => "operation",
             };
         }
 
-        private static void AppendFailureLine(StringBuilder error, IAuthorizationRequirement authorizationRequirement)
+        /// <summary>
+        /// Appends a description of the failed <paramref name="authorizationRequirement"/> to the supplied <see cref="StringBuilder"/>
+        /// </summary>
+        /// <param name="error">the <see cref="StringBuilder"/> which is used to compose the error message</param>
+        /// <param name="authorizationRequirement">the failed <see cref="IAuthorizationRequirement"/></param>
+        public static void AppendFailureLine(StringBuilder error, IAuthorizationRequirement authorizationRequirement)
         {
             error.AppendLine();
 
