@@ -83,7 +83,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
         /// Appends a description of the failed <paramref name="authorizationRequirement"/> to the supplied <see cref="StringBuilder"/>.
         /// </summary>
         /// <param name="error">the <see cref="StringBuilder"/> which is used to compose the error message</param>
-        /// <param name="authorizationRequirement">the failed <see cref="IAuthorizationRequirement"/></param>
+        /// <param name="authorizationRequirement">The failed <see cref="IAuthorizationRequirement"/>.</param>
         public static void AppendFailureLine(StringBuilder error, IAuthorizationRequirement authorizationRequirement)
         {
             error.AppendLine();
