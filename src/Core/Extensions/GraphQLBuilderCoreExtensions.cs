@@ -61,7 +61,7 @@ namespace GraphQL.Server
             => AddErrorInfoProvider<InternalErrorInfoProvider>(builder, configureOptions);
 
         /// <summary>
-        /// Provides the ability to configure <see cref="ErrorInfoProviderOptions"/> for the default <see cref="ErrorInfoProvider"/>.
+        /// Provides the ability to configure <see cref="ErrorInfoProviderOptions"/> for the specified <typeparamref name="TErrorInfoProvider"/>.
         /// Also provides integration with Microsoft.Extensions.Options so the caller may use services.Configure{ErrorInfoProviderOptions}(...)
         /// </summary>
         /// <typeparam name="TErrorInfoProvider">The <see cref="IErrorInfoProvider"/> implementation.</typeparam>
