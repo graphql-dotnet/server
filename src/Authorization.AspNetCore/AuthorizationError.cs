@@ -80,7 +80,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
         }
 
         /// <summary>
-        /// Appends a description of the failed <paramref name="authorizationRequirement"/> to the supplied <see cref="StringBuilder"/>
+        /// Appends a description of the failed <paramref name="authorizationRequirement"/> to the supplied <see cref="StringBuilder"/>.
         /// </summary>
         /// <param name="error">the <see cref="StringBuilder"/> which is used to compose the error message</param>
         /// <param name="authorizationRequirement">the failed <see cref="IAuthorizationRequirement"/></param>
