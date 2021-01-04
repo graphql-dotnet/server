@@ -9,7 +9,7 @@ namespace GraphQL.Samples.Server
     /// Custom <see cref="ErrorInfoProvider"/> implementing a dedicated error message for the sample <see cref="IAuthorizationRequirement"/>
     /// used in this MS article: https://docs.microsoft.com/en-us/aspnet/core/security/authorization/policies
     /// </summary>
-    public class CustomErrorInfoProvider: ErrorInfoProvider
+    public class CustomErrorInfoProvider : ErrorInfoProvider
     {
         // Provides integration with Microsoft.Extensions.Options so the caller may use services.Configure<ErrorInfoProviderOptions>(...)
         public CustomErrorInfoProvider(IOptions<ErrorInfoProviderOptions> options) : base(options.Value) { }
