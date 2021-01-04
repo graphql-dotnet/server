@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 namespace GraphQL.Samples.Server
 {
     /// <summary>
-    /// custom <see cref="ErrorInfoProvider"/> implementing a dedicated error message for the sample <see cref="IAuthorizationRequirement"/>
+    /// Custom <see cref="ErrorInfoProvider"/> implementing a dedicated error message for the sample <see cref="IAuthorizationRequirement"/>
     /// used in this MS article: https://docs.microsoft.com/en-us/aspnet/core/security/authorization/policies
     /// </summary>
     public class CustomErrorInfoProvider: ErrorInfoProvider
