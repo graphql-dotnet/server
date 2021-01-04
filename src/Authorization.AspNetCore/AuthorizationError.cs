@@ -13,7 +13,6 @@ namespace GraphQL.Server.Authorization.AspNetCore
     /// </summary>
     public class AuthorizationError : ValidationError
     {
-
         /// <summary>
         /// Initializes a new instance of the <see cref="AuthorizationError"/> class for a specified authorization result
         /// </summary>
