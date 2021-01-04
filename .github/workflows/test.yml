@@ -6,6 +6,10 @@ on:
       - master
       - develop
 
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
 jobs:
   should_test:
     runs-on: ubuntu-latest
@@ -20,15 +24,11 @@ jobs:
   test:
     needs: should_test
     if: ${{ needs.should_test.outputs.should_skip != 'true' }}
-    runs-on: ${{ matrix.os }}
-    env:
-      DOTNET_NOLOGO: true
-      DOTNET_CLI_TELEMETRY_OPTOUT: true
     strategy:
       matrix:
-        os: 
-          - ubuntu-latest
-          - windows-latest
+        os: [ubuntu-latest, windows-latest]
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout source
         uses: actions/checkout@v2
@@ -41,10 +41,15 @@ jobs:
           NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - name: Install dependencies
         run: dotnet restore
+      - name: Check formatting
+        if: ${{ startsWith(matrix.os, 'ubuntu') }}
+        run: |
+          dotnet tool install -g dotnet-format --version 5.0.205101 --add-source https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-tools/nuget/v3/index.json
+          dotnet format --check -v diag --fix-style warn --fix-analyzers warn || (echo "Run 'dotnet format' to fix formatting issues" && exit 1)
       - name: Build solution [Release]
-        run: dotnet build --no-restore -c Release -p:NoWarn=CS1591
+        run: dotnet build --no-restore -c Release
       - name: Build solution [Debug]
-        run: dotnet build --no-restore -p:NoWarn=CS1591
+        run: dotnet build --no-restore
       - name: Test solution [Debug]
         run: dotnet test --no-restore --no-build
 
