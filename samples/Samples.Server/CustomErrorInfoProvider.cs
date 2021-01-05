@@ -50,6 +50,5 @@ namespace GraphQL.Samples.Server
 
             return errorMessage.ToString();
         }
-
     }
 }
