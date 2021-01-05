@@ -16,22 +16,15 @@ namespace GraphQL.Server
     /// </summary>
     public static class GraphQLBuilderCoreExtensions
     {
-        // Provides integration with Microsoft.Extensions.Options so the caller may use services.Configure<ErrorInfoProviderOptions>(...)
-        private sealed class InternalErrorInfoProvider : ErrorInfoProvider
-        {
-            public InternalErrorInfoProvider(IOptions<ErrorInfoProviderOptions> options)
-                : base(options.Value) { }
-        }
-
         /// <summary>
-        /// Provides the ability to configure <see cref="ErrorInfoProviderOptions"/> for the default <see cref="ErrorInfoProvider"/>.
+        /// Provides the ability to configure <see cref="ErrorInfoProviderOptions"/> for <see cref="DefaultErrorInfoProvider"/>.
         /// Also provides integration with Microsoft.Extensions.Options so the caller may use services.Configure{ErrorInfoProviderOptions}(...)
         /// </summary>
         /// <param name="builder">GraphQL builder used for GraphQL specific extension methods as 'this' argument.</param>
         /// <param name="configureOptions">Action to configure the <see cref="ErrorInfoProviderOptions"/>.</param>
         /// <returns>Reference to <paramref name="builder"/>.</returns>
         public static IGraphQLBuilder AddErrorInfoProvider(this IGraphQLBuilder builder, Action<ErrorInfoProviderOptions> configureOptions)
-            => AddErrorInfoProvider<InternalErrorInfoProvider>(builder, configureOptions);
+            => AddErrorInfoProvider<DefaultErrorInfoProvider>(builder, configureOptions);
 
         /// <summary>
         /// Provides the ability to configure <see cref="ErrorInfoProviderOptions"/> for the specified <typeparamref name="TErrorInfoProvider"/>.
@@ -42,7 +35,7 @@ namespace GraphQL.Server
         /// <param name="configureOptions">Action to configure the <see cref="ErrorInfoProviderOptions"/>.</param>
         /// <returns>Reference to <paramref name="builder"/>.</returns>
         public static IGraphQLBuilder AddErrorInfoProvider<TErrorInfoProvider>(this IGraphQLBuilder builder, Action<ErrorInfoProviderOptions> configureOptions)
-            where TErrorInfoProvider : class, IErrorInfoProvider
+            where TErrorInfoProvider : DefaultErrorInfoProvider
         {
             if (configureOptions == null)
                 throw new ArgumentNullException(nameof(configureOptions));
@@ -51,14 +44,14 @@ namespace GraphQL.Server
         }
 
         /// <summary>
-        /// Provides the ability to configure <see cref="ErrorInfoProviderOptions"/> for the default <see cref="ErrorInfoProvider"/>.
+        /// Provides the ability to configure <see cref="ErrorInfoProviderOptions"/> for <see cref="DefaultErrorInfoProvider"/>.
         /// Also provides integration with Microsoft.Extensions.Options so the caller may use services.Configure{ErrorInfoProviderOptions}(...)
         /// </summary>
         /// <param name="builder">GraphQL builder used for GraphQL specific extension methods as 'this' argument.</param>
         /// <param name="configureOptions">Action to configure the <see cref="ErrorInfoProviderOptions"/>.</param>
         /// <returns>Reference to <paramref name="builder"/>.</returns>
         public static IGraphQLBuilder AddErrorInfoProvider(this IGraphQLBuilder builder, Action<ErrorInfoProviderOptions, IServiceProvider> configureOptions)
-            => AddErrorInfoProvider<InternalErrorInfoProvider>(builder, configureOptions);
+            => AddErrorInfoProvider<DefaultErrorInfoProvider>(builder, configureOptions);
 
         /// <summary>
         /// Provides the ability to configure <see cref="ErrorInfoProviderOptions"/> for the specified <typeparamref name="TErrorInfoProvider"/>.
@@ -69,7 +62,7 @@ namespace GraphQL.Server
         /// <param name="configureOptions">Action to configure the <see cref="ErrorInfoProviderOptions"/>.</param>
         /// <returns>Reference to <paramref name="builder"/>.</returns>
         public static IGraphQLBuilder AddErrorInfoProvider<TErrorInfoProvider>(this IGraphQLBuilder builder, Action<ErrorInfoProviderOptions, IServiceProvider> configureOptions)
-            where TErrorInfoProvider: class, IErrorInfoProvider
+            where TErrorInfoProvider: DefaultErrorInfoProvider
         {
             if (configureOptions == null)
                 throw new ArgumentNullException(nameof(configureOptions));

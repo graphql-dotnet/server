@@ -1,4 +1,5 @@
 using GraphQL.Execution;
+using GraphQL.Server;
 using GraphQL.Server.Authorization.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
@@ -9,11 +10,11 @@ namespace GraphQL.Samples.Server
     /// Custom <see cref="ErrorInfoProvider"/> implementing a dedicated error message for the sample <see cref="IAuthorizationRequirement"/>
     /// used in this MS article: https://docs.microsoft.com/en-us/aspnet/core/security/authorization/policies
     /// </summary>
-    public class CustomErrorInfoProvider : ErrorInfoProvider
+    public class CustomErrorInfoProvider : DefaultErrorInfoProvider
     {
-        // Provides integration with Microsoft.Extensions.Options so the caller may use services.Configure<ErrorInfoProviderOptions>(...)
-        public CustomErrorInfoProvider(IOptions<ErrorInfoProviderOptions> options) : base(options.Value) { }
-        
+        public CustomErrorInfoProvider(IOptions<ErrorInfoProviderOptions> options) : base(options)
+        { }
+
         public override ErrorInfo GetInfo(ExecutionError executionError)
         {
             var info = base.GetInfo(executionError);
@@ -47,5 +48,6 @@ namespace GraphQL.Samples.Server
 
             return errorMessage.ToString();
         }
+
     }
 }
