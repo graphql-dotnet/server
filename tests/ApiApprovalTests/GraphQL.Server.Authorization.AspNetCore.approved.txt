@@ -1,5 +1,14 @@
 namespace GraphQL.Server.Authorization.AspNetCore
 {
+    public class AuthorizationError : GraphQL.Validation.ValidationError
+    {
+        public AuthorizationError(GraphQL.Language.AST.INode node, GraphQL.Validation.ValidationContext context, GraphQL.Language.AST.OperationType? operationType, Microsoft.AspNetCore.Authorization.AuthorizationResult result) { }
+        public AuthorizationError(GraphQL.Language.AST.INode node, GraphQL.Validation.ValidationContext context, string message, Microsoft.AspNetCore.Authorization.AuthorizationResult result) { }
+        public virtual Microsoft.AspNetCore.Authorization.AuthorizationResult AuthorizationResult { get; }
+        public GraphQL.Language.AST.OperationType? OperationType { get; }
+        public static void AppendFailureHeader(System.Text.StringBuilder error, GraphQL.Language.AST.OperationType? operationType) { }
+        public static void AppendFailureLine(System.Text.StringBuilder error, Microsoft.AspNetCore.Authorization.IAuthorizationRequirement authorizationRequirement) { }
+    }
     public static class AuthorizationMetadataExtensions
     {
         public const string POLICY_KEY = "Authorization__Policies";
@@ -16,6 +25,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
     public class AuthorizationValidationRule : GraphQL.Validation.IValidationRule
     {
         public AuthorizationValidationRule(Microsoft.AspNetCore.Authorization.IAuthorizationService authorizationService, GraphQL.Server.Authorization.AspNetCore.IClaimsPrincipalAccessor claimsPrincipalAccessor) { }
+        protected virtual void AddValidationError(GraphQL.Language.AST.INode node, GraphQL.Validation.ValidationContext context, GraphQL.Language.AST.OperationType? operationType, Microsoft.AspNetCore.Authorization.AuthorizationResult result) { }
         public System.Threading.Tasks.Task<GraphQL.Validation.INodeVisitor> ValidateAsync(GraphQL.Validation.ValidationContext context) { }
     }
     public class DefaultClaimsPrincipalAccessor : GraphQL.Server.Authorization.AspNetCore.IClaimsPrincipalAccessor
