@@ -9,12 +9,12 @@ using Microsoft.AspNetCore.Authorization.Infrastructure;
 namespace GraphQL.Server.Authorization.AspNetCore
 {
     /// <summary>
-    /// An error that represents an authorization failure while parsing the document
+    /// An error that represents an authorization failure while parsing the document.
     /// </summary>
     public class AuthorizationError : ValidationError
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="AuthorizationError"/> class for a specified authorization result
+        /// Initializes a new instance of the <see cref="AuthorizationError"/> class for a specified authorization result.
         /// </summary>
         public AuthorizationError(INode node, ValidationContext context, OperationType? operationType, AuthorizationResult result)
             : this(node, context, GenerateMessage(operationType, result), result)
@@ -23,7 +23,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AuthorizationError"/> class for a specified authorization result with a specific error message
+        /// Initializes a new instance of the <see cref="AuthorizationError"/> class for a specified authorization result with a specific error message.
         /// </summary>
         public AuthorizationError(INode node, ValidationContext context, string message, AuthorizationResult result)
             : base(context.OriginalQuery, "6.1.1", message, node == null ? Array.Empty<INode>() : new INode[] { node })
@@ -33,21 +33,14 @@ namespace GraphQL.Server.Authorization.AspNetCore
         }
 
         /// <summary>
-        /// Returns the result of the ASP.NET Core authorization request
+        /// Returns the result of the ASP.NET Core authorization request.
         /// </summary>
         public virtual AuthorizationResult AuthorizationResult { get; }
 
         /// <summary>
-        /// The GraphQL operation type
+        /// The GraphQL operation type.
         /// </summary>
         public OperationType? OperationType { get; }
-
-        /// <summary>
-        /// Appends the error message header for this <see cref="AuthorizationError"/> to the provided <see cref="StringBuilder"/>
-        /// </summary>
-        /// <param name="error">The error message <see cref="StringBuilder"/>.</param>
-        /// <returns></returns>
-        public void AppendFailureHeader(StringBuilder error) => AppendFailureHeader(error, OperationType);
 
         private static string GenerateMessage(OperationType? operationType, AuthorizationResult result)
         {
@@ -61,13 +54,6 @@ namespace GraphQL.Server.Authorization.AspNetCore
 
             return error.ToString();
         }
-        
-        private static void AppendFailureHeader(StringBuilder error, OperationType? operationType)
-        {
-            error.Append("You are not authorized to run this ")
-                .Append(GetOperationType(operationType))
-                .Append(".");
-        }
 
         private static string GetOperationType(OperationType? operationType)
         {
@@ -80,6 +66,18 @@ namespace GraphQL.Server.Authorization.AspNetCore
             };
         }
 
+        /// <summary>
+        /// Appends the error message header for this <see cref="AuthorizationError"/> to the provided <see cref="StringBuilder"/>.
+        /// </summary>
+        /// <param name="error">The error message <see cref="StringBuilder"/>.</param>
+        /// <param name="operationType">The GraphQL operation type.</param>
+        public static void AppendFailureHeader(StringBuilder error, OperationType? operationType)
+        {
+            error.Append("You are not authorized to run this ")
+                .Append(GetOperationType(operationType))
+                .Append(".");
+        }
+        
         /// <summary>
         /// Appends a description of the failed <paramref name="authorizationRequirement"/> to the supplied <see cref="StringBuilder"/>.
         /// </summary>
