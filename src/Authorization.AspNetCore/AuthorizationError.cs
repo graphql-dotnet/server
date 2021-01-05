@@ -43,14 +43,16 @@ namespace GraphQL.Server.Authorization.AspNetCore
         public OperationType? OperationType { get; }
 
         /// <summary>
-        /// Gets a <see cref="StringBuilder"/> containing the error message header for this <see cref="AuthorizationError"/>
+        /// Appends the error message header for this <see cref="AuthorizationError"/> to the provided <see cref="StringBuilder"/>
         /// </summary>
+        /// <param name="error">the error message <see cref="StringBuilder"/></param>
         /// <returns></returns>
-        public StringBuilder GetErrorStringBuilder() => GetErrorStringBuilder(OperationType);
+        public void AppendFailureHeader(StringBuilder error) => AppendFailureHeader(error, OperationType);
 
-        protected static string GenerateMessage(OperationType? operationType, AuthorizationResult result)
+        private static string GenerateMessage(OperationType? operationType, AuthorizationResult result)
         {
-            var error = GetErrorStringBuilder(operationType);
+            var error = new StringBuilder();
+            AppendFailureHeader(error, operationType);
 
             foreach (var failure in result.Failure.FailedRequirements)
             {
@@ -60,12 +62,11 @@ namespace GraphQL.Server.Authorization.AspNetCore
             return error.ToString();
         }
         
-        private static StringBuilder GetErrorStringBuilder(OperationType? operationType)
+        private static void AppendFailureHeader(StringBuilder error, OperationType? operationType)
         {
-            var error = new StringBuilder("You are not authorized to run this ")
+            error.Append("You are not authorized to run this ")
                 .Append(GetOperationType(operationType))
                 .Append(".");
-            return error;
         }
 
         private static string GetOperationType(OperationType? operationType)

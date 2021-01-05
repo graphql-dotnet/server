@@ -1,3 +1,4 @@
+using System.Text;
 using GraphQL.Execution;
 using GraphQL.Server;
 using GraphQL.Server.Authorization.AspNetCore;
@@ -28,7 +29,8 @@ namespace GraphQL.Samples.Server
 
         private string GetAuthorizationErrorMessage(AuthorizationError error)
         {
-            var errorMessage = error.GetErrorStringBuilder();
+            var errorMessage = new StringBuilder();
+            error.AppendFailureHeader(errorMessage);
 
             foreach (var failedRequirement in error.AuthorizationResult.Failure.FailedRequirements)
             {
