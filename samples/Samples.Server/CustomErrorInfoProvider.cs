@@ -30,7 +30,7 @@ namespace GraphQL.Samples.Server
         private string GetAuthorizationErrorMessage(AuthorizationError error)
         {
             var errorMessage = new StringBuilder();
-            error.AppendFailureHeader(errorMessage);
+            AuthorizationError.AppendFailureHeader(errorMessage, error.OperationType);
 
             foreach (var failedRequirement in error.AuthorizationResult.Failure.FailedRequirements)
             {
