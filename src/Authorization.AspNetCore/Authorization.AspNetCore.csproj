@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <Description>HTTP authorization middleware for GraphQL</Description>
-    <PackageTags>GraphQL;authentication;authorization;middleware</PackageTags>
+    <Description>Integration of GraphQL.NET validation subsystem into ASP.NET Core</Description>
+    <PackageTags>GraphQL;authentication;authorization;validation</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
