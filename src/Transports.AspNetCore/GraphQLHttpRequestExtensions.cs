@@ -17,7 +17,7 @@ namespace GraphQL.Federation.Instrumentation
         /// </summary>
         /// <param name="request"> <see cref="HttpRequest" /> instance</param>
         /// <returns>true if apollo-federation-include-trace is set in the header</returns>
-        public static bool IsFederatedTracingEnabled(this HttpRequest request)
+        public static bool IsApolloFederatedTracingEnabled(this HttpRequest request)
         {
             var headers = request?.Headers;
             if (headers != null && headers.TryGetValue(HEADER_NAME, out var values))
