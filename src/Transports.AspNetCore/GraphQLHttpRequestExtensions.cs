@@ -25,7 +25,6 @@ namespace GraphQL.Federation.Instrumentation
                 string value = values.FirstOrDefault();
                 return HEADER_VALUE.Equals(value, StringComparison.OrdinalIgnoreCase);
             }
-
             return false;
         }
     }
