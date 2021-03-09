@@ -1,24 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Description>A GraphiQL Integration for AspNetCore</Description>
-    <TargetFrameworks>netcoreapp3.1;netcoreapp3.0;netstandard2.0</TargetFrameworks>
-    <PackageId>GraphQL.Server.Ui.GraphiQL</PackageId>
-    <PackageTags>GraphiQL GraphQL</PackageTags>
-    <AssemblyName>GraphQL.Server.Ui.GraphiQL</AssemblyName>
-    <RootNamespace>GraphQL.Server.Ui.GraphiQL</RootNamespace>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <Description>GraphiQL integration for ASP.NET Core</Description>
+    <PackageTags>GraphiQL;GraphQL</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Internal\graphiql.cshtml" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(IsNetCore3OnwardsTarget)' == 'True'">
+  <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(IsNetCore3OnwardsTarget)' == 'False'">
-    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="$(MicrosoftAspNetCoreHttpAbstractionsVersion)" />
   </ItemGroup>
 
 </Project>

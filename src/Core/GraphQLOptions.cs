@@ -7,7 +7,7 @@ using GraphQL.Validation.Complexity;
 namespace GraphQL.Server
 {
     /// <summary>
-    /// Options to configure <see cref="Internal.DefaultGraphQLExecuter{TSchema}"/>.
+    /// Options to configure <see cref="DefaultGraphQLExecuter{TSchema}"/>.
     /// </summary>
     public class GraphQLOptions
     {

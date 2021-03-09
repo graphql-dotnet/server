@@ -4,6 +4,10 @@
 
 [![Build status](https://github.com/graphql-dotnet/server/workflows/Build%20artifacts/badge.svg)](https://github.com/graphql-dotnet/server/actions)
 [![Build status](https://github.com/graphql-dotnet/server/workflows/Publish%20release/badge.svg)](https://github.com/graphql-dotnet/server/actions)
+[![CodeQL analysis](https://github.com/graphql-dotnet/server/workflows/CodeQL%20analysis/badge.svg)](https://github.com/graphql-dotnet/server/actions?query=workflow%3A%22%22CodeQL+analysis%22%22)
+
+[![Total alerts](https://img.shields.io/lgtm/alerts/g/graphql-dotnet/server.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/graphql-dotnet/server/alerts/)
+[![Language grade: C#](https://img.shields.io/lgtm/grade/csharp/g/graphql-dotnet/server.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/graphql-dotnet/server/context:csharp)
 
 ![Activity](https://img.shields.io/github/commit-activity/w/graphql-dotnet/server)
 ![Activity](https://img.shields.io/github/commit-activity/m/graphql-dotnet/server)
@@ -17,6 +21,7 @@ Provides the following packages:
 
 | Package                                              | Downloads                                                                                                                                                                             | NuGet Latest                                                                                                                                                                         |
 |------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| GraphQL.Server.All                                   | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.All)](https://www.nuget.org/packages/GraphQL.Server.All/)                                                                    | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.All)](https://www.nuget.org/packages/GraphQL.Server.All)                                                                     |
 | GraphQL.Server.Core                                  | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Core)](https://www.nuget.org/packages/GraphQL.Server.Core/)                                                                  | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.Core)](https://www.nuget.org/packages/GraphQL.Server.Core)                                                                   |
 | GraphQL.Server.Transports.AspNetCore                 | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Transports.AspNetCore)](https://www.nuget.org/packages/GraphQL.Server.Transports.AspNetCore)                                 | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.Transports.AspNetCore)](https://www.nuget.org/packages/GraphQL.Server.Transports.AspNetCore)                                 |
 | GraphQL.Server.Transports.AspNetCore.NewtonsoftJson  | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Transports.AspNetCore.NewtonsoftJson)](https://www.nuget.org/packages/GraphQL.Server.Transports.AspNetCore.NewtonsoftJson)   | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.Transports.AspNetCore.NewtonsoftJson)](https://www.nuget.org/packages/GraphQL.Server.Transports.AspNetCore.NewtonsoftJson)   |
@@ -32,6 +37,9 @@ Provides the following packages:
 Transport compatible with [Apollo](https://github.com/apollographql/subscriptions-transport-ws) subscription protocol.
 
 ## Getting started
+
+> **TL;DR**
+> Install [GraphQL.Server.All](https://www.nuget.org/packages/GraphQL.Server.All) meta package with all the packages you need to get started.
 
 You can install the latest stable versions via [NuGet](https://www.nuget.org/packages/GraphQL.Server.Transports.AspNetCore/).
 Also you can get all preview versions from [GitHub Packages](https://github.com/orgs/graphql-dotnet/packages?repo_name=server).
@@ -77,9 +85,12 @@ For the UI middleware/s:
 
 ## Configure
 
-See the sample project's [Startup.cs](samples/Samples.Server/Startup.cs) for full details.
+See the sample project's [Startup.cs](samples/Samples.Server/Startup.cs) or [StartupWithRouting.cs](samples/Samples.Server/StartupWithRouting.cs) for full details.
+More information about ASP.NET Core routing [here](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/routing?view=aspnetcore-3.1).
 
-```csharp
+1. Without routing:
+
+```c#
 public void ConfigureServices(IServiceCollection services)
 {
     // Add GraphQL services and configure options
@@ -112,17 +123,74 @@ public void Configure(IApplicationBuilder app)
     // use HTTP middleware for ChatSchema at default path /graphql
     app.UseGraphQL<ChatSchema>();
 
-    // use graphiQL middleware at default path /ui/graphiql
-    app.UseGraphiQLServer();
+    // use GraphiQL middleware at default path /ui/graphiql with default options
+    app.UseGraphQLGraphiQL();
 
-    // use graphql-playground middleware at default path /ui/playground
+    // use GraphQL Playground middleware at default path /ui/playground with default options
     app.UseGraphQLPlayground();
 
-    // use altair middleware at default path /ui/altair
+    // use Altair middleware at default path /ui/altair with default options
     app.UseGraphQLAltair();
     
-    // use voyager middleware at default path /ui/voyager
+    // use Voyager middleware at default path /ui/voyager with default options
     app.UseGraphQLVoyager();
+}
+```
+
+2. With routing:
+
+```c#
+public void ConfigureServices(IServiceCollection services)
+{
+    // Add GraphQL services and configure options
+    services
+        .AddRouting()
+        .AddSingleton<IChat, Chat>()
+        .AddSingleton<ChatSchema>()
+        .AddGraphQL((options, provider) =>
+        {
+            options.EnableMetrics = Environment.IsDevelopment();
+            var logger = provider.GetRequiredService<ILogger<Startup>>();
+            options.UnhandledExceptionDelegate = ctx => logger.LogError("{Error} occurred", ctx.OriginalException.Message);
+        })
+        // It is required when both GraphQL HTTP and GraphQL WebSockets middlewares are mapped to the same endpoint (by default 'graphql').
+        .AddDefaultEndpointSelectorPolicy()
+        // Add required services for GraphQL request/response de/serialization
+        .AddSystemTextJson() // For .NET Core 3+
+        .AddNewtonsoftJson() // For everything else
+        .AddErrorInfoProvider(opt => opt.ExposeExceptionStackTrace = Environment.IsDevelopment())
+        .AddWebSockets() // Add required services for web socket support
+        .AddDataLoader() // Add required services for DataLoader support
+        .AddGraphTypes(typeof(ChatSchema)); // Add all IGraphType implementors in assembly which ChatSchema exists 
+}
+
+public void Configure(IApplicationBuilder app)
+{
+    // this is required for websockets support
+    app.UseWebSockets();
+
+    // this is required for ASP.NET Core routing
+    app.UseRouting();
+            
+    app.UseEndpoints(endpoints =>
+    {
+        // map websocket middleware for ChatSchema at default path /graphql
+        endpoints.MapGraphQLWebSockets<ChatSchema>();
+
+        // map HTTP middleware for ChatSchema at default path /graphql
+        endpoints.MapGraphQL<ChatSchema, GraphQLHttpMiddlewareWithLogs<ChatSchema>>();
+
+        // map GraphQL Playground middleware at default path /ui/playground with default options
+        endpoints.MapGraphQLPlayground();
+
+        // map GraphiQL middleware at default path /ui/graphiql with default options
+        endpoints.MapGraphQLGraphiQL();
+
+        // map Altair middleware at default path /ui/altair with default options
+        endpoints.MapGraphQLAltair();
+
+        // map Voyager middleware at default path /ui/voyager with default options
+        endpoints.MapGraphQLVoyager();
 }
 ```
 

@@ -2,20 +2,31 @@ namespace GraphQL.Server.Ui.GraphiQL
 {
     public class GraphiQLMiddleware
     {
-        public GraphiQLMiddleware(Microsoft.AspNetCore.Http.RequestDelegate nextMiddleware, GraphQL.Server.Ui.GraphiQL.GraphiQLOptions options) { }
+        public GraphiQLMiddleware(Microsoft.AspNetCore.Http.RequestDelegate next, GraphQL.Server.Ui.GraphiQL.GraphiQLOptions options) { }
         public System.Threading.Tasks.Task Invoke(Microsoft.AspNetCore.Http.HttpContext httpContext) { }
     }
     public class GraphiQLOptions
     {
         public GraphiQLOptions() { }
         public Microsoft.AspNetCore.Http.PathString GraphQLEndPoint { get; set; }
-        public Microsoft.AspNetCore.Http.PathString Path { get; set; }
+        public System.Collections.Generic.Dictionary<string, string> Headers { get; set; }
+        public Microsoft.AspNetCore.Http.PathString SubscriptionsEndPoint { get; set; }
     }
 }
 namespace Microsoft.AspNetCore.Builder
 {
-    public static class GraphiQLMiddlewareExtensions
+    public static class GraphiQLApplicationBuilderExtensions
     {
-        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphiQLServer(this Microsoft.AspNetCore.Builder.IApplicationBuilder app, GraphQL.Server.Ui.GraphiQL.GraphiQLOptions options = null) { }
+        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQLGraphiQL(this Microsoft.AspNetCore.Builder.IApplicationBuilder app, string path = "/ui/graphiql") { }
+        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQLGraphiQL(this Microsoft.AspNetCore.Builder.IApplicationBuilder app, GraphQL.Server.Ui.GraphiQL.GraphiQLOptions options, string path = "/ui/graphiql") { }
+    }
+    public class GraphiQLEndpointConventionBuilder : Microsoft.AspNetCore.Builder.IEndpointConventionBuilder
+    {
+        public void Add(System.Action<Microsoft.AspNetCore.Builder.EndpointBuilder> convention) { }
+    }
+    public static class GraphiQLEndpointRouteBuilderExtensions
+    {
+        public static Microsoft.AspNetCore.Builder.GraphiQLEndpointConventionBuilder MapGraphQLGraphiQL(this Microsoft.AspNetCore.Routing.IEndpointRouteBuilder endpoints, string pattern = "ui/graphiql") { }
+        public static Microsoft.AspNetCore.Builder.GraphiQLEndpointConventionBuilder MapGraphQLGraphiQL(this Microsoft.AspNetCore.Routing.IEndpointRouteBuilder endpoints, GraphQL.Server.Ui.GraphiQL.GraphiQLOptions options, string pattern = "ui/graphiql") { }
     }
 }

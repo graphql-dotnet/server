@@ -1,14 +1,14 @@
-"test":
+test:
   - tests/**/*
 
-"CI":
+CI:
   - .github/workflows/**/*
 
-"code style":
+code style:
   - .editorconfig
 
-"performance":
-  - src/Benchmarks/**/*
-
-"documentation":
+documentation:
   - README.md
+
+performance:
+  - src/Benchmarks/**/*

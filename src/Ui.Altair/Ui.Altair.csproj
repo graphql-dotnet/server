@@ -1,28 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1;netcoreapp3.0;netstandard2.0</TargetFrameworks>
-    <AssemblyName>GraphQL.Server.Ui.Altair</AssemblyName>
-    <RootNamespace>GraphQL.Server.Ui.Altair</RootNamespace>
-    <Description>Altair GraphQL extension</Description>
-    <PackageTags>Altair GraphQL</PackageTags>
-    <PackageId>GraphQL.Server.Ui.Altair</PackageId>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <Description>GraphQL Altair integration for ASP.NET Core</Description>
+    <PackageTags>Altair;GraphQL</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Internal\altair.cshtml" />
-    <Compile Include="..\Ui.Playground\Shared\**">
-      <Link>Shared\%(RecursiveDir)%(Filename)%(Extension)</Link>
-    </Compile>
   </ItemGroup>
 
-  <ItemGroup Condition="'$(IsNetCore3OnwardsTarget)' == 'True'">
+  <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(IsNetCore3OnwardsTarget)' == 'False'">
-    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="$(MicrosoftAspNetCoreHttpAbstractionsVersion)" />
-    <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonVersion)" />
   </ItemGroup>
 
 </Project>

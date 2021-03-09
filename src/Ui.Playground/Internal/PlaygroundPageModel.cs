@@ -1,16 +1,17 @@
 using System.IO;
 using System.Text;
+using System.Text.Json;
 
 namespace GraphQL.Server.Ui.Playground.Internal
 {
     // https://docs.microsoft.com/en-us/aspnet/core/mvc/razor-pages/?tabs=netcore-cli
-    internal class PlaygroundPageModel
+    internal sealed class PlaygroundPageModel
     {
         private string _playgroundCSHtml;
 
-        private readonly GraphQLPlaygroundOptions _options;
+        private readonly PlaygroundOptions _options;
 
-        public PlaygroundPageModel(GraphQLPlaygroundOptions options)
+        public PlaygroundPageModel(PlaygroundOptions options)
         {
             _options = options;
         }
@@ -24,9 +25,10 @@ namespace GraphQL.Server.Ui.Playground.Internal
 
                 var builder = new StringBuilder(streamReader.ReadToEnd())
                     .Replace("@Model.GraphQLEndPoint", _options.GraphQLEndPoint)
-                    .Replace("@Model.GraphQLConfig", Serializer.Serialize(_options.GraphQLConfig))
-                    .Replace("@Model.Headers", Serializer.Serialize(_options.Headers))
-                    .Replace("@Model.PlaygroundSettings", Serializer.Serialize(_options.PlaygroundSettings));
+                    .Replace("@Model.SubscriptionsEndPoint", _options.SubscriptionsEndPoint)
+                    .Replace("@Model.GraphQLConfig", JsonSerializer.Serialize<object>(_options.GraphQLConfig))
+                    .Replace("@Model.Headers", JsonSerializer.Serialize<object>(_options.Headers))
+                    .Replace("@Model.PlaygroundSettings", JsonSerializer.Serialize<object>(_options.PlaygroundSettings));
 
                 _playgroundCSHtml = builder.ToString();
             }

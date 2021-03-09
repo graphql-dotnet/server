@@ -1,17 +1,18 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Text.Json;
 
 namespace GraphQL.Server.Ui.Voyager.Internal
 {
     // https://docs.microsoft.com/en-us/aspnet/core/mvc/razor-pages/?tabs=netcore-cli
-    internal class VoyagerPageModel
+    internal sealed class VoyagerPageModel
     {
         private string _voyagerCSHtml;
 
-        private readonly GraphQLVoyagerOptions _options;
+        private readonly VoyagerOptions _options;
 
-        public VoyagerPageModel(GraphQLVoyagerOptions options)
+        public VoyagerPageModel(VoyagerOptions options)
         {
             _options = options;
         }
@@ -37,7 +38,7 @@ namespace GraphQL.Server.Ui.Voyager.Internal
 
                 var builder = new StringBuilder(streamReader.ReadToEnd())
                     .Replace("@Model.GraphQLEndPoint", _options.GraphQLEndPoint)
-                    .Replace("@Model.Headers", Serializer.Serialize(headers));
+                    .Replace("@Model.Headers", JsonSerializer.Serialize<object>(headers));
 
                 _voyagerCSHtml = builder.ToString();
             }

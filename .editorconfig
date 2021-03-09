@@ -93,7 +93,7 @@ csharp_style_var_elsewhere = true:suggestion
 # C# code style settings - Expression-bodied members
 # https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-language-conventions?view=vs-2019#expression-bodied-members
 csharp_style_expression_bodied_methods = when_on_single_line:suggestion
-csharp_style_expression_bodied_constructors = false:suggestion
+csharp_style_expression_bodied_constructors = false:warning
 csharp_style_expression_bodied_operators = when_on_single_line:warning
 csharp_style_expression_bodied_properties = when_on_single_line:warning
 csharp_style_expression_bodied_indexers = when_on_single_line:warning
@@ -255,3 +255,9 @@ dotnet_naming_style.end_in_async_style.required_suffix = Async
 
 # dotnet_naming_rule.<namingRuleTitle>.severity = <value>
 dotnet_naming_rule.async_methods_end_in_async.severity = warning
+
+# Remove unnecessary import https://docs.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0005
+dotnet_diagnostic.IDE0005.severity = warning
+
+# IDE1006: Naming Styles (Async methods should have "Async" suffix, see rule above)
+dotnet_diagnostic.IDE1006.severity = suggestion

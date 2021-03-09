@@ -1,12 +1,10 @@
-using GraphQL.Server.Common;
-using GraphQL.Server.Transports.AspNetCore;
-using GraphQL.Server.Transports.AspNetCore.Common;
-using GraphQL.Types;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using GraphQL.Server.Transports.AspNetCore;
+using GraphQL.Types;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 namespace GraphQL.Samples.Server
 {
@@ -19,9 +17,8 @@ namespace GraphQL.Samples.Server
         public GraphQLHttpMiddlewareWithLogs(
             ILogger<GraphQLHttpMiddleware<TSchema>> logger,
             RequestDelegate next,
-            PathString path,
             IGraphQLRequestDeserializer requestDeserializer)
-            : base(next, path, requestDeserializer)
+            : base(next, requestDeserializer)
         {
             _logger = logger;
         }

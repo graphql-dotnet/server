@@ -1,22 +1,31 @@
 namespace GraphQL.Server.Ui.Voyager
 {
-    public class GraphQLVoyagerOptions
-    {
-        public GraphQLVoyagerOptions() { }
-        public Microsoft.AspNetCore.Http.PathString GraphQLEndPoint { get; set; }
-        public System.Collections.Generic.Dictionary<string, object> Headers { get; set; }
-        public Microsoft.AspNetCore.Http.PathString Path { get; set; }
-    }
     public class VoyagerMiddleware
     {
-        public VoyagerMiddleware(Microsoft.AspNetCore.Http.RequestDelegate nextMiddleware, GraphQL.Server.Ui.Voyager.GraphQLVoyagerOptions options) { }
+        public VoyagerMiddleware(Microsoft.AspNetCore.Http.RequestDelegate next, GraphQL.Server.Ui.Voyager.VoyagerOptions options) { }
         public System.Threading.Tasks.Task Invoke(Microsoft.AspNetCore.Http.HttpContext httpContext) { }
+    }
+    public class VoyagerOptions
+    {
+        public VoyagerOptions() { }
+        public Microsoft.AspNetCore.Http.PathString GraphQLEndPoint { get; set; }
+        public System.Collections.Generic.Dictionary<string, object> Headers { get; set; }
     }
 }
 namespace Microsoft.AspNetCore.Builder
 {
-    public static class VoyagerExtensions
+    public static class VoyagerApplicationBuilderExtensions
     {
-        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQLVoyager(this Microsoft.AspNetCore.Builder.IApplicationBuilder app, GraphQL.Server.Ui.Voyager.GraphQLVoyagerOptions options = null) { }
+        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQLVoyager(this Microsoft.AspNetCore.Builder.IApplicationBuilder app, string path = "/ui/voyager") { }
+        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQLVoyager(this Microsoft.AspNetCore.Builder.IApplicationBuilder app, GraphQL.Server.Ui.Voyager.VoyagerOptions options, string path = "/ui/voyager") { }
+    }
+    public class VoyagerEndpointConventionBuilder : Microsoft.AspNetCore.Builder.IEndpointConventionBuilder
+    {
+        public void Add(System.Action<Microsoft.AspNetCore.Builder.EndpointBuilder> convention) { }
+    }
+    public static class VoyagerEndpointRouteBuilderExtensions
+    {
+        public static Microsoft.AspNetCore.Builder.VoyagerEndpointConventionBuilder MapGraphQLVoyager(this Microsoft.AspNetCore.Routing.IEndpointRouteBuilder endpoints, string pattern = "ui/voyager") { }
+        public static Microsoft.AspNetCore.Builder.VoyagerEndpointConventionBuilder MapGraphQLVoyager(this Microsoft.AspNetCore.Routing.IEndpointRouteBuilder endpoints, GraphQL.Server.Ui.Voyager.VoyagerOptions options, string pattern = "ui/voyager") { }
     }
 }

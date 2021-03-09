@@ -1,14 +1,10 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using GraphQL.Language.AST;
 using GraphQL.Types;
 using GraphQL.Validation;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authorization.Infrastructure;
-using Microsoft.AspNetCore.Http;
 
 namespace GraphQL.Server.Authorization.AspNetCore
 {
@@ -19,17 +15,17 @@ namespace GraphQL.Server.Authorization.AspNetCore
     public class AuthorizationValidationRule : IValidationRule
     {
         private readonly IAuthorizationService _authorizationService;
-        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IClaimsPrincipalAccessor _claimsPrincipalAccessor;
 
         /// <summary>
         /// Creates an instance of <see cref="AuthorizationValidationRule"/>.
         /// </summary>
         /// <param name="authorizationService"> ASP.NET Core <see cref="IAuthorizationService"/> to authorize against. </param>
-        /// <param name="httpContextAccessor"> ASP.NET Core <see cref="IHttpContextAccessor"/> to take user (HttpContext.User) from. </param>
-        public AuthorizationValidationRule(IAuthorizationService authorizationService, IHttpContextAccessor httpContextAccessor)
+        /// <param name="claimsPrincipalAccessor"> The <see cref="IClaimsPrincipalAccessor"/> which provides the <see cref="ClaimsPrincipal"/> for authorization. </param>
+        public AuthorizationValidationRule(IAuthorizationService authorizationService, IClaimsPrincipalAccessor claimsPrincipalAccessor)
         {
             _authorizationService = authorizationService;
-            _httpContextAccessor = httpContextAccessor;
+            _claimsPrincipalAccessor = claimsPrincipalAccessor;
         }
 
         /// <inheritdoc />
@@ -86,15 +82,17 @@ namespace GraphQL.Server.Authorization.AspNetCore
             if (policyNames?.Count == 1)
             {
                 // small optimization for the single policy - no 'new List<>()', no 'await Task.WhenAll()'
-                var authorizationResult = await _authorizationService.AuthorizeAsync(_httpContextAccessor.HttpContext.User, policyNames[0]);
-                AddValidationError(node, context, operationType, authorizationResult);
+                var authorizationResult = await _authorizationService.AuthorizeAsync(_claimsPrincipalAccessor.GetClaimsPrincipal(context), policyNames[0]);
+                if (!authorizationResult.Succeeded)
+                    AddValidationError(node, context, operationType, authorizationResult);
             }
             else if (policyNames?.Count > 1)
             {
+                var claimsPrincipal = _claimsPrincipalAccessor.GetClaimsPrincipal(context);
                 var tasks = new List<Task<AuthorizationResult>>(policyNames.Count);
                 foreach (string policyName in policyNames)
                 {
-                    var task = _authorizationService.AuthorizeAsync(_httpContextAccessor.HttpContext.User, policyName);
+                    var task = _authorizationService.AuthorizeAsync(claimsPrincipal, policyName);
                     tasks.Add(task);
                 }
 
@@ -102,100 +100,18 @@ namespace GraphQL.Server.Authorization.AspNetCore
 
                 foreach (var result in authorizationResults)
                 {
-                    AddValidationError(node, context, operationType, result);
-                }
-            }
-
-            static void AddValidationError(INode node, ValidationContext context, OperationType? operationType, AuthorizationResult result)
-            {
-                if (!result.Succeeded)
-                {
-                    var error = new StringBuilder("You are not authorized to run this ")
-                                .Append(GetOperationType(operationType))
-                                .Append(".");
-
-                    foreach (var failure in result.Failure.FailedRequirements)
-                    {
-                        AppendFailureLine(error, failure);
-                    }
-
-                    context.ReportError(new ValidationError(context.OriginalQuery, "6.1.1", error.ToString(), node == null ? Array.Empty<INode>() : new INode[] { node })
-                    {
-                        Code = "authorization",
-                    });
+                    if (!result.Succeeded)
+                        AddValidationError(node, context, operationType, result);
                 }
             }
         }
 
-        private static string GetOperationType(OperationType? operationType)
+        /// <summary>
+        /// Adds an authorization failure error to the document response
+        /// </summary>
+        protected virtual void AddValidationError(INode node, ValidationContext context, OperationType? operationType, AuthorizationResult result)
         {
-            return operationType switch
-            {
-                OperationType.Query => "query",
-                OperationType.Mutation => "mutation",
-                OperationType.Subscription => "subscription",
-                _ => "operation",
-            };
-        }
-
-        private static void AppendFailureLine(StringBuilder error, IAuthorizationRequirement authorizationRequirement)
-        {
-            error.AppendLine();
-
-            switch (authorizationRequirement)
-            {
-                case ClaimsAuthorizationRequirement claimsAuthorizationRequirement:
-                    error.Append("Required claim '");
-                    error.Append(claimsAuthorizationRequirement.ClaimType);
-                    if (claimsAuthorizationRequirement.AllowedValues == null || !claimsAuthorizationRequirement.AllowedValues.Any())
-                    {
-                        error.Append("' is not present.");
-                    }
-                    else
-                    {
-                        error.Append("' with any value of '");
-                        error.Append(string.Join(", ", claimsAuthorizationRequirement.AllowedValues));
-                        error.Append("' is not present.");
-                    }
-                    break;
-
-                case DenyAnonymousAuthorizationRequirement _:
-                    error.Append("The current user must be authenticated.");
-                    break;
-
-                case NameAuthorizationRequirement nameAuthorizationRequirement:
-                    error.Append("The current user name must match the name '");
-                    error.Append(nameAuthorizationRequirement.RequiredName);
-                    error.Append("'.");
-                    break;
-
-                case OperationAuthorizationRequirement operationAuthorizationRequirement:
-                    error.Append("Required operation '");
-                    error.Append(operationAuthorizationRequirement.Name);
-                    error.Append("' was not present.");
-                    break;
-
-                case RolesAuthorizationRequirement rolesAuthorizationRequirement:
-                    if (rolesAuthorizationRequirement.AllowedRoles == null || !rolesAuthorizationRequirement.AllowedRoles.Any())
-                    {
-                        // This should never happen.
-                        error.Append("Required roles are not present.");
-                    }
-                    else
-                    {
-                        error.Append("Required roles '");
-                        error.Append(string.Join(", ", rolesAuthorizationRequirement.AllowedRoles));
-                        error.Append("' are not present.");
-                    }
-                    break;
-
-                case AssertionRequirement _:
-                default:
-                    error.Append("Requirement '");
-                    error.Append(authorizationRequirement.GetType().Name);
-                    error.Append("' was not satisfied.");
-                    break;
-            }
+            context.ReportError(new AuthorizationError(node, context, operationType, result));
         }
     }
 }

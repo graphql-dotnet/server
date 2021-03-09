@@ -1,16 +1,17 @@
 using System.IO;
 using System.Text;
+using System.Text.Json;
 
 namespace GraphQL.Server.Ui.Altair.Internal
 {
     // https://docs.microsoft.com/en-us/aspnet/core/mvc/razor-pages/?tabs=netcore-cli
-    internal class AltairPageModel
+    internal sealed class AltairPageModel
     {
         private string _altairCSHtml;
 
-        private readonly GraphQLAltairOptions _options;
+        private readonly AltairOptions _options;
 
-        public AltairPageModel(GraphQLAltairOptions options)
+        public AltairPageModel(AltairOptions options)
         {
             _options = options;
         }
@@ -24,7 +25,8 @@ namespace GraphQL.Server.Ui.Altair.Internal
 
                 var builder = new StringBuilder(streamReader.ReadToEnd())
                     .Replace("@Model.GraphQLEndPoint", _options.GraphQLEndPoint)
-                    .Replace("@Model.Headers", Serializer.Serialize(_options.Headers));
+                    .Replace("@Model.SubscriptionsEndPoint", _options.SubscriptionsEndPoint)
+                    .Replace("@Model.Headers", JsonSerializer.Serialize<object>(_options.Headers));
 
                 _altairCSHtml = builder.ToString();
             }

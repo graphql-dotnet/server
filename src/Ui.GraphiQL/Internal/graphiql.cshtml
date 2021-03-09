@@ -1,4 +1,4 @@
-﻿<!--
+<!--
  *  Copyright (c) Facebook, Inc.
  *  All rights reserved.
  *
@@ -116,10 +116,7 @@
 			// Change this to point wherever you host your GraphQL server.
 			return fetch(window.location.protocol + "//" + window.location.host + '@Model.GraphQLEndPoint', {
 				method: 'post',
-				headers: {
-					'Accept': 'application/json',
-					'Content-Type': 'application/json',
-				},
+				headers: @Model.Headers,
 				body: JSON.stringify(graphQLParams),
 				credentials: 'include',
 			}).then(function (response) {
@@ -134,7 +131,7 @@
 		}
 
 		// Enable Subscriptions via WebSocket
-		var subscriptionsClient = new window.SubscriptionsTransportWs.SubscriptionClient((window.location.protocol === "http:" ? "ws://" : "wss://") + window.location.host + "@Model.GraphQLEndPoint", { reconnect: true });
+		var subscriptionsClient = new window.SubscriptionsTransportWs.SubscriptionClient((window.location.protocol === "http:" ? "ws://" : "wss://") + window.location.host + "@Model.SubscriptionsEndPoint", { reconnect: true });
 		var subscriptionsFetcher = window.GraphiQLSubscriptionsFetcher.graphQLFetcher(subscriptionsClient, graphQLFetcher);
 
 		// Render <GraphiQL /> into the body.
