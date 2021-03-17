@@ -9,6 +9,7 @@ namespace GraphQL.Server.Authorization
     /// </summary>
     public static class AuthorizationMetadataExtensions
     {
+
         /// <summary>
         /// Metadata key name for storing authorization policy names. Value of this key
         /// is a simple list of strings.
@@ -105,5 +106,6 @@ namespace GraphQL.Server.Authorization
             builder.FieldType.AuthorizeWith(policy);
             return builder;
         }
+
     }
 }
