@@ -96,8 +96,11 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
         {
             var claimsList = new List<Claim>();
 
-            foreach (var c in claims)
-                claimsList.Add(new Claim(c.Key, c.Value));
+            if (claims != null)
+            {
+                foreach (var c in claims)
+                    claimsList.Add(new Claim(c.Key, c.Value));
+            }
 
             return new ClaimsPrincipal(new ClaimsIdentity(claimsList, authenticationType));
         }
