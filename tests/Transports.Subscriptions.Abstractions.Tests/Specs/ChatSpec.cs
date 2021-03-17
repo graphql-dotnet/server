@@ -212,7 +212,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
 
             /* Then */
             Assert.Contains(_transportWriter.WrittenMessages, message => message.Type == MessageType.GQL_CONNECTION_ACK);
-            AssertReceivedData(_transportWriter.WrittenMessages, data => data.ContainsKey("messageAdded"));
+            AssertReceivedData(_transportWriter.WrittenMessages, data => ((JObject)data["data"]).ContainsKey("messageAdded"));
             Assert.Contains(_transportWriter.WrittenMessages, message => message.Type == MessageType.GQL_COMPLETE);
         }
     }
