@@ -9,7 +9,6 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="GraphQL.NewtonsoftJson" Version="3.2.0" />
     <ProjectReference Include="..\..\src\Transports.Subscriptions.Abstractions\Transports.Subscriptions.Abstractions.csproj" />
   </ItemGroup>
 
