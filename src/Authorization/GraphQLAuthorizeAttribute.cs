@@ -1,6 +1,6 @@
 using GraphQL.Utilities;
 
-namespace GraphQL.Server.Authorization.AspNetCore
+namespace GraphQL.Server.Authorization
 {
     public class GraphQLAuthorizeAttribute : GraphQLAttribute
     {

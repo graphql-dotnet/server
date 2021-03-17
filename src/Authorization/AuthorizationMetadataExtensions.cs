@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using GraphQL.Builders;
 using GraphQL.Types;
 
-namespace GraphQL.Server.Authorization.AspNetCore
+namespace GraphQL.Server.Authorization
 {
     /// <summary>
     /// Extension methods to configure authorization requirements for GraphQL elements: types, fields, schema.
