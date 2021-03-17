@@ -1,7 +1,5 @@
 using System;
-using GraphQL.Conversion;
 using GraphQL.Execution;
-using GraphQL.Introspection;
 using GraphQL.Validation.Complexity;
 
 namespace GraphQL.Server
