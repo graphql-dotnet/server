@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="GraphQL.SystemReactive" Version="4.0.0" />
     <PackageReference Include="GraphQL.NewtonsoftJson" Version="4.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.0" />
     <PackageReference Include="System.Threading.Tasks.Dataflow" Version="4.9.0" />
@@ -13,7 +14,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj" />
-    <PackageReference Include="GraphQL.SystemReactive" Version="4.0.0" />
   </ItemGroup>
 
 </Project>
