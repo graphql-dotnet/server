@@ -29,37 +29,33 @@ namespace GraphQL.Server.Authorization.AspNetCore
         }
 
         /// <inheritdoc />
-        public Task<INodeVisitor> ValidateAsync(ValidationContext context)
+        public async Task<INodeVisitor> ValidateAsync(ValidationContext context)
         {
-            return Task.FromResult((INodeVisitor)new EnterLeaveListener(_ =>
-            {
-                AuthorizeAsync(null, context.Schema, context, null).GetAwaiter().GetResult(); // TODO: need to think of something to avoid this
+            await AuthorizeAsync(null, context.Schema, context, null);
+            var operationType = OperationType.Query;
 
-                var operationType = OperationType.Query;
+            // this could leak info about hidden fields or types in error messages
+            // it would be better to implement a filter on the Schema so it
+            // acts as if they just don't exist vs. an auth denied error
+            // - filtering the Schema is not currently supported
 
-                // this could leak info about hidden fields or types in error messages
-                // it would be better to implement a filter on the Schema so it
-                // acts as if they just don't exist vs. an auth denied error
-                // - filtering the Schema is not currently supported
-
-                _.Match<Operation>(astType =>
+            return new NodeVisitors(
+                new MatchingNodeVisitor<Operation>((astType, context) =>
                 {
                     operationType = astType.OperationType;
 
                     var type = context.TypeInfo.GetLastType();
                     AuthorizeAsync(astType, type, context, operationType).GetAwaiter().GetResult(); // TODO: need to think of something to avoid this
-                });
-
-                _.Match<ObjectField>(objectFieldAst =>
+                }),
+                new MatchingNodeVisitor<ObjectField>((objectFieldAst, context) =>
                 {
                     if (context.TypeInfo.GetArgument().ResolvedType.GetNamedType() is IComplexGraphType argumentType)
                     {
                         var fieldType = argumentType.GetField(objectFieldAst.Name);
                         AuthorizeAsync(objectFieldAst, fieldType, context, operationType).GetAwaiter().GetResult(); // TODO: need to think of something to avoid this
                     }
-                });
-
-                _.Match<Field>(fieldAst =>
+                }),
+                new MatchingNodeVisitor<Field>((fieldAst, context) =>
                 {
                     var fieldDef = context.TypeInfo.GetFieldDef();
                     if (fieldDef == null)
@@ -71,8 +67,8 @@ namespace GraphQL.Server.Authorization.AspNetCore
                     AuthorizeAsync(fieldAst, fieldDef, context, operationType).GetAwaiter().GetResult(); // TODO: need to think of something to avoid this
                     // check returned graph type
                     AuthorizeAsync(fieldAst, fieldDef.ResolvedType.GetNamedType(), context, operationType).GetAwaiter().GetResult(); // TODO: need to think of something to avoid this
-                });
-            }));
+                })
+            );
         }
 
         private async Task AuthorizeAsync(INode node, IProvideMetadata type, ValidationContext context, OperationType? operationType)

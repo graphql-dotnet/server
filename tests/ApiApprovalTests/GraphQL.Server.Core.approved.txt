@@ -33,8 +33,6 @@ namespace GraphQL.Server
         public GraphQL.Validation.Complexity.ComplexityConfiguration ComplexityConfiguration { get; set; }
         public bool EnableMetrics { get; set; }
         public int? MaxParallelExecutionCount { get; set; }
-        public GraphQL.Conversion.INameConverter NameConverter { get; set; }
-        public GraphQL.Introspection.ISchemaFilter SchemaFilter { get; set; }
     }
     public class GraphQLRequest
     {

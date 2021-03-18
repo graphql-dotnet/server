@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using GraphQL.Conversion;
 using GraphQL.Execution;
 using GraphQL.Instrumentation;
-using GraphQL.Introspection;
 using GraphQL.Types;
 using GraphQL.Validation;
 using Microsoft.Extensions.Options;
@@ -65,17 +63,10 @@ namespace GraphQL.Server
                 CancellationToken = cancellationToken,
                 ComplexityConfiguration = _options.ComplexityConfiguration,
                 EnableMetrics = _options.EnableMetrics,
-                NameConverter = _options.NameConverter ?? CamelCaseNameConverter.Instance,
                 UnhandledExceptionDelegate = _options.UnhandledExceptionDelegate,
-                SchemaFilter = _options.SchemaFilter ?? new DefaultSchemaFilter(),
                 MaxParallelExecutionCount = _options.MaxParallelExecutionCount,
                 RequestServices = requestServices,
             };
-
-            if (opts.EnableMetrics)
-            {
-                opts.FieldMiddleware.Use<InstrumentFieldsMiddleware>();
-            }
 
             foreach (var listener in _listeners)
             {

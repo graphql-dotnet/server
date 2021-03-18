@@ -38,7 +38,7 @@ namespace GraphQL.Samples.Schemas.Chat
 
         private IObservable<Message> SubscribeById(IResolveEventStreamContext context)
         {
-            var messageContext = context.UserContext.As<MessageHandlingContext>();
+            var messageContext = (MessageHandlingContext)context.UserContext;
             var user = messageContext.Get<ClaimsPrincipal>("user");
 
             string sub = "Anonymous";
@@ -60,7 +60,7 @@ namespace GraphQL.Samples.Schemas.Chat
 
         private IObservable<Message> Subscribe(IResolveEventStreamContext context)
         {
-            var messageContext = context.UserContext.As<MessageHandlingContext>();
+            var messageContext = (MessageHandlingContext)context.UserContext;
             var user = messageContext.Get<ClaimsPrincipal>("user");
 
             string sub = "Anonymous";

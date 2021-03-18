@@ -89,14 +89,18 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
             var documentBuilder = new GraphQLDocumentBuilder();
             var document = documentBuilder.Build(config.Query);
             var validator = new DocumentValidator();
-            return validator.ValidateAsync(config.Query, config.Schema, document, config.Rules, null, config.Inputs).GetAwaiter().GetResult();
+            return validator.ValidateAsync(config.Schema, document, document.Operations.First().Variables, config.Rules, null, config.Inputs).GetAwaiter().GetResult().validationResult;
         }
 
         protected ClaimsPrincipal CreatePrincipal(string authenticationType = null, IDictionary<string, string> claims = null)
         {
             var claimsList = new List<Claim>();
 
-            claims?.Apply(c => claimsList.Add(new Claim(c.Key, c.Value)));
+            if (claims != null)
+            {
+                foreach (var c in claims)
+                    claimsList.Add(new Claim(c.Key, c.Value));
+            }
 
             return new ClaimsPrincipal(new ClaimsIdentity(claimsList, authenticationType));
         }
