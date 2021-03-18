@@ -9,19 +9,6 @@ namespace GraphQL.Server.Authorization.AspNetCore
         public static void AppendFailureHeader(System.Text.StringBuilder error, GraphQL.Language.AST.OperationType? operationType) { }
         public static void AppendFailureLine(System.Text.StringBuilder error, Microsoft.AspNetCore.Authorization.IAuthorizationRequirement authorizationRequirement) { }
     }
-    public static class AuthorizationMetadataExtensions
-    {
-        public const string POLICY_KEY = "Authorization__Policies";
-        [System.Obsolete("This method will be removed in v5. Use TMetadataProvider AuthorizeWith<TMetadataP" +
-            "rovider>(this TMetadataProvider provider, string policy) instead.")]
-        public static void AuthorizeWith(this GraphQL.Types.IProvideMetadata type, string policy) { }
-        public static GraphQL.Builders.ConnectionBuilder<TSourceType> AuthorizeWith<TSourceType>(this GraphQL.Builders.ConnectionBuilder<TSourceType> builder, string policy) { }
-        public static TMetadataProvider AuthorizeWith<TMetadataProvider>(this TMetadataProvider provider, string policy)
-            where TMetadataProvider : GraphQL.Types.IProvideMetadata { }
-        public static GraphQL.Builders.FieldBuilder<TSourceType, TReturnType> AuthorizeWith<TSourceType, TReturnType>(this GraphQL.Builders.FieldBuilder<TSourceType, TReturnType> builder, string policy) { }
-        public static System.Collections.Generic.List<string> GetPolicies(this GraphQL.Types.IProvideMetadata provider) { }
-        public static bool RequiresAuthorization(this GraphQL.Types.IProvideMetadata provider) { }
-    }
     public class AuthorizationValidationRule : GraphQL.Validation.IValidationRule
     {
         public AuthorizationValidationRule(Microsoft.AspNetCore.Authorization.IAuthorizationService authorizationService, GraphQL.Server.Authorization.AspNetCore.IClaimsPrincipalAccessor claimsPrincipalAccessor) { }
