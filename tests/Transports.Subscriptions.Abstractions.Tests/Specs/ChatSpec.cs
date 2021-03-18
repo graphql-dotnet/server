@@ -23,7 +23,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
             _subscriptions = new SubscriptionManager(
                 new DefaultGraphQLExecuter<ChatSchema>(
                     new ChatSchema(_chat, new DefaultServiceProvider()),
-                    new DocumentExecuter(),
+                    new SubscriptionDocumentExecuter(),
                     Options.Create(new GraphQLOptions { }),
                     Enumerable.Empty<IDocumentExecutionListener>(),
                     Enumerable.Empty<IValidationRule>()
@@ -48,8 +48,12 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
         private void AssertReceivedData(List<OperationMessage> writtenMessages, Predicate<JObject> predicate)
         {
             var dataMessages = writtenMessages.Where(m => m.Type == MessageType.GQL_DATA);
-            var results = dataMessages.Select(m => JObject.FromObject(((ExecutionResult)m.Payload).Data))
-                .ToList();
+            var results = dataMessages.Select(m => {
+                var executionResult = (ExecutionResult)m.Payload;
+                var serializer = new Newtonsoft.Json.JsonSerializer();
+                serializer.Converters.Add(new NewtonsoftJson.ExecutionResultJsonConverter(new ErrorInfoProvider()));
+                return JObject.FromObject(executionResult, serializer);
+            }).ToList();
 
             Assert.Contains(results, predicate);
         }
@@ -208,7 +212,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
 
             /* Then */
             Assert.Contains(_transportWriter.WrittenMessages, message => message.Type == MessageType.GQL_CONNECTION_ACK);
-            AssertReceivedData(_transportWriter.WrittenMessages, data => data.ContainsKey("messageAdded"));
+            AssertReceivedData(_transportWriter.WrittenMessages, data => ((JObject)data["data"]).ContainsKey("messageAdded"));
             Assert.Contains(_transportWriter.WrittenMessages, message => message.Type == MessageType.GQL_COMPLETE);
         }
     }
