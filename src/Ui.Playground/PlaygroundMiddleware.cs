@@ -35,7 +35,8 @@ namespace GraphQL.Server.Ui.Playground
         /// <param name="httpContext">The HttpContext</param>
         public Task Invoke(HttpContext httpContext)
         {
-            if (httpContext == null) throw new ArgumentNullException(nameof(httpContext));
+            if (httpContext == null)
+                throw new ArgumentNullException(nameof(httpContext));
 
             httpContext.Response.ContentType = "text/html";
             httpContext.Response.StatusCode = 200;

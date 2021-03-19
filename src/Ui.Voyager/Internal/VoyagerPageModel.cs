@@ -30,7 +30,7 @@ namespace GraphQL.Server.Ui.Voyager.Internal
                     ["Content-Type"] = "application/json",
                 };
 
-                if ( _options.Headers?.Count > 0)
+                if (_options.Headers?.Count > 0)
                 {
                     foreach (var item in _options.Headers)
                         headers[item.Key] = item.Value;

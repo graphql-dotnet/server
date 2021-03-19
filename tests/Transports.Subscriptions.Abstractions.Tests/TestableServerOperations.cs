@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
 {

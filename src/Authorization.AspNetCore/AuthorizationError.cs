@@ -77,7 +77,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
                 .Append(GetOperationType(operationType))
                 .Append(".");
         }
-        
+
         /// <summary>
         /// Appends a description of the failed <paramref name="authorizationRequirement"/> to the supplied <see cref="StringBuilder"/>.
         /// </summary>

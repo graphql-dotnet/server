@@ -345,7 +345,7 @@ Required claim 'admin' is not present.");
         private ISchema TypedSchema()
         {
             var query = new ObjectGraphType();
-            
+
             query.Field<StringGraphType>(
                 "author",
                 arguments: new QueryArguments(new QueryArgument<AuthorInputType> { Name = "input" }),

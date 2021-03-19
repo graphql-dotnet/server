@@ -48,7 +48,8 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
         private void AssertReceivedData(List<OperationMessage> writtenMessages, Predicate<JObject> predicate)
         {
             var dataMessages = writtenMessages.Where(m => m.Type == MessageType.GQL_DATA);
-            var results = dataMessages.Select(m => {
+            var results = dataMessages.Select(m =>
+            {
                 var executionResult = (ExecutionResult)m.Payload;
                 var serializer = new Newtonsoft.Json.JsonSerializer();
                 serializer.Converters.Add(new NewtonsoftJson.ExecutionResultJsonConverter(new ErrorInfoProvider()));

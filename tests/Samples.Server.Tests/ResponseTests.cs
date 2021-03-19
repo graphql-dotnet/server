@@ -72,7 +72,7 @@ namespace Samples.Server.Tests
         {
             var response = await SendRequestAsync(httpMethod, httpContent);
             string expected = @"{""errors"":[{""message"":""" + expectedErrorMsg + @"""}]}";
-            
+
             response.StatusCode.ShouldBe(expectedStatusCode);
 
             string content = await response.Content.ReadAsStringAsync();

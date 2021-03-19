@@ -1,7 +1,7 @@
-using GraphQL.Server.Transports.Subscriptions.Abstractions;
 using System.Net.WebSockets;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
+using GraphQL.Server.Transports.Subscriptions.Abstractions;
 
 namespace GraphQL.Server.Transports.WebSockets
 {
@@ -45,7 +45,8 @@ namespace GraphQL.Server.Transports.WebSockets
 
         private async Task WriteMessageAsync(OperationMessage message)
         {
-            if (_socket.CloseStatus.HasValue) return;
+            if (_socket.CloseStatus.HasValue)
+                return;
 
             var stream = new WebsocketWriterStream(_socket);
             try

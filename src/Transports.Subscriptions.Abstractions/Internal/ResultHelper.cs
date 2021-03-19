@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Internal
 {
@@ -14,7 +14,8 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Internal
             {
                 builder.AppendLine($"Error: {error.Message}");
 
-                if (error.Path != null) builder.AppendLine($"Path: {string.Join(".", error.Path)}");
+                if (error.Path != null)
+                    builder.AppendLine($"Path: {string.Join(".", error.Path)}");
 
                 builder.AppendLine("Locations:");
                 if (error.Locations != null)

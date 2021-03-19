@@ -1,5 +1,5 @@
-﻿using GraphQL.Types;
 using System.Net.WebSockets;
+using GraphQL.Types;
 
 namespace GraphQL.Server.Transports.WebSockets
 {

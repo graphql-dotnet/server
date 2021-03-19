@@ -113,7 +113,7 @@ namespace Samples.Server.Tests
                 default:
                     throw new NotImplementedException();
             }
-            
+
             return await response.Content.ReadAsStringAsync();
         }
 
