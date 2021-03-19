@@ -1,11 +1,11 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-  
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFrameworks>net5;netcoreapp3.1</TargetFrameworks>
     <Description>WebSockets transport for subscriptions</Description>
     <PackageTags>GraphQL;WebSockets;subscriptions;transport</PackageTags>
   </PropertyGroup>
-  
+
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <ProjectReference Include="..\Transports.Subscriptions.Abstractions\Transports.Subscriptions.Abstractions.csproj" />

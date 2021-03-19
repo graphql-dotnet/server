@@ -1,25 +1,26 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <TargetFrameworks>net5;netcoreapp3.1</TargetFrameworks>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <RootNamespace>GraphQL.Server.Benchmarks</RootNamespace>
     <IsPackable>false</IsPackable>
     <NoWarn>$(NoWarn);1591</NoWarn>
+    <RootNamespace>GraphQL.Server.Benchmarks</RootNamespace>
   </PropertyGroup>
-  
+
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.12.1" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.10" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.13" Condition="'$(TargetFramework)' == 'netcoreapp3.1'" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" Condition="'$(TargetFramework)' == 'net5'" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <Compile Include="..\..\tests\Samples.Server.Tests\Serializer.cs" Link="Shared\Serializer.cs" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <ProjectReference Include="..\Transports.AspNetCore.NewtonsoftJson\Transports.AspNetCore.NewtonsoftJson.csproj" />
     <ProjectReference Include="..\Transports.AspNetCore.SystemTextJson\Transports.AspNetCore.SystemTextJson.csproj" />
   </ItemGroup>
-  
+
 </Project>

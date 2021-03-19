@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFrameworks>net5;netcoreapp3.1</TargetFrameworks>
     <Description>Integration of GraphQL.NET validation subsystem into ASP.NET Core</Description>
     <PackageTags>GraphQL;authentication;authorization;validation</PackageTags>
   </PropertyGroup>

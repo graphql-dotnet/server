@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFrameworks>net5;netcoreapp3.1</TargetFrameworks>
     <Description>GraphQL middleware using System.Text.Json for serialization</Description>
     <PackageTags>GraphQL;middleware;AspNetCore;System.Text.Json</PackageTags>
   </PropertyGroup>
@@ -11,7 +11,7 @@
     <ProjectReference Include="..\Transports.AspNetCore\Transports.AspNetCore.csproj" />
     <ProjectReference Include="..\Transports.Subscriptions.Abstractions\Transports.Subscriptions.Abstractions.csproj" />
     <PackageReference Include="GraphQL.SystemTextJson" Version="4.0.1" />
-    <PackageReference Include="System.IO.Pipelines" Version="4.7.3" />
+    <PackageReference Include="System.IO.Pipelines" Version="5.0.1" />
   </ItemGroup>
 
 </Project>

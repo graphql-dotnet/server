@@ -56,7 +56,7 @@ namespace GraphQL.Samples.Server
             app.UseWebSockets();
 
             app.UseRouting();
-            
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapGraphQLWebSockets<ChatSchema>();

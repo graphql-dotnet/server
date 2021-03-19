@@ -71,7 +71,7 @@ namespace GraphQL.Samples.Server
                 PrettierPrintWidth = 80,
                 PrettierTabWidth = 2,
                 PrettierUseTabs = true,
-              
+
                 SchemaDisableComments = false,
                 SchemaPollingEnabled = true,
                 SchemaPollingEndpointFilter = "*localhost*",

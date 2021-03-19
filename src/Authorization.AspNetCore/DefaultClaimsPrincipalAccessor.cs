@@ -8,7 +8,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
     /// <summary>
     /// The default claims principal accessor.
     /// </summary>
-    public class DefaultClaimsPrincipalAccessor: IClaimsPrincipalAccessor
+    public class DefaultClaimsPrincipalAccessor : IClaimsPrincipalAccessor
     {
         private readonly IHttpContextAccessor _contextAccessor;
 

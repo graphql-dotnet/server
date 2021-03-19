@@ -20,18 +20,18 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <NoWarn>$(NoWarn);1591</NoWarn> <!--TODO: temporary solution-->
-    
+
     <AssemblyName>GraphQL.Server.$(MSBuildProjectName)</AssemblyName>
     <RootNamespace>GraphQL.Server.$(MSBuildProjectName)</RootNamespace>
     <PackageId>GraphQL.Server.$(MSBuildProjectName)</PackageId>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" Condition="'$(IsPackable)' == 'true'"/>
+    <None Include="..\..\assets\logo.64x64.png" Pack="true" PackagePath="\"/>
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\..\assets\logo.64x64.png" Pack="true" PackagePath="\"/>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" Condition="'$(IsPackable)' == 'true'"/>
   </ItemGroup>
 
 </Project>

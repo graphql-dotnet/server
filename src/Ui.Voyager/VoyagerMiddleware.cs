@@ -36,7 +36,8 @@ namespace GraphQL.Server.Ui.Voyager
         /// <returns></returns>
         public Task Invoke(HttpContext httpContext)
         {
-            if (httpContext == null) throw new ArgumentNullException(nameof(httpContext));
+            if (httpContext == null)
+                throw new ArgumentNullException(nameof(httpContext));
 
             httpContext.Response.ContentType = "text/html";
             httpContext.Response.StatusCode = 200;

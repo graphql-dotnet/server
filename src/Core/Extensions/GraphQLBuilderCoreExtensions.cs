@@ -58,7 +58,7 @@ namespace GraphQL.Server
         /// <param name="configureOptions">Action to configure the <see cref="ErrorInfoProviderOptions"/>.</param>
         /// <returns>Reference to <paramref name="builder"/>.</returns>
         public static IGraphQLBuilder AddErrorInfoProvider<TErrorInfoProvider>(this IGraphQLBuilder builder, Action<ErrorInfoProviderOptions, IServiceProvider> configureOptions)
-            where TErrorInfoProvider: DefaultErrorInfoProvider
+            where TErrorInfoProvider : DefaultErrorInfoProvider
         {
             if (configureOptions == null)
                 throw new ArgumentNullException(nameof(configureOptions));

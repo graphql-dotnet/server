@@ -39,9 +39,12 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             OperationMessagePayload payload,
             MessageHandlingContext context)
         {
-            if (id == null) throw new ArgumentNullException(nameof(id));
-            if (payload == null) throw new ArgumentNullException(nameof(payload));
-            if (context == null) throw new ArgumentNullException(nameof(context));
+            if (id == null)
+                throw new ArgumentNullException(nameof(id));
+            if (payload == null)
+                throw new ArgumentNullException(nameof(payload));
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
 
             var subscription = await ExecuteAsync(id, payload, context).ConfigureAwait(false);
 

@@ -2,13 +2,14 @@
   <Import Project="../../Tests.props" />
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFrameworks>net5;netcoreapp3.1</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <ProjectReference Include="..\..\src\Authorization.AspNetCore\Authorization.AspNetCore.csproj" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.10" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.13" Condition="'$(TargetFramework)' == 'netcoreapp3.1'" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" Condition="'$(TargetFramework)' == 'net5'" />
   </ItemGroup>
 
 </Project>

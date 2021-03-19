@@ -39,7 +39,8 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 
         public T Get<T>(string key)
         {
-            if (!Properties.TryGetValue(key, out object value)) return default;
+            if (!Properties.TryGetValue(key, out object value))
+                return default;
 
             return value is T variable ? variable : default;
         }

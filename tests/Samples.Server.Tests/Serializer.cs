@@ -49,7 +49,7 @@ namespace GraphQL.Server
             => ToFormUrlEncodedContent(request).ReadAsStringAsync();
 
         private static Dictionary<string, object> ToDictionary(this GraphQLRequest request)
-            =>  new Dictionary<string, object>
+            => new Dictionary<string, object>
             {
                 { GraphQLRequest.OPERATION_NAME_KEY, request.OperationName },
                 { GraphQLRequest.QUERY_KEY, request.Query },
