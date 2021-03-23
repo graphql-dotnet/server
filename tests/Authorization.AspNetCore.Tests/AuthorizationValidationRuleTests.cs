@@ -264,7 +264,7 @@ Required claim 'admin' is not present.");
             });
         }
 
-        private ISchema BasicSchema<T>()
+        private static ISchema BasicSchema<T>()
         {
             string defs = @"
                 type Query {
