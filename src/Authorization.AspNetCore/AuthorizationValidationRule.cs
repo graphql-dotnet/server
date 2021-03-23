@@ -38,6 +38,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
             // it would be better to implement a filter on the Schema so it
             // acts as if they just don't exist vs. an auth denied error
             // - filtering the Schema is not currently supported
+            // TODO: apply ISchemaFilter - context.Schema.Filter.AllowXXX
 
             return new NodeVisitors(
                 new MatchingNodeVisitor<Operation>((astType, context) =>
@@ -58,10 +59,9 @@ namespace GraphQL.Server.Authorization.AspNetCore
                 new MatchingNodeVisitor<Field>((fieldAst, context) =>
                 {
                     var fieldDef = context.TypeInfo.GetFieldDef();
+
                     if (fieldDef == null)
-                    {
                         return;
-                    }
 
                     // check target field
                     AuthorizeAsync(fieldAst, fieldDef, context, operationType).GetAwaiter().GetResult(); // TODO: need to think of something to avoid this
@@ -71,9 +71,9 @@ namespace GraphQL.Server.Authorization.AspNetCore
             );
         }
 
-        private async Task AuthorizeAsync(INode node, IProvideMetadata type, ValidationContext context, OperationType? operationType)
+        private async Task AuthorizeAsync(INode node, IProvideMetadata provider, ValidationContext context, OperationType? operationType)
         {
-            var policyNames = type?.GetPolicies();
+            var policyNames = provider?.GetPolicies();
 
             if (policyNames?.Count == 1)
             {

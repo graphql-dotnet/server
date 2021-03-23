@@ -27,7 +27,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\..\assets\logo.64x64.png" Pack="true" PackagePath="\"/>
+    <None Include="..\..\assets\logo.64x64.png" Pack="true" PackagePath="\" Condition="'$(IsPackable)' == 'true'" />
   </ItemGroup>
 
   <ItemGroup>
