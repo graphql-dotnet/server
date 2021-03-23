@@ -75,7 +75,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
         {
             error.Append("You are not authorized to run this ")
                 .Append(GetOperationType(operationType))
-                .Append(".");
+                .Append('.');
         }
 
         /// <summary>
