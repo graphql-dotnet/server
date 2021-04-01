@@ -160,6 +160,40 @@ Required claim 'admin' is not present.");
         }
 
         [Fact]
+        public void nested_property_policy_success()
+        {
+            ConfigureAuthorizationOptions(options => options.AddPolicy("PropertyPolicy", x => x.RequireClaim("admin")));
+
+            ShouldPassRule(config =>
+            {
+                config.Query = @"query { data { post } }";
+                config.Schema = BasicSchema<NestedQueryWithAttributesAndPropertyPolicy>();
+                config.User = CreatePrincipal(claims: new Dictionary<string, string>
+                {
+                    { "Admin", "true" }
+                });
+            });
+        }
+
+        [Fact]
+        public void nested_property_policy_fail()
+        {
+            ConfigureAuthorizationOptions(options => options.AddPolicy("PropertyPolicy", x => x.RequireClaim("admin")));
+
+            ShouldFailRule(config =>
+            {
+                config.Query = @"query { data { post } }";
+                config.Schema = BasicSchema<NestedQueryWithAttributesAndPropertyPolicy>();
+                config.ValidateResult = result =>
+                {
+                    result.Errors.Count.ShouldBe(1);
+                    result.Errors[0].Message.ShouldBe(@"You are not authorized to run this query.
+Required claim 'admin' is not present.");
+                };
+            });
+        }
+
+        [Fact]
         public void nested_type_policy_success()
         {
             ConfigureAuthorizationOptions(options => options.AddPolicy("PostPolicy", x => x.RequireClaim("admin")));
@@ -327,6 +361,19 @@ Required claim 'admin' is not present.");
 
         [GraphQLMetadata("Query")]
         public class BasicQueryWithAttributesAndPropertyPolicy
+        {
+            [GraphQLAuthorize(Policy = "PropertyPolicy")]
+            public string Post { get => ""; }
+        }
+
+        [GraphQLMetadata("Query")]
+        public class NestedQueryWithAttributesAndPropertyPolicy
+        {
+            public NestedQueryObjectData Data => new NestedQueryObjectData();
+        }
+
+        [GraphQLMetadata("Data")]
+        public class NestedQueryObjectData
         {
             [GraphQLAuthorize(Policy = "PropertyPolicy")]
             public string Post { get => ""; }
