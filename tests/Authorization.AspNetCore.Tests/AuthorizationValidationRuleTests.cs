@@ -276,7 +276,7 @@ Required claim 'admin' is not present.");
         }
 
         [GraphQLMetadata("Query")]
-        [GraphQLAuthorize(Policy = "ClassPolicy")]
+        [GraphQLAuthorize("ClassPolicy")]
         public class BasicQueryWithAttributesAndClassPolicy
         {
             [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "for tests")]
@@ -286,7 +286,7 @@ Required claim 'admin' is not present.");
         [GraphQLMetadata("Query")]
         public class BasicQueryWithAttributesAndFieldPolicy
         {
-            [GraphQLAuthorize(Policy = "FieldPolicy")]
+            [GraphQLAuthorize("FieldPolicy")]
             [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "for tests")]
             public string Post(string id) => "";
         }
@@ -323,7 +323,7 @@ Required claim 'admin' is not present.");
             public IEnumerable<Post> PostsNonNull() => null;
         }
 
-        [GraphQLAuthorize(Policy = "PostPolicy")]
+        [GraphQLAuthorize("PostPolicy")]
         public class Post
         {
             public string Id { get; set; }
