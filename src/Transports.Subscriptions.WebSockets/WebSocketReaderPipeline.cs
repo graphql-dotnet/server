@@ -42,7 +42,9 @@ namespace GraphQL.Server.Transports.WebSockets
 
         public async Task Complete(WebSocketCloseStatus closeStatus, string statusDescription)
         {
-            if (_socket.State != WebSocketState.Closed && _socket.State != WebSocketState.CloseSent)
+            if (_socket.State != WebSocketState.Closed &&
+                _socket.State != WebSocketState.CloseSent &&
+                _socket.State != WebSocketState.Aborted)
                 try
                 {
                     if (closeStatus == WebSocketCloseStatus.NormalClosure)
