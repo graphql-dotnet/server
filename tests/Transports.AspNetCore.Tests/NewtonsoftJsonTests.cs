@@ -72,6 +72,7 @@ namespace GraphQL.Server.Transports.AspNetCore.Tests
             ret.Batch[0].Query.ShouldBe("abc");
             ret.Batch[1].Query.ShouldBe("def");
         }
+
         private async Task<GraphQLRequestDeserializationResult> Deserialize(string jsonText)
         {
             var jsonStream = new System.IO.MemoryStream(Encoding.UTF8.GetBytes(jsonText));
