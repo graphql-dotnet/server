@@ -23,7 +23,7 @@ namespace GraphQL.Server.Transports.AspNetCore.SystemTextJson
 
         public GraphQLRequestDeserializer(Action<JsonSerializerOptions> configure)
         {
-            // Add converter that deserializes Variables property
+            // Add converter that deserializes Variables and Extensions properties
             _serializerOptions.Converters.Add(new InputsConverter());
 
             configure?.Invoke(_serializerOptions);
