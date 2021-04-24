@@ -1,3 +1,4 @@
+using System.IO.Pipelines;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
@@ -6,7 +7,7 @@ using Xunit;
 
 namespace GraphQL.Server.Transports.AspNetCore.Tests
 {
-    public partial class NewtonsoftJsonTests
+    public partial class SystemTextJsonTests
     {
         [Fact]
         public async Task Decodes_Request()
@@ -58,10 +59,10 @@ namespace GraphQL.Server.Transports.AspNetCore.Tests
         }
 
         [Fact]
-        public async Task Name_Matching_Not_Case_Sensitive()
+        public async Task Name_Matching_Is_Case_Sensitive()
         {
             var ret = await Deserialize(@"{""VARIABLES"":{""date"":""2015-12-22T10:10:10+03:00""}}");
-            ret.Single.Inputs["date"].ShouldBeOfType<string>().ShouldBe("2015-12-22T10:10:10+03:00");
+            ret.Single.Inputs.ShouldBeNull();
         }
 
         [Fact]
@@ -77,9 +78,9 @@ namespace GraphQL.Server.Transports.AspNetCore.Tests
             var jsonStream = new System.IO.MemoryStream(Encoding.UTF8.GetBytes(jsonText));
             var httpRequest = new TestHttpRequest
             {
-                Body = jsonStream
+                Body = jsonStream,
             };
-            var deserializer = new NewtonsoftJson.GraphQLRequestDeserializer(_ => { });
+            var deserializer = new SystemTextJson.GraphQLRequestDeserializer(_ => { });
             return await deserializer.DeserializeFromJsonBodyAsync(httpRequest);
         }
     }

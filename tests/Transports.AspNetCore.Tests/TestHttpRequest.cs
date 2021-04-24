@@ -1,4 +1,5 @@
 using System;
+using System.IO.Pipelines;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -25,6 +26,7 @@ namespace GraphQL.Server.Transports.AspNetCore.Tests
         public override long? ContentLength { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public override string ContentType { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public override System.IO.Stream Body { get; set; }
+        public override PipeReader BodyReader => PipeReader.Create(Body);
 
         public override bool HasFormContentType => throw new NotImplementedException();
 
