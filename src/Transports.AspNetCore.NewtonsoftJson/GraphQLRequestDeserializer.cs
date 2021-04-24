@@ -75,8 +75,8 @@ namespace GraphQL.Server.Transports.AspNetCore.NewtonsoftJson
             {
                 OperationName = internalGraphQLRequest.OperationName,
                 Query = internalGraphQLRequest.Query,
-                Inputs = internalGraphQLRequest.Variables, // must return null if not provided, not an empty dictionary
-                Extensions = internalGraphQLRequest.Extensions, // must return null if not provided, not an empty dictionary
+                Inputs = internalGraphQLRequest.Variables, // must return null if not provided, not an empty Inputs
+                Extensions = internalGraphQLRequest.Extensions, // must return null if not provided, not an empty Inputs
             };
     }
 }
