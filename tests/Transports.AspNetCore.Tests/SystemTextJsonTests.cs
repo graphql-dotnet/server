@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
@@ -71,6 +73,22 @@ namespace GraphQL.Server.Transports.AspNetCore.Tests
             ret.Batch.Length.ShouldBe(2);
             ret.Batch[0].Query.ShouldBe("abc");
             ret.Batch[1].Query.ShouldBe("def");
+        }
+
+        [Fact]
+        public async Task Decodes_Nested_Dictionaries()
+        {
+            var ret = await Deserialize(@"{""variables"":{""a"":{""b"":""c""}},""extensions"":{""d"":{""e"":""f""}}}");
+            ret.Single.Inputs["a"].ShouldBeOfType<Dictionary<string, object>>()["b"].ShouldBeOfType<string>().ShouldBe("c");
+            ret.Single.Extensions["d"].ShouldBeOfType<Dictionary<string, object>>()["e"].ShouldBeOfType<string>().ShouldBe("f");
+        }
+
+        [Fact]
+        public async Task Decodes_Nested_Arrays()
+        {
+            var ret = await Deserialize(@"{""variables"":{""a"":[""b"",""c""]},""extensions"":{""d"":[""e"",""f""]}}");
+            ret.Single.Inputs["a"].ShouldBeOfType<List<object>>().ShouldBe(new[] { "b", "c" });
+            ret.Single.Extensions["d"].ShouldBeOfType<List<object>>().ShouldBe(new[] { "e", "f" });
         }
 
         private async Task<GraphQLRequestDeserializationResult> Deserialize(string jsonText)
