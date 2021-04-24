@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,10 +17,10 @@ namespace GraphQL.Server.Transports.AspNetCore.Tests
             ret.IsSuccessful.ShouldBeTrue();
             ret.Single.Query.ShouldBe("abc");
             ret.Single.OperationName.ShouldBe("def");
-            ret.Single.Inputs["a"].ShouldBeOfType<string>().ShouldBe("b");
-            ret.Single.Inputs["c"].ShouldBeOfType<int>().ShouldBe(2);
-            ret.Single.Extensions["d"].ShouldBeOfType<string>().ShouldBe("e");
-            ret.Single.Extensions["f"].ShouldBeOfType<int>().ShouldBe(3);
+            ret.Single.Inputs["a"].ShouldBe("b");
+            ret.Single.Inputs["c"].ShouldBe(2);
+            ret.Single.Extensions["d"].ShouldBe("e");
+            ret.Single.Extensions["f"].ShouldBe(3);
         }
 
         [Fact]
@@ -79,8 +78,8 @@ namespace GraphQL.Server.Transports.AspNetCore.Tests
         public async Task Decodes_Nested_Dictionaries()
         {
             var ret = await Deserialize(@"{""variables"":{""a"":{""b"":""c""}},""extensions"":{""d"":{""e"":""f""}}}");
-            ret.Single.Inputs["a"].ShouldBeOfType<Dictionary<string, object>>()["b"].ShouldBeOfType<string>().ShouldBe("c");
-            ret.Single.Extensions["d"].ShouldBeOfType<Dictionary<string, object>>()["e"].ShouldBeOfType<string>().ShouldBe("f");
+            ret.Single.Inputs["a"].ShouldBeOfType<Dictionary<string, object>>()["b"].ShouldBe("c");
+            ret.Single.Extensions["d"].ShouldBeOfType<Dictionary<string, object>>()["e"].ShouldBe("f");
         }
 
         [Fact]
