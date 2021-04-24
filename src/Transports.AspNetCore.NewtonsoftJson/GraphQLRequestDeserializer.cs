@@ -18,7 +18,7 @@ namespace GraphQL.Server.Transports.AspNetCore.NewtonsoftJson
 
         public GraphQLRequestDeserializer(Action<JsonSerializerSettings> configure)
         {
-            var settings = new JsonSerializerSettings()
+            var settings = new JsonSerializerSettings
             {
                 DateFormatHandling = DateFormatHandling.IsoDateFormat,
                 DateParseHandling = DateParseHandling.None,
