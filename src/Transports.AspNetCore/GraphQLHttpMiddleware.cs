@@ -84,7 +84,8 @@ namespace GraphQL.Server.Transports.AspNetCore
                         var deserializationResult = await _deserializer.DeserializeFromJsonBodyAsync(httpRequest, cancellationToken);
                         if (!deserializationResult.IsSuccessful)
                         {
-                            await WriteErrorResponseAsync(httpResponse, writer, cancellationToken, "Body text could not be parsed. Body text should start with '{' for normal graphql query or with '[' for batched query.");
+                            var message = deserializationResult.Exception?.Message ?? "Body text should start with '{' for normal graphql query or with '[' for batched query.";
+                            await WriteErrorResponseAsync(httpResponse, writer, cancellationToken, $"JSON body text could not be parsed. {message}");
                             return;
                         }
                         bodyGQLRequest = deserializationResult.Single;
@@ -101,7 +102,12 @@ namespace GraphQL.Server.Transports.AspNetCore
                         break;
 
                     default:
-                        await WriteErrorResponseAsync(httpResponse, writer, cancellationToken, $"Invalid 'Content-Type' header: non-supported media type. Must be of '{MediaType.JSON}', '{MediaType.GRAPH_QL}' or '{MediaType.FORM}'. {DOCS_URL}");
+                        await WriteErrorResponseAsync(
+                            httpResponse,
+                            writer,
+                            cancellationToken,
+                            $"Invalid 'Content-Type' header: non-supported media type. Must be of '{MediaType.JSON}', '{MediaType.GRAPH_QL}' or '{MediaType.FORM}'. {DOCS_URL}",
+                            415); // UnsupportedMediaType
                         return;
                 }
             }
