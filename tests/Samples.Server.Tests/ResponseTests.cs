@@ -90,10 +90,7 @@ namespace Samples.Server.Tests
                 "Invalid HTTP method. Only GET and POST are supported. See: http://graphql.org/learn/serving-over-http/.",
             },
 
-            // POST with an invalid mime type should be a bad request
-            // I couldn't manage to hit this, asp.net core kept rejecting it too early
-
-            // POST with unsupported mime type should be a bad request
+            // POST with unsupported mime type should be a unsupported media type
             new object[]
             {
                 HttpMethod.Post,
