@@ -121,7 +121,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                     OperationName = urlGQLRequest.OperationName ?? bodyGQLRequest?.OperationName
                 };
 
-                if (string.IsNullOrWhiteSpace(urlGQLRequest.Query))
+                if (string.IsNullOrWhiteSpace(gqlRequest.Query))
                 {
                     await WriteErrorResponseAsync(httpResponse, writer, cancellationToken,
                         "GraphQL query is missing.",
