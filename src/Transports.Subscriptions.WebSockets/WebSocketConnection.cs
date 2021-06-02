@@ -1,5 +1,5 @@
-using GraphQL.Server.Transports.Subscriptions.Abstractions;
 using System.Threading.Tasks;
+using GraphQL.Server.Transports.Subscriptions.Abstractions;
 
 namespace GraphQL.Server.Transports.WebSockets
 {

@@ -1,11 +1,15 @@
 # GraphQL for .NET - Subscription Transport WebSockets
 
+![License](https://img.shields.io/github/license/graphql-dotnet/server)
+
 [![Join the chat at https://gitter.im/graphql-dotnet/graphql-dotnet](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/graphql-dotnet/graphql-dotnet?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-[![Build status](https://github.com/graphql-dotnet/server/workflows/Build%20artifacts/badge.svg)](https://github.com/graphql-dotnet/server/actions)
-[![Build status](https://github.com/graphql-dotnet/server/workflows/Publish%20release/badge.svg)](https://github.com/graphql-dotnet/server/actions)
-[![CodeQL analysis](https://github.com/graphql-dotnet/server/workflows/CodeQL%20analysis/badge.svg)](https://github.com/graphql-dotnet/server/actions?query=workflow%3A%22%22CodeQL+analysis%22%22)
+[![Run code tests](https://github.com/graphql-dotnet/server/actions/workflows/test.yml/badge.svg)](https://github.com/graphql-dotnet/server/actions/workflows/test.yml)
+[![Build artifacts](https://github.com/graphql-dotnet/server/actions/workflows/build.yml/badge.svg)](https://github.com/graphql-dotnet/server/actions/workflows/build.yml)
+[![Publish release](https://github.com/graphql-dotnet/server/actions/workflows/publish.yml/badge.svg)](https://github.com/graphql-dotnet/server/actions/workflows/publish.yml)
+[![CodeQL analysis](https://github.com/graphql-dotnet/server/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/graphql-dotnet/server/actions/workflows/codeql-analysis.yml)
 
+[![codecov](https://codecov.io/gh/graphql-dotnet/server/branch/master/graph/badge.svg?token=ZBcVYq7hz4)](https://codecov.io/gh/graphql-dotnet/server)
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/graphql-dotnet/server.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/graphql-dotnet/server/alerts/)
 [![Language grade: C#](https://img.shields.io/lgtm/grade/csharp/g/graphql-dotnet/server.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/graphql-dotnet/server/context:csharp)
 
@@ -16,34 +20,35 @@
 ![Size](https://img.shields.io/github/repo-size/graphql-dotnet/server)
 
 GraphQL ASP.NET Core server on top of [GraphQL.NET](https://github.com/graphql-dotnet/graphql-dotnet).
+Transport compatible with [Apollo](https://github.com/apollographql/subscriptions-transport-ws) subscription protocol.
 
 Provides the following packages:
 
 | Package                                              | Downloads                                                                                                                                                                             | NuGet Latest                                                                                                                                                                         |
 |------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| GraphQL.Server.All                                   | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.All)](https://www.nuget.org/packages/GraphQL.Server.All/)                                                                    | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.All)](https://www.nuget.org/packages/GraphQL.Server.All)                                                                     |
-| GraphQL.Server.Core                                  | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Core)](https://www.nuget.org/packages/GraphQL.Server.Core/)                                                                  | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.Core)](https://www.nuget.org/packages/GraphQL.Server.Core)                                                                   |
+| GraphQL.Server.All                                   | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.All)](https://www.nuget.org/packages/GraphQL.Server.All)                                                                     | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.All)](https://www.nuget.org/packages/GraphQL.Server.All)                                                                     |
+| GraphQL.Server.Core                                  | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Core)](https://www.nuget.org/packages/GraphQL.Server.Core)                                                                   | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.Core)](https://www.nuget.org/packages/GraphQL.Server.Core)                                                                   |
 | GraphQL.Server.Transports.AspNetCore                 | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Transports.AspNetCore)](https://www.nuget.org/packages/GraphQL.Server.Transports.AspNetCore)                                 | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.Transports.AspNetCore)](https://www.nuget.org/packages/GraphQL.Server.Transports.AspNetCore)                                 |
 | GraphQL.Server.Transports.AspNetCore.NewtonsoftJson  | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Transports.AspNetCore.NewtonsoftJson)](https://www.nuget.org/packages/GraphQL.Server.Transports.AspNetCore.NewtonsoftJson)   | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.Transports.AspNetCore.NewtonsoftJson)](https://www.nuget.org/packages/GraphQL.Server.Transports.AspNetCore.NewtonsoftJson)   |
 | GraphQL.Server.Transports.AspNetCore.SystemTextJson  | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Transports.AspNetCore.SystemTextJson)](https://www.nuget.org/packages/GraphQL.Server.Transports.AspNetCore.SystemTextJson)   | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.Transports.AspNetCore.SystemTextJson)](https://www.nuget.org/packages/GraphQL.Server.Transports.AspNetCore.SystemTextJson)   |
 | GraphQL.Server.Transports.Subscriptions.Abstractions | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Transports.Subscriptions.Abstractions)](https://www.nuget.org/packages/GraphQL.Server.Transports.Subscriptions.Abstractions) | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.Transports.Subscriptions.Abstractions)](https://www.nuget.org/packages/GraphQL.Server.Transports.Subscriptions.Abstractions) |
-| GraphQL.Server.Transports.WebSockets                 | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Transports.WebSockets)](https://www.nuget.org/packages/GraphQL.Server.Transports.WebSockets)                                 | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.Transports.WebSockets)](https://www.nuget.org/packages/GraphQL.Server.Transports.WebSockets)                                 |
+| GraphQL.Server.Transports.Subscriptions.WebSockets <br/> *formerly  known as `GraphQL.Server.Transports.WebSockets`* | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Transports.Subscriptions.WebSockets)](https://www.nuget.org/packages/GraphQL.Server.Transports.Subscriptions.WebSockets)     | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.Transports.Subscriptions.WebSockets)](https://www.nuget.org/packages/GraphQL.Server.Transports.Subscriptions.WebSockets)     |
 | GraphQL.Server.Ui.Altair                             | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Ui.Altair)](https://www.nuget.org/packages/GraphQL.Server.Ui.Altair)                                                         | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.Ui.Altair)](https://www.nuget.org/packages/GraphQL.Server.Ui.Altair)                                                         |
 | GraphQL.Server.Ui.Playground                         | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Ui.Playground)](https://www.nuget.org/packages/GraphQL.Server.Ui.Playground)                                                 | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.Ui.Playground)](https://www.nuget.org/packages/GraphQL.Server.Ui.Playground)                                                 |
 | GraphQL.Server.Ui.GraphiQL                           | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Ui.GraphiQL)](https://www.nuget.org/packages/GraphQL.Server.Ui.GraphiQL)                                                     | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.Ui.GraphiQL)](https://www.nuget.org/packages/GraphQL.Server.Ui.GraphiQL)                                                     |
 | GraphQL.Server.Ui.Voyager                            | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Ui.Voyager)](https://www.nuget.org/packages/GraphQL.Server.Ui.Voyager)                                                       | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.Ui.Voyager)](https://www.nuget.org/packages/GraphQL.Server.Ui.Voyager)                                                       |
 | GraphQL.Server.Authorization.AspNetCore              | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Authorization.AspNetCore)](https://www.nuget.org/packages/GraphQL.Server.Authorization.AspNetCore)                           | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.Authorization.AspNetCore)](https://www.nuget.org/packages/GraphQL.Server.Authorization.AspNetCore)                           |
 
-Transport compatible with [Apollo](https://github.com/apollographql/subscriptions-transport-ws) subscription protocol.
+You can install the latest stable versions via [NuGet](https://www.nuget.org/packages/GraphQL.Server.Transports.AspNetCore/).
+Also you can get all preview versions from [GitHub Packages](https://github.com/orgs/graphql-dotnet/packages?repo_name=server).
+Note that GitHub requires authentication to consume the feed. See more information [here](https://docs.github.com/en/free-pro-team@latest/packages/publishing-and-managing-packages/about-github-packages#authenticating-to-github-packages).
 
 ## Getting started
 
 > **TL;DR**
 > Install [GraphQL.Server.All](https://www.nuget.org/packages/GraphQL.Server.All) meta package with all the packages you need to get started.
 
-You can install the latest stable versions via [NuGet](https://www.nuget.org/packages/GraphQL.Server.Transports.AspNetCore/).
-Also you can get all preview versions from [GitHub Packages](https://github.com/orgs/graphql-dotnet/packages?repo_name=server).
-Note that GitHub requires authentication to consume the feed. See more information [here](https://docs.github.com/en/free-pro-team@latest/packages/publishing-and-managing-packages/about-github-packages#authenticating-to-github-packages).
+#### 1. HTTP middleware for GraphQL
 
 For just the HTTP middleware:
 
@@ -70,12 +75,26 @@ Or you can use your own `IGraphQLRequestDeserializer` implementation.
 For more information on how to migrate from `Newtonsoft.Json` to `System.Text.Json` see
 [this article](https://docs.microsoft.com/en-us/dotnet/standard/serialization/system-text-json-migrate-from-newtonsoft-how-to).
 
+#### 2. WebSockets transport for subscriptions
+
 For the WebSocket subscription protocol (depends on above) middleware:
+
 ```
 > dotnet add package GraphQL.Server.Transports.WebSockets
 ```
 
+#### 3. Authorization
+
+For integration of GraphQL.NET validation subsystem into ASP.NET Core:
+
+```
+> dotnet add package Authorization.AspNetCore
+```
+
+#### 4. UI integration
+
 For the UI middleware/s:
+
 ```
 > dotnet add package GraphQL.Server.Ui.Altair
 > dotnet add package GraphQL.Server.Ui.GraphiQL

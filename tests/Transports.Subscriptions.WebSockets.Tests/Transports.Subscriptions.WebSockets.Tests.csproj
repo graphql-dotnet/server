@@ -2,14 +2,13 @@
   <Import Project="../../Tests.props" />
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFrameworks>net5;netcoreapp3.1</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <ProjectReference Include="..\..\src\Transports.Subscriptions.WebSockets\Transports.Subscriptions.WebSockets.csproj" />
     <PackageReference Include="Castle.Core" Version="4.4.1" />
-    <PackageReference Include="GraphQL.NewtonsoftJson" Version="3.2.0" />
   </ItemGroup>
 
 </Project>

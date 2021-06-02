@@ -117,6 +117,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                 {
                     Query = urlGQLRequest.Query ?? bodyGQLRequest?.Query,
                     Inputs = urlGQLRequest.Inputs ?? bodyGQLRequest?.Inputs,
+                    Extensions = urlGQLRequest.Extensions ?? bodyGQLRequest?.Extensions,
                     OperationName = urlGQLRequest.OperationName ?? bodyGQLRequest?.OperationName
                 };
             }
@@ -213,13 +214,15 @@ namespace GraphQL.Server.Transports.AspNetCore
         {
             Query = queryCollection.TryGetValue(GraphQLRequest.QUERY_KEY, out var queryValues) ? queryValues[0] : null,
             Inputs = queryCollection.TryGetValue(GraphQLRequest.VARIABLES_KEY, out var variablesValues) ? _deserializer.DeserializeInputsFromJson(variablesValues[0]) : null,
+            Extensions = queryCollection.TryGetValue(GraphQLRequest.EXTENSIONS_KEY, out var extensionsValues) ? _deserializer.DeserializeInputsFromJson(extensionsValues[0]) : null,
             OperationName = queryCollection.TryGetValue(GraphQLRequest.OPERATION_NAME_KEY, out var operationNameValues) ? operationNameValues[0] : null
         };
 
         private GraphQLRequest DeserializeFromFormBody(IFormCollection formCollection) => new GraphQLRequest
         {
             Query = formCollection.TryGetValue(GraphQLRequest.QUERY_KEY, out var queryValues) ? queryValues[0] : null,
-            Inputs = formCollection.TryGetValue(GraphQLRequest.VARIABLES_KEY, out var variablesValue) ? _deserializer.DeserializeInputsFromJson(variablesValue[0]) : null,
+            Inputs = formCollection.TryGetValue(GraphQLRequest.VARIABLES_KEY, out var variablesValues) ? _deserializer.DeserializeInputsFromJson(variablesValues[0]) : null,
+            Extensions = formCollection.TryGetValue(GraphQLRequest.EXTENSIONS_KEY, out var extensionsValues) ? _deserializer.DeserializeInputsFromJson(extensionsValues[0]) : null,
             OperationName = formCollection.TryGetValue(GraphQLRequest.OPERATION_NAME_KEY, out var operationNameValues) ? operationNameValues[0] : null
         };
 
@@ -233,7 +236,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             // work except for the disposing inner stream.
             string query = await new StreamReader(bodyStream).ReadToEndAsync();
 
-            return new GraphQLRequest { Query = query };
+            return new GraphQLRequest { Query = query }; // application/graphql MediaType supports only query text
         }
     }
 }

@@ -72,7 +72,7 @@ namespace Samples.Server.Tests
         {
             var response = await SendRequestAsync(httpMethod, httpContent);
             string expected = @"{""errors"":[{""message"":""" + expectedErrorMsg + @"""}]}";
-            
+
             response.StatusCode.ShouldBe(expectedStatusCode);
 
             string content = await response.Content.ReadAsStringAsync();
@@ -90,10 +90,10 @@ namespace Samples.Server.Tests
                 "Invalid HTTP method. Only GET and POST are supported. See: http://graphql.org/learn/serving-over-http/.",
             },
 
-            // POST with an invalid mimetype should be a bad request
+            // POST with an invalid mime type should be a bad request
             // I couldn't manage to hit this, asp.net core kept rejecting it too early
 
-            // POST with unsupported mimetype should be a bad request
+            // POST with unsupported mime type should be a bad request
             new object[]
             {
                 HttpMethod.Post,
@@ -102,7 +102,7 @@ namespace Samples.Server.Tests
                 "Invalid 'Content-Type' header: non-supported media type. Must be of 'application/json', 'application/graphql' or 'application/x-www-form-urlencoded'. See: http://graphql.org/learn/serving-over-http/."
             },
 
-            // POST with JSON mimetype that doesn't start with an object or array token should be a bad request
+            // POST with JSON mime type that doesn't start with an object or array token should be a bad request
             new object[]
             {
                 HttpMethod.Post,

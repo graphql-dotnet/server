@@ -1,14 +1,14 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using GraphQL.Execution;
 using GraphQL.NewtonsoftJson;
 using GraphQL.Server.Transports.Subscriptions.Abstractions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Shouldly;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace GraphQL.Server.Transports.WebSockets.Tests
@@ -31,6 +31,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
                     {
                         Payload = new ExecutionResult
                         {
+                            Executed = true,
                             Data = new TestMessage
                             {
                                 Content = "Hello world",
@@ -46,6 +47,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
                     {
                         Payload = new ExecutionResult
                         {
+                            Executed = true,
                             Data = Enumerable.Repeat(new TestMessage
                             {
                                 Content = "Hello world",
@@ -61,6 +63,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
                     {
                         Payload = new ExecutionResult
                         {
+                            Executed = true,
                             Data = Enumerable.Repeat(new TestMessage
                             {
                                 Content = "Hello world",
@@ -77,6 +80,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
                     {
                         Payload = new ExecutionResult
                         {
+                            Executed = true,
                             Data = Enumerable.Repeat(new TestMessage
                             {
                                 Content = "Hello world",
@@ -93,6 +97,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
                     {
                         Payload = new ExecutionResult
                         {
+                            Executed = true,
                             Data = Enumerable.Repeat(new TestMessage
                             {
                                 Content = "Hello world",
@@ -113,6 +118,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
             {
                 Payload = new ExecutionResult
                 {
+                    Executed = true,
                     Data = new TestMessage
                     {
                         Content = "Hello world",
@@ -139,6 +145,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
             {
                 Payload = new ExecutionResult
                 {
+                    Executed = true,
                     Data = Enumerable.Repeat(new TestMessage
                     {
                         Content = "Hello world",
@@ -204,6 +211,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
                 Type = "Type",
                 Payload = new ExecutionResult
                 {
+                    Executed = true,
                     Data = new TestMessage
                     {
                         Content = "Hello world",

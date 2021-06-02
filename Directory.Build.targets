@@ -1,0 +1,9 @@
+<Project>
+
+  <PropertyGroup Condition="'$(IsTestProject)' == 'true'">
+    <CoverletOutputFormat>opencover</CoverletOutputFormat>
+    <CoverletOutput>$(MSBuildThisFileDirectory).coverage/$(AssemblyName)/</CoverletOutput>
+    <Exclude>[GraphQL.Samples.Schemas.Chat]*,[GraphQL.Samples.Server]*</Exclude>
+  </PropertyGroup>
+
+</Project>

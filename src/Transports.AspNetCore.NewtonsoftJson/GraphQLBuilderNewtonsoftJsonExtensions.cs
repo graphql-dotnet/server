@@ -1,5 +1,5 @@
-using GraphQL.Execution;
 using System;
+using GraphQL.Execution;
 using GraphQL.NewtonsoftJson;
 using GraphQL.Server.Transports.AspNetCore;
 using GraphQL.Server.Transports.AspNetCore.NewtonsoftJson;

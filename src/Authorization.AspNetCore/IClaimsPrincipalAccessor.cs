@@ -4,7 +4,7 @@ using GraphQL.Validation;
 namespace GraphQL.Server.Authorization.AspNetCore
 {
     /// <summary>
-    /// Provides access to the <see cref="ClaimsPrincipal"/> used for GraphQL operation authorization
+    /// Provides access to the <see cref="ClaimsPrincipal"/> used for GraphQL operation authorization.
     /// </summary>
     public interface IClaimsPrincipalAccessor
     {
