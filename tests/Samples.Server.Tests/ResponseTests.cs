@@ -109,6 +109,15 @@ namespace Samples.Server.Tests
                 new StringContent("Oops", Encoding.UTF8, "application/json"),
                 HttpStatusCode.BadRequest,
                 "Body text could not be parsed. Body text should start with '{' for normal graphql query or with '[' for batched query."
+            },
+
+            // GET with an empty QueryString should be a bad request
+            new object[]
+            {
+                HttpMethod.Get,
+                null,
+                HttpStatusCode.BadRequest,
+                "GraphQL query is missing."
             }
         };
 
