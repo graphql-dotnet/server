@@ -16,6 +16,11 @@ namespace GraphQL.Server
     /// </summary>
     public static class GraphQLBuilderCoreExtensions
     {
+        /// <summary>
+        /// Registers an instance of <see cref="BasicGraphQLExecuter{TSchema}"/> as <see cref="IGraphQLExecuter{TSchema}"/> for
+        /// use with <see cref="GraphQLOptions"/>. It is recommended to use <see cref="IDocumentExecuter"/> directly rather than
+        /// use the <see cref="IGraphQLExecuter{TSchema}"/> interface.
+        /// </summary>
         public static DI.IGraphQLBuilder AddServer(this DI.IGraphQLBuilder builder, Action<GraphQLOptions> configureOptions)
         {
             builder.TryRegister(typeof(IGraphQLExecuter<>), typeof(BasicGraphQLExecuter<>), DI.ServiceLifetime.Transient);
@@ -24,6 +29,11 @@ namespace GraphQL.Server
             return builder;
         }
 
+        /// <summary>
+        /// Registers an instance of <see cref="BasicGraphQLExecuter{TSchema}"/> as <see cref="IGraphQLExecuter{TSchema}"/> for
+        /// use with <see cref="GraphQLOptions"/>. It is recommended to use <see cref="IDocumentExecuter"/> directly rather than
+        /// use the <see cref="IGraphQLExecuter{TSchema}"/> interface.
+        /// </summary>
         public static DI.IGraphQLBuilder AddServer(this DI.IGraphQLBuilder builder, Action<GraphQLOptions, IServiceProvider> configureOptions = null)
         {
             builder.TryRegister(typeof(IGraphQLExecuter<>), typeof(BasicGraphQLExecuter<>), DI.ServiceLifetime.Transient);
