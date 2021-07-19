@@ -16,6 +16,22 @@ namespace GraphQL.Server
     /// </summary>
     public static class GraphQLBuilderCoreExtensions
     {
+        public static DI.IGraphQLBuilder AddServer(this DI.IGraphQLBuilder builder, Action<GraphQLOptions> configureOptions)
+        {
+            builder.TryRegister(typeof(IGraphQLExecuter<>), typeof(BasicGraphQLExecuter<>), DI.ServiceLifetime.Transient);
+            builder.TryRegister(typeof(IGraphQLExecuter), typeof(BasicGraphQLExecuter<ISchema>), DI.ServiceLifetime.Transient);
+            builder.Configure(configureOptions);
+            return builder;
+        }
+
+        public static DI.IGraphQLBuilder AddServer(this DI.IGraphQLBuilder builder, Action<GraphQLOptions, IServiceProvider> configureOptions = null)
+        {
+            builder.TryRegister(typeof(IGraphQLExecuter<>), typeof(BasicGraphQLExecuter<>), DI.ServiceLifetime.Transient);
+            builder.TryRegister(typeof(IGraphQLExecuter), typeof(BasicGraphQLExecuter<ISchema>), DI.ServiceLifetime.Transient);
+            builder.Configure(configureOptions);
+            return builder;
+        }
+
         /// <summary>
         /// Provides the ability to configure <see cref="ErrorInfoProviderOptions"/> for <see cref="DefaultErrorInfoProvider"/>.
         /// </summary>

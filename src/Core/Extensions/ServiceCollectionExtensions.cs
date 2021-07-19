@@ -67,21 +67,5 @@ namespace Microsoft.Extensions.DependencyInjection
 
             return new GraphQLBuilder(services);
         }
-
-        public static GraphQL.DI.IGraphQLBuilder AddServer(this GraphQL.DI.IGraphQLBuilder builder, Action<GraphQLOptions> configureOptions)
-        {
-            builder.TryRegister(typeof(IGraphQLExecuter<>), typeof(DefaultGraphQLExecuter<>), GraphQL.DI.ServiceLifetime.Transient);
-            builder.TryRegister(typeof(IGraphQLExecuter), typeof(DefaultGraphQLExecuter<GraphQL.Types.ISchema>), GraphQL.DI.ServiceLifetime.Transient);
-            builder.Configure(configureOptions);
-            return builder;
-        }
-
-        public static GraphQL.DI.IGraphQLBuilder AddServer(this GraphQL.DI.IGraphQLBuilder builder, Action<GraphQLOptions, IServiceProvider> configureOptions = null)
-        {
-            builder.TryRegister(typeof(IGraphQLExecuter<>), typeof(DefaultGraphQLExecuter<>), GraphQL.DI.ServiceLifetime.Transient);
-            builder.TryRegister(typeof(IGraphQLExecuter), typeof(DefaultGraphQLExecuter<GraphQL.Types.ISchema>), GraphQL.DI.ServiceLifetime.Transient);
-            builder.Configure(configureOptions);
-            return builder;
-        }
     }
 }
