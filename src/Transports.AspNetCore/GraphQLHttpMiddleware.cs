@@ -120,6 +120,15 @@ namespace GraphQL.Server.Transports.AspNetCore
                     Extensions = urlGQLRequest.Extensions ?? bodyGQLRequest?.Extensions,
                     OperationName = urlGQLRequest.OperationName ?? bodyGQLRequest?.OperationName
                 };
+
+                if (string.IsNullOrWhiteSpace(gqlRequest.Query))
+                {
+                    await WriteErrorResponseAsync(httpResponse, writer, cancellationToken,
+                        "GraphQL query is missing.",
+                        httpStatusCode: 400 // Bad Input
+                    );
+                    return;
+                }
             }
 
             // Prepare context and execute

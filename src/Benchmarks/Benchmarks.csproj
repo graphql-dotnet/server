@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BenchmarkDotNet" Version="0.12.1" />
+    <PackageReference Include="BenchmarkDotNet" Version="0.13.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.13" Condition="'$(TargetFramework)' == 'netcoreapp3.1'" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" Condition="'$(TargetFramework)' == 'net5'" />
   </ItemGroup>
