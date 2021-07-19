@@ -22,6 +22,7 @@ namespace GraphQL.Server
         /// <param name="builder">GraphQL builder used for GraphQL specific extension methods as 'this' argument.</param>
         /// <param name="configureOptions">Action to configure the <see cref="ErrorInfoProviderOptions"/>.</param>
         /// <returns>Reference to <paramref name="builder"/>.</returns>
+        [Obsolete]
         public static IGraphQLBuilder AddErrorInfoProvider(this IGraphQLBuilder builder, Action<ErrorInfoProviderOptions> configureOptions)
             => AddErrorInfoProvider<DefaultErrorInfoProvider>(builder, configureOptions);
 
@@ -32,6 +33,7 @@ namespace GraphQL.Server
         /// <param name="builder">GraphQL builder used for GraphQL specific extension methods as 'this' argument.</param>
         /// <param name="configureOptions">Action to configure the <see cref="ErrorInfoProviderOptions"/>.</param>
         /// <returns>Reference to <paramref name="builder"/>.</returns>
+        [Obsolete]
         public static IGraphQLBuilder AddErrorInfoProvider<TErrorInfoProvider>(this IGraphQLBuilder builder, Action<ErrorInfoProviderOptions> configureOptions)
             where TErrorInfoProvider : DefaultErrorInfoProvider
         {
@@ -47,6 +49,7 @@ namespace GraphQL.Server
         /// <param name="builder">GraphQL builder used for GraphQL specific extension methods as 'this' argument.</param>
         /// <param name="configureOptions">Action to configure the <see cref="ErrorInfoProviderOptions"/>.</param>
         /// <returns>Reference to <paramref name="builder"/>.</returns>
+        [Obsolete]
         public static IGraphQLBuilder AddErrorInfoProvider(this IGraphQLBuilder builder, Action<ErrorInfoProviderOptions, IServiceProvider> configureOptions)
             => AddErrorInfoProvider<DefaultErrorInfoProvider>(builder, configureOptions);
 
@@ -57,6 +60,7 @@ namespace GraphQL.Server
         /// <param name="builder">GraphQL builder used for GraphQL specific extension methods as 'this' argument.</param>
         /// <param name="configureOptions">Action to configure the <see cref="ErrorInfoProviderOptions"/>.</param>
         /// <returns>Reference to <paramref name="builder"/>.</returns>
+        [Obsolete]
         public static IGraphQLBuilder AddErrorInfoProvider<TErrorInfoProvider>(this IGraphQLBuilder builder, Action<ErrorInfoProviderOptions, IServiceProvider> configureOptions)
             where TErrorInfoProvider : DefaultErrorInfoProvider
         {
@@ -76,6 +80,7 @@ namespace GraphQL.Server
         /// </summary>
         /// <param name="builder">GraphQL builder used for GraphQL specific extension methods as 'this' argument.</param>
         /// <returns>Reference to <paramref name="builder"/>.</returns>
+        [Obsolete]
         public static IGraphQLBuilder AddDataLoader(this IGraphQLBuilder builder)
         {
             builder.Services.TryAddSingleton<IDataLoaderContextAccessor, DataLoaderContextAccessor>();
@@ -90,6 +95,7 @@ namespace GraphQL.Server
         /// <param name="builder">GraphQL builder used for GraphQL specific extension methods as 'this' argument.</param>
         /// <param name="serviceLifetime">The service lifetime to register the GraphQL types with</param>
         /// <returns>Reference to <paramref name="builder"/>.</returns>
+        [Obsolete]
         public static IGraphQLBuilder AddGraphTypes(
             this IGraphQLBuilder builder,
             ServiceLifetime serviceLifetime = ServiceLifetime.Singleton)
@@ -102,6 +108,7 @@ namespace GraphQL.Server
         /// <param name="typeFromAssembly">The type from assembly to register all GraphQL types from</param>
         /// <param name="serviceLifetime">The service lifetime to register the GraphQL types with</param>
         /// <returns>Reference to <paramref name="builder"/>.</returns>
+        [Obsolete]
         public static IGraphQLBuilder AddGraphTypes(
             this IGraphQLBuilder builder,
             Type typeFromAssembly,
@@ -115,6 +122,7 @@ namespace GraphQL.Server
         /// <param name="assembly">The assembly to register all GraphQL types from</param>
         /// <param name="serviceLifetime">The service lifetime to register the GraphQL types with</param>
         /// <returns>Reference to <paramref name="builder"/>.</returns>
+        [Obsolete]
         public static IGraphQLBuilder AddGraphTypes(
             this IGraphQLBuilder builder,
             Assembly assembly,
@@ -136,6 +144,7 @@ namespace GraphQL.Server
         /// </summary>
         /// <param name="builder">GraphQL builder used for GraphQL specific extension methods as 'this' argument.</param>
         /// <returns>Reference to <paramref name="builder"/>.</returns>
+        [Obsolete]
         public static IGraphQLBuilder AddRelayGraphTypes(this IGraphQLBuilder builder)
         {
             builder
