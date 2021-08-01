@@ -43,8 +43,8 @@ namespace GraphQL.Server
         public static GraphQL.Server.IGraphQLBuilder AddGraphTypes(this GraphQL.Server.IGraphQLBuilder builder, System.Type typeFromAssembly, Microsoft.Extensions.DependencyInjection.ServiceLifetime serviceLifetime = 0) { }
         [System.Obsolete]
         public static GraphQL.Server.IGraphQLBuilder AddRelayGraphTypes(this GraphQL.Server.IGraphQLBuilder builder) { }
-        public static GraphQL.DI.IGraphQLBuilder AddServer(this GraphQL.DI.IGraphQLBuilder builder, System.Action<GraphQL.Server.GraphQLOptions> configureOptions) { }
-        public static GraphQL.DI.IGraphQLBuilder AddServer(this GraphQL.DI.IGraphQLBuilder builder, System.Action<GraphQL.Server.GraphQLOptions, System.IServiceProvider> configureOptions = null) { }
+        public static GraphQL.DI.IGraphQLBuilder AddServer(this GraphQL.DI.IGraphQLBuilder builder, bool installMetricsMiddleware, System.Action<GraphQL.Server.GraphQLOptions> configureOptions) { }
+        public static GraphQL.DI.IGraphQLBuilder AddServer(this GraphQL.DI.IGraphQLBuilder builder, bool installMetricsMiddleware, System.Action<GraphQL.Server.GraphQLOptions, System.IServiceProvider> configureOptions = null) { }
     }
     public class GraphQLOptions
     {
