@@ -52,7 +52,8 @@ namespace GraphQL.Server
         /// <returns>Reference to the passed <paramref name="builder"/>.</returns>
         public static DI.IGraphQLBuilder AddGraphQLAuthorization(this DI.IGraphQLBuilder builder, Action<AuthorizationOptions> configure)
         {
-            var services = (builder as MicrosoftDI.GraphQLBuilder)?.Services ?? throw new NotSupportedException("This method only supports the MicrosoftDI implementation of IGraphQLBuilder.");
+            if (!(builder is IServiceCollection services))
+                throw new NotSupportedException("This method only supports the MicrosoftDI implementation of IGraphQLBuilder.");
             services.TryAddTransient<IClaimsPrincipalAccessor, DefaultClaimsPrincipalAccessor>();
             services.AddHttpContextAccessor();
             services.AddAuthorizationCore(configure);
