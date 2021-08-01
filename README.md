@@ -118,6 +118,7 @@ public void ConfigureServices(IServiceCollection services)
         .AddSingleton<ChatSchema>();
 
     MicrosoftDI.GraphQLBuilderExtensions.AddGraphQL(services)
+        .AddServer(true)
         .ConfigureExecution(options =>
         {
             options.EnableMetrics = Environment.IsDevelopment();
@@ -170,6 +171,7 @@ public void ConfigureServices(IServiceCollection services)
         .AddSingleton<ChatSchema>();
 
     MicrosoftDI.GraphQLBuilderExtensions.AddGraphQL(services)
+        .AddServer(true)
         .ConfigureExecution(options =>
         {
             options.EnableMetrics = Environment.IsDevelopment();
