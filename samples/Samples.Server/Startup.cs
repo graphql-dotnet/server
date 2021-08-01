@@ -34,6 +34,7 @@ namespace GraphQL.Samples.Server
             services.AddSingleton<IChat, Chat>();
 
             MicrosoftDI.GraphQLBuilderExtensions.AddGraphQL(services)
+                .AddServer()
                 .AddSchema<ChatSchema>()
                 .ConfigureExecution(options =>
                 {
