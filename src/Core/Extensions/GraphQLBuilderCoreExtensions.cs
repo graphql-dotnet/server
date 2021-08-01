@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using GraphQL.DataLoader;
 using GraphQL.Execution;
+using GraphQL.Instrumentation;
 using GraphQL.Types;
 using GraphQL.Types.Relay;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,25 +21,31 @@ namespace GraphQL.Server
         /// Registers an instance of <see cref="BasicGraphQLExecuter{TSchema}"/> as <see cref="IGraphQLExecuter{TSchema}"/> for
         /// use with <see cref="GraphQLOptions"/>. It is recommended to use <see cref="IDocumentExecuter"/> directly rather than
         /// use the <see cref="IGraphQLExecuter{TSchema}"/> interface.
+        /// <br/><br/>
+        /// Also installs <see cref="InstrumentFieldsMiddleware"/> in the schema if specified. (Previous' versions of
+        /// GraphQL.Server would install this middleware automatically.) Specify <see langword="false"/> for <paramref name="installMetricsMiddleware"/>
+        /// if <see cref="GraphQLBuilderExtensions.AddMetrics(DI.IGraphQLBuilder, bool)"/> will be called separately. Note that
+        /// the implementation of <see cref="BasicGraphQLExecuter{TSchema}"/> will set <see cref="ExecutionOptions.EnableMetrics"/>
+        /// if <see cref="GraphQLOptions.EnableMetrics"/> is set.
         /// </summary>
-        public static DI.IGraphQLBuilder AddServer(this DI.IGraphQLBuilder builder, Action<GraphQLOptions> configureOptions)
+        public static DI.IGraphQLBuilder AddServer(this DI.IGraphQLBuilder builder, bool installMetricsMiddleware, Action<GraphQLOptions> configureOptions)
         {
             builder.TryRegister(typeof(IGraphQLExecuter<>), typeof(BasicGraphQLExecuter<>), DI.ServiceLifetime.Transient);
             builder.TryRegister(typeof(IGraphQLExecuter), typeof(BasicGraphQLExecuter<ISchema>), DI.ServiceLifetime.Transient);
             builder.Configure(configureOptions);
+            if (installMetricsMiddleware)
+                builder.AddMetrics(false);
             return builder;
         }
 
-        /// <summary>
-        /// Registers an instance of <see cref="BasicGraphQLExecuter{TSchema}"/> as <see cref="IGraphQLExecuter{TSchema}"/> for
-        /// use with <see cref="GraphQLOptions"/>. It is recommended to use <see cref="IDocumentExecuter"/> directly rather than
-        /// use the <see cref="IGraphQLExecuter{TSchema}"/> interface.
-        /// </summary>
-        public static DI.IGraphQLBuilder AddServer(this DI.IGraphQLBuilder builder, Action<GraphQLOptions, IServiceProvider> configureOptions = null)
+        /// <inheritdoc cref="AddServer(DI.IGraphQLBuilder, bool, Action{GraphQLOptions})"/>
+        public static DI.IGraphQLBuilder AddServer(this DI.IGraphQLBuilder builder, bool installMetricsMiddleware, Action<GraphQLOptions, IServiceProvider> configureOptions = null)
         {
             builder.TryRegister(typeof(IGraphQLExecuter<>), typeof(BasicGraphQLExecuter<>), DI.ServiceLifetime.Transient);
             builder.TryRegister(typeof(IGraphQLExecuter), typeof(BasicGraphQLExecuter<ISchema>), DI.ServiceLifetime.Transient);
             builder.Configure(configureOptions);
+            if (installMetricsMiddleware)
+                builder.AddMetrics(false);
             return builder;
         }
 

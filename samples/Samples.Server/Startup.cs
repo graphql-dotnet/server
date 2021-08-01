@@ -34,7 +34,7 @@ namespace GraphQL.Samples.Server
             services.AddSingleton<IChat, Chat>();
 
             MicrosoftDI.GraphQLBuilderExtensions.AddGraphQL(services)
-                .AddServer()
+                .AddServer(true)
                 .AddSchema<ChatSchema>()
                 .ConfigureExecution(options =>
                 {
@@ -42,7 +42,7 @@ namespace GraphQL.Samples.Server
                     var logger = options.RequestServices.GetRequiredService<ILogger<Startup>>();
                     options.UnhandledExceptionDelegate = ctx => logger.LogError("{Error} occurred", ctx.OriginalException.Message);
                 })
-                .AddSystemTextJson(deserializerSettings => { }, serializerSettings => { })
+                .AddSystemTextJson()
                 .AddErrorInfoProvider<CustomErrorInfoProvider>()
                 .Configure<ErrorInfoProviderOptions>(opt => opt.ExposeExceptionStackTrace = Environment.IsDevelopment())
                 .AddWebSockets()
