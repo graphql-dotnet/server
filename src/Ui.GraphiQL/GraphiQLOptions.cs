@@ -29,7 +29,7 @@ namespace GraphQL.Server.Ui.GraphiQL
         /// <summary>
         /// Function to get index.html page with GraphiQL setup.
         /// </summary>
-        public Func<Stream> IndexStream { get; set; } = () => typeof(GraphiQLOptions).GetTypeInfo().Assembly
+        public Func<Stream> IndexStream { get; set; } = () => typeof(GraphiQLOptions).Assembly
             .GetManifestResourceStream("GraphQL.Server.Ui.GraphiQL.Internal.graphiql.cshtml");
 
         /// <summary>
