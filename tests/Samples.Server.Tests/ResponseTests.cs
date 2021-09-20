@@ -116,6 +116,15 @@ namespace Samples.Server.Tests
                 HttpStatusCode.BadRequest,
                 "JSON body text could not be parsed. 'o' is an invalid start of a property name. Expected a '\"'. Path: $ | LineNumber: 0 | BytePositionInLine: 1."
             },
+
+            // GET with an empty QueryString should be a bad request
+            new object[]
+            {
+                HttpMethod.Get,
+                null,
+                HttpStatusCode.BadRequest,
+                "GraphQL query is missing."
+            }
         };
 
         [Theory]
