@@ -33,7 +33,7 @@ namespace GraphQL.Server.Transports.AspNetCore.NewtonsoftJson
             // work except for the disposing inner stream.
             var reader = new StreamReader(httpRequest.Body);
 
-            var result = new GraphQLRequestDeserializationResult { IsSuccessful = true };
+            var result = new GraphQLRequestDeserializationResult();
 
             using (var jsonReader = new JsonTextReader(reader) { CloseInput = false })
             {
@@ -41,35 +41,25 @@ namespace GraphQL.Server.Transports.AspNetCore.NewtonsoftJson
 
                 cancellationToken.ThrowIfCancellationRequested();
 
-                switch (firstChar)
+                try
                 {
-                    case '{':
-                        try
-                        {
+                    switch (firstChar)
+                    {
+                        case '{':
                             result.Single = ToGraphQLRequest(_serializer.Deserialize<InternalGraphQLRequest>(jsonReader));
-                        }
-                        catch (JsonException e)
-                        {
-                            result.IsSuccessful = false;
-                            result.Exception = e;
-                        }
-                        break;
-                    case '[':
-                        try
-                        {
+                            break;
+                        case '[':
                             result.Batch = _serializer.Deserialize<InternalGraphQLRequest[]>(jsonReader)
                                 .Select(ToGraphQLRequest)
                                 .ToArray();
-                        }
-                        catch (JsonException e)
-                        {
-                            result.IsSuccessful = false;
-                            result.Exception = e;
-                        }
-                        break;
-                    default:
-                        result.IsSuccessful = false;
-                        break;
+                            break;
+                        default:
+                            throw GraphQLRequestDeserializationException.InvalidFirstChar();
+                    }
+                }
+                catch (JsonException e)
+                {
+                    throw new GraphQLRequestDeserializationException(e);
                 }
             }
 

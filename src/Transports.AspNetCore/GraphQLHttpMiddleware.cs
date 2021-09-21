@@ -82,15 +82,17 @@ namespace GraphQL.Server.Transports.AspNetCore
                 switch (mediaTypeHeader.MediaType)
                 {
                     case MediaType.JSON:
-                        var deserializationResult = await _deserializer.DeserializeFromJsonBodyAsync(httpRequest, cancellationToken);
-                        if (!deserializationResult.IsSuccessful)
+                        try
                         {
-                            var message = deserializationResult.Exception?.Message ?? "Body text should start with '{' for normal graphql query or with '[' for batched query.";
-                            await WriteErrorResponseAsync(httpResponse, writer, cancellationToken, $"JSON body text could not be parsed. {message}");
+                            var deserializationResult = await _deserializer.DeserializeFromJsonBodyAsync(httpRequest, cancellationToken);
+                            bodyGQLRequest = deserializationResult.Single;
+                            bodyGQLBatchRequest = deserializationResult.Batch;
+                        }
+                        catch (GraphQLRequestDeserializationException e)
+                        {
+                            await WriteErrorResponseAsync(httpResponse, writer, cancellationToken, $"JSON body text could not be parsed. {e.Message}");
                             return;
                         }
-                        bodyGQLRequest = deserializationResult.Single;
-                        bodyGQLBatchRequest = deserializationResult.Batch;
                         break;
 
                     case MediaType.GRAPH_QL:
@@ -132,7 +134,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                 {
                     await WriteErrorResponseAsync(httpResponse, writer, cancellationToken,
                         "GraphQL query is missing.",
-                        httpStatusCode: 400 // Bad Input
+                        httpStatusCode: HttpStatusCode.BadRequest
                     );
                     return;
                 }
