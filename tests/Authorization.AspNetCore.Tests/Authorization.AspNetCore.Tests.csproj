@@ -8,8 +8,8 @@
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <ProjectReference Include="..\..\src\Authorization.AspNetCore\Authorization.AspNetCore.csproj" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.13" Condition="'$(TargetFramework)' == 'netcoreapp3.1'" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" Condition="'$(TargetFramework)' == 'net5'" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.19" Condition="'$(TargetFramework)' == 'netcoreapp3.1'" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.2" Condition="'$(TargetFramework)' == 'net5'" />
   </ItemGroup>
 
 </Project>
