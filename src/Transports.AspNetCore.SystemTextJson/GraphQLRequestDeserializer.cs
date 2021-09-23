@@ -46,7 +46,7 @@ namespace GraphQL.Server.Transports.AspNetCore.SystemTextJson
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            var result = new GraphQLRequestDeserializationResult();
+            var result = new GraphQLRequestDeserializationResult { IsSuccessful = true };
             try
             {
                 switch (jsonTokenType)
@@ -61,12 +61,16 @@ namespace GraphQL.Server.Transports.AspNetCore.SystemTextJson
                             .ToArray();
                         return result;
                     default:
-                        throw GraphQLRequestDeserializationException.InvalidFirstChar();
+                        result.IsSuccessful = false;
+                        result.Exception = GraphQLRequestDeserializationException.InvalidFirstChar();
+                        return result;
                 }
             }
             catch (JsonException e)
             {
-                throw new GraphQLRequestDeserializationException(e);
+                result.IsSuccessful = false;
+                result.Exception = new GraphQLRequestDeserializationException(e);
+                return result;
             }
         }
 

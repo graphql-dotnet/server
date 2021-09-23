@@ -33,7 +33,7 @@ namespace GraphQL.Server.Transports.AspNetCore.NewtonsoftJson
             // work except for the disposing inner stream.
             var reader = new StreamReader(httpRequest.Body);
 
-            var result = new GraphQLRequestDeserializationResult();
+            var result = new GraphQLRequestDeserializationResult { IsSuccessful = true };
 
             using (var jsonReader = new JsonTextReader(reader) { CloseInput = false })
             {
@@ -54,12 +54,15 @@ namespace GraphQL.Server.Transports.AspNetCore.NewtonsoftJson
                                 .ToArray();
                             break;
                         default:
-                            throw GraphQLRequestDeserializationException.InvalidFirstChar();
+                            result.IsSuccessful = false;
+                            result.Exception = GraphQLRequestDeserializationException.InvalidFirstChar();
+                            break;
                     }
                 }
                 catch (JsonException e)
                 {
-                    throw new GraphQLRequestDeserializationException(e);
+                    result.IsSuccessful = false;
+                    result.Exception = new GraphQLRequestDeserializationException(e);
                 }
             }
 

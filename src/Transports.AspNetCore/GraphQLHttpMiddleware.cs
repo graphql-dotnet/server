@@ -82,17 +82,17 @@ namespace GraphQL.Server.Transports.AspNetCore
                 switch (mediaTypeHeader.MediaType)
                 {
                     case MediaType.JSON:
-                        try
+                        var deserializationResult = await _deserializer.DeserializeFromJsonBodyAsync(httpRequest, cancellationToken);
+                        if (!deserializationResult.IsSuccessful)
                         {
-                            var deserializationResult = await _deserializer.DeserializeFromJsonBodyAsync(httpRequest, cancellationToken);
-                            bodyGQLRequest = deserializationResult.Single;
-                            bodyGQLBatchRequest = deserializationResult.Batch;
-                        }
-                        catch (GraphQLRequestDeserializationException e)
-                        {
-                            await WriteErrorResponseAsync(httpResponse, writer, cancellationToken, $"JSON body text could not be parsed. {e.Message}");
+                            var message = deserializationResult.Exception is null
+                                ? "JSON body text could not be parsed."
+                                : $"JSON body text could not be parsed. {deserializationResult.Exception.Message}";
+                            await WriteErrorResponseAsync(httpResponse, writer, cancellationToken, message);
                             return;
                         }
+                        bodyGQLRequest = deserializationResult.Single;
+                        bodyGQLBatchRequest = deserializationResult.Batch;
                         break;
 
                     case MediaType.GRAPH_QL:
