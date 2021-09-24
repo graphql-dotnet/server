@@ -32,7 +32,7 @@ namespace GraphQL.Server.Transports.WebSockets
 
         public Task CloseAsync()
         {
-            if (_socket.State != WebSocketState.Open)
+            if (_socket.State == WebSocketState.Closed || _socket.State == WebSocketState.Aborted)
                 return Task.CompletedTask;
 
             if (CloseStatus.HasValue)
