@@ -47,20 +47,30 @@ namespace GraphQL.Server.Transports.AspNetCore.SystemTextJson
             cancellationToken.ThrowIfCancellationRequested();
 
             var result = new GraphQLRequestDeserializationResult { IsSuccessful = true };
-            switch (jsonTokenType)
+            try
             {
-                case JsonTokenType.StartObject:
-                    result.Single = ToGraphQLRequest(
-                        await JsonSerializer.DeserializeAsync<InternalGraphQLRequest>(bodyReader.AsStream(), _serializerOptions, cancellationToken));
-                    return result;
-                case JsonTokenType.StartArray:
-                    result.Batch = (await JsonSerializer.DeserializeAsync<InternalGraphQLRequest[]>(bodyReader.AsStream(), _serializerOptions, cancellationToken))
-                        .Select(ToGraphQLRequest)
-                        .ToArray();
-                    return result;
-                default:
-                    result.IsSuccessful = false;
-                    return result;
+                switch (jsonTokenType)
+                {
+                    case JsonTokenType.StartObject:
+                        result.Single = ToGraphQLRequest(
+                            await JsonSerializer.DeserializeAsync<InternalGraphQLRequest>(bodyReader.AsStream(), _serializerOptions, cancellationToken));
+                        return result;
+                    case JsonTokenType.StartArray:
+                        result.Batch = (await JsonSerializer.DeserializeAsync<InternalGraphQLRequest[]>(bodyReader.AsStream(), _serializerOptions, cancellationToken))
+                            .Select(ToGraphQLRequest)
+                            .ToArray();
+                        return result;
+                    default:
+                        result.IsSuccessful = false;
+                        result.Exception = GraphQLRequestDeserializationException.InvalidFirstChar();
+                        return result;
+                }
+            }
+            catch (JsonException e)
+            {
+                result.IsSuccessful = false;
+                result.Exception = new GraphQLRequestDeserializationException(e);
+                return result;
             }
         }
 

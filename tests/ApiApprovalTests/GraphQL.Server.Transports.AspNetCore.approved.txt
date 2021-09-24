@@ -22,10 +22,17 @@ namespace GraphQL.Server.Transports.AspNetCore
         protected virtual System.Threading.Tasks.Task RequestExecutedAsync(in GraphQL.Server.Transports.AspNetCore.GraphQLRequestExecutionResult requestExecutionResult) { }
         protected virtual System.Threading.Tasks.Task RequestExecutingAsync(GraphQL.Server.GraphQLRequest request, int? indexInBatch = default) { }
     }
+    public class GraphQLRequestDeserializationException : System.Exception
+    {
+        public GraphQLRequestDeserializationException(System.Exception inner) { }
+        public GraphQLRequestDeserializationException(string message) { }
+        public static GraphQL.Server.Transports.AspNetCore.GraphQLRequestDeserializationException InvalidFirstChar() { }
+    }
     public class GraphQLRequestDeserializationResult
     {
         public GraphQLRequestDeserializationResult() { }
         public GraphQL.Server.GraphQLRequest[] Batch { get; set; }
+        public GraphQL.Server.Transports.AspNetCore.GraphQLRequestDeserializationException Exception { get; set; }
         public bool IsSuccessful { get; set; }
         public GraphQL.Server.GraphQLRequest Single { get; set; }
     }

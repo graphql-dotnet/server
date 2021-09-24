@@ -23,5 +23,10 @@ namespace GraphQL.Server.Transports.AspNetCore
         /// populated if the HTTP request body contained an array of JSON objects.
         /// </summary>
         public GraphQLRequest[] Batch { get; set; }
+
+        /// <summary>
+        /// If deserialization throws an exception, it is stored here
+        /// </summary>
+        public GraphQLRequestDeserializationException Exception { get; set; }
     }
 }
