@@ -9,8 +9,8 @@
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <ProjectReference Include="..\Core\Core.csproj" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="3.1.0" Condition="'$(TargetFramework)' == 'netcoreapp3.1'" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="5.0.0" Condition="'$(TargetFramework)' == 'net5'" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" Condition="'$(TargetFramework)' == 'netcoreapp3.1'" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" Condition="'$(TargetFramework)' == 'net5'" />
   </ItemGroup>
 
 </Project>
