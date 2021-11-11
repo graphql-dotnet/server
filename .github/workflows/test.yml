@@ -8,6 +8,8 @@ on:
     paths:
       - src/**
       - .github/workflows/**
+      - "*.props"
+      - "*.targets"
   # Upload code coverage results when PRs are merged
   push:
     branches:
@@ -16,6 +18,8 @@ on:
     paths:
       - src/**
       - .github/workflows/**
+      - "*.props"
+      - "*.targets"
 
 env:
   DOTNET_NOLOGO: true
