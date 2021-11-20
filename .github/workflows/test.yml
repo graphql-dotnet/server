@@ -7,6 +7,8 @@ on:
       - develop
     paths:
       - src/**
+      - tests/**
+      - samples/**
       - .github/workflows/**
       - "*.props"
       - "*.targets"
@@ -17,6 +19,8 @@ on:
       - develop
     paths:
       - src/**
+      - tests/**
+      - samples/**
       - .github/workflows/**
       - "*.props"
       - "*.targets"
