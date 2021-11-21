@@ -88,7 +88,7 @@ For the WebSocket subscription protocol (depends on above) middleware:
 For integration of GraphQL.NET validation subsystem into ASP.NET Core:
 
 ```
-> dotnet add package Authorization.AspNetCore
+> dotnet add package GraphQL.Server.Authorization.AspNetCore
 ```
 
 #### 4. UI integration
