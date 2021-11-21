@@ -43,6 +43,9 @@ namespace GraphQL.Samples.Server
                 .AddWebSockets()
                 .AddDataLoader()
                 .AddGraphTypes(typeof(ChatSchema));
+
+            services
+                .AddSingleton<IDocumentExecuter, SubscriptionDocumentExecuter>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
