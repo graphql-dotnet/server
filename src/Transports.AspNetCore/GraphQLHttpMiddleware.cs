@@ -61,9 +61,12 @@ namespace GraphQL.Server.Transports.AspNetCore
             if (!isGet && !isPost)
             {
                 httpResponse.Headers["Allow"] = "GET, POST";
-                await WriteErrorResponseAsync(httpResponse, writer, cancellationToken,
+                await WriteErrorResponseAsync(
+                    httpResponse,
+                    writer,
+                    cancellationToken,
                     $"Invalid HTTP method. Only GET and POST are supported. {DOCS_URL}",
-                    httpStatusCode: HttpStatusCode.MethodNotAllowed
+                    HttpStatusCode.MethodNotAllowed
                 );
                 return;
             }
@@ -75,7 +78,12 @@ namespace GraphQL.Server.Transports.AspNetCore
             {
                 if (!MediaTypeHeaderValue.TryParse(httpRequest.ContentType, out var mediaTypeHeader))
                 {
-                    await WriteErrorResponseAsync(httpResponse, writer, cancellationToken, $"Invalid 'Content-Type' header: value '{httpRequest.ContentType}' could not be parsed.");
+                    await WriteErrorResponseAsync(
+                        httpResponse,
+                        writer,
+                        cancellationToken,
+                        $"Invalid 'Content-Type' header: value '{httpRequest.ContentType}' could not be parsed.",
+                        HttpStatusCode.BadRequest);
                     return;
                 }
 
@@ -88,7 +96,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                             var message = deserializationResult.Exception is null
                                 ? "JSON body text could not be parsed."
                                 : $"JSON body text could not be parsed. {deserializationResult.Exception.Message}";
-                            await WriteErrorResponseAsync(httpResponse, writer, cancellationToken, message);
+                            await WriteErrorResponseAsync(httpResponse, writer, cancellationToken, message, HttpStatusCode.BadRequest);
                             return;
                         }
                         bodyGQLRequest = deserializationResult.Single;
@@ -132,9 +140,12 @@ namespace GraphQL.Server.Transports.AspNetCore
 
                 if (string.IsNullOrWhiteSpace(gqlRequest.Query))
                 {
-                    await WriteErrorResponseAsync(httpResponse, writer, cancellationToken,
+                    await WriteErrorResponseAsync(
+                        httpResponse,
+                        writer,
+                        cancellationToken,
                         "GraphQL query is missing.",
-                        httpStatusCode: HttpStatusCode.BadRequest
+                        HttpStatusCode.BadRequest
                     );
                     return;
                 }
@@ -204,7 +215,7 @@ namespace GraphQL.Server.Transports.AspNetCore
         }
 
         private Task WriteErrorResponseAsync(HttpResponse httpResponse, IDocumentWriter writer, CancellationToken cancellationToken,
-            string errorMessage, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest)
+            string errorMessage, HttpStatusCode httpStatusCode)
         {
             var result = new ExecutionResult
             {
