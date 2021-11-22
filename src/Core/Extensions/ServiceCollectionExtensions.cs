@@ -50,7 +50,7 @@ namespace Microsoft.Extensions.DependencyInjection
             // This is used instead of "normal" services.Configure(configureOptions) to pass IServiceProvider to user code.
             services.AddSingleton<IConfigureOptions<GraphQLOptions>>(x => new ConfigureNamedOptions<GraphQLOptions>(Options.Options.DefaultName, opt => configureOptions(opt, x)));
             services.TryAddSingleton<InstrumentFieldsMiddleware>();
-            services.TryAddSingleton<IDocumentExecuter, DocumentExecuter>();
+            services.TryAddSingleton<IDocumentExecuter, SubscriptionDocumentExecuter>(); // TODO: rewrite in v6
             services.TryAddTransient(typeof(IGraphQLExecuter<>), typeof(DefaultGraphQLExecuter<>));
 
             services.TryAddSingleton<IDocumentWriter>(x =>
