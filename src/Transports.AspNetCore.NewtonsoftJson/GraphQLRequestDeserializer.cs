@@ -41,19 +41,28 @@ namespace GraphQL.Server.Transports.AspNetCore.NewtonsoftJson
 
                 cancellationToken.ThrowIfCancellationRequested();
 
-                switch (firstChar)
+                try
                 {
-                    case '{':
-                        result.Single = ToGraphQLRequest(_serializer.Deserialize<InternalGraphQLRequest>(jsonReader));
-                        break;
-                    case '[':
-                        result.Batch = _serializer.Deserialize<InternalGraphQLRequest[]>(jsonReader)
-                            .Select(ToGraphQLRequest)
-                            .ToArray();
-                        break;
-                    default:
-                        result.IsSuccessful = false;
-                        break;
+                    switch (firstChar)
+                    {
+                        case '{':
+                            result.Single = ToGraphQLRequest(_serializer.Deserialize<InternalGraphQLRequest>(jsonReader));
+                            break;
+                        case '[':
+                            result.Batch = _serializer.Deserialize<InternalGraphQLRequest[]>(jsonReader)
+                                .Select(ToGraphQLRequest)
+                                .ToArray();
+                            break;
+                        default:
+                            result.IsSuccessful = false;
+                            result.Exception = GraphQLRequestDeserializationException.InvalidFirstChar();
+                            break;
+                    }
+                }
+                catch (JsonException e)
+                {
+                    result.IsSuccessful = false;
+                    result.Exception = new GraphQLRequestDeserializationException(e);
                 }
             }
 

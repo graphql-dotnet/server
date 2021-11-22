@@ -80,7 +80,7 @@ For more information on how to migrate from `Newtonsoft.Json` to `System.Text.Js
 For the WebSocket subscription protocol (depends on above) middleware:
 
 ```
-> dotnet add package GraphQL.Server.Transports.WebSockets
+> dotnet add package GraphQL.Server.Transports.Subscriptions.WebSockets
 ```
 
 #### 3. Authorization
@@ -88,7 +88,7 @@ For the WebSocket subscription protocol (depends on above) middleware:
 For integration of GraphQL.NET validation subsystem into ASP.NET Core:
 
 ```
-> dotnet add package Authorization.AspNetCore
+> dotnet add package GraphQL.Server.Authorization.AspNetCore
 ```
 
 #### 4. UI integration
