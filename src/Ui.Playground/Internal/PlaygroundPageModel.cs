@@ -27,7 +27,16 @@ namespace GraphQL.Server.Ui.Playground.Internal
                 var headers = new Dictionary<string, object>
                 {
                     ["Accept"] = "application/json",
-                    ["Content-Type"] = "application/json",
+                    // TODO: investigate, fails in Chrome
+                    // {
+                    //   "error": "Response not successful: Received status code 400"
+                    // }
+                    //
+                    // MediaTypeHeaderValue.TryParse(httpRequest.ContentType, out var mediaTypeHeader) from GraphQLHttpMiddleware
+                    // returns false because of
+                    // content-type: application/json, application/json
+
+                    //["Content-Type"] = "application/json",
                 };
 
                 if (_options.Headers?.Count > 0)
