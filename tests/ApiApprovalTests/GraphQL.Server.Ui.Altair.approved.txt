@@ -9,7 +9,9 @@ namespace GraphQL.Server.Ui.Altair
     {
         public AltairOptions() { }
         public Microsoft.AspNetCore.Http.PathString GraphQLEndPoint { get; set; }
-        public System.Collections.Generic.Dictionary<string, string> Headers { get; set; }
+        public System.Collections.Generic.Dictionary<string, string>? Headers { get; set; }
+        public System.Func<GraphQL.Server.Ui.Altair.AltairOptions, System.IO.Stream> IndexStream { get; set; }
+        public System.Func<GraphQL.Server.Ui.Altair.AltairOptions, string, string> PostConfigure { get; set; }
         public Microsoft.AspNetCore.Http.PathString SubscriptionsEndPoint { get; set; }
     }
 }
