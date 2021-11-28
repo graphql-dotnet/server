@@ -3,6 +3,7 @@ test:
 
 CI:
   - .github/workflows/**/*
+  - .github/dependabot.yml
 
 code style:
   - .editorconfig

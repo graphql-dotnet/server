@@ -4,6 +4,7 @@
     <TargetFrameworks>net5;netcoreapp3.1</TargetFrameworks>
     <Description>GraphQL Altair integration for ASP.NET Core</Description>
     <PackageTags>Altair;GraphQL</PackageTags>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

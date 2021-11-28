@@ -25,11 +25,13 @@ namespace GraphQL.Server.Ui.Playground
         public int EditorFontSize { get; set; }
         public bool EditorReuseHeaders { get; set; }
         public GraphQL.Server.Ui.Playground.EditorTheme EditorTheme { get; set; }
-        public System.Collections.Generic.Dictionary<string, object> GraphQLConfig { get; set; }
+        public System.Collections.Generic.Dictionary<string, object>? GraphQLConfig { get; set; }
         public Microsoft.AspNetCore.Http.PathString GraphQLEndPoint { get; set; }
-        public System.Collections.Generic.Dictionary<string, object> Headers { get; set; }
+        public System.Collections.Generic.Dictionary<string, object>? Headers { get; set; }
         public bool HideTracingResponse { get; set; }
+        public System.Func<GraphQL.Server.Ui.Playground.PlaygroundOptions, System.IO.Stream> IndexStream { get; set; }
         public System.Collections.Generic.Dictionary<string, object> PlaygroundSettings { get; set; }
+        public System.Func<GraphQL.Server.Ui.Playground.PlaygroundOptions, string, string> PostConfigure { get; set; }
         public int PrettierPrintWidth { get; set; }
         public int PrettierTabWidth { get; set; }
         public bool PrettierUseTabs { get; set; }

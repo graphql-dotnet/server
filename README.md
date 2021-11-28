@@ -93,7 +93,7 @@ For integration of GraphQL.NET validation subsystem into ASP.NET Core:
 
 #### 4. UI integration
 
-For the UI middleware/s:
+For the UI middlewares:
 
 ```
 > dotnet add package GraphQL.Server.Ui.Altair
@@ -101,6 +101,18 @@ For the UI middleware/s:
 > dotnet add package GraphQL.Server.Ui.Playground
 > dotnet add package GraphQL.Server.Ui.Voyager
 ```
+
+```c#
+public void Configure(IApplicationBuilder app)
+{
+    app.[Use|Map]GraphQLAltair();
+    app.[Use|Map]GraphQLGraphiQL();
+    app.[Use|Map]GraphQLPlayground();
+    app.[Use|Map]GraphQLVoyager();
+}
+```
+
+Also each middleware accepts options to configure its behavior and UI.
 
 ## Configure
 

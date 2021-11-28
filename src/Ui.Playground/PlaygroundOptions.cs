@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Microsoft.AspNetCore.Http;
 
 namespace GraphQL.Server.Ui.Playground
@@ -22,12 +23,23 @@ namespace GraphQL.Server.Ui.Playground
         /// <summary>
         /// The GraphQL configuration.
         /// </summary>
-        public Dictionary<string, object> GraphQLConfig { get; set; }
+        public Dictionary<string, object>? GraphQLConfig { get; set; }
 
         /// <summary>
         /// HTTP headers with which the GraphQL Playground will be initialized.
         /// </summary>
-        public Dictionary<string, object> Headers { get; set; }
+        public Dictionary<string, object>? Headers { get; set; }
+
+        /// <summary>
+        /// Gets or sets a Stream function for retrieving the GraphQL Playground UI page.
+        /// </summary>
+        public Func<PlaygroundOptions, Stream> IndexStream { get; set; } = _ => typeof(PlaygroundOptions).Assembly
+            .GetManifestResourceStream("GraphQL.Server.Ui.Playground.Internal.playground.cshtml")!;
+
+        /// <summary>
+        /// Gets or sets a delegate that is called after all transformations of the GraphQL Playground UI page.
+        /// </summary>
+        public Func<PlaygroundOptions, string, string> PostConfigure { get; set; } = (options, result) => result;
 
         /// <summary>
         /// The GraphQL Playground Settings, see <see href="https://github.com/prisma-labs/graphql-playground/blob/master/README.md#settings"/>.
