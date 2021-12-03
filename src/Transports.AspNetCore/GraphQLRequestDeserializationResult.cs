@@ -10,7 +10,7 @@ namespace GraphQL.Server.Transports.AspNetCore
         /// Flag indicating success. When false, the <see cref="GraphQLHttpMiddleware{TSchema}"/>
         /// will return a 400 BadRequest HTTP status to the client.
         /// </summary>
-        public bool IsSuccessful { get; set; }
+        public bool IsSuccessful { get; set; } // TODO: delete in v6
 
         /// <summary>
         /// A deserialized GraphQL request,
@@ -25,7 +25,7 @@ namespace GraphQL.Server.Transports.AspNetCore
         public GraphQLRequest[] Batch { get; set; }
 
         /// <summary>
-        /// If deserialization throws an exception, it is stored here
+        /// If deserialization throws an exception, it is stored here.
         /// </summary>
         public GraphQLRequestDeserializationException Exception { get; set; }
     }

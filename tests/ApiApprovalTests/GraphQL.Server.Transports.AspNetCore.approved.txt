@@ -26,6 +26,7 @@ namespace GraphQL.Server.Transports.AspNetCore
     {
         public GraphQLRequestDeserializationException(System.Exception inner) { }
         public GraphQLRequestDeserializationException(string message) { }
+        public GraphQLRequestDeserializationException(string message, System.Exception inner) { }
         public static GraphQL.Server.Transports.AspNetCore.GraphQLRequestDeserializationException InvalidFirstChar() { }
     }
     public class GraphQLRequestDeserializationResult

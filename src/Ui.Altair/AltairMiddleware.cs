@@ -16,7 +16,7 @@ namespace GraphQL.Server.Ui.Altair
         /// <summary>
         /// The page model used to render Altair.
         /// </summary>
-        private AltairPageModel _pageModel;
+        private AltairPageModel? _pageModel;
 
         /// <summary>
         /// Create a new <see cref="AltairMiddleware"/>
@@ -41,9 +41,7 @@ namespace GraphQL.Server.Ui.Altair
             httpContext.Response.ContentType = "text/html";
             httpContext.Response.StatusCode = 200;
 
-            // Initialize page model if null
-            if (_pageModel == null)
-                _pageModel = new AltairPageModel(_options);
+            _pageModel ??= new AltairPageModel(_options);
 
             byte[] data = Encoding.UTF8.GetBytes(_pageModel.Render());
             return httpContext.Response.Body.WriteAsync(data, 0, data.Length);
