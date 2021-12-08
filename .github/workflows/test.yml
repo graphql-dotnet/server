@@ -12,6 +12,7 @@ on:
       - .github/workflows/**
       - "*.props"
       - "*.targets"
+      - "*.sln"
   # Upload code coverage results when PRs are merged
   push:
     branches:
