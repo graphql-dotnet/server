@@ -48,15 +48,25 @@
   </div>
   <script>
     window.addEventListener('load', function (event) {
-      GraphQLPlayground.init(document.getElementById('root'),
-        {
-          setTitle: true,
-          endpoint: window.location.protocol + "//" + window.location.host + "@Model.GraphQLEndPoint",
-          subscriptionEndpoint: (window.location.protocol === "http:" ? "ws://" : "wss://") + window.location.host + "@Model.SubscriptionsEndPoint",
-          config: @Model.GraphQLConfig,
-          settings: @Model.PlaygroundSettings,
-          headers: @Model.Headers,
+      let options = {
+        setTitle: true,
+        endpoint: window.location.protocol + "//" + window.location.host + "@Model.GraphQLEndPoint",
+        subscriptionEndpoint: (window.location.protocol === "http:" ? "ws://" : "wss://") + window.location.host + "@Model.SubscriptionsEndPoint",
+        config: @Model.GraphQLConfig,
+        settings: @Model.PlaygroundSettings,
+        headers: @Model.Headers
+      };
+
+      const tabs = @Model.Tabs;
+
+      if(tabs) {
+        options.tabs = tabs.map(tab => {
+          tab.endpoint = window.location.protocol + "//" + window.location.host + tab.endpoint;
+          return tab;
         });
+      }
+
+      GraphQLPlayground.init(document.getElementById('root'), options);
     })
   </script>
 </body>

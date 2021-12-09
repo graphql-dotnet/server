@@ -31,6 +31,11 @@ namespace GraphQL.Server.Ui.Playground
         public Dictionary<string, object>? Headers { get; set; }
 
         /// <summary>
+        /// Tabs with which the GraphQL Playground will be initialized.
+        /// </summary>
+        public IEnumerable<PlaygroundTab>? Tabs { get; set; }
+
+        /// <summary>
         /// Gets or sets a Stream function for retrieving the GraphQL Playground UI page.
         /// </summary>
         public Func<PlaygroundOptions, Stream> IndexStream { get; set; } = _ => typeof(PlaygroundOptions).Assembly

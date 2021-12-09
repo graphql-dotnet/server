@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.Json;
 
@@ -45,11 +46,28 @@ namespace GraphQL.Server.Ui.Playground.Internal
                         headers[item.Key] = item.Value;
                 }
 
+                string modelTabs = "null";
+
+                if(_options.Tabs != null)
+                {
+                    var tabs = _options.Tabs.Select(tab =>
+                    {
+                        tab.Headers ??= headers;
+                        return tab;
+                    });
+
+                    modelTabs = JsonSerializer.Serialize<object>(tabs, new JsonSerializerOptions
+                    {
+                        IgnoreNullValues = true
+                    });
+                }
+
                 var builder = new StringBuilder(streamReader.ReadToEnd())
                     .Replace("@Model.GraphQLEndPoint", _options.GraphQLEndPoint)
                     .Replace("@Model.SubscriptionsEndPoint", _options.SubscriptionsEndPoint)
                     .Replace("@Model.GraphQLConfig", JsonSerializer.Serialize<object>(_options.GraphQLConfig!))
                     .Replace("@Model.Headers", JsonSerializer.Serialize<object>(headers))
+                    .Replace("@Model.Tabs", modelTabs)
                     .Replace("@Model.PlaygroundSettings", JsonSerializer.Serialize<object>(_options.PlaygroundSettings));
 
                 _playgroundCSHtml = _options.PostConfigure(_options, builder.ToString());

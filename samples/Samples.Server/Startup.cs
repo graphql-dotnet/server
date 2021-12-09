@@ -82,6 +82,19 @@ namespace GraphQL.Samples.Server
                     ["MyHeader1"] = "MyValue",
                     ["MyHeader2"] = 42,
                 },
+
+                Tabs = new PlaygroundTab[1]
+                {
+                    new PlaygroundTab(query: "mutation AddMessage($message: MessageInputType!) {\n  addMessage(message: $message) {\n    from {\n      id\n      displayName\n    }\n    content\n  }\n}")
+                    {
+                        Name = "AddMessage",
+                        Variables = "{\n  \"message\": {\n    \"content\": \"Message\",\n    \"fromId\": \"1\"\n  }\n}",
+                        Responses = new string[]
+                        {
+                            "{\n  \"data\": {\n    \"addMessage\": {\n      \"from\": {\n        \"id\": \"1\",\n        \"displayName\": \"developer\"\n      },\n      \"content\": \"Message\"\n    }\n  }\n}"
+                        }
+                    }
+                }
             });
 
             app.UseGraphQLGraphiQL(new GraphiQLOptions
