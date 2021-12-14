@@ -45,18 +45,20 @@ namespace GraphQL.Server.Transports.WebSockets
             try
             {
                 if (_socket.State != WebSocketState.Closed &&
-                _socket.State != WebSocketState.CloseSent &&
-                _socket.State != WebSocketState.Aborted)
+                    _socket.State != WebSocketState.CloseSent &&
+                    _socket.State != WebSocketState.Aborted)
+                {
                     if (closeStatus == WebSocketCloseStatus.NormalClosure)
                         await _socket.CloseAsync(
-                          closeStatus,
-                          statusDescription,
-                          CancellationToken.None);
+                            closeStatus,
+                            statusDescription,
+                            CancellationToken.None);
                     else
                         await _socket.CloseOutputAsync(
-                          closeStatus,
-                          statusDescription,
-                          CancellationToken.None);
+                            closeStatus,
+                            statusDescription,
+                            CancellationToken.None);
+                }
             }
             finally
             {
