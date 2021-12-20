@@ -1,3 +1,4 @@
+using System;
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,7 +8,7 @@ using Newtonsoft.Json.Serialization;
 
 namespace GraphQL.Server.Transports.WebSockets
 {
-    public class WebSocketTransport : IMessageTransport
+    public class WebSocketTransport : IMessageTransport, IDisposable
     {
         private readonly WebSocket _socket;
 
@@ -46,6 +47,11 @@ namespace GraphQL.Server.Transports.WebSockets
         {
             _socket.Abort();
             return Task.CompletedTask;
+        }
+
+        public void Dispose()
+        {
+            _socket.Dispose();
         }
     }
 }
