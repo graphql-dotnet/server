@@ -26,7 +26,7 @@ namespace Samples.Server.Tests
         }
 
         /// <summary>
-        /// Tests that POST type requests are overridden by query string params. 
+        /// Tests that POST type requests are overridden by query string params.
         /// </summary>
         [Theory]
         [InlineData(RequestType.PostWithJson)]
