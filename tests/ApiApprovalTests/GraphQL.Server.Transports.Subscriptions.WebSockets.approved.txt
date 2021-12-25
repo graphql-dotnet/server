@@ -39,13 +39,14 @@ namespace GraphQL.Server.Transports.WebSockets
         protected System.Threading.Tasks.Dataflow.IPropagatorBlock<string, GraphQL.Server.Transports.Subscriptions.Abstractions.OperationMessage> CreateReaderJsonTransformer() { }
         public void LinkTo(System.Threading.Tasks.Dataflow.ITargetBlock<GraphQL.Server.Transports.Subscriptions.Abstractions.OperationMessage> target) { }
     }
-    public class WebSocketTransport : GraphQL.Server.Transports.Subscriptions.Abstractions.IMessageTransport
+    public class WebSocketTransport : GraphQL.Server.Transports.Subscriptions.Abstractions.IMessageTransport, System.IDisposable
     {
         public WebSocketTransport(System.Net.WebSockets.WebSocket socket, GraphQL.IDocumentWriter documentWriter) { }
         public System.Net.WebSockets.WebSocketCloseStatus? CloseStatus { get; }
         public GraphQL.Server.Transports.Subscriptions.Abstractions.IReaderPipeline Reader { get; }
         public GraphQL.Server.Transports.Subscriptions.Abstractions.IWriterPipeline Writer { get; }
         public System.Threading.Tasks.Task CloseAsync() { }
+        public void Dispose() { }
     }
     public class WebSocketWriterPipeline : GraphQL.Server.Transports.Subscriptions.Abstractions.IWriterPipeline
     {
