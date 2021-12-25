@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net5;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>net6;net5;netcoreapp3.1</TargetFrameworks>
     <Description>HTTP middleware for GraphQL</Description>
     <PackageTags>GraphQL;middleware</PackageTags>
   </PropertyGroup>
