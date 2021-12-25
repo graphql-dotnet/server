@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using GraphQL.Execution;
 using GraphQL.Validation.Complexity;
 
@@ -16,7 +17,7 @@ namespace GraphQL.Server
         /// </summary>
         public bool EnableMetrics { get; set; } = true;
 
-        public Action<UnhandledExceptionContext> UnhandledExceptionDelegate = ctx => { };
+        public Func<UnhandledExceptionContext, Task> UnhandledExceptionDelegate = _ => Task.CompletedTask;
 
         /// <summary>If set, limits the maximum number of nodes executed in parallel</summary>
         public int? MaxParallelExecutionCount { get; set; }

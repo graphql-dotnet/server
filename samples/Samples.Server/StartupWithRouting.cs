@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using GraphQL.Samples.Schemas.Chat;
 using GraphQL.Server;
 using GraphQL.Server.Ui.Altair;
@@ -37,7 +38,11 @@ namespace GraphQL.Samples.Server
                 {
                     options.EnableMetrics = Environment.IsDevelopment();
                     var logger = provider.GetRequiredService<ILogger<Startup>>();
-                    options.UnhandledExceptionDelegate = ctx => logger.LogError("{Error} occurred", ctx.OriginalException.Message);
+                    options.UnhandledExceptionDelegate = ctx =>
+                    {
+                        logger.LogError("{Error} occurred", ctx.OriginalException.Message);
+                        return Task.CompletedTask;
+                    };
                 })
                 .AddDefaultEndpointSelectorPolicy()
                 .AddSystemTextJson(deserializerSettings => { }, serializerSettings => { })

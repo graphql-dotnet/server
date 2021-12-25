@@ -13,7 +13,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
     {
         public AuthorizationValidationRule(Microsoft.AspNetCore.Authorization.IAuthorizationService authorizationService, GraphQL.Server.Authorization.AspNetCore.IClaimsPrincipalAccessor claimsPrincipalAccessor) { }
         protected virtual void AddValidationError(GraphQL.Language.AST.INode node, GraphQL.Validation.ValidationContext context, GraphQL.Language.AST.OperationType? operationType, Microsoft.AspNetCore.Authorization.AuthorizationResult result) { }
-        public System.Threading.Tasks.Task<GraphQL.Validation.INodeVisitor> ValidateAsync(GraphQL.Validation.ValidationContext context) { }
+        public System.Threading.Tasks.ValueTask<GraphQL.Validation.INodeVisitor?> ValidateAsync(GraphQL.Validation.ValidationContext context) { }
     }
     public class DefaultClaimsPrincipalAccessor : GraphQL.Server.Authorization.AspNetCore.IClaimsPrincipalAccessor
     {
