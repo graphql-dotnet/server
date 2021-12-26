@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net5;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>net6;net5;netcoreapp3.1</TargetFrameworks>
     <Description>GraphQL middleware using Newtonsoft.Json for serialization</Description>
     <PackageTags>GraphQL;middleware;AspNetCore;Newtonsoft.Json</PackageTags>
   </PropertyGroup>
