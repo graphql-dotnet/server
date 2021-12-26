@@ -16,7 +16,7 @@ namespace GraphQL.Server.Transports.WebSockets
             _server = subscriptionServer;
         }
 
-        public async Task Connect()
+        public virtual async Task Connect()
         {
             try
             {
