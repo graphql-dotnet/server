@@ -1,9 +1,10 @@
+using System;
 using System.Threading.Tasks;
 using GraphQL.Server.Transports.Subscriptions.Abstractions;
 
 namespace GraphQL.Server.Transports.WebSockets
 {
-    public class WebSocketConnection
+    public class WebSocketConnection : IDisposable
     {
         private readonly WebSocketTransport _transport;
         private readonly SubscriptionServer _server;
@@ -18,16 +19,14 @@ namespace GraphQL.Server.Transports.WebSockets
 
         public virtual async Task Connect()
         {
-            try
-            {
-                await _server.OnConnect();
-                await _server.OnDisconnect();
-                await _transport.CloseAsync();
-            }
-            finally
-            {
-                _transport.Dispose();
-            }
+            await _server.OnConnect();
+            await _server.OnDisconnect();
+            await _transport.CloseAsync();
+        }
+
+        public void Dispose()
+        {
+            _transport.Dispose();
         }
     }
 }

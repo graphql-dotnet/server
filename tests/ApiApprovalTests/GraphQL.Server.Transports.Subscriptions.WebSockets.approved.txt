@@ -18,10 +18,11 @@ namespace GraphQL.Server.Transports.WebSockets
     {
         GraphQL.Server.Transports.WebSockets.WebSocketConnection CreateConnection(System.Net.WebSockets.WebSocket socket, string connectionId);
     }
-    public class WebSocketConnection
+    public class WebSocketConnection : System.IDisposable
     {
         public WebSocketConnection(GraphQL.Server.Transports.WebSockets.WebSocketTransport transport, GraphQL.Server.Transports.Subscriptions.Abstractions.SubscriptionServer subscriptionServer) { }
         public virtual System.Threading.Tasks.Task Connect() { }
+        public void Dispose() { }
     }
     public class WebSocketConnectionFactory<TSchema> : GraphQL.Server.Transports.WebSockets.IWebSocketConnectionFactory<TSchema>
         where TSchema : GraphQL.Types.ISchema
