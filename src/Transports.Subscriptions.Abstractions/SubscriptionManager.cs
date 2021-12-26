@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 {
     /// <inheritdoc />
-    public class SubscriptionManager : ISubscriptionManager
+    public class SubscriptionManager : ISubscriptionManager, IDisposable
     {
         private readonly IGraphQLExecuter _executer;
 
@@ -139,6 +139,29 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             }).ConfigureAwait(false);
 
             return null;
+        }
+
+        public void Dispose()
+        {
+            while (_subscriptions.Count > 0)
+            {
+                var subscriptions = _subscriptions.ToArray();
+                foreach (var subscriptionPair in subscriptions)
+                {
+                    if (_subscriptions.TryRemove(subscriptionPair.Key, out var subscription))
+                    {
+                        try
+                        {
+                            subscription.Dispose();
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError($"Failed to dispose subscription '{subscriptionPair.Key}': ${ex}");
+                        }
+                    }
+
+                }
+            }
         }
     }
 }

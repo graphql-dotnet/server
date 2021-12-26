@@ -26,6 +26,7 @@ namespace GraphQL.Server.Transports.WebSockets
 
         public void Dispose()
         {
+            _server.Dispose();
             _transport.Dispose();
         }
     }

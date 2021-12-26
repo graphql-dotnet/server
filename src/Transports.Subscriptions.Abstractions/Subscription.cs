@@ -10,7 +10,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
     /// <summary>
     ///     Internal observer of the subscription
     /// </summary>
-    public class Subscription : IObserver<ExecutionResult>
+    public class Subscription : IObserver<ExecutionResult>, IDisposable
     {
         private readonly Action<Subscription> _completed;
         private readonly ILogger<Subscription> _logger;
@@ -79,6 +79,11 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             var stream = result.Streams.Values.Single();
             _unsubscribe = stream.Synchronize().Subscribe(this);
             _logger.LogDebug("Subscription: {subscriptionId} subscribed", Id);
+        }
+
+        public void Dispose()
+        {
+            _unsubscribe.Dispose();
         }
     }
 }
