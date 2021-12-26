@@ -159,8 +159,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
                             _logger.LogError($"Failed to dispose subscription '{subscriptionPair.Key}': ${ex}");
                         }
                     }
-
-                }
+]                }
             }
         }
     }
