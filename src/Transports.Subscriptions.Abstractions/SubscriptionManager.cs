@@ -77,9 +77,6 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             OperationMessagePayload payload,
             MessageHandlingContext context)
         {
-            if (_disposed)
-                throw new ObjectDisposedException(nameof(SubscriptionManager));
-
             var writer = context.Writer;
             _logger.LogDebug("Executing operation: {operationName} query: {query}",
                 payload.OperationName,
