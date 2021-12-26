@@ -18,6 +18,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 
         private readonly ILogger<SubscriptionManager> _logger;
         private readonly ILoggerFactory _loggerFactory;
+        private volatile bool _disposed;
 
         private readonly ConcurrentDictionary<string, Subscription> _subscriptions =
             new ConcurrentDictionary<string, Subscription>();
@@ -45,13 +46,18 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
                 throw new ArgumentNullException(nameof(payload));
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
+            if (_disposed)
+                throw new ObjectDisposedException(nameof(SubscriptionManager));
 
             var subscription = await ExecuteAsync(id, payload, context).ConfigureAwait(false);
 
             if (subscription == null)
                 return;
 
-            _subscriptions[id] = subscription;
+            if (_disposed)
+                subscription.Dispose();
+            else
+                _subscriptions[id] = subscription;
         }
 
         /// <inheritdoc />
@@ -71,6 +77,9 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             OperationMessagePayload payload,
             MessageHandlingContext context)
         {
+            if (_disposed)
+                throw new ObjectDisposedException(nameof(SubscriptionManager));
+
             var writer = context.Writer;
             _logger.LogDebug("Executing operation: {operationName} query: {query}",
                 payload.OperationName,
@@ -143,6 +152,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 
         public void Dispose()
         {
+            _disposed = true;
             while (_subscriptions.Count > 0)
             {
                 var subscriptions = _subscriptions.ToArray();
@@ -159,7 +169,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
                             _logger.LogError($"Failed to dispose subscription '{subscriptionPair.Key}': ${ex}");
                         }
                     }
-]                }
+                }
             }
         }
     }
