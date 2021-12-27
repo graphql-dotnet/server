@@ -1,3 +1,5 @@
+#nullable enable
+
 using System;
 using System.Linq;
 using System.Reflection;
@@ -28,7 +30,7 @@ namespace GraphQL.Server
         /// the implementation of <see cref="BasicGraphQLExecuter{TSchema}"/> will set <see cref="ExecutionOptions.EnableMetrics"/>
         /// if <see cref="GraphQLOptions.EnableMetrics"/> is set.
         /// </summary>
-        public static DI.IGraphQLBuilder AddServer(this DI.IGraphQLBuilder builder, bool installMetricsMiddleware, Action<GraphQLOptions> configureOptions)
+        public static DI.IGraphQLBuilder AddServer(this DI.IGraphQLBuilder builder, bool installMetricsMiddleware, Action<GraphQLOptions>? configureOptions)
         {
             builder.TryRegister(typeof(IGraphQLExecuter<>), typeof(BasicGraphQLExecuter<>), DI.ServiceLifetime.Transient);
             builder.TryRegister(typeof(IGraphQLExecuter), typeof(BasicGraphQLExecuter<ISchema>), DI.ServiceLifetime.Transient);
@@ -39,7 +41,7 @@ namespace GraphQL.Server
         }
 
         /// <inheritdoc cref="AddServer(DI.IGraphQLBuilder, bool, Action{GraphQLOptions})"/>
-        public static DI.IGraphQLBuilder AddServer(this DI.IGraphQLBuilder builder, bool installMetricsMiddleware, Action<GraphQLOptions, IServiceProvider> configureOptions = null)
+        public static DI.IGraphQLBuilder AddServer(this DI.IGraphQLBuilder builder, bool installMetricsMiddleware, Action<GraphQLOptions, IServiceProvider>? configureOptions = null)
         {
             builder.TryRegister(typeof(IGraphQLExecuter<>), typeof(BasicGraphQLExecuter<>), DI.ServiceLifetime.Transient);
             builder.TryRegister(typeof(IGraphQLExecuter), typeof(BasicGraphQLExecuter<ISchema>), DI.ServiceLifetime.Transient);

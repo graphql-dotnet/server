@@ -1,3 +1,5 @@
+#nullable enable
+
 using System;
 using GraphQL.Server.Authorization.AspNetCore;
 using GraphQL.Validation;
@@ -50,13 +52,16 @@ namespace GraphQL.Server
         /// <param name="builder">The GraphQL builder.</param>
         /// <param name="configure">An action delegate to configure the provided <see cref="AuthorizationOptions"/>.</param>
         /// <returns>Reference to the passed <paramref name="builder"/>.</returns>
-        public static DI.IGraphQLBuilder AddGraphQLAuthorization(this DI.IGraphQLBuilder builder, Action<AuthorizationOptions> configure)
+        public static DI.IGraphQLBuilder AddGraphQLAuthorization(this DI.IGraphQLBuilder builder, Action<AuthorizationOptions>? configure)
         {
             if (!(builder is IServiceCollection services))
                 throw new NotSupportedException("This method only supports the MicrosoftDI implementation of IGraphQLBuilder.");
             services.TryAddTransient<IClaimsPrincipalAccessor, DefaultClaimsPrincipalAccessor>();
             services.AddHttpContextAccessor();
-            services.AddAuthorizationCore(configure);
+            if (configure != null)
+                services.AddAuthorizationCore(configure);
+            else
+                services.AddAuthorizationCore();
             builder.AddValidationRule<AuthorizationValidationRule>();
 
             return builder;

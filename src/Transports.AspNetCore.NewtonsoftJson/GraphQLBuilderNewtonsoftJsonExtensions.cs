@@ -15,7 +15,7 @@ namespace GraphQL.Server
         /// Adds a <see cref="IGraphQLRequestDeserializer"/> and a <see cref="IDocumentWriter"/>
         /// to the service collection with the provided configuration/settings.
         /// </summary>
-        /// <param name="builder"></param>
+        /// <param name="builder">The <see cref="IGraphQLBuilder"/>.</param>
         /// <param name="configureDeserializerSettings">
         /// Action to further configure the request deserializer's settings.
         /// Affects reading of the JSON from the HTTP request the middleware processes.
@@ -40,7 +40,7 @@ namespace GraphQL.Server
         /// Adds a <see cref="IGraphQLRequestDeserializer"/> and a <see cref="IDocumentWriter"/>
         /// to the service collection with the provided configuration/settings.
         /// </summary>
-        /// <param name="builder"></param>
+        /// <param name="builder">The <see cref="DI.IGraphQLBuilder"/>.</param>
         /// <param name="configureDeserializerSettings">
         /// Action to further configure the request deserializer's settings.
         /// Affects reading of the JSON from the HTTP request the middleware processes.
