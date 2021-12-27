@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.ExceptionServices;
 using System.Xml.Linq;
 using PublicApiGenerator;
 using Shouldly;
@@ -28,7 +29,7 @@ namespace GraphQL.Authorization.ApiTests
         public void public_api_should_not_change_unintentionally(Type type)
         {
             string baseDir = AppDomain.CurrentDomain.BaseDirectory;
-            string projectName = type.Assembly.GetName().Name;
+            string projectName = type.Assembly.GetName().Name!;
             string projectFolderName = projectName["GraphQL.Server.".Length..];
             string projectDir = Path.Combine(baseDir, $"..{Path.DirectorySeparatorChar}..{Path.DirectorySeparatorChar}..{Path.DirectorySeparatorChar}..{Path.DirectorySeparatorChar}..", "src");
             string buildDir = Path.Combine(projectDir, projectFolderName, "bin", "Debug");
@@ -58,11 +59,25 @@ namespace GraphQL.Authorization.ApiTests
             }
             else
             {
+                // https://github.com/graphql-dotnet/server/pull/675#issuecomment-1001283947
+                ExceptionDispatchInfo? error = null;
+
                 var uniqueApi = publicApi.ToLookup(item => item.content);
                 foreach (var item in uniqueApi)
                 {
-                    item.Key.ShouldMatchApproved(options => options.SubFolder(string.Join("+", item.Select(x => x.tfm).OrderBy(x => x))).NoDiff().WithFilenameGenerator((testMethodInfo, discriminator, fileType, fileExtension) => $"{type.Assembly.GetName().Name}.{fileType}.{fileExtension}"));
+                    try
+                    {
+                        item.Key.ShouldMatchApproved(options => options.SubFolder(string.Join("+", item.Select(x => x.tfm).OrderBy(x => x))).NoDiff().WithFilenameGenerator((testMethodInfo, discriminator, fileType, fileExtension) => $"{type.Assembly.GetName().Name}.{fileType}.{fileExtension}"));
+                    }
+                    catch (Exception ex)
+                    {
+                        error = ExceptionDispatchInfo.Capture(ex);
+                    }
                 }
+
+                // It's OK to throw any exception occurred.
+                if (error != null)
+                    error.Throw();
             }
         }
     }
