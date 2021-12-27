@@ -1,8 +1,11 @@
+#nullable enable
+
 using System;
 using System.Linq;
 using System.Reflection;
 using GraphQL.DataLoader;
 using GraphQL.Execution;
+using GraphQL.Instrumentation;
 using GraphQL.Types;
 using GraphQL.Types.Relay;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,11 +20,44 @@ namespace GraphQL.Server
     public static class GraphQLBuilderCoreExtensions
     {
         /// <summary>
+        /// Registers an instance of <see cref="BasicGraphQLExecuter{TSchema}"/> as <see cref="IGraphQLExecuter{TSchema}"/> for
+        /// use with <see cref="GraphQLOptions"/>. It is recommended to use <see cref="IDocumentExecuter"/> directly rather than
+        /// use the <see cref="IGraphQLExecuter{TSchema}"/> interface.
+        /// <br/><br/>
+        /// Also installs <see cref="InstrumentFieldsMiddleware"/> in the schema if specified. (Previous' versions of
+        /// GraphQL.Server would install this middleware automatically.) Specify <see langword="false"/> for <paramref name="installMetricsMiddleware"/>
+        /// if <see cref="GraphQLBuilderExtensions.AddMetrics(DI.IGraphQLBuilder, bool)"/> will be called separately. Note that
+        /// the implementation of <see cref="BasicGraphQLExecuter{TSchema}"/> will set <see cref="ExecutionOptions.EnableMetrics"/>
+        /// if <see cref="GraphQLOptions.EnableMetrics"/> is set.
+        /// </summary>
+        public static DI.IGraphQLBuilder AddServer(this DI.IGraphQLBuilder builder, bool installMetricsMiddleware, Action<GraphQLOptions>? configureOptions)
+        {
+            builder.TryRegister(typeof(IGraphQLExecuter<>), typeof(BasicGraphQLExecuter<>), DI.ServiceLifetime.Transient);
+            builder.TryRegister(typeof(IGraphQLExecuter), typeof(BasicGraphQLExecuter<ISchema>), DI.ServiceLifetime.Transient);
+            builder.Configure(configureOptions);
+            if (installMetricsMiddleware)
+                builder.AddMetrics(false);
+            return builder;
+        }
+
+        /// <inheritdoc cref="AddServer(DI.IGraphQLBuilder, bool, Action{GraphQLOptions})"/>
+        public static DI.IGraphQLBuilder AddServer(this DI.IGraphQLBuilder builder, bool installMetricsMiddleware, Action<GraphQLOptions, IServiceProvider>? configureOptions = null)
+        {
+            builder.TryRegister(typeof(IGraphQLExecuter<>), typeof(BasicGraphQLExecuter<>), DI.ServiceLifetime.Transient);
+            builder.TryRegister(typeof(IGraphQLExecuter), typeof(BasicGraphQLExecuter<ISchema>), DI.ServiceLifetime.Transient);
+            builder.Configure(configureOptions);
+            if (installMetricsMiddleware)
+                builder.AddMetrics(false);
+            return builder;
+        }
+
+        /// <summary>
         /// Provides the ability to configure <see cref="ErrorInfoProviderOptions"/> for <see cref="DefaultErrorInfoProvider"/>.
         /// </summary>
         /// <param name="builder">GraphQL builder used for GraphQL specific extension methods as 'this' argument.</param>
         /// <param name="configureOptions">Action to configure the <see cref="ErrorInfoProviderOptions"/>.</param>
         /// <returns>Reference to <paramref name="builder"/>.</returns>
+        [Obsolete]
         public static IGraphQLBuilder AddErrorInfoProvider(this IGraphQLBuilder builder, Action<ErrorInfoProviderOptions> configureOptions)
             => AddErrorInfoProvider<DefaultErrorInfoProvider>(builder, configureOptions);
 
@@ -32,6 +68,7 @@ namespace GraphQL.Server
         /// <param name="builder">GraphQL builder used for GraphQL specific extension methods as 'this' argument.</param>
         /// <param name="configureOptions">Action to configure the <see cref="ErrorInfoProviderOptions"/>.</param>
         /// <returns>Reference to <paramref name="builder"/>.</returns>
+        [Obsolete]
         public static IGraphQLBuilder AddErrorInfoProvider<TErrorInfoProvider>(this IGraphQLBuilder builder, Action<ErrorInfoProviderOptions> configureOptions)
             where TErrorInfoProvider : DefaultErrorInfoProvider
         {
@@ -47,6 +84,7 @@ namespace GraphQL.Server
         /// <param name="builder">GraphQL builder used for GraphQL specific extension methods as 'this' argument.</param>
         /// <param name="configureOptions">Action to configure the <see cref="ErrorInfoProviderOptions"/>.</param>
         /// <returns>Reference to <paramref name="builder"/>.</returns>
+        [Obsolete]
         public static IGraphQLBuilder AddErrorInfoProvider(this IGraphQLBuilder builder, Action<ErrorInfoProviderOptions, IServiceProvider> configureOptions)
             => AddErrorInfoProvider<DefaultErrorInfoProvider>(builder, configureOptions);
 
@@ -57,6 +95,7 @@ namespace GraphQL.Server
         /// <param name="builder">GraphQL builder used for GraphQL specific extension methods as 'this' argument.</param>
         /// <param name="configureOptions">Action to configure the <see cref="ErrorInfoProviderOptions"/>.</param>
         /// <returns>Reference to <paramref name="builder"/>.</returns>
+        [Obsolete]
         public static IGraphQLBuilder AddErrorInfoProvider<TErrorInfoProvider>(this IGraphQLBuilder builder, Action<ErrorInfoProviderOptions, IServiceProvider> configureOptions)
             where TErrorInfoProvider : DefaultErrorInfoProvider
         {
@@ -76,6 +115,7 @@ namespace GraphQL.Server
         /// </summary>
         /// <param name="builder">GraphQL builder used for GraphQL specific extension methods as 'this' argument.</param>
         /// <returns>Reference to <paramref name="builder"/>.</returns>
+        [Obsolete]
         public static IGraphQLBuilder AddDataLoader(this IGraphQLBuilder builder)
         {
             builder.Services.TryAddSingleton<IDataLoaderContextAccessor, DataLoaderContextAccessor>();
@@ -90,6 +130,7 @@ namespace GraphQL.Server
         /// <param name="builder">GraphQL builder used for GraphQL specific extension methods as 'this' argument.</param>
         /// <param name="serviceLifetime">The service lifetime to register the GraphQL types with</param>
         /// <returns>Reference to <paramref name="builder"/>.</returns>
+        [Obsolete]
         public static IGraphQLBuilder AddGraphTypes(
             this IGraphQLBuilder builder,
             ServiceLifetime serviceLifetime = ServiceLifetime.Singleton)
@@ -102,6 +143,7 @@ namespace GraphQL.Server
         /// <param name="typeFromAssembly">The type from assembly to register all GraphQL types from</param>
         /// <param name="serviceLifetime">The service lifetime to register the GraphQL types with</param>
         /// <returns>Reference to <paramref name="builder"/>.</returns>
+        [Obsolete]
         public static IGraphQLBuilder AddGraphTypes(
             this IGraphQLBuilder builder,
             Type typeFromAssembly,
@@ -115,6 +157,7 @@ namespace GraphQL.Server
         /// <param name="assembly">The assembly to register all GraphQL types from</param>
         /// <param name="serviceLifetime">The service lifetime to register the GraphQL types with</param>
         /// <returns>Reference to <paramref name="builder"/>.</returns>
+        [Obsolete]
         public static IGraphQLBuilder AddGraphTypes(
             this IGraphQLBuilder builder,
             Assembly assembly,
@@ -136,6 +179,7 @@ namespace GraphQL.Server
         /// </summary>
         /// <param name="builder">GraphQL builder used for GraphQL specific extension methods as 'this' argument.</param>
         /// <returns>Reference to <paramref name="builder"/>.</returns>
+        [Obsolete]
         public static IGraphQLBuilder AddRelayGraphTypes(this IGraphQLBuilder builder)
         {
             builder

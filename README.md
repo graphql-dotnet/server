@@ -127,11 +127,14 @@ public void ConfigureServices(IServiceCollection services)
     // Add GraphQL services and configure options
     services
         .AddSingleton<IChat, Chat>()
-        .AddSingleton<ChatSchema>()
-        .AddGraphQL((options, provider) =>
+        .AddSingleton<ChatSchema>();
+
+    MicrosoftDI.GraphQLBuilderExtensions.AddGraphQL(services)
+        .AddServer(true)
+        .ConfigureExecution(options =>
         {
             options.EnableMetrics = Environment.IsDevelopment();
-            var logger = provider.GetRequiredService<ILogger<Startup>>();
+            var logger = options.RequestServices.GetRequiredService<ILogger<Startup>>();
             options.UnhandledExceptionDelegate = ctx => logger.LogError("{Error} occurred", ctx.OriginalException.Message);
         })
         // Add required services for GraphQL request/response de/serialization
@@ -140,7 +143,7 @@ public void ConfigureServices(IServiceCollection services)
         .AddErrorInfoProvider(opt => opt.ExposeExceptionStackTrace = Environment.IsDevelopment())
         .AddWebSockets() // Add required services for web socket support
         .AddDataLoader() // Add required services for DataLoader support
-        .AddGraphTypes(typeof(ChatSchema)) // Add all IGraphType implementors in assembly which ChatSchema exists 
+        .AddGraphTypes(typeof(ChatSchema).Assembly) // Add all IGraphType implementors in assembly which ChatSchema exists 
 }
 
 public void Configure(IApplicationBuilder app)
@@ -177,11 +180,14 @@ public void ConfigureServices(IServiceCollection services)
     services
         .AddRouting()
         .AddSingleton<IChat, Chat>()
-        .AddSingleton<ChatSchema>()
-        .AddGraphQL((options, provider) =>
+        .AddSingleton<ChatSchema>();
+
+    MicrosoftDI.GraphQLBuilderExtensions.AddGraphQL(services)
+        .AddServer(true)
+        .ConfigureExecution(options =>
         {
             options.EnableMetrics = Environment.IsDevelopment();
-            var logger = provider.GetRequiredService<ILogger<Startup>>();
+            var logger = options.RequestServices.GetRequiredService<ILogger<Startup>>();
             options.UnhandledExceptionDelegate = ctx => logger.LogError("{Error} occurred", ctx.OriginalException.Message);
         })
         // It is required when both GraphQL HTTP and GraphQL WebSockets middlewares are mapped to the same endpoint (by default 'graphql').
@@ -192,7 +198,7 @@ public void ConfigureServices(IServiceCollection services)
         .AddErrorInfoProvider(opt => opt.ExposeExceptionStackTrace = Environment.IsDevelopment())
         .AddWebSockets() // Add required services for web socket support
         .AddDataLoader() // Add required services for DataLoader support
-        .AddGraphTypes(typeof(ChatSchema)); // Add all IGraphType implementors in assembly which ChatSchema exists 
+        .AddGraphTypes(typeof(ChatSchema).Assembly); // Add all IGraphType implementors in assembly which ChatSchema exists 
 }
 
 public void Configure(IApplicationBuilder app)
@@ -202,7 +208,7 @@ public void Configure(IApplicationBuilder app)
 
     // this is required for ASP.NET Core routing
     app.UseRouting();
-            
+    
     app.UseEndpoints(endpoints =>
     {
         // map websocket middleware for ChatSchema at default path /graphql
