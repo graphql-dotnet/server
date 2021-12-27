@@ -92,14 +92,14 @@ Required claim 'admin' is not present.");
         }
 
         [Fact]
-        public void field_policy_success()
+        public void method_policy_success()
         {
             ConfigureAuthorizationOptions(options => options.AddPolicy("FieldPolicy", x => x.RequireClaim("admin")));
 
             ShouldPassRule(config =>
             {
                 config.Query = @"query { post }";
-                config.Schema = BasicSchema<BasicQueryWithAttributesAndFieldPolicy>();
+                config.Schema = BasicSchema<BasicQueryWithAttributesAndMethodPolicy>();
                 config.User = CreatePrincipal(claims: new Dictionary<string, string>
                 {
                     { "Admin", "true" }
@@ -108,14 +108,48 @@ Required claim 'admin' is not present.");
         }
 
         [Fact]
-        public void field_policy_fail()
+        public void property_policy_success()
+        {
+            ConfigureAuthorizationOptions(options => options.AddPolicy("FieldPolicy", x => x.RequireClaim("admin")));
+
+            ShouldPassRule(config =>
+            {
+                config.Query = @"query { post }";
+                config.Schema = BasicSchema<BasicQueryWithAttributesAndPropertyPolicy>();
+                config.User = CreatePrincipal(claims: new Dictionary<string, string>
+                {
+                    { "Admin", "true" }
+                });
+            });
+        }
+
+        [Fact]
+        public void method_policy_fail()
         {
             ConfigureAuthorizationOptions(options => options.AddPolicy("FieldPolicy", x => x.RequireClaim("admin")));
 
             ShouldFailRule(config =>
             {
                 config.Query = @"query { post }";
-                config.Schema = BasicSchema<BasicQueryWithAttributesAndFieldPolicy>();
+                config.Schema = BasicSchema<BasicQueryWithAttributesAndMethodPolicy>();
+                config.ValidateResult = result =>
+                {
+                    result.Errors.Count.ShouldBe(1);
+                    result.Errors[0].Message.ShouldBe(@"You are not authorized to run this query.
+Required claim 'admin' is not present.");
+                };
+            });
+        }
+
+        [Fact]
+        public void property_policy_fail()
+        {
+            ConfigureAuthorizationOptions(options => options.AddPolicy("FieldPolicy", x => x.RequireClaim("admin")));
+
+            ShouldFailRule(config =>
+            {
+                config.Query = @"query { post }";
+                config.Schema = BasicSchema<BasicQueryWithAttributesAndPropertyPolicy>();
                 config.ValidateResult = result =>
                 {
                     result.Errors.Count.ShouldBe(1);
@@ -284,11 +318,18 @@ Required claim 'admin' is not present.");
         }
 
         [GraphQLMetadata("Query")]
-        public class BasicQueryWithAttributesAndFieldPolicy
+        public class BasicQueryWithAttributesAndMethodPolicy
         {
             [GraphQLAuthorize(Policy = "FieldPolicy")]
             [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "for tests")]
             public string Post(string id) => "";
+        }
+
+        [GraphQLMetadata("Query")]
+        public class BasicQueryWithAttributesAndPropertyPolicy
+        {
+            [GraphQLAuthorize(Policy = "FieldPolicy")]
+            public string Post { get; set; } = "";
         }
 
         private ISchema NestedSchema()
