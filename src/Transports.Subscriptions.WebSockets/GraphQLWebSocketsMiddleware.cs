@@ -61,8 +61,9 @@ namespace GraphQL.Server.Transports.WebSockets
                 using (_logger.BeginScope($"GraphQL websocket connection: {context.Connection.Id}"))
                 {
                     var connectionFactory = context.RequestServices.GetRequiredService<IWebSocketConnectionFactory<TSchema>>();
-                    var connection = connectionFactory.CreateConnection(socket, context.Connection.Id);
+                    using var connection = connectionFactory.CreateConnection(socket, context.Connection.Id);
 
+                    // Wait until the websocket has disconnected (and all subscriptions ended)
                     await connection.Connect();
                 }
             }
