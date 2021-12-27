@@ -147,7 +147,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             return null;
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             _disposed = true;
             while (_subscriptions.Count > 0)
