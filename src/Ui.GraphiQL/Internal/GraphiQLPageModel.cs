@@ -8,7 +8,7 @@ namespace GraphQL.Server.Ui.GraphiQL.Internal
     // https://docs.microsoft.com/en-us/aspnet/core/mvc/razor-pages/?tabs=netcore-cli
     internal sealed class GraphiQLPageModel
     {
-        private string _graphiQLCSHtml;
+        private string? _graphiQLCSHtml;
 
         private readonly GraphiQLOptions _options;
 
@@ -21,7 +21,7 @@ namespace GraphQL.Server.Ui.GraphiQL.Internal
         {
             if (_graphiQLCSHtml == null)
             {
-                using var manifestResourceStream = typeof(GraphiQLPageModel).Assembly.GetManifestResourceStream("GraphQL.Server.Ui.GraphiQL.Internal.graphiql.cshtml");
+                using var manifestResourceStream = _options.IndexStream(_options);
                 using var streamReader = new StreamReader(manifestResourceStream);
 
                 var headers = new Dictionary<string, object>
@@ -41,7 +41,7 @@ namespace GraphQL.Server.Ui.GraphiQL.Internal
                     .Replace("@Model.SubscriptionsEndPoint", _options.SubscriptionsEndPoint)
                     .Replace("@Model.Headers", JsonSerializer.Serialize<object>(headers));
 
-                _graphiQLCSHtml = builder.ToString();
+                _graphiQLCSHtml = _options.PostConfigure(_options, builder.ToString());
             }
 
             return _graphiQLCSHtml;

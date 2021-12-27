@@ -16,7 +16,7 @@ namespace GraphQL.Server.Ui.GraphiQL
         /// <summary>
         /// The page model used to render GraphiQL.
         /// </summary>
-        private GraphiQLPageModel _pageModel;
+        private GraphiQLPageModel? _pageModel;
 
         /// <summary>
         /// Create a new <see cref="GraphiQLMiddleware"/>
@@ -42,9 +42,7 @@ namespace GraphQL.Server.Ui.GraphiQL
             httpContext.Response.ContentType = "text/html";
             httpContext.Response.StatusCode = 200;
 
-            // Initialize page model if null
-            if (_pageModel == null)
-                _pageModel = new GraphiQLPageModel(_options);
+            _pageModel ??= new GraphiQLPageModel(_options);
 
             byte[] data = Encoding.UTF8.GetBytes(_pageModel.Render());
             return httpContext.Response.Body.WriteAsync(data, 0, data.Length);

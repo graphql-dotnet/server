@@ -27,10 +27,10 @@ jobs:
           version="${github_ref:10}"
           echo version=$version
           echo "version=$version" >> $GITHUB_ENV
-      - name: Setup .NET Core 5.0 SDK
+      - name: Setup .NET Core SDK
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: '5.0.x'
+          dotnet-version: "6.0.x"
           source-url: https://api.nuget.org/v3/index.json
         env:
           NUGET_AUTH_TOKEN: ${{secrets.NUGET_AUTH_TOKEN}}
@@ -49,7 +49,7 @@ jobs:
       - name: Publish Nuget packages to Nuget registry
         run: dotnet nuget push "out/*" -k ${{secrets.NUGET_AUTH_TOKEN}}
       - name: Upload Nuget packages as release artifacts
-        uses: actions/github-script@v2
+        uses: actions/github-script@v5
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
@@ -58,7 +58,7 @@ jobs:
             const { repo: { owner, repo }, sha } = context;
             for (let file of await fs.readdir('out')) {
               console.log('uploading', file);
-              await github.repos.uploadReleaseAsset({
+              await github.rest.repos.uploadReleaseAsset({
                 owner,
                 repo,
                 release_id: ${{ github.event.release.id }},

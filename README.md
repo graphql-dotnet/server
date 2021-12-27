@@ -80,7 +80,7 @@ For more information on how to migrate from `Newtonsoft.Json` to `System.Text.Js
 For the WebSocket subscription protocol (depends on above) middleware:
 
 ```
-> dotnet add package GraphQL.Server.Transports.WebSockets
+> dotnet add package GraphQL.Server.Transports.Subscriptions.WebSockets
 ```
 
 #### 3. Authorization
@@ -88,12 +88,12 @@ For the WebSocket subscription protocol (depends on above) middleware:
 For integration of GraphQL.NET validation subsystem into ASP.NET Core:
 
 ```
-> dotnet add package Authorization.AspNetCore
+> dotnet add package GraphQL.Server.Authorization.AspNetCore
 ```
 
 #### 4. UI integration
 
-For the UI middleware/s:
+For the UI middlewares:
 
 ```
 > dotnet add package GraphQL.Server.Ui.Altair
@@ -101,6 +101,18 @@ For the UI middleware/s:
 > dotnet add package GraphQL.Server.Ui.Playground
 > dotnet add package GraphQL.Server.Ui.Voyager
 ```
+
+```c#
+public void Configure(IApplicationBuilder app)
+{
+    app.[Use|Map]GraphQLAltair();
+    app.[Use|Map]GraphQLGraphiQL();
+    app.[Use|Map]GraphQLPlayground();
+    app.[Use|Map]GraphQLVoyager();
+}
+```
+
+Also each middleware accepts options to configure its behavior and UI.
 
 ## Configure
 
@@ -115,11 +127,14 @@ public void ConfigureServices(IServiceCollection services)
     // Add GraphQL services and configure options
     services
         .AddSingleton<IChat, Chat>()
-        .AddSingleton<ChatSchema>()
-        .AddGraphQL((options, provider) =>
+        .AddSingleton<ChatSchema>();
+
+    MicrosoftDI.GraphQLBuilderExtensions.AddGraphQL(services)
+        .AddServer(true)
+        .ConfigureExecution(options =>
         {
             options.EnableMetrics = Environment.IsDevelopment();
-            var logger = provider.GetRequiredService<ILogger<Startup>>();
+            var logger = options.RequestServices.GetRequiredService<ILogger<Startup>>();
             options.UnhandledExceptionDelegate = ctx => logger.LogError("{Error} occurred", ctx.OriginalException.Message);
         })
         // Add required services for GraphQL request/response de/serialization
@@ -128,7 +143,7 @@ public void ConfigureServices(IServiceCollection services)
         .AddErrorInfoProvider(opt => opt.ExposeExceptionStackTrace = Environment.IsDevelopment())
         .AddWebSockets() // Add required services for web socket support
         .AddDataLoader() // Add required services for DataLoader support
-        .AddGraphTypes(typeof(ChatSchema)) // Add all IGraphType implementors in assembly which ChatSchema exists 
+        .AddGraphTypes(typeof(ChatSchema).Assembly) // Add all IGraphType implementors in assembly which ChatSchema exists 
 }
 
 public void Configure(IApplicationBuilder app)
@@ -165,11 +180,14 @@ public void ConfigureServices(IServiceCollection services)
     services
         .AddRouting()
         .AddSingleton<IChat, Chat>()
-        .AddSingleton<ChatSchema>()
-        .AddGraphQL((options, provider) =>
+        .AddSingleton<ChatSchema>();
+
+    MicrosoftDI.GraphQLBuilderExtensions.AddGraphQL(services)
+        .AddServer(true)
+        .ConfigureExecution(options =>
         {
             options.EnableMetrics = Environment.IsDevelopment();
-            var logger = provider.GetRequiredService<ILogger<Startup>>();
+            var logger = options.RequestServices.GetRequiredService<ILogger<Startup>>();
             options.UnhandledExceptionDelegate = ctx => logger.LogError("{Error} occurred", ctx.OriginalException.Message);
         })
         // It is required when both GraphQL HTTP and GraphQL WebSockets middlewares are mapped to the same endpoint (by default 'graphql').
@@ -180,7 +198,7 @@ public void ConfigureServices(IServiceCollection services)
         .AddErrorInfoProvider(opt => opt.ExposeExceptionStackTrace = Environment.IsDevelopment())
         .AddWebSockets() // Add required services for web socket support
         .AddDataLoader() // Add required services for DataLoader support
-        .AddGraphTypes(typeof(ChatSchema)); // Add all IGraphType implementors in assembly which ChatSchema exists 
+        .AddGraphTypes(typeof(ChatSchema).Assembly); // Add all IGraphType implementors in assembly which ChatSchema exists 
 }
 
 public void Configure(IApplicationBuilder app)
@@ -190,7 +208,7 @@ public void Configure(IApplicationBuilder app)
 
     // this is required for ASP.NET Core routing
     app.UseRouting();
-            
+    
     app.UseEndpoints(endpoints =>
     {
         // map websocket middleware for ChatSchema at default path /graphql

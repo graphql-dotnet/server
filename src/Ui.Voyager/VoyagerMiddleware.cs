@@ -16,7 +16,7 @@ namespace GraphQL.Server.Ui.Voyager
         /// <summary>
         /// The page model used to render Voyager.
         /// </summary>
-        private VoyagerPageModel _pageModel;
+        private VoyagerPageModel? _pageModel;
 
         /// <summary>
         /// Create a new <see cref="VoyagerMiddleware"/>
@@ -42,9 +42,7 @@ namespace GraphQL.Server.Ui.Voyager
             httpContext.Response.ContentType = "text/html";
             httpContext.Response.StatusCode = 200;
 
-            // Initialize page model if null
-            if (_pageModel == null)
-                _pageModel = new VoyagerPageModel(_options);
+            _pageModel ??= new VoyagerPageModel(_options);
 
             byte[] data = Encoding.UTF8.GetBytes(_pageModel.Render());
             return httpContext.Response.Body.WriteAsync(data, 0, data.Length);

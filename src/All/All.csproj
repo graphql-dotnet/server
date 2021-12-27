@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net5;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>net6;net5;netcoreapp3.1</TargetFrameworks>
     <Description>GraphQL Server meta package with all the packages you need to get started</Description>
     <PackageTags>GraphQL;transport;server;WebSockets;subscriptions;middleware;authentication;authorization</PackageTags>
     <IncludeBuildOutput>false</IncludeBuildOutput>
@@ -21,9 +21,9 @@
     <ProjectReference Include="..\Ui.Playground\Ui.Playground.csproj" />
     <ProjectReference Include="..\Ui.Voyager\Ui.Voyager.csproj" />
 
-    <PackageReference Include="GraphQL.MemoryCache" Version="4.1.0" />
-    <PackageReference Include="GraphQL.MicrosoftDI" Version="4.1.0" />
-    <PackageReference Include="GraphQL.SystemReactive" Version="4.1.0" />
+    <PackageReference Include="GraphQL.MemoryCache" Version="4.6.1" />
+    <PackageReference Include="GraphQL.MicrosoftDI" Version="4.6.1" />
+    <PackageReference Include="GraphQL.SystemReactive" Version="4.6.1" />
   </ItemGroup>
 
 </Project>

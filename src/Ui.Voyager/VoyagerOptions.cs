@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.IO;
 using Microsoft.AspNetCore.Http;
 
 namespace GraphQL.Server.Ui.Voyager
@@ -16,6 +18,17 @@ namespace GraphQL.Server.Ui.Voyager
         /// <summary>
         /// HTTP headers with which the Voyager will send introspection query.
         /// </summary>
-        public Dictionary<string, object> Headers { get; set; }
+        public Dictionary<string, object>? Headers { get; set; }
+
+        /// <summary>
+        /// Gets or sets a Stream function for retrieving the Voyager UI page.
+        /// </summary>
+        public Func<VoyagerOptions, Stream> IndexStream { get; set; } = _ => typeof(VoyagerOptions).Assembly
+            .GetManifestResourceStream("GraphQL.Server.Ui.Voyager.Internal.voyager.cshtml")!;
+
+        /// <summary>
+        /// Gets or sets a delegate that is called after all transformations of the Voyager UI page.
+        /// </summary>
+        public Func<VoyagerOptions, string, string> PostConfigure { get; set; } = (options, result) => result;
     }
 }
