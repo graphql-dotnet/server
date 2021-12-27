@@ -98,10 +98,10 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
     }
     public class Subscription : System.IDisposable, System.IObserver<GraphQL.ExecutionResult>
     {
-        public Subscription(string id, GraphQL.Server.Transports.Subscriptions.Abstractions.OperationMessagePayload payload, GraphQL.Subscription.SubscriptionExecutionResult result, GraphQL.Server.Transports.Subscriptions.Abstractions.IWriterPipeline writer, System.Action<GraphQL.Server.Transports.Subscriptions.Abstractions.Subscription> completed, Microsoft.Extensions.Logging.ILogger<GraphQL.Server.Transports.Subscriptions.Abstractions.Subscription> logger) { }
+        public Subscription(string id, GraphQL.Server.Transports.Subscriptions.Abstractions.OperationMessagePayload payload, GraphQL.Subscription.SubscriptionExecutionResult result, GraphQL.Server.Transports.Subscriptions.Abstractions.IWriterPipeline writer, System.Action<GraphQL.Server.Transports.Subscriptions.Abstractions.Subscription>? completed, Microsoft.Extensions.Logging.ILogger<GraphQL.Server.Transports.Subscriptions.Abstractions.Subscription> logger) { }
         public string Id { get; }
         public GraphQL.Server.Transports.Subscriptions.Abstractions.OperationMessagePayload OriginalPayload { get; }
-        public void Dispose() { }
+        public virtual void Dispose() { }
         public void OnCompleted() { }
         public void OnError(System.Exception error) { }
         public void OnNext(GraphQL.ExecutionResult value) { }
@@ -111,7 +111,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
     {
         public SubscriptionManager(GraphQL.Server.IGraphQLExecuter executer, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory) { }
         public GraphQL.Server.Transports.Subscriptions.Abstractions.Subscription this[string id] { get; }
-        public void Dispose() { }
+        public virtual void Dispose() { }
         public System.Collections.Generic.IEnumerator<GraphQL.Server.Transports.Subscriptions.Abstractions.Subscription> GetEnumerator() { }
         public System.Threading.Tasks.Task SubscribeOrExecuteAsync(string id, GraphQL.Server.Transports.Subscriptions.Abstractions.OperationMessagePayload payload, GraphQL.Server.Transports.Subscriptions.Abstractions.MessageHandlingContext context) { }
         public System.Threading.Tasks.Task UnsubscribeAsync(string id) { }
