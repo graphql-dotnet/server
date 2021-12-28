@@ -17,6 +17,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="services">Collection of registered services.</param>
         /// <returns>GraphQL builder used for GraphQL specific extension chaining.</returns>
+        [Obsolete]
         public static IGraphQLBuilder AddGraphQL(this IServiceCollection services) => services.AddGraphQL(_ => { });
 
         /// <summary>
@@ -25,6 +26,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="services">Collection of registered services.</param>
         /// <param name="configureOptions">An action delegate to configure the provided <see cref="GraphQLOptions"/>.</param>
         /// <returns>GraphQL builder used for GraphQL specific extension chaining.</returns>
+        [Obsolete]
         public static IGraphQLBuilder AddGraphQL(this IServiceCollection services, Action<GraphQLOptions> configureOptions)
         {
             if (configureOptions == null)
@@ -42,6 +44,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// This delegate provides additional <see cref="IServiceProvider"/> parameter to resolve all necessary dependencies.
         /// </param>
         /// <returns>GraphQL builder used for GraphQL specific extension chaining.</returns>
+        [Obsolete]
         public static IGraphQLBuilder AddGraphQL(this IServiceCollection services, Action<GraphQLOptions, IServiceProvider> configureOptions)
         {
             if (configureOptions == null)
@@ -50,7 +53,7 @@ namespace Microsoft.Extensions.DependencyInjection
             // This is used instead of "normal" services.Configure(configureOptions) to pass IServiceProvider to user code.
             services.AddSingleton<IConfigureOptions<GraphQLOptions>>(x => new ConfigureNamedOptions<GraphQLOptions>(Options.Options.DefaultName, opt => configureOptions(opt, x)));
             services.TryAddSingleton<InstrumentFieldsMiddleware>();
-            services.TryAddSingleton<IDocumentExecuter, DocumentExecuter>();
+            services.TryAddSingleton<IDocumentExecuter, SubscriptionDocumentExecuter>(); // TODO: rewrite in v6
             services.TryAddTransient(typeof(IGraphQLExecuter<>), typeof(DefaultGraphQLExecuter<>));
 
             services.TryAddSingleton<IDocumentWriter>(x =>

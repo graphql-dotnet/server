@@ -23,8 +23,8 @@ namespace GraphQL.Server.Transports.AspNetCore.SystemTextJson
 
         public GraphQLRequestDeserializer(Action<JsonSerializerOptions> configure)
         {
-            // Add converter that deserializes Variables property
-            _serializerOptions.Converters.Add(new ObjectDictionaryConverter());
+            // Add converter that deserializes Variables and Extensions properties
+            _serializerOptions.Converters.Add(new InputsConverter());
 
             configure?.Invoke(_serializerOptions);
         }
@@ -47,20 +47,30 @@ namespace GraphQL.Server.Transports.AspNetCore.SystemTextJson
             cancellationToken.ThrowIfCancellationRequested();
 
             var result = new GraphQLRequestDeserializationResult { IsSuccessful = true };
-            switch (jsonTokenType)
+            try
             {
-                case JsonTokenType.StartObject:
-                    result.Single = ToGraphQLRequest(
-                        await JsonSerializer.DeserializeAsync<InternalGraphQLRequest>(bodyReader.AsStream(), _serializerOptions, cancellationToken));
-                    return result;
-                case JsonTokenType.StartArray:
-                    result.Batch = (await JsonSerializer.DeserializeAsync<InternalGraphQLRequest[]>(bodyReader.AsStream(), _serializerOptions, cancellationToken))
-                        .Select(ToGraphQLRequest)
-                        .ToArray();
-                    return result;
-                default:
-                    result.IsSuccessful = false;
-                    return result;
+                switch (jsonTokenType)
+                {
+                    case JsonTokenType.StartObject:
+                        result.Single = ToGraphQLRequest(
+                            await JsonSerializer.DeserializeAsync<InternalGraphQLRequest>(bodyReader.AsStream(), _serializerOptions, cancellationToken));
+                        return result;
+                    case JsonTokenType.StartArray:
+                        result.Batch = (await JsonSerializer.DeserializeAsync<InternalGraphQLRequest[]>(bodyReader.AsStream(), _serializerOptions, cancellationToken))
+                            .Select(ToGraphQLRequest)
+                            .ToArray();
+                        return result;
+                    default:
+                        result.IsSuccessful = false;
+                        result.Exception = GraphQLRequestDeserializationException.InvalidFirstChar();
+                        return result;
+                }
+            }
+            catch (JsonException e)
+            {
+                result.IsSuccessful = false;
+                result.Exception = new GraphQLRequestDeserializationException(e);
+                return result;
             }
         }
 
@@ -117,8 +127,8 @@ namespace GraphQL.Server.Transports.AspNetCore.SystemTextJson
             {
                 OperationName = internalGraphQLRequest.OperationName,
                 Query = internalGraphQLRequest.Query,
-                Inputs = internalGraphQLRequest.Variables?.ToInputs(), // must return null if not provided, not an empty dictionary
-                Extensions = internalGraphQLRequest.Extensions?.ToInputs(), // must return null if not provided, not an empty dictionary
+                Inputs = internalGraphQLRequest.Variables, // must return null if not provided, not an empty Inputs
+                Extensions = internalGraphQLRequest.Extensions, // must return null if not provided, not an empty Inputs
             };
     }
 }

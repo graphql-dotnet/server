@@ -2,11 +2,22 @@ namespace GraphQL.Server
 {
     public static class GraphQLBuilderUserContextExtensions
     {
+        public static GraphQL.DI.IGraphQLBuilder AddDefaultEndpointSelectorPolicy(this GraphQL.DI.IGraphQLBuilder builder) { }
+        [System.Obsolete]
         public static GraphQL.Server.IGraphQLBuilder AddDefaultEndpointSelectorPolicy(this GraphQL.Server.IGraphQLBuilder builder) { }
+        public static GraphQL.DI.IGraphQLBuilder AddUserContextBuilder<TUserContextBuilder>(this GraphQL.DI.IGraphQLBuilder builder)
+            where TUserContextBuilder :  class, GraphQL.Server.Transports.AspNetCore.IUserContextBuilder { }
+        [System.Obsolete]
         public static GraphQL.Server.IGraphQLBuilder AddUserContextBuilder<TUserContextBuilder>(this GraphQL.Server.IGraphQLBuilder builder)
             where TUserContextBuilder :  class, GraphQL.Server.Transports.AspNetCore.IUserContextBuilder { }
+        public static GraphQL.DI.IGraphQLBuilder AddUserContextBuilder<TUserContext>(this GraphQL.DI.IGraphQLBuilder builder, System.Func<Microsoft.AspNetCore.Http.HttpContext, System.Threading.Tasks.Task<TUserContext>> creator)
+            where TUserContext :  class, System.Collections.Generic.IDictionary<string, object> { }
+        public static GraphQL.DI.IGraphQLBuilder AddUserContextBuilder<TUserContext>(this GraphQL.DI.IGraphQLBuilder builder, System.Func<Microsoft.AspNetCore.Http.HttpContext, TUserContext> creator)
+            where TUserContext :  class, System.Collections.Generic.IDictionary<string, object> { }
+        [System.Obsolete]
         public static GraphQL.Server.IGraphQLBuilder AddUserContextBuilder<TUserContext>(this GraphQL.Server.IGraphQLBuilder builder, System.Func<Microsoft.AspNetCore.Http.HttpContext, System.Threading.Tasks.Task<TUserContext>> creator)
             where TUserContext :  class, System.Collections.Generic.IDictionary<string, object> { }
+        [System.Obsolete]
         public static GraphQL.Server.IGraphQLBuilder AddUserContextBuilder<TUserContext>(this GraphQL.Server.IGraphQLBuilder builder, System.Func<Microsoft.AspNetCore.Http.HttpContext, TUserContext> creator)
             where TUserContext :  class, System.Collections.Generic.IDictionary<string, object> { }
     }
@@ -22,10 +33,18 @@ namespace GraphQL.Server.Transports.AspNetCore
         protected virtual System.Threading.Tasks.Task RequestExecutedAsync(in GraphQL.Server.Transports.AspNetCore.GraphQLRequestExecutionResult requestExecutionResult) { }
         protected virtual System.Threading.Tasks.Task RequestExecutingAsync(GraphQL.Server.GraphQLRequest request, int? indexInBatch = default) { }
     }
+    public class GraphQLRequestDeserializationException : System.Exception
+    {
+        public GraphQLRequestDeserializationException(System.Exception inner) { }
+        public GraphQLRequestDeserializationException(string message) { }
+        public GraphQLRequestDeserializationException(string message, System.Exception inner) { }
+        public static GraphQL.Server.Transports.AspNetCore.GraphQLRequestDeserializationException InvalidFirstChar() { }
+    }
     public class GraphQLRequestDeserializationResult
     {
         public GraphQLRequestDeserializationResult() { }
         public GraphQL.Server.GraphQLRequest[] Batch { get; set; }
+        public GraphQL.Server.Transports.AspNetCore.GraphQLRequestDeserializationException Exception { get; set; }
         public bool IsSuccessful { get; set; }
         public GraphQL.Server.GraphQLRequest Single { get; set; }
     }

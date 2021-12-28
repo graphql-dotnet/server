@@ -18,7 +18,15 @@ namespace GraphQL.Server.Transports.AspNetCore.NewtonsoftJson
 
         public GraphQLRequestDeserializer(Action<JsonSerializerSettings> configure)
         {
-            var settings = new JsonSerializerSettings();
+            var settings = new JsonSerializerSettings
+            {
+                DateFormatHandling = DateFormatHandling.IsoDateFormat,
+                DateParseHandling = DateParseHandling.None,
+                Converters =
+                {
+                    new InputsConverter()
+                },
+            };
             configure?.Invoke(settings);
             _serializer = JsonSerializer.Create(settings); // it's thread safe https://stackoverflow.com/questions/36186276/is-the-json-net-jsonserializer-threadsafe
         }
@@ -41,19 +49,28 @@ namespace GraphQL.Server.Transports.AspNetCore.NewtonsoftJson
 
                 cancellationToken.ThrowIfCancellationRequested();
 
-                switch (firstChar)
+                try
                 {
-                    case '{':
-                        result.Single = ToGraphQLRequest(_serializer.Deserialize<InternalGraphQLRequest>(jsonReader));
-                        break;
-                    case '[':
-                        result.Batch = _serializer.Deserialize<InternalGraphQLRequest[]>(jsonReader)
-                            .Select(ToGraphQLRequest)
-                            .ToArray();
-                        break;
-                    default:
-                        result.IsSuccessful = false;
-                        break;
+                    switch (firstChar)
+                    {
+                        case '{':
+                            result.Single = ToGraphQLRequest(_serializer.Deserialize<InternalGraphQLRequest>(jsonReader));
+                            break;
+                        case '[':
+                            result.Batch = _serializer.Deserialize<InternalGraphQLRequest[]>(jsonReader)
+                                .Select(ToGraphQLRequest)
+                                .ToArray();
+                            break;
+                        default:
+                            result.IsSuccessful = false;
+                            result.Exception = GraphQLRequestDeserializationException.InvalidFirstChar();
+                            break;
+                    }
+                }
+                catch (JsonException e)
+                {
+                    result.IsSuccessful = false;
+                    result.Exception = new GraphQLRequestDeserializationException(e);
                 }
             }
 
@@ -67,8 +84,8 @@ namespace GraphQL.Server.Transports.AspNetCore.NewtonsoftJson
             {
                 OperationName = internalGraphQLRequest.OperationName,
                 Query = internalGraphQLRequest.Query,
-                Inputs = internalGraphQLRequest.Variables?.ToInputs(), // must return null if not provided, not an empty dictionary
-                Extensions = internalGraphQLRequest.Extensions?.ToInputs(), // must return null if not provided, not an empty dictionary
+                Inputs = internalGraphQLRequest.Variables, // must return null if not provided, not an empty Inputs
+                Extensions = internalGraphQLRequest.Extensions, // must return null if not provided, not an empty Inputs
             };
     }
 }
