@@ -24,7 +24,7 @@ namespace GraphQL.Server.Transports.WebSockets
     {
         public WebSocketConnection(GraphQL.Server.Transports.WebSockets.WebSocketTransport transport, GraphQL.Server.Transports.Subscriptions.Abstractions.SubscriptionServer subscriptionServer) { }
         public virtual System.Threading.Tasks.Task Connect() { }
-        public void Dispose() { }
+        public virtual void Dispose() { }
     }
     public class WebSocketConnectionFactory<TSchema> : GraphQL.Server.Transports.WebSockets.IWebSocketConnectionFactory<TSchema>
         where TSchema : GraphQL.Types.ISchema

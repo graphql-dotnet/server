@@ -12,12 +12,13 @@ using Microsoft.Extensions.Logging;
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 {
     /// <inheritdoc />
-    public class SubscriptionManager : ISubscriptionManager
+    public class SubscriptionManager : ISubscriptionManager, IDisposable
     {
         private readonly IGraphQLExecuter _executer;
 
         private readonly ILogger<SubscriptionManager> _logger;
         private readonly ILoggerFactory _loggerFactory;
+        private volatile bool _disposed;
 
         private readonly ConcurrentDictionary<string, Subscription> _subscriptions =
             new ConcurrentDictionary<string, Subscription>();
@@ -45,13 +46,18 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
                 throw new ArgumentNullException(nameof(payload));
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
+            if (_disposed)
+                throw new ObjectDisposedException(nameof(SubscriptionManager));
 
             var subscription = await ExecuteAsync(id, payload, context).ConfigureAwait(false);
 
             if (subscription == null)
                 return;
 
-            _subscriptions[id] = subscription;
+            if (_disposed)
+                subscription.Dispose();
+            else
+                _subscriptions[id] = subscription;
         }
 
         /// <inheritdoc />
@@ -139,6 +145,29 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             }).ConfigureAwait(false);
 
             return null;
+        }
+
+        public virtual void Dispose()
+        {
+            _disposed = true;
+            while (_subscriptions.Count > 0)
+            {
+                var subscriptions = _subscriptions.ToArray();
+                foreach (var subscriptionPair in subscriptions)
+                {
+                    if (_subscriptions.TryRemove(subscriptionPair.Key, out var subscription))
+                    {
+                        try
+                        {
+                            subscription.Dispose();
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError($"Failed to dispose subscription '{subscriptionPair.Key}': ${ex}");
+                        }
+                    }
+                }
+            }
         }
     }
 }

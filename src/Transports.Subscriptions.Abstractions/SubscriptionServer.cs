@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,7 +11,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
     ///     Subscription server
     ///     Acts as a message pump reading, handling and writing messages
     /// </summary>
-    public class SubscriptionServer : IServerOperations
+    public class SubscriptionServer : IServerOperations, IDisposable
     {
         private readonly ILogger<SubscriptionServer> _logger;
         private readonly IEnumerable<IOperationMessageListener> _messageListeners;
@@ -136,5 +137,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             TransportWriter = Transport.Writer;
             _logger.LogDebug("Writer pipeline created");
         }
+
+        public virtual void Dispose() => (Subscriptions as IDisposable)?.Dispose();
     }
 }

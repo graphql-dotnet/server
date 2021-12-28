@@ -6,7 +6,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
     /// <summary>
     ///     Manages operation execution and manages created subscriptions
     /// </summary>
-    public interface ISubscriptionManager : IEnumerable<Subscription>
+    public interface ISubscriptionManager : IEnumerable<Subscription> //todo: add IDisposable
     {
         /// <summary>
         ///     Execute operation and subscribe if subscription
