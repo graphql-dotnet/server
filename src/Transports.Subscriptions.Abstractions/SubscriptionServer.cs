@@ -138,6 +138,6 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             _logger.LogDebug("Writer pipeline created");
         }
 
-        public void Dispose() => (Subscriptions as IDisposable)?.Dispose();
+        public virtual void Dispose() => (Subscriptions as IDisposable)?.Dispose();
     }
 }

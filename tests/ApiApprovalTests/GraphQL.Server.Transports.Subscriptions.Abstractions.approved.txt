@@ -123,7 +123,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         public GraphQL.Server.Transports.Subscriptions.Abstractions.IMessageTransport Transport { get; }
         public GraphQL.Server.Transports.Subscriptions.Abstractions.IReaderPipeline TransportReader { get; set; }
         public GraphQL.Server.Transports.Subscriptions.Abstractions.IWriterPipeline TransportWriter { get; set; }
-        public void Dispose() { }
+        public virtual void Dispose() { }
         public System.Threading.Tasks.Task OnConnect() { }
         public System.Threading.Tasks.Task OnDisconnect() { }
         public System.Threading.Tasks.Task Terminate() { }
