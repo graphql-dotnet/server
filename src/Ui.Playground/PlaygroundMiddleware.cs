@@ -16,7 +16,7 @@ namespace GraphQL.Server.Ui.Playground
         /// <summary>
         /// The page model used to render Playground.
         /// </summary>
-        private PlaygroundPageModel _pageModel;
+        private PlaygroundPageModel? _pageModel;
 
         /// <summary>
         /// Create a new <see cref="PlaygroundMiddleware"/>
@@ -41,9 +41,7 @@ namespace GraphQL.Server.Ui.Playground
             httpContext.Response.ContentType = "text/html";
             httpContext.Response.StatusCode = 200;
 
-            // Initialize page model if null
-            if (_pageModel == null)
-                _pageModel = new PlaygroundPageModel(_options);
+            _pageModel ??= new PlaygroundPageModel(_options);
 
             byte[] data = Encoding.UTF8.GetBytes(_pageModel.Render());
             return httpContext.Response.Body.WriteAsync(data, 0, data.Length);

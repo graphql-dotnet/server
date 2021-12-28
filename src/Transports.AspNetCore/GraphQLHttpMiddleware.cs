@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
@@ -60,9 +61,12 @@ namespace GraphQL.Server.Transports.AspNetCore
             if (!isGet && !isPost)
             {
                 httpResponse.Headers["Allow"] = "GET, POST";
-                await WriteErrorResponseAsync(httpResponse, writer, cancellationToken,
+                await WriteErrorResponseAsync(
+                    httpResponse,
+                    writer,
+                    cancellationToken,
                     $"Invalid HTTP method. Only GET and POST are supported. {DOCS_URL}",
-                    httpStatusCode: 405 // Method Not Allowed
+                    HttpStatusCode.MethodNotAllowed
                 );
                 return;
             }
@@ -74,7 +78,12 @@ namespace GraphQL.Server.Transports.AspNetCore
             {
                 if (!MediaTypeHeaderValue.TryParse(httpRequest.ContentType, out var mediaTypeHeader))
                 {
-                    await WriteErrorResponseAsync(httpResponse, writer, cancellationToken, $"Invalid 'Content-Type' header: value '{httpRequest.ContentType}' could not be parsed.");
+                    await WriteErrorResponseAsync(
+                        httpResponse,
+                        writer,
+                        cancellationToken,
+                        $"Invalid 'Content-Type' header: value '{httpRequest.ContentType}' could not be parsed.",
+                        HttpStatusCode.BadRequest);
                     return;
                 }
 
@@ -84,7 +93,10 @@ namespace GraphQL.Server.Transports.AspNetCore
                         var deserializationResult = await _deserializer.DeserializeFromJsonBodyAsync(httpRequest, cancellationToken);
                         if (!deserializationResult.IsSuccessful)
                         {
-                            await WriteErrorResponseAsync(httpResponse, writer, cancellationToken, "Body text could not be parsed. Body text should start with '{' for normal graphql query or with '[' for batched query.");
+                            var message = deserializationResult.Exception is null
+                                ? "JSON body text could not be parsed."
+                                : $"JSON body text could not be parsed. {deserializationResult.Exception.Message}";
+                            await WriteErrorResponseAsync(httpResponse, writer, cancellationToken, message, HttpStatusCode.BadRequest);
                             return;
                         }
                         bodyGQLRequest = deserializationResult.Single;
@@ -101,7 +113,12 @@ namespace GraphQL.Server.Transports.AspNetCore
                         break;
 
                     default:
-                        await WriteErrorResponseAsync(httpResponse, writer, cancellationToken, $"Invalid 'Content-Type' header: non-supported media type. Must be of '{MediaType.JSON}', '{MediaType.GRAPH_QL}' or '{MediaType.FORM}'. {DOCS_URL}");
+                        await WriteErrorResponseAsync(
+                            httpResponse,
+                            writer,
+                            cancellationToken,
+                            $"Invalid 'Content-Type' header: non-supported media type. Must be of '{MediaType.JSON}', '{MediaType.GRAPH_QL}' or '{MediaType.FORM}'. {DOCS_URL}",
+                            HttpStatusCode.UnsupportedMediaType);
                         return;
                 }
             }
@@ -120,6 +137,18 @@ namespace GraphQL.Server.Transports.AspNetCore
                     Extensions = urlGQLRequest.Extensions ?? bodyGQLRequest?.Extensions,
                     OperationName = urlGQLRequest.OperationName ?? bodyGQLRequest?.OperationName
                 };
+
+                if (string.IsNullOrWhiteSpace(gqlRequest.Query))
+                {
+                    await WriteErrorResponseAsync(
+                        httpResponse,
+                        writer,
+                        cancellationToken,
+                        "GraphQL query is missing.",
+                        HttpStatusCode.BadRequest
+                    );
+                    return;
+                }
             }
 
             // Prepare context and execute
@@ -186,7 +215,7 @@ namespace GraphQL.Server.Transports.AspNetCore
         }
 
         private Task WriteErrorResponseAsync(HttpResponse httpResponse, IDocumentWriter writer, CancellationToken cancellationToken,
-            string errorMessage, int httpStatusCode = 400 /* BadRequest */)
+            string errorMessage, HttpStatusCode httpStatusCode)
         {
             var result = new ExecutionResult
             {
@@ -197,7 +226,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             };
 
             httpResponse.ContentType = "application/json";
-            httpResponse.StatusCode = httpStatusCode;
+            httpResponse.StatusCode = (int)httpStatusCode;
 
             return writer.WriteAsync(httpResponse.Body, result, cancellationToken);
         }
