@@ -37,7 +37,7 @@ namespace GraphQL.Server.Ui.GraphiQL
         public Func<GraphiQLOptions, string, string> PostConfigure { get; set; } = (options, result) => result;
 
         /// <summary>
-        /// Enables the header editor when <c>true</c>.
+        /// Enables the header editor when <see langword="true"/>.
         /// Not supported when <see cref="ExplorerExtensionEnabled"/> is <see langword="true"/>.
         /// </summary>
         /// <remarks>
