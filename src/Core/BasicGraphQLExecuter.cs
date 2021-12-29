@@ -49,7 +49,7 @@ namespace GraphQL.Server
                 Schema = Schema,
                 OperationName = operationName,
                 Query = query,
-                Inputs = variables,
+                Variables = variables,
                 UserContext = context,
                 CancellationToken = cancellationToken,
                 ComplexityConfiguration = _options.ComplexityConfiguration,

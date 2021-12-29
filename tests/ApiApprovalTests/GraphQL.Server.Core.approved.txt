@@ -48,7 +48,7 @@ namespace GraphQL.Server
     }
     public class GraphQLOptions
     {
-        public System.Action<GraphQL.Execution.UnhandledExceptionContext> UnhandledExceptionDelegate;
+        public System.Func<GraphQL.Execution.UnhandledExceptionContext, System.Threading.Tasks.Task> UnhandledExceptionDelegate;
         public GraphQLOptions() { }
         public GraphQL.Validation.Complexity.ComplexityConfiguration ComplexityConfiguration { get; set; }
         public bool EnableMetrics { get; set; }

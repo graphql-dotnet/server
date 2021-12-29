@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using GraphQL.Language.AST;
@@ -28,45 +29,129 @@ namespace GraphQL.Server.Authorization.AspNetCore
             _claimsPrincipalAccessor = claimsPrincipalAccessor;
         }
 
+        private bool ShouldBeSkipped(Operation actualOperation, ValidationContext context)
+        {
+            if (context.Document.Operations.Count <= 1)
+            {
+                return false;
+            }
+
+            int i = 0;
+            do
+            {
+                var ancestor = context.TypeInfo.GetAncestor(i++);
+
+                if (ancestor == actualOperation)
+                {
+                    return false;
+                }
+
+                if (ancestor == context.Document)
+                {
+                    return true;
+                }
+
+                if (ancestor is FragmentDefinition fragment)
+                {
+                    return !FragmentBelongsToOperation(fragment, actualOperation);
+                }
+            } while (true);
+        }
+
+        private bool FragmentBelongsToOperation(FragmentDefinition fragment, Operation operation)
+        {
+            bool belongs = false;
+            void Visit(INode node, int _)
+            {
+                if (belongs)
+                {
+                    return;
+                }
+
+                belongs = node is FragmentSpread fragmentSpread && fragmentSpread.Name == fragment.Name;
+
+                if (node != null)
+                {
+                    node.Visit(Visit, 0);
+                }
+            }
+
+            operation.Visit(Visit, 0);
+
+            return belongs;
+        }
+
         /// <inheritdoc />
-        public async Task<INodeVisitor> ValidateAsync(ValidationContext context)
+        public async ValueTask<INodeVisitor?> ValidateAsync(ValidationContext context)
         {
             await AuthorizeAsync(null, context.Schema, context, null);
             var operationType = OperationType.Query;
+            var actualOperation = context.Document.Operations.FirstOrDefault(x => x.Name == context.OperationName) ?? context.Document.Operations.FirstOrDefault();
 
             // this could leak info about hidden fields or types in error messages
             // it would be better to implement a filter on the Schema so it
             // acts as if they just don't exist vs. an auth denied error
             // - filtering the Schema is not currently supported
             // TODO: apply ISchemaFilter - context.Schema.Filter.AllowXXX
-
             return new NodeVisitors(
                 new MatchingNodeVisitor<Operation>((astType, context) =>
                 {
+                    if (context.Document.Operations.Count > 1 && astType.Name != context.OperationName)
+                    {
+                        return;
+                    }
+
                     operationType = astType.OperationType;
 
                     var type = context.TypeInfo.GetLastType();
                     AuthorizeAsync(astType, type, context, operationType).GetAwaiter().GetResult(); // TODO: need to think of something to avoid this
                 }),
+
                 new MatchingNodeVisitor<ObjectField>((objectFieldAst, context) =>
                 {
-                    if (context.TypeInfo.GetArgument()?.ResolvedType.GetNamedType() is IComplexGraphType argumentType)
+                    if (context.TypeInfo.GetArgument()?.ResolvedType?.GetNamedType() is IComplexGraphType argumentType && !ShouldBeSkipped(actualOperation, context))
                     {
                         var fieldType = argumentType.GetField(objectFieldAst.Name);
                         AuthorizeAsync(objectFieldAst, fieldType, context, operationType).GetAwaiter().GetResult(); // TODO: need to think of something to avoid this
                     }
                 }),
+
                 new MatchingNodeVisitor<Field>((fieldAst, context) =>
                 {
                     var fieldDef = context.TypeInfo.GetFieldDef();
 
-                    if (fieldDef == null)
+                    if (fieldDef == null || ShouldBeSkipped(actualOperation, context))
                         return;
 
                     // check target field
                     AuthorizeAsync(fieldAst, fieldDef, context, operationType).GetAwaiter().GetResult(); // TODO: need to think of something to avoid this
                     // check returned graph type
-                    AuthorizeAsync(fieldAst, fieldDef.ResolvedType.GetNamedType(), context, operationType).GetAwaiter().GetResult(); // TODO: need to think of something to avoid this
+                    AuthorizeAsync(fieldAst, fieldDef.ResolvedType?.GetNamedType(), context, operationType).GetAwaiter().GetResult(); // TODO: need to think of something to avoid this
+                }),
+
+                new MatchingNodeVisitor<VariableReference>((variableRef, context) =>
+                {
+                    if (context.TypeInfo.GetArgument()?.ResolvedType?.GetNamedType() is not IComplexGraphType variableType || ShouldBeSkipped(actualOperation, context))
+                        return;
+
+                    AuthorizeAsync(variableRef, variableType, context, operationType).GetAwaiter().GetResult(); // TODO: need to think of something to avoid this;
+
+                    // Check each supplied field in the variable that exists in the variable type.
+                    // If some supplied field does not exist in the variable type then some other
+                    // validation rule should check that but here we should just ignore that
+                    // "unknown" field.
+                    if (context.Variables != null &&
+                        context.Variables.TryGetValue(variableRef.Name, out object input) &&
+                        input is Dictionary<string, object> fieldsValues)
+                    {
+                        foreach (var field in variableType.Fields)
+                        {
+                            if (fieldsValues.ContainsKey(field.Name))
+                            {
+                                AuthorizeAsync(variableRef, field, context, operationType).GetAwaiter().GetResult(); // TODO: need to think of something to avoid this;
+                            }
+                        }
+                    }
                 })
             );
         }

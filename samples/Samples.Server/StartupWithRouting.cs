@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using GraphQL.DataLoader;
 using GraphQL.Execution;
+using System.Threading.Tasks;
 using GraphQL.Samples.Schemas.Chat;
 using GraphQL.Server;
 using GraphQL.Server.Ui.Altair;
@@ -37,11 +38,15 @@ namespace GraphQL.Samples.Server
             MicrosoftDI.GraphQLBuilderExtensions.AddGraphQL(services)
                 .AddServer(true)
                 .AddSchema<ChatSchema>()
-                .ConfigureExecution(options =>
+                .ConfigureExecutionOptions(options =>
                 {
                     options.EnableMetrics = Environment.IsDevelopment();
                     var logger = options.RequestServices.GetRequiredService<ILogger<Startup>>();
-                    options.UnhandledExceptionDelegate = ctx => logger.LogError("{Error} occurred", ctx.OriginalException.Message);
+                    options.UnhandledExceptionDelegate = ctx =>
+                    {
+                        logger.LogError("{Error} occurred", ctx.OriginalException.Message);
+                        return Task.CompletedTask;
+                    };
                 })
                 .AddDefaultEndpointSelectorPolicy()
                 .AddSystemTextJson()

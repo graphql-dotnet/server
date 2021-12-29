@@ -82,7 +82,7 @@ namespace GraphQL.Server
             where TUserContextBuilder : class, IUserContextBuilder
         {
             builder.Register<IUserContextBuilder, TUserContextBuilder>(DI.ServiceLifetime.Singleton);
-            builder.ConfigureExecution(async options =>
+            builder.ConfigureExecutionOptions(async options =>
             {
                 if (options.UserContext == null || options.UserContext.Count == 0 && options.UserContext.GetType() == typeof(Dictionary<string, object>))
                 {
@@ -106,7 +106,7 @@ namespace GraphQL.Server
             where TUserContext : class, IDictionary<string, object>
         {
             builder.Register<IUserContextBuilder>(new UserContextBuilder<TUserContext>(creator));
-            builder.ConfigureExecution(options =>
+            builder.ConfigureExecutionOptions(options =>
             {
                 if (options.UserContext == null || options.UserContext.Count == 0 && options.UserContext.GetType() == typeof(Dictionary<string, object>))
                 {
@@ -129,7 +129,7 @@ namespace GraphQL.Server
             where TUserContext : class, IDictionary<string, object>
         {
             builder.Register<IUserContextBuilder>(new UserContextBuilder<TUserContext>(creator));
-            builder.ConfigureExecution(async options =>
+            builder.ConfigureExecutionOptions(async options =>
             {
                 if (options.UserContext == null || options.UserContext.Count == 0 && options.UserContext.GetType() == typeof(Dictionary<string, object>))
                 {
