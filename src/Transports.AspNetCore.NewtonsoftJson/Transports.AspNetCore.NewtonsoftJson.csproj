@@ -1,14 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net5;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>net6;net5;netcoreapp3.1</TargetFrameworks>
     <Description>GraphQL middleware using Newtonsoft.Json for serialization</Description>
     <PackageTags>GraphQL;middleware;AspNetCore;Newtonsoft.Json</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Transports.AspNetCore\Transports.AspNetCore.csproj" />
-    <PackageReference Include="GraphQL.NewtonsoftJson" Version="4.1.0" />
+    <PackageReference Include="GraphQL.NewtonsoftJson" Version="4.6.1" />
   </ItemGroup>
 
 </Project>
