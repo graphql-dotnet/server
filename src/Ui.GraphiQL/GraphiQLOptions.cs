@@ -43,7 +43,7 @@ namespace GraphQL.Server.Ui.GraphiQL
         public bool HeaderEditorEnabled { get; set; } = true;
 
         /// <summary>
-        /// Enables the explorer extension when <c>true</c>.
+        /// Enables the explorer extension when <see langword="true"/>.
         /// </summary>
         public bool ExplorerExtensionEnabled { get; set; } = true;
     }
