@@ -38,7 +38,7 @@ namespace GraphQL.Server.Ui.GraphiQL
 
         /// <summary>
         /// Enables the header editor when <c>true</c>.
-        /// Not supported when ExplorerExtensionEnabled is <c>true</c>.
+        /// Not supported when <see cref="ExplorerExtensionEnabled"/> is <see langword="true"/>.
         /// </summary>
         public bool HeaderEditorEnabled { get; set; } = true;
 
