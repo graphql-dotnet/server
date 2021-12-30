@@ -24,8 +24,9 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 
         private readonly ConcurrentDictionary<string, Subscription> _subscriptions = new();
 
+        [Obsolete]
         public SubscriptionManager(IGraphQLExecuter executer, ILoggerFactory loggerFactory)
-            : this(executer, loggerFactory, null)
+            : this(executer, loggerFactory, NoopServiceScopeFactory.Instance)
         {
         }
 
@@ -90,27 +91,14 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
                 payload.Query);
 
             ExecutionResult result;
-            if (_serviceScopeFactory != null)
-            {
-                using (var scope = _serviceScopeFactory.CreateScope())
-                {
-                    result = await _executer.ExecuteAsync(
-                        payload.OperationName,
-                        payload.Query,
-                        payload.Variables?.ToInputs(),
-                        context,
-                        scope.ServiceProvider
-                    ).ConfigureAwait(false);
-                }
-            }
-            else
+            using (var scope = _serviceScopeFactory.CreateScope())
             {
                 result = await _executer.ExecuteAsync(
                     payload.OperationName,
                     payload.Query,
                     payload.Variables?.ToInputs(),
                     context,
-                    null
+                    scope.ServiceProvider
                 ).ConfigureAwait(false);
             }
 
@@ -192,6 +180,15 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
                     }
                 }
             }
+        }
+
+        private sealed class NoopServiceScopeFactory : IServiceScopeFactory, IServiceScope
+        {
+            public static IServiceScopeFactory Instance { get; } = new NoopServiceScopeFactory();
+            private NoopServiceScopeFactory() { }
+            IServiceScope IServiceScopeFactory.CreateScope() => this;
+            IServiceProvider IServiceScope.ServiceProvider => null;
+            void IDisposable.Dispose() { }
         }
     }
 }

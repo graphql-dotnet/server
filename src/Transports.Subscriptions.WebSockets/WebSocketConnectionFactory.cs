@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Net.WebSockets;
 using GraphQL.Server.Transports.Subscriptions.Abstractions;
@@ -17,7 +18,9 @@ namespace GraphQL.Server.Transports.WebSockets
         private readonly IDocumentWriter _documentWriter;
         private readonly IServiceScopeFactory _serviceScopeFactory;
 
-        public WebSocketConnectionFactory(ILogger<WebSocketConnectionFactory<TSchema>> logger,
+        [Obsolete]
+        public WebSocketConnectionFactory(
+            ILogger<WebSocketConnectionFactory<TSchema>> logger,
             ILoggerFactory loggerFactory,
             IGraphQLExecuter<TSchema> executer,
             IEnumerable<IOperationMessageListener> messageListeners,
@@ -26,7 +29,8 @@ namespace GraphQL.Server.Transports.WebSockets
         {
         }
 
-        public WebSocketConnectionFactory(ILogger<WebSocketConnectionFactory<TSchema>> logger,
+        public WebSocketConnectionFactory(
+            ILogger<WebSocketConnectionFactory<TSchema>> logger,
             ILoggerFactory loggerFactory,
             IGraphQLExecuter<TSchema> executer,
             IEnumerable<IOperationMessageListener> messageListeners,
