@@ -1,7 +1,8 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using GraphQL.DataLoader;
 using GraphQL.Execution;
-using System.Threading.Tasks;
+using GraphQL.MicrosoftDI;
 using GraphQL.Samples.Schemas.Chat;
 using GraphQL.Server;
 using GraphQL.Server.Ui.Altair;
@@ -32,10 +33,13 @@ namespace GraphQL.Samples.Server
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<IChat, Chat>();
+            services
+                .AddSingleton<IChat, Chat>()
+                .Configure<ErrorInfoProviderOptions>(opt => opt.ExposeExceptionStackTrace = Environment.IsDevelopment());
 
-            MicrosoftDI.GraphQLBuilderExtensions.AddGraphQL(services)
+            services.AddGraphQL(builder => builder
                 .AddServer(true)
+                .AddDocumentExecuter<SubscriptionDocumentExecuter>()
                 .AddSchema<ChatSchema>()
                 .ConfigureExecutionOptions(options =>
                 {
@@ -49,10 +53,9 @@ namespace GraphQL.Samples.Server
                 })
                 .AddSystemTextJson()
                 .AddErrorInfoProvider<CustomErrorInfoProvider>()
-                .Configure<ErrorInfoProviderOptions>(opt => opt.ExposeExceptionStackTrace = Environment.IsDevelopment())
                 .AddWebSockets()
                 .AddDataLoader()
-                .AddGraphTypes(typeof(ChatSchema).Assembly);
+                .AddGraphTypes(typeof(ChatSchema).Assembly));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
