@@ -50,7 +50,11 @@ namespace GraphQL.Server.Transports.WebSockets
             _logger.LogDebug("Creating server for connection {connectionId}", connectionId);
 
             var transport = new WebSocketTransport(socket, _documentWriter);
-            var manager = new SubscriptionManager(_executer, _loggerFactory, _serviceScopeFactory);
+            var manager = _serviceScopeFactory != null
+                ? new SubscriptionManager(_executer, _loggerFactory, _serviceScopeFactory)
+#pragma warning disable CS0612 // Type or member is obsolete
+                : new SubscriptionManager(_executer, _loggerFactory);
+#pragma warning restore CS0612 // Type or member is obsolete
             var server = new SubscriptionServer(
                 transport,
                 manager,
