@@ -18,8 +18,10 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
 
         private readonly IWriterPipeline _writer;
 
-        [Fact]
-        public void On_data_from_stream()
+        [Theory]
+        [InlineData(MessageType.GQL_DATA)]
+        [InlineData(MessageType.GQL_NEXT)]
+        public void On_data_from_stream(string dataEventType)
         {
             /* Given */
             string id = "1";
@@ -33,7 +35,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
                 }
             };
             var expected = new ExecutionResult();
-            var sut = new Subscription(id, payload, result, _writer, null, new NullLogger<Subscription>());
+            var sut = new Subscription(id, payload, result, _writer, null, dataEventType, new NullLogger<Subscription>());
 
             /* When */
             stream.OnNext(expected);
@@ -42,11 +44,13 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             _writer.Received().Post(
                 Arg.Is<OperationMessage>(
                     message => message.Id == id
-                               && message.Type == MessageType.GQL_DATA));
+                               && message.Type == dataEventType));
         }
 
-        [Fact]
-        public void On_stream_complete()
+        [Theory]
+        [InlineData(MessageType.GQL_DATA)]
+        [InlineData(MessageType.GQL_NEXT)]
+        public void On_stream_complete(string dataEventType)
         {
             /* Given */
             string id = "1";
@@ -61,7 +65,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             };
 
             var completed = Substitute.For<Action<Subscription>>();
-            var sut = new Subscription(id, payload, result, _writer, completed, new NullLogger<Subscription>());
+            var sut = new Subscription(id, payload, result, _writer, completed, dataEventType, new NullLogger<Subscription>());
 
             /* When */
             stream.OnCompleted();
@@ -75,8 +79,10 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
                                && message.Type == MessageType.GQL_COMPLETE));
         }
 
-        [Fact]
-        public void Subscribe_to_stream()
+        [Theory]
+        [InlineData(MessageType.GQL_DATA)]
+        [InlineData(MessageType.GQL_NEXT)]
+        public void Subscribe_to_stream(string dataEventType)
         {
             /* Given */
             string id = "1";
@@ -91,14 +97,16 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             };
 
             /* When */
-            var sut = new Subscription(id, payload, result, _writer, null, new NullLogger<Subscription>());
+            var sut = new Subscription(id, payload, result, _writer, null, dataEventType, new NullLogger<Subscription>());
 
             /* Then */
             Assert.True(stream.HasObservers);
         }
 
-        [Fact]
-        public void Subscribe_to_completed_stream_should_not_throw()
+        [Theory]
+        [InlineData(MessageType.GQL_DATA)]
+        [InlineData(MessageType.GQL_NEXT)]
+        public void Subscribe_to_completed_stream_should_not_throw(string dataEventType)
         {
             /* Given */
             string id = "1";
@@ -116,11 +124,13 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
 
             /* When */
             /* Then */
-            var sut = new Subscription(id, payload, result, _writer, null, new NullLogger<Subscription>());
+            var sut = new Subscription(id, payload, result, _writer, null, dataEventType, new NullLogger<Subscription>());
         }
 
-        [Fact]
-        public async Task Unsubscribe_from_stream()
+        [Theory]
+        [InlineData(MessageType.GQL_DATA)]
+        [InlineData(MessageType.GQL_NEXT)]
+        public async Task Unsubscribe_from_stream(string dataEventType)
         {
             /* Given */
             string id = "1";
@@ -135,7 +145,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
                     { "op", stream }
                 }
             };
-            var sut = new Subscription(id, payload, result, _writer, null, new NullLogger<Subscription>());
+            var sut = new Subscription(id, payload, result, _writer, null, dataEventType, new NullLogger<Subscription>());
 
             /* When */
             await sut.UnsubscribeAsync();
@@ -144,8 +154,10 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             unsubscribe.Received().Dispose();
         }
 
-        [Fact]
-        public async Task Write_Complete_on_unsubscribe()
+        [Theory]
+        [InlineData(MessageType.GQL_DATA)]
+        [InlineData(MessageType.GQL_NEXT)]
+        public async Task Write_Complete_on_unsubscribe(string dataEventType)
         {
             /* Given */
             string id = "1";
@@ -158,7 +170,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
                 }
             };
 
-            var sut = new Subscription(id, payload, result, _writer, null, new NullLogger<Subscription>());
+            var sut = new Subscription(id, payload, result, _writer, null, dataEventType, new NullLogger<Subscription>());
 
             /* When */
             await sut.UnsubscribeAsync();

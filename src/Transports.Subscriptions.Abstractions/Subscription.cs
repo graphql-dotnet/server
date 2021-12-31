@@ -18,16 +18,19 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         private readonly ILogger<Subscription> _logger;
         private IWriterPipeline? _writer;
         private IDisposable? _unsubscribe;
+        private readonly string _dataEventType;
 
         public Subscription(string id,
             OperationMessagePayload payload,
             SubscriptionExecutionResult result,
             IWriterPipeline writer,
             Action<Subscription>? completed,
+            string dataEventType,
             ILogger<Subscription> logger)
         {
             _writer = writer;
             _completed = completed;
+            _dataEventType = dataEventType;
             _logger = logger;
             Id = id;
             OriginalPayload = payload;
@@ -62,7 +65,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             _logger.LogDebug("Subscription: {subscriptionId} got data", Id);
             _writer?.Post(new OperationMessage
             {
-                Type = MessageType.GQL_DATA,
+                Type = _dataEventType,
                 Id = Id,
                 Payload = value
             });

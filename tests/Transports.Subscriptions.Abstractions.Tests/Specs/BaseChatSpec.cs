@@ -11,10 +11,12 @@ using Xunit;
 
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
 {
-    public class ChatSpec
+    public abstract class BaseChatSpec
     {
-        public ChatSpec()
+        public BaseChatSpec(string startEventType, string dataEventType)
         {
+            _startEventType = startEventType;
+            _dataEventType = dataEventType;
             _chat = new Chat();
             _transport = new TestableSubscriptionTransport();
             _transportReader = _transport.Reader as TestableReader;
@@ -25,7 +27,8 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
                     new SubscriptionDocumentExecuter(),
                     Options.Create(new GraphQLOptions { })
                     ),
-                new NullLoggerFactory());
+                new NullLoggerFactory(),
+                dataEventType);
 
             _server = new SubscriptionServer(
                 _transport,
@@ -35,6 +38,8 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
             );
         }
 
+        private readonly string _startEventType;
+        private readonly string _dataEventType;
         private readonly Chat _chat;
         private readonly TestableSubscriptionTransport _transport;
         private readonly SubscriptionManager _subscriptions;
@@ -44,7 +49,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
 
         private void AssertReceivedData(List<OperationMessage> writtenMessages, Predicate<JObject> predicate)
         {
-            var dataMessages = writtenMessages.Where(m => m.Type == MessageType.GQL_DATA);
+            var dataMessages = writtenMessages.Where(m => m.Type == _dataEventType);
             var results = dataMessages.Select(m =>
             {
                 var executionResult = (ExecutionResult)m.Payload;
@@ -76,7 +81,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
             _transportReader.AddMessageToRead(new OperationMessage
             {
                 Id = id,
-                Type = MessageType.GQL_START,
+                Type = _startEventType,
                 Payload = JObject.FromObject(new OperationMessagePayload
                 {
                     OperationName = "",
@@ -108,7 +113,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
 
             /* Then */
             Assert.Contains(_transportWriter.WrittenMessages, message => message.Type == MessageType.GQL_CONNECTION_ACK);
-            Assert.Contains(_transportWriter.WrittenMessages, message => message.Type == MessageType.GQL_DATA);
+            Assert.Contains(_transportWriter.WrittenMessages, message => message.Type == _dataEventType);
             Assert.Contains(_transportWriter.WrittenMessages, message => message.Type == MessageType.GQL_COMPLETE);
         }
 
@@ -132,7 +137,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
             _transportReader.AddMessageToRead(new OperationMessage
             {
                 Id = id,
-                Type = MessageType.GQL_START,
+                Type = _startEventType,
                 Payload = JObject.FromObject(new OperationMessagePayload
                 {
                     OperationName = "",
@@ -159,7 +164,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
 
             /* Then */
             Assert.Contains(_transportWriter.WrittenMessages, message => message.Type == MessageType.GQL_CONNECTION_ACK);
-            Assert.Contains(_transportWriter.WrittenMessages, message => message.Type == MessageType.GQL_DATA);
+            Assert.Contains(_transportWriter.WrittenMessages, message => message.Type == _dataEventType);
             Assert.Contains(_transportWriter.WrittenMessages, message => message.Type == MessageType.GQL_COMPLETE);
         }
 
@@ -177,7 +182,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
             _transportReader.AddMessageToRead(new OperationMessage
             {
                 Id = id,
-                Type = MessageType.GQL_START,
+                Type = _startEventType,
                 Payload = JObject.FromObject(new OperationMessagePayload
                 {
                     OperationName = "",

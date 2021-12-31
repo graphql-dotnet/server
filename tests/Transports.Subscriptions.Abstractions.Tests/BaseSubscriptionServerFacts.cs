@@ -8,9 +8,9 @@ using Xunit;
 
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
 {
-    public class SubscriptionServerFacts
+    public abstract class BaseSubscriptionServerFacts
     {
-        public SubscriptionServerFacts()
+        public BaseSubscriptionServerFacts(string dataEventType)
         {
             _messageListener = Substitute.For<IOperationMessageListener>();
             _transport = new TestableSubscriptionTransport();
@@ -25,7 +25,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
                         { "1", Substitute.For<IObservable<ExecutionResult>>() }
                     }
                 });
-            _subscriptionManager = new SubscriptionManager(_documentExecuter, new NullLoggerFactory());
+            _subscriptionManager = new SubscriptionManager(_documentExecuter, new NullLoggerFactory(), dataEventType);
             _sut = new SubscriptionServer(
                 _transport,
                 _subscriptionManager,

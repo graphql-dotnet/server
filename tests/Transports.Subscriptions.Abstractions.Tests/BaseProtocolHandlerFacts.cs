@@ -9,8 +9,10 @@ using Xunit;
 
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
 {
-    public class ProtocolHandlerFacts
+    public abstract class BaseProtocolHandlerFacts
     {
+        private readonly string _startEventType;
+        private readonly string _dataEventType;
         private readonly TestableSubscriptionTransport _transport;
         private readonly TestableReader _transportReader;
         private readonly TestableWriter _transportWriter;
@@ -19,8 +21,10 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         private readonly SubscriptionServer _server;
         private readonly ProtocolMessageListener _sut;
 
-        public ProtocolHandlerFacts()
+        public BaseProtocolHandlerFacts(string startEventType, string dataEventType)
         {
+            _startEventType = startEventType;
+            _dataEventType = dataEventType;
             _transport = new TestableSubscriptionTransport();
             _transportReader = _transport.Reader as TestableReader;
             _transportWriter = _transport.Writer as TestableWriter;
@@ -33,7 +37,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
                         { "1", Substitute.For<IObservable<ExecutionResult>>() }
                     }
                 });
-            _subscriptionManager = new SubscriptionManager(_documentExecuter, new NullLoggerFactory());
+            _subscriptionManager = new SubscriptionManager(_documentExecuter, new NullLoggerFactory(), dataEventType);
             _sut = new ProtocolMessageListener(new NullLogger<ProtocolMessageListener>());
             _server = new SubscriptionServer(
                 _transport,
@@ -69,7 +73,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
                 new ExecutionResult());
             var expected = new OperationMessage
             {
-                Type = MessageType.GQL_START,
+                Type = _startEventType,
                 Id = "1",
                 Payload = JObject.FromObject(new OperationMessagePayload
                 {
@@ -93,7 +97,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             /* Then */
             Assert.Empty(_server.Subscriptions);
             Assert.Contains(_transportWriter.WrittenMessages,
-                message => message.Type == MessageType.GQL_DATA);
+                message => message.Type == _dataEventType);
             Assert.Contains(_transportWriter.WrittenMessages,
                 message => message.Type == MessageType.GQL_COMPLETE);
         }
@@ -106,7 +110,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
                 new ExecutionResult());
             var expected = new OperationMessage
             {
-                Type = MessageType.GQL_START,
+                Type = _startEventType,
                 Id = "1",
                 Payload = JObject.FromObject(new OperationMessagePayload
                 {
@@ -127,7 +131,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             /* Then */
             Assert.Empty(_server.Subscriptions);
             Assert.Contains(_transportWriter.WrittenMessages,
-                message => message.Type == MessageType.GQL_DATA);
+                message => message.Type == _dataEventType);
             Assert.Contains(_transportWriter.WrittenMessages,
                 message => message.Type == MessageType.GQL_COMPLETE);
         }
@@ -138,7 +142,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             /* Given */
             var expected = new OperationMessage
             {
-                Type = MessageType.GQL_START,
+                Type = _startEventType,
                 Id = "1",
                 Payload = JObject.FromObject(new OperationMessagePayload
                 {
@@ -166,7 +170,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             /* Given */
             var subscribe = new OperationMessage
             {
-                Type = MessageType.GQL_START,
+                Type = _startEventType,
                 Id = "1",
                 Payload = JObject.FromObject(new OperationMessagePayload
                 {

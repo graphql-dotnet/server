@@ -23,10 +23,20 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 
             return context.Message.Type switch
             {
+                // common
                 MessageType.GQL_CONNECTION_INIT => HandleInitAsync(context),
+                MessageType.GQL_CONNECTION_TERMINATE => HandleTerminateAsync(context),
+
+                // graphql-ws
                 MessageType.GQL_START => HandleStartAsync(context),
                 MessageType.GQL_STOP => HandleStopAsync(context),
-                MessageType.GQL_CONNECTION_TERMINATE => HandleTerminateAsync(context),
+
+                // graphql-transport-ws
+                MessageType.GQL_SUBSRIBE => HandleStartAsync(context),
+                MessageType.GQL_PING => HandlePingAsync(context),
+                MessageType.GQL_PONG => HandlePongAsync(context),
+                MessageType.GQL_COMPLETE => HandleStopAsync(context),
+
                 _ => HandleUnknownAsync(context),
             };
         }
@@ -85,6 +95,24 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         {
             _logger.LogDebug("Handle terminate");
             return context.Terminate();
+        }
+
+        // TODO: supports payloads in ping / pong
+        private Task HandlePingAsync(MessageHandlingContext context)
+        {
+            var message = context.Message;
+            _logger.LogDebug("Handle ping: {id}", message.Id);
+            return context.Writer.SendAsync(new OperationMessage
+            {
+                Type = MessageType.GQL_PONG,
+            });
+        }
+
+        private Task HandlePongAsync(MessageHandlingContext context)
+        {
+            var message = context.Message;
+            _logger.LogDebug("Handle pong: {id}", message.Id);
+            return Task.CompletedTask;
         }
     }
 }

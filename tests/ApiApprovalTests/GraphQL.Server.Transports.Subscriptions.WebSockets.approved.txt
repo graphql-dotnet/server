@@ -12,13 +12,13 @@ namespace GraphQL.Server.Transports.WebSockets
     public class GraphQLWebSocketsMiddleware<TSchema>
         where TSchema : GraphQL.Types.ISchema
     {
-        public GraphQLWebSocketsMiddleware(Microsoft.AspNetCore.Http.RequestDelegate next, Microsoft.Extensions.Logging.ILogger<GraphQL.Server.Transports.WebSockets.GraphQLWebSocketsMiddleware<TSchema>> logger) { }
+        public GraphQLWebSocketsMiddleware(GraphQL.Server.Transports.WebSockets.WebSocketsSubprotocol subprotocol, Microsoft.AspNetCore.Http.RequestDelegate next, Microsoft.Extensions.Logging.ILogger<GraphQL.Server.Transports.WebSockets.GraphQLWebSocketsMiddleware<TSchema>> logger) { }
         public System.Threading.Tasks.Task InvokeAsync(Microsoft.AspNetCore.Http.HttpContext context) { }
     }
     public interface IWebSocketConnectionFactory<TSchema>
         where TSchema : GraphQL.Types.ISchema
     {
-        GraphQL.Server.Transports.WebSockets.WebSocketConnection CreateConnection(System.Net.WebSockets.WebSocket socket, string connectionId);
+        GraphQL.Server.Transports.WebSockets.WebSocketConnection CreateConnection(System.Net.WebSockets.WebSocket socket, string connectionId, GraphQL.Server.Transports.WebSockets.WebSocketsSubprotocol subprotocol);
     }
     public class WebSocketConnection : System.IDisposable
     {
@@ -32,7 +32,7 @@ namespace GraphQL.Server.Transports.WebSockets
         [System.Obsolete]
         public WebSocketConnectionFactory(Microsoft.Extensions.Logging.ILogger<GraphQL.Server.Transports.WebSockets.WebSocketConnectionFactory<TSchema>> logger, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory, GraphQL.Server.IGraphQLExecuter<TSchema> executer, System.Collections.Generic.IEnumerable<GraphQL.Server.Transports.Subscriptions.Abstractions.IOperationMessageListener> messageListeners, GraphQL.IDocumentWriter documentWriter) { }
         public WebSocketConnectionFactory(Microsoft.Extensions.Logging.ILogger<GraphQL.Server.Transports.WebSockets.WebSocketConnectionFactory<TSchema>> logger, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory, GraphQL.Server.IGraphQLExecuter<TSchema> executer, System.Collections.Generic.IEnumerable<GraphQL.Server.Transports.Subscriptions.Abstractions.IOperationMessageListener> messageListeners, GraphQL.IDocumentWriter documentWriter, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory) { }
-        public GraphQL.Server.Transports.WebSockets.WebSocketConnection CreateConnection(System.Net.WebSockets.WebSocket socket, string connectionId) { }
+        public GraphQL.Server.Transports.WebSockets.WebSocketConnection CreateConnection(System.Net.WebSockets.WebSocket socket, string connectionId, GraphQL.Server.Transports.WebSockets.WebSocketsSubprotocol subprotocol) { }
     }
     public class WebSocketReaderPipeline : GraphQL.Server.Transports.Subscriptions.Abstractions.IReaderPipeline
     {
@@ -61,6 +61,11 @@ namespace GraphQL.Server.Transports.WebSockets
         public bool Post(GraphQL.Server.Transports.Subscriptions.Abstractions.OperationMessage message) { }
         public System.Threading.Tasks.Task SendAsync(GraphQL.Server.Transports.Subscriptions.Abstractions.OperationMessage message) { }
     }
+    public enum WebSocketsSubprotocol
+    {
+        GraphQLWs = 0,
+        GraphQLTransportWs = 1,
+    }
     public class WebsocketWriterStream : System.IO.Stream
     {
         public WebsocketWriterStream(System.Net.WebSockets.WebSocket webSocket) { }
@@ -82,9 +87,9 @@ namespace Microsoft.AspNetCore.Builder
 {
     public static class GraphQLWebSocketsApplicationBuilderExtensions
     {
-        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQLWebSockets<TSchema>(this Microsoft.AspNetCore.Builder.IApplicationBuilder builder, Microsoft.AspNetCore.Http.PathString path)
+        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQLWebSockets<TSchema>(this Microsoft.AspNetCore.Builder.IApplicationBuilder builder, Microsoft.AspNetCore.Http.PathString path, GraphQL.Server.Transports.WebSockets.WebSocketsSubprotocol subprotocol = 0)
             where TSchema : GraphQL.Types.ISchema { }
-        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQLWebSockets<TSchema>(this Microsoft.AspNetCore.Builder.IApplicationBuilder builder, string path = "/graphql")
+        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQLWebSockets<TSchema>(this Microsoft.AspNetCore.Builder.IApplicationBuilder builder, string path = "/graphql", GraphQL.Server.Transports.WebSockets.WebSocketsSubprotocol subprotocol = 0)
             where TSchema : GraphQL.Types.ISchema { }
     }
     public class GraphQLWebSocketsEndpointConventionBuilder : Microsoft.AspNetCore.Builder.IEndpointConventionBuilder

@@ -7,7 +7,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
     ///     https://github.com/apollographql/subscriptions-transport-ws/blob/master/PROTOCOL.md
     /// </summary>
     [SuppressMessage("ReSharper", "InconsistentNaming")]
-    public class MessageType
+    public partial class MessageType
     {
         /// <summary>
         ///     Client sends this message after plain websocket connection to start the communication with the server
@@ -89,5 +89,39 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         ///     id: string : operation id
         /// </summary>
         public const string GQL_STOP = "stop"; // Client -> Server
+    }
+
+    /// <summary>
+    ///     New GraphQL over WebSocket Protocol message types defined in
+    ///     https://github.com/enisdenjo/graphql-ws/blob/master/PROTOCOL.md
+    /// </summary> 
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
+    public partial class MessageType
+    {
+        /// <summary>
+        /// Requests an operation specified in the message payload. This message provides a unique ID field to connect published messages to the operation requested by this message.
+        /// If there is already an active subscriber for an operation matching the provided ID, regardless of the operation type, the server must close the socket immediately with the event 4409: Subscriber for <unique-operation-id> already exists.
+        /// </summary>
+        public const string GQL_SUBSRIBE = "subscribe"; // Client -> Server
+
+        /// <summary>
+        /// Operation execution result(s) from the source stream created by the binding Subscribe message. After all results have been emitted, the Complete message will follow indicating stream completion.
+        /// </summary>
+        public const string GQL_NEXT = "next"; // Server -> Client
+
+        /// <summary>
+        /// Useful for detecting failed connections, displaying latency metrics or other types of network probing.
+        /// A Pong must be sent in response from the receiving party as soon as possible.
+        /// The Ping message can be sent at any time within the established socket.
+        /// The optional payload field can be used to transfer additional details about the ping.
+        /// </summary>
+        public const string GQL_PING = "ping"; // Bidirectional
+
+        /// <summary>
+        /// The response to the Ping message. Must be sent as soon as the Ping message is received.
+        /// The Pong message can be sent at any time within the established socket.Furthermore, the Pong message may even be sent unsolicited as an unidirectional heartbeat.
+        /// The optional payload field can be used to transfer additional details about the pong.
+        /// </summary>
+        public const string GQL_PONG = "pong"; // Bidirectional
     }
 }
