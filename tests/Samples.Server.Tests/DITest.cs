@@ -12,7 +12,6 @@ namespace Samples.Server.Tests
 {
     public class DITest
     {
-        // test
         [Fact]
         public void Services_Should_Contain_Only_One_DocumentWriter()
         {
