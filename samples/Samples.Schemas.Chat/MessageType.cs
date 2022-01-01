@@ -7,7 +7,7 @@ namespace GraphQL.Samples.Schemas.Chat
         public MessageType()
         {
             Field(o => o.Content);
-            Field(o => o.SentAt, type: typeof(DateGraphType));
+            Field(o => o.SentAt, type: typeof(DateTimeGraphType));
             Field(o => o.Sub);
             Field(o => o.From, false, typeof(MessageFromType)).Resolve(ResolveFrom);
         }

@@ -44,7 +44,7 @@ namespace GraphQL.Samples.Schemas.Chat
             return AddMessage(new Message
             {
                 Content = message.Content,
-                SentAt = message.SentAt,
+                SentAt = message.SentAt ?? DateTime.UtcNow,
                 From = new MessageFrom
                 {
                     DisplayName = displayName,
