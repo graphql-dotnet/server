@@ -20,6 +20,8 @@ namespace GraphQL.Server.Ui.Playground
         /// </summary>
         public PathString SubscriptionsEndPoint { get; set; } = "/graphql";
 
+        public int Unused { get; set; }
+
         /// <summary>
         /// The GraphQL configuration.
         /// </summary>

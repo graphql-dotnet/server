@@ -41,6 +41,7 @@ namespace GraphQL.Server.Ui.Playground
         public string SchemaPollingEndpointFilter { get; set; }
         public int SchemaPollingInterval { get; set; }
         public Microsoft.AspNetCore.Http.PathString SubscriptionsEndPoint { get; set; }
+        public int Unused { get; set; }
     }
     public enum RequestCredentials
     {
