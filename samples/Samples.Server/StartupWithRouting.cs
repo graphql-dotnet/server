@@ -7,6 +7,7 @@ using GraphQL.Server.Ui.Altair;
 using GraphQL.Server.Ui.GraphiQL;
 using GraphQL.Server.Ui.Playground;
 using GraphQL.Server.Ui.Voyager;
+using GraphQL.SystemReactive;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -35,6 +36,7 @@ namespace GraphQL.Samples.Server
             services.AddSingleton<IChat, Chat>();
 
             MicrosoftDI.GraphQLBuilderExtensions.AddGraphQL(services)
+                .AddSubscriptionDocumentExecuter()
                 .AddServer(true)
                 .AddSchema<ChatSchema>()
                 .ConfigureExecution(options =>
