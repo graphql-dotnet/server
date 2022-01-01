@@ -50,7 +50,7 @@ namespace Samples.Server.Tests
 
             string response = await SendRequestAsync(request, requestType, queryStringOverride: requestB);
             response.ShouldBeEquivalentJson(
-                @"{""data"":{""addMessage"":{""sentAt"":""2020-01-01"",""content"":""two content"",""from"":{""id"":""1""}}}}",
+                @"{""data"":{""addMessage"":{""sentAt"":""2020-01-01T00:00:00Z"",""content"":""two content"",""from"":{""id"":""1""}}}}",
                 ignoreExtensions: true);
         }
 
@@ -140,7 +140,7 @@ namespace Samples.Server.Tests
             };
             string response = await SendRequestAsync(request, requestType);
             response.ShouldBeEquivalentJson(
-                @"{""data"":{""addMessage"":{""sentAt"":""2020-01-01"",""content"":""some content"",""from"":{""id"":""1""}}}}",
+                @"{""data"":{""addMessage"":{""sentAt"":""2020-01-01T00:00:00Z"",""content"":""some content"",""from"":{""id"":""1""}}}}",
                 ignoreExtensions: true);
         }
 
@@ -158,7 +158,7 @@ namespace Samples.Server.Tests
             };
             string response = await SendRequestAsync(request, requestType);
             response.ShouldBeEquivalentJson(
-                @"{""data"":{""addMessage"":{""sentAt"":""2020-01-01"",""content"":""some content"",""from"":{""id"":""1""}}}}",
+                @"{""data"":{""addMessage"":{""sentAt"":""2020-01-01T00:00:00Z"",""content"":""some content"",""from"":{""id"":""1""}}}}",
                 ignoreExtensions: true);
         }
 
@@ -176,7 +176,7 @@ namespace Samples.Server.Tests
             };
             string response = await SendRequestAsync(request, requestType);
             response.ShouldBeEquivalentJson(
-                @"{""data"":{""addMessage"":{""sentAt"":""2020-01-01"",""content"":""some content"",""from"":{""id"":""1""}}}}",
+                @"{""data"":{""addMessage"":{""sentAt"":""2020-01-01T00:00:00Z"",""content"":""some content"",""from"":{""id"":""1""}}}}",
                 ignoreExtensions: true);
         }
 
