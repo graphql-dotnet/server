@@ -20,20 +20,22 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         private readonly ILogger<SubscriptionManager> _logger;
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly ILoggerFactory _loggerFactory;
+        private readonly string _dataEventType;
         private volatile bool _disposed;
 
         private readonly ConcurrentDictionary<string, Subscription> _subscriptions = new();
 
         [Obsolete]
-        public SubscriptionManager(IGraphQLExecuter executer, ILoggerFactory loggerFactory)
-            : this(executer, loggerFactory, NoopServiceScopeFactory.Instance)
+        public SubscriptionManager(IGraphQLExecuter executer, ILoggerFactory loggerFactory, string dataEventType)
+            : this(executer, loggerFactory, NoopServiceScopeFactory.Instance, dataEventType)
         {
         }
 
-        public SubscriptionManager(IGraphQLExecuter executer, ILoggerFactory loggerFactory, IServiceScopeFactory serviceScopeFactory)
+        public SubscriptionManager(IGraphQLExecuter executer, ILoggerFactory loggerFactory, IServiceScopeFactory serviceScopeFactory, string dataEventType)
         {
             _executer = executer;
             _loggerFactory = loggerFactory;
+            _dataEventType = dataEventType;
             _logger = loggerFactory.CreateLogger<SubscriptionManager>();
             _serviceScopeFactory = serviceScopeFactory;
         }
@@ -139,13 +141,14 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
                         subscriptionExecutionResult,
                         writer,
                         sub => _subscriptions.TryRemove(id, out _),
+                        _dataEventType,
                         _loggerFactory.CreateLogger<Subscription>());
                 }
 
             //is query or mutation
             await writer.SendAsync(new OperationMessage
             {
-                Type = MessageType.GQL_DATA,
+                Type = _dataEventType,
                 Id = id,
                 Payload = result
             }).ConfigureAwait(false);

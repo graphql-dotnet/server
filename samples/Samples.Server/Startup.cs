@@ -38,6 +38,8 @@ namespace GraphQL.Samples.Server
                 .AddSubscriptionDocumentExecuter()
                 .AddServer(true)
                 .AddSchema<ChatSchema>()
+                // Required for subscriptions
+                .AddDocumentExecuter<SubscriptionDocumentExecuter>()
                 .ConfigureExecution(options =>
                 {
                     options.EnableMetrics = Environment.IsDevelopment();
@@ -60,7 +62,8 @@ namespace GraphQL.Samples.Server
 
             app.UseWebSockets();
 
-            app.UseGraphQLWebSockets<ChatSchema>();
+            // Note: the new GraphQLTransportWs is not compatible with Playground
+            app.UseGraphQLWebSockets<ChatSchema>(subprotocol: GraphQL.Server.Transports.WebSockets.WebSocketsSubprotocol.GraphQLWs);
             app.UseGraphQL<ChatSchema, GraphQLHttpMiddlewareWithLogs<ChatSchema>>();
 
             app.UseGraphQLPlayground(new PlaygroundOptions

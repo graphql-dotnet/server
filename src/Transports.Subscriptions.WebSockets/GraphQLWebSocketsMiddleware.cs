@@ -15,11 +15,13 @@ namespace GraphQL.Server.Transports.WebSockets
     public class GraphQLWebSocketsMiddleware<TSchema>
         where TSchema : ISchema
     {
+        private readonly WebSocketsSubprotocol _subprotocol;
         private readonly RequestDelegate _next;
         private readonly ILogger<GraphQLWebSocketsMiddleware<TSchema>> _logger;
 
-        public GraphQLWebSocketsMiddleware(RequestDelegate next, ILogger<GraphQLWebSocketsMiddleware<TSchema>> logger)
+        public GraphQLWebSocketsMiddleware(WebSocketsSubprotocol subprotocol, RequestDelegate next, ILogger<GraphQLWebSocketsMiddleware<TSchema>> logger)
         {
+            _subprotocol = subprotocol;
             _next = next;
             _logger = logger;
         }
@@ -42,7 +44,20 @@ namespace GraphQL.Server.Transports.WebSockets
 
                 _logger.LogDebug("Connection is a valid websocket request");
 
-                var socket = await context.WebSockets.AcceptWebSocketAsync("graphql-ws");
+                WebSocket socket;
+                if (_subprotocol == WebSocketsSubprotocol.GraphQLWs)
+                {
+                    socket = await context.WebSockets.AcceptWebSocketAsync("graphql-ws");
+                }
+                else if (_subprotocol == WebSocketsSubprotocol.GraphQLTransportWs)
+                {
+                    socket = await context.WebSockets.AcceptWebSocketAsync("graphql-transport-ws");
+                }
+                else
+                {
+                    _logger.LogError("Unknown WebSocket Subprotocol found, fallback to graphql-ws");
+                    socket = await context.WebSockets.AcceptWebSocketAsync("graphql-ws");
+                }
 
                 if (!context.WebSockets.WebSocketRequestedProtocols.Contains(socket.SubProtocol))
                 {
@@ -61,7 +76,7 @@ namespace GraphQL.Server.Transports.WebSockets
                 using (_logger.BeginScope($"GraphQL websocket connection: {context.Connection.Id}"))
                 {
                     var connectionFactory = context.RequestServices.GetRequiredService<IWebSocketConnectionFactory<TSchema>>();
-                    using var connection = connectionFactory.CreateConnection(socket, context.Connection.Id);
+                    using var connection = connectionFactory.CreateConnection(socket, context.Connection.Id, _subprotocol);
 
                     // Wait until the websocket has disconnected (and all subscriptions ended)
                     await connection.Connect();

@@ -11,6 +11,12 @@ namespace GraphQL.Server.Transports.WebSockets
     public class WebSocketConnectionFactory<TSchema> : IWebSocketConnectionFactory<TSchema>
         where TSchema : ISchema
     {
+        private static readonly Dictionary<WebSocketsSubprotocol, string> DataEventTypes = new()
+        {
+            [WebSocketsSubprotocol.GraphQLWs] = MessageType.GQL_DATA,
+            [WebSocketsSubprotocol.GraphQLTransportWs] = MessageType.GQL_NEXT,
+        };
+
         private readonly ILogger _logger;
         private readonly ILoggerFactory _loggerFactory;
         private readonly IGraphQLExecuter<TSchema> _executer;
@@ -45,15 +51,15 @@ namespace GraphQL.Server.Transports.WebSockets
             _serviceScopeFactory = serviceScopeFactory;
         }
 
-        public WebSocketConnection CreateConnection(WebSocket socket, string connectionId)
+        public WebSocketConnection CreateConnection(WebSocket socket, string connectionId, WebSocketsSubprotocol subprotocol)
         {
-            _logger.LogDebug("Creating server for connection {connectionId}", connectionId);
+            _logger.LogDebug("Creating server for connection {connectionId} with {subprotocol}", connectionId, subprotocol);
 
             var transport = new WebSocketTransport(socket, _documentWriter);
             var manager = _serviceScopeFactory != null
-                ? new SubscriptionManager(_executer, _loggerFactory, _serviceScopeFactory)
+                ? new SubscriptionManager(_executer, _loggerFactory, _serviceScopeFactory, DataEventTypes[subprotocol])
 #pragma warning disable CS0612 // Type or member is obsolete
-                : new SubscriptionManager(_executer, _loggerFactory);
+                : new SubscriptionManager(_executer, _loggerFactory, DataEventTypes[subprotocol]);
 #pragma warning restore CS0612 // Type or member is obsolete
             var server = new SubscriptionServer(
                 transport,

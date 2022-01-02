@@ -66,8 +66,12 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         public const string GQL_CONNECTION_TERMINATE = "connection_terminate";
         public const string GQL_DATA = "data";
         public const string GQL_ERROR = "error";
+        public const string GQL_NEXT = "next";
+        public const string GQL_PING = "ping";
+        public const string GQL_PONG = "pong";
         public const string GQL_START = "start";
         public const string GQL_STOP = "stop";
+        public const string GQL_SUBSRIBE = "subscribe";
         public MessageType() { }
     }
     [System.Runtime.Serialization.DataContract]
@@ -98,7 +102,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
     }
     public class Subscription : System.IDisposable, System.IObserver<GraphQL.ExecutionResult>
     {
-        public Subscription(string id, GraphQL.Server.Transports.Subscriptions.Abstractions.OperationMessagePayload payload, GraphQL.Subscription.SubscriptionExecutionResult result, GraphQL.Server.Transports.Subscriptions.Abstractions.IWriterPipeline writer, System.Action<GraphQL.Server.Transports.Subscriptions.Abstractions.Subscription>? completed, Microsoft.Extensions.Logging.ILogger<GraphQL.Server.Transports.Subscriptions.Abstractions.Subscription> logger) { }
+        public Subscription(string id, GraphQL.Server.Transports.Subscriptions.Abstractions.OperationMessagePayload payload, GraphQL.Subscription.SubscriptionExecutionResult result, GraphQL.Server.Transports.Subscriptions.Abstractions.IWriterPipeline writer, System.Action<GraphQL.Server.Transports.Subscriptions.Abstractions.Subscription>? completed, string dataEventType, Microsoft.Extensions.Logging.ILogger<GraphQL.Server.Transports.Subscriptions.Abstractions.Subscription> logger) { }
         public string Id { get; }
         public GraphQL.Server.Transports.Subscriptions.Abstractions.OperationMessagePayload OriginalPayload { get; }
         public virtual void Dispose() { }
@@ -110,8 +114,8 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
     public class SubscriptionManager : GraphQL.Server.Transports.Subscriptions.Abstractions.ISubscriptionManager, System.Collections.Generic.IEnumerable<GraphQL.Server.Transports.Subscriptions.Abstractions.Subscription>, System.Collections.IEnumerable, System.IDisposable
     {
         [System.Obsolete]
-        public SubscriptionManager(GraphQL.Server.IGraphQLExecuter executer, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory) { }
-        public SubscriptionManager(GraphQL.Server.IGraphQLExecuter executer, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory) { }
+        public SubscriptionManager(GraphQL.Server.IGraphQLExecuter executer, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory, string dataEventType) { }
+        public SubscriptionManager(GraphQL.Server.IGraphQLExecuter executer, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, string dataEventType) { }
         public GraphQL.Server.Transports.Subscriptions.Abstractions.Subscription this[string id] { get; }
         public virtual void Dispose() { }
         public System.Collections.Generic.IEnumerator<GraphQL.Server.Transports.Subscriptions.Abstractions.Subscription> GetEnumerator() { }
