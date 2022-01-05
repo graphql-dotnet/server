@@ -1,9 +1,18 @@
 version: 2
 updates:
+
 - package-ecosystem: "nuget"
   directory: "/"
   schedule:
     interval: "daily"
+  ignore:
+    - dependency-name: "GraphQL.DataLoader"
+    - dependency-name: "GraphQL.MemoryCache"
+    - dependency-name: "GraphQL.MicrosoftDI"
+    - dependency-name: "GraphQL.NewtonsoftJson"
+    - dependency-name: "GraphQL.SystemTextJson"
+    - dependency-name: "GraphQL.SystemReactive"
+
 - package-ecosystem: "github-actions"
   directory: "/"
   schedule:
