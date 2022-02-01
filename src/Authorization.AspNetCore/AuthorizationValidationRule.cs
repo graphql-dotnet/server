@@ -17,16 +17,22 @@ namespace GraphQL.Server.Authorization.AspNetCore
     {
         private readonly IAuthorizationService _authorizationService;
         private readonly IClaimsPrincipalAccessor _claimsPrincipalAccessor;
+        private readonly IAuthorizationErrorMessageBuilder _messageBuilder;
 
         /// <summary>
         /// Creates an instance of <see cref="AuthorizationValidationRule"/>.
         /// </summary>
         /// <param name="authorizationService"> ASP.NET Core <see cref="IAuthorizationService"/> to authorize against. </param>
         /// <param name="claimsPrincipalAccessor"> The <see cref="IClaimsPrincipalAccessor"/> which provides the <see cref="ClaimsPrincipal"/> for authorization. </param>
-        public AuthorizationValidationRule(IAuthorizationService authorizationService, IClaimsPrincipalAccessor claimsPrincipalAccessor)
+        /// <param name="messageBuilder">The <see cref="IAuthorizationErrorMessageBuilder"/> which is used to generate the message of an <see cref="AuthorizationError"/>. </param>
+        public AuthorizationValidationRule(
+            IAuthorizationService authorizationService,
+            IClaimsPrincipalAccessor claimsPrincipalAccessor,
+            IAuthorizationErrorMessageBuilder messageBuilder)
         {
             _authorizationService = authorizationService;
             _claimsPrincipalAccessor = claimsPrincipalAccessor;
+            _messageBuilder = messageBuilder;
         }
 
         private bool ShouldBeSkipped(Operation actualOperation, ValidationContext context)
@@ -192,7 +198,8 @@ namespace GraphQL.Server.Authorization.AspNetCore
         /// </summary>
         protected virtual void AddValidationError(INode node, ValidationContext context, OperationType? operationType, AuthorizationResult result)
         {
-            context.ReportError(new AuthorizationError(node, context, operationType, result));
+            string message = result.Failure != null ? _messageBuilder.GenerateMessage(operationType, result.Failure) : string.Empty;
+            context.ReportError(new AuthorizationError(node, context, operationType, message, result));
         }
     }
 }

@@ -13,8 +13,14 @@ namespace GraphQL.Samples.Server
     /// </summary>
     public class CustomErrorInfoProvider : DefaultErrorInfoProvider
     {
-        public CustomErrorInfoProvider(IOptions<ErrorInfoProviderOptions> options) : base(options)
-        { }
+        private readonly IAuthorizationErrorMessageBuilder _messageBuilder;
+
+        public CustomErrorInfoProvider(IOptions<ErrorInfoProviderOptions> options,
+            IAuthorizationErrorMessageBuilder messageBuilder)
+            : base(options)
+        {
+            _messageBuilder = messageBuilder;
+        }
 
         public override ErrorInfo GetInfo(ExecutionError executionError)
         {
@@ -30,7 +36,7 @@ namespace GraphQL.Samples.Server
         private string GetAuthorizationErrorMessage(AuthorizationError error)
         {
             var errorMessage = new StringBuilder();
-            AuthorizationError.AppendFailureHeader(errorMessage, error.OperationType);
+            _messageBuilder.AppendFailureHeader(errorMessage, error.OperationType);
 
             foreach (var failedRequirement in error.AuthorizationResult.Failure.FailedRequirements)
             {
@@ -43,7 +49,7 @@ namespace GraphQL.Samples.Server
                         errorMessage.Append(" years old.");
                         break;
                     default:
-                        AuthorizationError.AppendFailureLine(errorMessage, failedRequirement);
+                        _messageBuilder.AppendFailureLine(errorMessage, failedRequirement);
                         break;
                 }
             }
