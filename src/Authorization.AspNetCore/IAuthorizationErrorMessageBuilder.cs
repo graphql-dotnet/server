@@ -11,7 +11,7 @@ public interface IAuthorizationErrorMessageBuilder
     string GenerateMessage(OperationType? operationType, AuthorizationFailure failure);
 
     /// <summary>
-    /// Appends the error message header for this <see cref="AuthorizationError"/> to the provided <see cref="StringBuilder"/>.
+    /// Appends the error message header to the provided <see cref="StringBuilder"/>.
     /// </summary>
     /// <param name="error">The error message <see cref="StringBuilder"/>.</param>
     /// <param name="operationType">The GraphQL operation type.</param>

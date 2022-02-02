@@ -34,7 +34,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
             };
         }
 
-        /// <inheritdoc cref="IAuthorizationErrorMessageBuilder"/>
+        /// <inheritdoc />
         public virtual void AppendFailureHeader(StringBuilder error, OperationType? operationType)
         {
             error
@@ -43,7 +43,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
                 .Append('.');
         }
 
-        /// <inheritdoc cref="IAuthorizationErrorMessageBuilder"/>
+        /// <inheritdoc />
         public virtual void AppendFailureLine(StringBuilder error, IAuthorizationRequirement authorizationRequirement)
         {
             error.AppendLine();
