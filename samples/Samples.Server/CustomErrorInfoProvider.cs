@@ -15,8 +15,7 @@ namespace GraphQL.Samples.Server
     {
         private readonly IAuthorizationErrorMessageBuilder _messageBuilder;
 
-        public CustomErrorInfoProvider(IOptions<ErrorInfoProviderOptions> options,
-            IAuthorizationErrorMessageBuilder messageBuilder)
+        public CustomErrorInfoProvider(IOptions<ErrorInfoProviderOptions> options, IAuthorizationErrorMessageBuilder messageBuilder)
             : base(options)
         {
             _messageBuilder = messageBuilder;
