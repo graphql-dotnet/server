@@ -23,7 +23,7 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
         {
             var (authorizationService, httpContextAccessor) = BuildServices(setupOptions);
             HttpContext = httpContextAccessor.HttpContext;
-            Rule = new AuthorizationValidationRule(authorizationService, new DefaultClaimsPrincipalAccessor(httpContextAccessor));
+            Rule = new AuthorizationValidationRule(authorizationService, new DefaultClaimsPrincipalAccessor(httpContextAccessor), new DefaultAuthorizationErrorMessageBuilder());
         }
 
         protected void ShouldPassRule(Action<ValidationTestConfig> configure)

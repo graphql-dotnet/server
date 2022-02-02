@@ -1,3 +1,5 @@
+#nullable enable
+
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -17,19 +19,25 @@ namespace GraphQL.Server.Authorization.AspNetCore
     {
         private readonly IAuthorizationService _authorizationService;
         private readonly IClaimsPrincipalAccessor _claimsPrincipalAccessor;
+        private readonly IAuthorizationErrorMessageBuilder _messageBuilder;
 
         /// <summary>
         /// Creates an instance of <see cref="AuthorizationValidationRule"/>.
         /// </summary>
         /// <param name="authorizationService"> ASP.NET Core <see cref="IAuthorizationService"/> to authorize against. </param>
         /// <param name="claimsPrincipalAccessor"> The <see cref="IClaimsPrincipalAccessor"/> which provides the <see cref="ClaimsPrincipal"/> for authorization. </param>
-        public AuthorizationValidationRule(IAuthorizationService authorizationService, IClaimsPrincipalAccessor claimsPrincipalAccessor)
+        /// <param name="messageBuilder">The <see cref="IAuthorizationErrorMessageBuilder"/> which is used to generate the message for an <see cref="AuthorizationError"/>. </param>
+        public AuthorizationValidationRule(
+            IAuthorizationService authorizationService,
+            IClaimsPrincipalAccessor claimsPrincipalAccessor,
+            IAuthorizationErrorMessageBuilder messageBuilder)
         {
             _authorizationService = authorizationService;
             _claimsPrincipalAccessor = claimsPrincipalAccessor;
+            _messageBuilder = messageBuilder;
         }
 
-        private bool ShouldBeSkipped(Operation actualOperation, ValidationContext context)
+        private bool ShouldBeSkipped(Operation? actualOperation, ValidationContext context)
         {
             if (context.Document.Operations.Count <= 1)
             {
@@ -58,10 +66,10 @@ namespace GraphQL.Server.Authorization.AspNetCore
             } while (true);
         }
 
-        private bool FragmentBelongsToOperation(FragmentDefinition fragment, Operation operation)
+        private bool FragmentBelongsToOperation(FragmentDefinition fragment, Operation? operation)
         {
             bool belongs = false;
-            void Visit(INode node, int _)
+            void Visit(INode? node, int _)
             {
                 if (belongs)
                 {
@@ -76,7 +84,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
                 }
             }
 
-            operation.Visit(Visit, 0);
+            operation?.Visit(Visit, 0);
 
             return belongs;
         }
@@ -141,7 +149,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
                     // validation rule should check that but here we should just ignore that
                     // "unknown" field.
                     if (context.Variables != null &&
-                        context.Variables.TryGetValue(variableRef.Name, out object input) &&
+                        context.Variables.TryGetValue(variableRef.Name, out object? input) &&
                         input is Dictionary<string, object> fieldsValues)
                     {
                         foreach (var field in variableType.Fields)
@@ -156,7 +164,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
             );
         }
 
-        private async Task AuthorizeAsync(INode node, IProvideMetadata provider, ValidationContext context, OperationType? operationType)
+        private async Task AuthorizeAsync(INode? node, IProvideMetadata? provider, ValidationContext context, OperationType? operationType)
         {
             var policyNames = provider?.GetPolicies();
 
@@ -190,9 +198,10 @@ namespace GraphQL.Server.Authorization.AspNetCore
         /// <summary>
         /// Adds an authorization failure error to the document response
         /// </summary>
-        protected virtual void AddValidationError(INode node, ValidationContext context, OperationType? operationType, AuthorizationResult result)
+        protected virtual void AddValidationError(INode? node, ValidationContext context, OperationType? operationType, AuthorizationResult result)
         {
-            context.ReportError(new AuthorizationError(node, context, operationType, result));
+            string message = _messageBuilder.GenerateMessage(operationType, result);
+            context.ReportError(new AuthorizationError(node, context, message, result, operationType));
         }
     }
 }

@@ -29,12 +29,16 @@ namespace GraphQL.Server
         {
             if (builder.Services is not IServiceCollection services)
                 throw new NotSupportedException("This method only supports the MicrosoftDI implementation of IGraphQLBuilder.");
+
             services.TryAddTransient<IClaimsPrincipalAccessor, DefaultClaimsPrincipalAccessor>();
+            services.TryAddTransient<IAuthorizationErrorMessageBuilder, DefaultAuthorizationErrorMessageBuilder>();
             services.AddHttpContextAccessor();
+
             if (configure != null)
                 services.AddAuthorizationCore(configure);
             else
                 services.AddAuthorizationCore();
+
             builder.AddValidationRule<AuthorizationValidationRule>();
 
             return builder;
