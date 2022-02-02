@@ -1,3 +1,5 @@
+#nullable enable
+
 using System.Text;
 using GraphQL.Language.AST;
 using Microsoft.AspNetCore.Authorization;

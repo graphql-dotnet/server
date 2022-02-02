@@ -1,3 +1,5 @@
+#nullable enable
+
 using System;
 using GraphQL.Language.AST;
 using GraphQL.Validation;
@@ -11,22 +13,14 @@ namespace GraphQL.Server.Authorization.AspNetCore
     public class AuthorizationError : ValidationError
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="AuthorizationError"/> class for a specified authorization result.
-        /// </summary>
-        public AuthorizationError(INode node, ValidationContext context, OperationType? operationType, string message, AuthorizationResult result)
-            : this(node, context, message, result)
-        {
-            OperationType = operationType;
-        }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="AuthorizationError"/> class for a specified authorization result with a specific error message.
         /// </summary>
-        public AuthorizationError(INode node, ValidationContext context, string message, AuthorizationResult result)
-            : base(context.Document.OriginalQuery, "6.1.1", message, node == null ? Array.Empty<INode>() : new INode[] { node })
+        public AuthorizationError(INode? node, ValidationContext context, string message, AuthorizationResult result, OperationType? operationType = null)
+            : base(context.Document.OriginalQuery ?? string.Empty, "6.1.1", message, node == null ? Array.Empty<INode>() : new INode[] { node })
         {
             Code = "authorization";
             AuthorizationResult = result;
+            OperationType = operationType;
         }
 
         /// <summary>
@@ -39,6 +33,6 @@ namespace GraphQL.Server.Authorization.AspNetCore
         /// </summary>
         public OperationType? OperationType { get; }
 
-        
+
     }
 }
