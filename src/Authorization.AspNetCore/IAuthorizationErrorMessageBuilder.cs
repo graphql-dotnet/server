@@ -13,7 +13,7 @@ public interface IAuthorizationErrorMessageBuilder
     /// </summary>
     /// <param name="operationType">The GraphQL operation type.</param>
     /// <param name="result">The <see cref="AuthorizationResult"/> which is used to generate the message.</param>
-    /// <returns></returns>
+    /// <returns>The generated error message.</returns>
     string GenerateMessage(OperationType? operationType, AuthorizationResult result);
 
     /// <summary>
