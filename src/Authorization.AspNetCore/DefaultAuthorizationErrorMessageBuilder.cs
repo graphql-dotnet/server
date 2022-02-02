@@ -8,8 +8,9 @@ using Microsoft.AspNetCore.Authorization.Infrastructure;
 
 namespace GraphQL.Server.Authorization.AspNetCore
 {
-    public class AuthorizationErrorMessageBuilder : IAuthorizationErrorMessageBuilder
+    public class DefaultAuthorizationErrorMessageBuilder : IAuthorizationErrorMessageBuilder
     {
+        /// <inheritdoc />
         public virtual string GenerateMessage(OperationType? operationType, AuthorizationResult result)
         {
             if (result.Succeeded)

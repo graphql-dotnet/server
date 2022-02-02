@@ -34,7 +34,7 @@ namespace GraphQL.Samples.Server
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<IChat, Chat>();
-            services.AddTransient<IAuthorizationErrorMessageBuilder, AuthorizationErrorMessageBuilder>(); // required by CustomErrorInfoProvider
+            services.AddTransient<IAuthorizationErrorMessageBuilder, DefaultAuthorizationErrorMessageBuilder>(); // required by CustomErrorInfoProvider
 
             MicrosoftDI.GraphQLBuilderExtensions.AddGraphQL(services)
                 .AddServer(true)

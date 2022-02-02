@@ -26,7 +26,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
         /// </summary>
         /// <param name="authorizationService"> ASP.NET Core <see cref="IAuthorizationService"/> to authorize against. </param>
         /// <param name="claimsPrincipalAccessor"> The <see cref="IClaimsPrincipalAccessor"/> which provides the <see cref="ClaimsPrincipal"/> for authorization. </param>
-        /// <param name="messageBuilder">The <see cref="IAuthorizationErrorMessageBuilder"/> which is used to generate the message of an <see cref="AuthorizationError"/>. </param>
+        /// <param name="messageBuilder">The <see cref="IAuthorizationErrorMessageBuilder"/> which is used to generate the message for an <see cref="AuthorizationError"/>. </param>
         public AuthorizationValidationRule(
             IAuthorizationService authorizationService,
             IClaimsPrincipalAccessor claimsPrincipalAccessor,

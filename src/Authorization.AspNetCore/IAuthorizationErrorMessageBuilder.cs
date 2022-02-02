@@ -8,6 +8,12 @@ namespace GraphQL.Server.Authorization.AspNetCore;
 
 public interface IAuthorizationErrorMessageBuilder
 {
+    /// <summary>
+    /// Generates an authorization error message based on the provided <see cref="AuthorizationResult"/>
+    /// </summary>
+    /// <param name="operationType">The GraphQL operation type.</param>
+    /// <param name="result">The <see cref="AuthorizationResult"/> which is used to generate the message.</param>
+    /// <returns></returns>
     string GenerateMessage(OperationType? operationType, AuthorizationResult result);
 
     /// <summary>

@@ -30,7 +30,7 @@ namespace GraphQL.Server
         public static IGraphQLBuilder AddGraphQLAuthorization(this IGraphQLBuilder builder, Action<AuthorizationOptions> options)
         {
             builder.Services.TryAddTransient<IClaimsPrincipalAccessor, DefaultClaimsPrincipalAccessor>();
-            builder.Services.TryAddTransient<IAuthorizationErrorMessageBuilder, AuthorizationErrorMessageBuilder>();
+            builder.Services.TryAddTransient<IAuthorizationErrorMessageBuilder, DefaultAuthorizationErrorMessageBuilder>();
 
             builder.Services
                 .AddHttpContextAccessor()
@@ -60,7 +60,7 @@ namespace GraphQL.Server
                 throw new NotSupportedException("This method only supports the MicrosoftDI implementation of IGraphQLBuilder.");
 
             services.TryAddTransient<IClaimsPrincipalAccessor, DefaultClaimsPrincipalAccessor>();
-            services.TryAddTransient<IAuthorizationErrorMessageBuilder, AuthorizationErrorMessageBuilder>();
+            services.TryAddTransient<IAuthorizationErrorMessageBuilder, DefaultAuthorizationErrorMessageBuilder>();
             services.AddHttpContextAccessor();
 
             if (configure != null)
