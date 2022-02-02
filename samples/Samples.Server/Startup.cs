@@ -4,6 +4,7 @@ using GraphQL.Execution;
 using System.Threading.Tasks;
 using GraphQL.Samples.Schemas.Chat;
 using GraphQL.Server;
+using GraphQL.Server.Authorization.AspNetCore;
 using GraphQL.Server.Ui.Altair;
 using GraphQL.Server.Ui.GraphiQL;
 using GraphQL.Server.Ui.Playground;
@@ -33,6 +34,7 @@ namespace GraphQL.Samples.Server
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<IChat, Chat>();
+            services.AddTransient<IAuthorizationErrorMessageBuilder, DefaultAuthorizationErrorMessageBuilder>(); // required by CustomErrorInfoProvider
 
             MicrosoftDI.GraphQLBuilderExtensions.AddGraphQL(services)
                 .AddServer(true)
