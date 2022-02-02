@@ -60,7 +60,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
                 case ClaimsAuthorizationRequirement claimsAuthorizationRequirement:
                     error.Append("Required claim '");
                     error.Append(claimsAuthorizationRequirement.ClaimType);
-                    if (!claimsAuthorizationRequirement.AllowedValues.Any())
+                    if (claimsAuthorizationRequirement.AllowedValues == null || !claimsAuthorizationRequirement.AllowedValues.Any())
                     {
                         error.Append("' is not present.");
                     }
@@ -89,7 +89,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
                     break;
 
                 case RolesAuthorizationRequirement rolesAuthorizationRequirement:
-                    if (!rolesAuthorizationRequirement.AllowedRoles.Any())
+                    if (rolesAuthorizationRequirement.AllowedRoles == null || !rolesAuthorizationRequirement.AllowedRoles.Any())
                     {
                         // This should never happen.
                         error.Append("Required roles are not present.");
