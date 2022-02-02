@@ -16,7 +16,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
         /// Initializes a new instance of the <see cref="AuthorizationError"/> class for a specified authorization result with a specific error message.
         /// </summary>
         public AuthorizationError(INode? node, ValidationContext context, string message, AuthorizationResult result, OperationType? operationType = null)
-            : base(context.Document.OriginalQuery ?? string.Empty, "6.1.1", message, node == null ? Array.Empty<INode>() : new INode[] { node })
+            : base(context.Document.OriginalQuery!, "6.1.1", message, node == null ? Array.Empty<INode>() : new INode[] { node })
         {
             Code = "authorization";
             AuthorizationResult = result;
