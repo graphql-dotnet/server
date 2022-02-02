@@ -8,7 +8,7 @@ namespace GraphQL.Server.Authorization.AspNetCore;
 
 public interface IAuthorizationErrorMessageBuilder
 {
-    string GenerateMessage(OperationType? operationType, AuthorizationFailure failure);
+    string GenerateMessage(OperationType? operationType, AuthorizationResult result);
 
     /// <summary>
     /// Appends the error message header to the provided <see cref="StringBuilder"/>.

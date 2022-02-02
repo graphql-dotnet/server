@@ -10,14 +10,20 @@ namespace GraphQL.Server.Authorization.AspNetCore
 {
     public class AuthorizationErrorMessageBuilder : IAuthorizationErrorMessageBuilder
     {
-        public string GenerateMessage(OperationType? operationType, AuthorizationFailure failure)
+        public virtual string GenerateMessage(OperationType? operationType, AuthorizationResult result)
         {
+            if (result.Succeeded)
+                return "Success!";
+
             var error = new StringBuilder();
             AppendFailureHeader(error, operationType);
 
-            foreach (var requirement in failure.FailedRequirements)
+            if (result.Failure != null)
             {
-                AppendFailureLine(error, requirement);
+                foreach (var requirement in result.Failure.FailedRequirements)
+                {
+                    AppendFailureLine(error, requirement);
+                }
             }
 
             return error.ToString();

@@ -200,9 +200,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
         /// </summary>
         protected virtual void AddValidationError(INode? node, ValidationContext context, OperationType? operationType, AuthorizationResult result)
         {
-            string message = result.Failure != null
-                ? _messageBuilder.GenerateMessage(operationType, result.Failure)
-                : string.Empty; // this should never happen, since AddValidationError is only called when the result is not Succeeded
+            string message = _messageBuilder.GenerateMessage(operationType, result);
             context.ReportError(new AuthorizationError(node, context, message, result, operationType));
         }
     }

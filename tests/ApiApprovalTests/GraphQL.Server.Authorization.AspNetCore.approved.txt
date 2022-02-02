@@ -2,7 +2,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
 {
     public class AuthorizationError : GraphQL.Validation.ValidationError
     {
-        public AuthorizationError(GraphQL.Language.AST.INode node, GraphQL.Validation.ValidationContext context, string message, Microsoft.AspNetCore.Authorization.AuthorizationResult result, GraphQL.Language.AST.OperationType? operationType = default) { }
+        public AuthorizationError(GraphQL.Language.AST.INode? node, GraphQL.Validation.ValidationContext context, string message, Microsoft.AspNetCore.Authorization.AuthorizationResult result, GraphQL.Language.AST.OperationType? operationType = default) { }
         public virtual Microsoft.AspNetCore.Authorization.AuthorizationResult AuthorizationResult { get; }
         public GraphQL.Language.AST.OperationType? OperationType { get; }
     }
@@ -11,7 +11,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
         public AuthorizationErrorMessageBuilder() { }
         public virtual void AppendFailureHeader(System.Text.StringBuilder error, GraphQL.Language.AST.OperationType? operationType) { }
         public virtual void AppendFailureLine(System.Text.StringBuilder error, Microsoft.AspNetCore.Authorization.IAuthorizationRequirement authorizationRequirement) { }
-        public string GenerateMessage(GraphQL.Language.AST.OperationType? operationType, Microsoft.AspNetCore.Authorization.AuthorizationFailure failure) { }
+        public virtual string GenerateMessage(GraphQL.Language.AST.OperationType? operationType, Microsoft.AspNetCore.Authorization.AuthorizationResult result) { }
         protected virtual string GetOperationType(GraphQL.Language.AST.OperationType? operationType) { }
     }
     public class AuthorizationValidationRule : GraphQL.Validation.IValidationRule
@@ -29,7 +29,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
     {
         void AppendFailureHeader(System.Text.StringBuilder error, GraphQL.Language.AST.OperationType? operationType);
         void AppendFailureLine(System.Text.StringBuilder error, Microsoft.AspNetCore.Authorization.IAuthorizationRequirement authorizationRequirement);
-        string GenerateMessage(GraphQL.Language.AST.OperationType? operationType, Microsoft.AspNetCore.Authorization.AuthorizationFailure failure);
+        string GenerateMessage(GraphQL.Language.AST.OperationType? operationType, Microsoft.AspNetCore.Authorization.AuthorizationResult result);
     }
     public interface IClaimsPrincipalAccessor
     {
