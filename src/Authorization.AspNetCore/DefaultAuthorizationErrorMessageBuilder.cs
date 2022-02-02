@@ -60,7 +60,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
                 case ClaimsAuthorizationRequirement claimsAuthorizationRequirement:
                     error.Append("Required claim '");
                     error.Append(claimsAuthorizationRequirement.ClaimType);
-                    if (claimsAuthorizationRequirement.AllowedValues == null || !claimsAuthorizationRequirement.AllowedValues.Any())
+                    if (!claimsAuthorizationRequirement.AllowedValues.Any())
                     {
                         error.Append("' is not present.");
                     }
