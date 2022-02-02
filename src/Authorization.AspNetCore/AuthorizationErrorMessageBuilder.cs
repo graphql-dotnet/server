@@ -29,7 +29,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
             return error.ToString();
         }
 
-        protected virtual string GetOperationType(OperationType? operationType)
+        private string GetOperationType(OperationType? operationType)
         {
             return operationType switch
             {
