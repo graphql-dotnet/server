@@ -1,8 +1,8 @@
 #nullable enable
 
 using System;
+using GraphQL.DI;
 using GraphQL.Server.Authorization.AspNetCore;
-using GraphQL.Validation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -16,36 +16,7 @@ namespace GraphQL.Server
         /// </summary>
         /// <param name="builder">The GraphQL builder.</param>
         /// <returns>Reference to the passed <paramref name="builder"/>.</returns>
-        [Obsolete]
         public static IGraphQLBuilder AddGraphQLAuthorization(this IGraphQLBuilder builder)
-            => builder.AddGraphQLAuthorization(options => { });
-
-        /// <summary>
-        /// Adds the GraphQL authorization.
-        /// </summary>
-        /// <param name="builder">The GraphQL builder.</param>
-        /// <param name="options">An action delegate to configure the provided <see cref="AuthorizationOptions"/>.</param>
-        /// <returns>Reference to the passed <paramref name="builder"/>.</returns>
-        [Obsolete]
-        public static IGraphQLBuilder AddGraphQLAuthorization(this IGraphQLBuilder builder, Action<AuthorizationOptions> options)
-        {
-            builder.Services.TryAddTransient<IClaimsPrincipalAccessor, DefaultClaimsPrincipalAccessor>();
-            builder.Services.TryAddTransient<IAuthorizationErrorMessageBuilder, DefaultAuthorizationErrorMessageBuilder>();
-
-            builder.Services
-                .AddHttpContextAccessor()
-                .AddTransient<IValidationRule, AuthorizationValidationRule>()
-                .AddAuthorizationCore(options);
-
-            return builder;
-        }
-
-        /// <summary>
-        /// Adds the GraphQL authorization.
-        /// </summary>
-        /// <param name="builder">The GraphQL builder.</param>
-        /// <returns>Reference to the passed <paramref name="builder"/>.</returns>
-        public static DI.IGraphQLBuilder AddGraphQLAuthorization(this DI.IGraphQLBuilder builder)
             => builder.AddGraphQLAuthorization(_ => { });
 
         /// <summary>
@@ -54,9 +25,9 @@ namespace GraphQL.Server
         /// <param name="builder">The GraphQL builder.</param>
         /// <param name="configure">An action delegate to configure the provided <see cref="AuthorizationOptions"/>.</param>
         /// <returns>Reference to the passed <paramref name="builder"/>.</returns>
-        public static DI.IGraphQLBuilder AddGraphQLAuthorization(this DI.IGraphQLBuilder builder, Action<AuthorizationOptions>? configure)
+        public static IGraphQLBuilder AddGraphQLAuthorization(this IGraphQLBuilder builder, Action<AuthorizationOptions>? configure)
         {
-            if (!(builder is IServiceCollection services))
+            if (builder.Services is not IServiceCollection services)
                 throw new NotSupportedException("This method only supports the MicrosoftDI implementation of IGraphQLBuilder.");
 
             services.TryAddTransient<IClaimsPrincipalAccessor, DefaultClaimsPrincipalAccessor>();

@@ -124,18 +124,25 @@ More information about ASP.NET Core routing [here](https://docs.microsoft.com/en
 ```c#
 public void ConfigureServices(IServiceCollection services)
 {
-    // Add GraphQL services and configure options
+    // Add your custom services
     services
-        .AddSingleton<IChat, Chat>()
-        .AddSingleton<ChatSchema>();
+        .AddSingleton<IChat, Chat>();
 
-    MicrosoftDI.GraphQLBuilderExtensions.AddGraphQL(services)
+    // Add GraphQL services and configure options
+    services.AddGraphQL(builder => builder
         .AddServer(true)
-        .ConfigureExecution(options =>
+        // For subscriptions support
+        .AddDocumentExecuter<SubscriptionDocumentExecuter>()
+        .AddSchema<ChatSchema>()
+        .ConfigureExecutionOptions(options =>
         {
             options.EnableMetrics = Environment.IsDevelopment();
             var logger = options.RequestServices.GetRequiredService<ILogger<Startup>>();
-            options.UnhandledExceptionDelegate = ctx => logger.LogError("{Error} occurred", ctx.OriginalException.Message);
+            options.UnhandledExceptionDelegate = ctx =>
+            {
+                logger.LogError("{Error} occurred", ctx.OriginalException.Message);
+                return Task.CompletedTask;
+            };
         })
         // Add required services for GraphQL request/response de/serialization
         .AddSystemTextJson() // For .NET Core 3+
@@ -143,7 +150,7 @@ public void ConfigureServices(IServiceCollection services)
         .AddErrorInfoProvider(opt => opt.ExposeExceptionStackTrace = Environment.IsDevelopment())
         .AddWebSockets() // Add required services for web socket support
         .AddDataLoader() // Add required services for DataLoader support
-        .AddGraphTypes(typeof(ChatSchema).Assembly) // Add all IGraphType implementors in assembly which ChatSchema exists 
+        .AddGraphTypes(typeof(ChatSchema).Assembly)); // Add all IGraphType implementors in assembly which ChatSchema exists 
 }
 
 public void Configure(IApplicationBuilder app)
@@ -176,19 +183,26 @@ public void Configure(IApplicationBuilder app)
 ```c#
 public void ConfigureServices(IServiceCollection services)
 {
-    // Add GraphQL services and configure options
+    // Add your custom services
     services
         .AddRouting()
-        .AddSingleton<IChat, Chat>()
-        .AddSingleton<ChatSchema>();
+        .AddSingleton<IChat, Chat>();
 
-    MicrosoftDI.GraphQLBuilderExtensions.AddGraphQL(services)
+    // Add GraphQL services and configure options
+    services.AddGraphQL(builder => builder
         .AddServer(true)
-        .ConfigureExecution(options =>
+        // For subscriptions support
+        .AddDocumentExecuter<SubscriptionDocumentExecuter>()
+        .AddSchema<ChatSchema>()
+        .ConfigureExecutionOptions(options =>
         {
             options.EnableMetrics = Environment.IsDevelopment();
             var logger = options.RequestServices.GetRequiredService<ILogger<Startup>>();
-            options.UnhandledExceptionDelegate = ctx => logger.LogError("{Error} occurred", ctx.OriginalException.Message);
+            options.UnhandledExceptionDelegate = ctx =>
+            {
+                logger.LogError("{Error} occurred", ctx.OriginalException.Message);
+                return Task.CompletedTask;
+            };
         })
         // It is required when both GraphQL HTTP and GraphQL WebSockets middlewares are mapped to the same endpoint (by default 'graphql').
         .AddDefaultEndpointSelectorPolicy()
@@ -198,7 +212,7 @@ public void ConfigureServices(IServiceCollection services)
         .AddErrorInfoProvider(opt => opt.ExposeExceptionStackTrace = Environment.IsDevelopment())
         .AddWebSockets() // Add required services for web socket support
         .AddDataLoader() // Add required services for DataLoader support
-        .AddGraphTypes(typeof(ChatSchema).Assembly); // Add all IGraphType implementors in assembly which ChatSchema exists 
+        .AddGraphTypes(typeof(ChatSchema).Assembly)); // Add all IGraphType implementors in assembly which ChatSchema exists 
 }
 
 public void Configure(IApplicationBuilder app)

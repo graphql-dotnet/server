@@ -8,9 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!--TODO: remove SystemReactive in v6 -->
-    <PackageReference Include="GraphQL.SystemReactive" Version="5.0.0-preview-397" />
-    <PackageReference Include="GraphQL.DataLoader" Version="5.0.0-preview-397" />
+    <PackageReference Include="GraphQL.DataLoader" Version="5.0.0-preview-414" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="3.1.0" />
   </ItemGroup>
 
