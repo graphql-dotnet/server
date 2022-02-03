@@ -19,12 +19,12 @@ namespace GraphQL.Server.Transports.AspNetCore.SystemTextJson
     /// </remarks>
     public class GraphQLRequestDeserializer : IGraphQLRequestDeserializer
     {
-        private readonly JsonSerializerOptions _serializerOptions = new JsonSerializerOptions();
+        private readonly JsonSerializerOptions _serializerOptions = new();
 
         public GraphQLRequestDeserializer(Action<JsonSerializerOptions> configure)
         {
             // Add converter that deserializes Variables and Extensions properties
-            _serializerOptions.Converters.Add(new InputsConverter());
+            _serializerOptions.Converters.Add(new InputsJsonConverter());
 
             configure?.Invoke(_serializerOptions);
         }

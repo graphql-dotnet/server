@@ -1,8 +1,8 @@
 #nullable enable
 
 using System;
-using GraphQL.Language.AST;
 using GraphQL.Validation;
+using GraphQLParser.AST;
 using Microsoft.AspNetCore.Authorization;
 
 namespace GraphQL.Server.Authorization.AspNetCore
@@ -15,8 +15,8 @@ namespace GraphQL.Server.Authorization.AspNetCore
         /// <summary>
         /// Initializes a new instance of the <see cref="AuthorizationError"/> class for a specified authorization result with a specific error message.
         /// </summary>
-        public AuthorizationError(INode? node, ValidationContext context, string message, AuthorizationResult result, OperationType? operationType = null)
-            : base(context.Document.OriginalQuery!, "6.1.1", message, node == null ? Array.Empty<INode>() : new INode[] { node })
+        public AuthorizationError(ASTNode? node, ValidationContext context, string message, AuthorizationResult result, OperationType? operationType = null)
+            : base(context.Document.Source, "6.1.1", message, node == null ? Array.Empty<ASTNode>() : new ASTNode[] { node })
         {
             Code = "authorization";
             AuthorizationResult = result;
@@ -32,7 +32,5 @@ namespace GraphQL.Server.Authorization.AspNetCore
         /// The GraphQL operation type.
         /// </summary>
         public OperationType? OperationType { get; }
-
-
     }
 }

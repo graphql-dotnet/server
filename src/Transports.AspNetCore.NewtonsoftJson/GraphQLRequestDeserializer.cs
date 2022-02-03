@@ -24,7 +24,7 @@ namespace GraphQL.Server.Transports.AspNetCore.NewtonsoftJson
                 DateParseHandling = DateParseHandling.None,
                 Converters =
                 {
-                    new InputsConverter()
+                    new InputsJsonConverter()
                 },
             };
             configure?.Invoke(settings);

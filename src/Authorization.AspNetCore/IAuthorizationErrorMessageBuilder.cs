@@ -1,7 +1,7 @@
 #nullable enable
 
 using System.Text;
-using GraphQL.Language.AST;
+using GraphQLParser.AST;
 using Microsoft.AspNetCore.Authorization;
 
 namespace GraphQL.Server.Authorization.AspNetCore;
