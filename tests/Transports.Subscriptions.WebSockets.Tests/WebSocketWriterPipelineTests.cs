@@ -232,10 +232,10 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
 
         private WebSocketWriterPipeline CreateWebSocketWriterPipeline(NamingStrategy namingStrategy)
         {
-            return new WebSocketWriterPipeline(_testWebSocket, new DocumentWriter(
+            return new WebSocketWriterPipeline(_testWebSocket, new GraphQLSerializer(
                 new JsonSerializerSettings
                 {
-                    ContractResolver = new ExecutionResultContractResolver(new ErrorInfoProvider()) { NamingStrategy = namingStrategy },
+                    ContractResolver = new GraphQLContractResolver(new ErrorInfoProvider()) { NamingStrategy = namingStrategy },
                     NullValueHandling = NullValueHandling.Ignore,
                     Formatting = Formatting.None
                 }));

@@ -8,13 +8,13 @@ namespace GraphQL.Server.Transports.WebSockets
     public class WebSocketWriterPipeline : IWriterPipeline
     {
         private readonly WebSocket _socket;
-        private readonly IDocumentWriter _documentWriter;
+        private readonly IGraphQLSerializer _serializer;
         private readonly ITargetBlock<OperationMessage> _startBlock;
 
-        public WebSocketWriterPipeline(WebSocket socket, IDocumentWriter documentWriter)
+        public WebSocketWriterPipeline(WebSocket socket, IGraphQLSerializer serializer)
         {
             _socket = socket;
-            _documentWriter = documentWriter;
+            _serializer = serializer;
 
             _startBlock = CreateMessageWriter();
         }
@@ -51,7 +51,7 @@ namespace GraphQL.Server.Transports.WebSockets
             var stream = new WebsocketWriterStream(_socket);
             try
             {
-                await _documentWriter.WriteAsync(stream, message);
+                await _serializer.WriteAsync(stream, message);
             }
             finally
             {

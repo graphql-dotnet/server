@@ -13,26 +13,26 @@ namespace GraphQL.Server.Transports.WebSockets
         private readonly ILoggerFactory _loggerFactory;
         private readonly IGraphQLExecuter<TSchema> _executer;
         private readonly IEnumerable<IOperationMessageListener> _messageListeners;
-        private readonly IDocumentWriter _documentWriter;
+        private readonly IGraphQLSerializer _serializer;
 
         public WebSocketConnectionFactory(ILogger<WebSocketConnectionFactory<TSchema>> logger,
             ILoggerFactory loggerFactory,
             IGraphQLExecuter<TSchema> executer,
             IEnumerable<IOperationMessageListener> messageListeners,
-            IDocumentWriter documentWriter)
+            IGraphQLSerializer serializer)
         {
             _logger = logger;
             _loggerFactory = loggerFactory;
             _executer = executer;
             _messageListeners = messageListeners;
-            _documentWriter = documentWriter;
+            _serializer = serializer;
         }
 
         public WebSocketConnection CreateConnection(WebSocket socket, string connectionId)
         {
             _logger.LogDebug("Creating server for connection {connectionId}", connectionId);
 
-            var transport = new WebSocketTransport(socket, _documentWriter);
+            var transport = new WebSocketTransport(socket, _serializer);
             var manager = new SubscriptionManager(_executer, _loggerFactory);
             var server = new SubscriptionServer(
                 transport,
