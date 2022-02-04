@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Claims;
 using GraphQL.Execution;
 using GraphQL.Validation;
+using GraphQLParser.AST;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -89,7 +90,14 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
             var documentBuilder = new GraphQLDocumentBuilder();
             var document = documentBuilder.Build(config.Query);
             var validator = new DocumentValidator();
-            return validator.ValidateAsync(config.Schema, document, document.Operations.First().Variables, config.Rules, null, config.Inputs).GetAwaiter().GetResult().validationResult;
+            return validator.ValidateAsync(new ValidationOptions
+            {
+                Schema = config.Schema,
+                Document = document,
+                Operation = document.Definitions.OfType<GraphQLOperationDefinition>().First(),
+                Rules = config.Rules,
+                Variables = config.Inputs
+            }).GetAwaiter().GetResult().validationResult;
         }
 
         protected ClaimsPrincipal CreatePrincipal(string authenticationType = null, IDictionary<string, string> claims = null)
