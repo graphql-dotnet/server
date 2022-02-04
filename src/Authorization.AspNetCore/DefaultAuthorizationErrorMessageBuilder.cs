@@ -2,7 +2,7 @@
 
 using System.Linq;
 using System.Text;
-using GraphQL.Language.AST;
+using GraphQLParser.AST;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
 

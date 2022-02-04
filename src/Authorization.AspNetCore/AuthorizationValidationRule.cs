@@ -1,12 +1,14 @@
 #nullable enable
 
 using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
-using GraphQL.Language.AST;
 using GraphQL.Types;
 using GraphQL.Validation;
+using GraphQLParser;
+using GraphQLParser.AST;
+using GraphQLParser.Visitors;
 using Microsoft.AspNetCore.Authorization;
 
 namespace GraphQL.Server.Authorization.AspNetCore
@@ -37,9 +39,9 @@ namespace GraphQL.Server.Authorization.AspNetCore
             _messageBuilder = messageBuilder;
         }
 
-        private bool ShouldBeSkipped(Operation? actualOperation, ValidationContext context)
+        private bool ShouldBeSkipped(GraphQLOperationDefinition actualOperation, ValidationContext context)
         {
-            if (context.Document.Operations.Count <= 1)
+            if (context.Document.OperationsCount() <= 1)
             {
                 return false;
             }
@@ -59,34 +61,44 @@ namespace GraphQL.Server.Authorization.AspNetCore
                     return true;
                 }
 
-                if (ancestor is FragmentDefinition fragment)
+                if (ancestor is GraphQLFragmentDefinition fragment)
                 {
-                    return !FragmentBelongsToOperation(fragment, actualOperation);
+                    //TODO: may be rewritten completely later
+                    var c = new FragmentBelongsToOperationVisitorContext(fragment);
+                    _visitor.VisitAsync(actualOperation, c).GetAwaiter().GetResult(); // TODO: need to think of something to avoid this
+                    return !c.Found;
                 }
             } while (true);
         }
 
-        private bool FragmentBelongsToOperation(FragmentDefinition fragment, Operation? operation)
+        private sealed class FragmentBelongsToOperationVisitorContext : IASTVisitorContext
         {
-            bool belongs = false;
-            void Visit(INode? node, int _)
+            public FragmentBelongsToOperationVisitorContext(GraphQLFragmentDefinition fragment)
             {
-                if (belongs)
-                {
-                    return;
-                }
-
-                belongs = node is FragmentSpread fragmentSpread && fragmentSpread.Name == fragment.Name;
-
-                if (node != null)
-                {
-                    node.Visit(Visit, 0);
-                }
+                Fragment = fragment;
             }
 
-            operation?.Visit(Visit, 0);
+            public GraphQLFragmentDefinition Fragment { get; }
 
-            return belongs;
+            public bool Found { get; set; }
+
+            public CancellationToken CancellationToken => default;
+        }
+
+        private static readonly FragmentBelongsToOperationVisitor _visitor = new();
+
+        private sealed class FragmentBelongsToOperationVisitor : ASTVisitor<FragmentBelongsToOperationVisitorContext>
+        {
+            protected override ValueTask VisitFragmentSpreadAsync(GraphQLFragmentSpread fragmentSpread, FragmentBelongsToOperationVisitorContext context)
+            {
+                context.Found = context.Fragment.FragmentName.Name == fragmentSpread.FragmentName.Name;
+                return default;
+            }
+
+            public override ValueTask VisitAsync(ASTNode? node, FragmentBelongsToOperationVisitorContext context)
+            {
+                return context.Found ? default : base.VisitAsync(node, context);
+            }
         }
 
         /// <inheritdoc />
@@ -94,7 +106,6 @@ namespace GraphQL.Server.Authorization.AspNetCore
         {
             await AuthorizeAsync(null, context.Schema, context, null);
             var operationType = OperationType.Query;
-            var actualOperation = context.Document.Operations.FirstOrDefault(x => x.Name == context.OperationName) ?? context.Document.Operations.FirstOrDefault();
 
             // this could leak info about hidden fields or types in error messages
             // it would be better to implement a filter on the Schema so it
@@ -102,33 +113,33 @@ namespace GraphQL.Server.Authorization.AspNetCore
             // - filtering the Schema is not currently supported
             // TODO: apply ISchemaFilter - context.Schema.Filter.AllowXXX
             return new NodeVisitors(
-                new MatchingNodeVisitor<Operation>((astType, context) =>
+                new MatchingNodeVisitor<GraphQLOperationDefinition>((astType, context) =>
                 {
-                    if (context.Document.Operations.Count > 1 && astType.Name != context.OperationName)
+                    if (context.Document.OperationsCount() > 1 && astType.Name != context.Operation.Name)
                     {
                         return;
                     }
 
-                    operationType = astType.OperationType;
+                    operationType = astType.Operation;
 
                     var type = context.TypeInfo.GetLastType();
                     AuthorizeAsync(astType, type, context, operationType).GetAwaiter().GetResult(); // TODO: need to think of something to avoid this
                 }),
 
-                new MatchingNodeVisitor<ObjectField>((objectFieldAst, context) =>
+                new MatchingNodeVisitor<GraphQLObjectField>((objectFieldAst, context) =>
                 {
-                    if (context.TypeInfo.GetArgument()?.ResolvedType?.GetNamedType() is IComplexGraphType argumentType && !ShouldBeSkipped(actualOperation, context))
+                    if (context.TypeInfo.GetArgument()?.ResolvedType?.GetNamedType() is IComplexGraphType argumentType && !ShouldBeSkipped(context.Operation, context))
                     {
                         var fieldType = argumentType.GetField(objectFieldAst.Name);
                         AuthorizeAsync(objectFieldAst, fieldType, context, operationType).GetAwaiter().GetResult(); // TODO: need to think of something to avoid this
                     }
                 }),
 
-                new MatchingNodeVisitor<Field>((fieldAst, context) =>
+                new MatchingNodeVisitor<GraphQLField>((fieldAst, context) =>
                 {
                     var fieldDef = context.TypeInfo.GetFieldDef();
 
-                    if (fieldDef == null || ShouldBeSkipped(actualOperation, context))
+                    if (fieldDef == null || ShouldBeSkipped(context.Operation, context))
                         return;
 
                     // check target field
@@ -137,9 +148,9 @@ namespace GraphQL.Server.Authorization.AspNetCore
                     AuthorizeAsync(fieldAst, fieldDef.ResolvedType?.GetNamedType(), context, operationType).GetAwaiter().GetResult(); // TODO: need to think of something to avoid this
                 }),
 
-                new MatchingNodeVisitor<VariableReference>((variableRef, context) =>
+                new MatchingNodeVisitor<GraphQLVariable>((variableRef, context) =>
                 {
-                    if (context.TypeInfo.GetArgument()?.ResolvedType?.GetNamedType() is not IComplexGraphType variableType || ShouldBeSkipped(actualOperation, context))
+                    if (context.TypeInfo.GetArgument()?.ResolvedType?.GetNamedType() is not IComplexGraphType variableType || ShouldBeSkipped(context.Operation, context))
                         return;
 
                     AuthorizeAsync(variableRef, variableType, context, operationType).GetAwaiter().GetResult(); // TODO: need to think of something to avoid this;
@@ -149,7 +160,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
                     // validation rule should check that but here we should just ignore that
                     // "unknown" field.
                     if (context.Variables != null &&
-                        context.Variables.TryGetValue(variableRef.Name, out object? input) &&
+                        context.Variables.TryGetValue(variableRef.Name.StringValue, out object? input) && //ISSUE:allocation
                         input is Dictionary<string, object> fieldsValues)
                     {
                         foreach (var field in variableType.Fields)
@@ -164,7 +175,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
             );
         }
 
-        private async Task AuthorizeAsync(INode? node, IProvideMetadata? provider, ValidationContext context, OperationType? operationType)
+        private async Task AuthorizeAsync(ASTNode? node, IProvideMetadata? provider, ValidationContext context, OperationType? operationType)
         {
             var policyNames = provider?.GetPolicies();
 
@@ -198,7 +209,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
         /// <summary>
         /// Adds an authorization failure error to the document response
         /// </summary>
-        protected virtual void AddValidationError(INode? node, ValidationContext context, OperationType? operationType, AuthorizationResult result)
+        protected virtual void AddValidationError(ASTNode? node, ValidationContext context, OperationType? operationType, AuthorizationResult result)
         {
             string message = _messageBuilder.GenerateMessage(operationType, result);
             context.ReportError(new AuthorizationError(node, context, message, result, operationType));

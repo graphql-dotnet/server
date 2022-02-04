@@ -12,7 +12,7 @@ namespace GraphQL.Server.Transports.WebSockets
     {
         private readonly WebSocket _socket;
 
-        public WebSocketTransport(WebSocket socket, IDocumentWriter documentWriter)
+        public WebSocketTransport(WebSocket socket, IGraphQLSerializer serializer)
         {
             _socket = socket;
             var serializerSettings = new JsonSerializerSettings
@@ -23,7 +23,7 @@ namespace GraphQL.Server.Transports.WebSockets
             };
 
             Reader = new WebSocketReaderPipeline(_socket, serializerSettings);
-            Writer = new WebSocketWriterPipeline(_socket, documentWriter);
+            Writer = new WebSocketWriterPipeline(_socket, serializer);
         }
 
         public WebSocketCloseStatus? CloseStatus => _socket.CloseStatus;

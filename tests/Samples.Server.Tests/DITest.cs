@@ -21,8 +21,8 @@ namespace Samples.Server.Tests
             var services = new ServiceCollection();
             startup.ConfigureServices(services);
             var provider = services.BuildServiceProvider();
-            var writers = provider.GetServices<IDocumentWriter>();
-            writers.Count().ShouldBe(1);
+            var serializers = provider.GetServices<IGraphQLSerializer>();
+            serializers.Count().ShouldBe(1);
         }
     }
 }

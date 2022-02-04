@@ -27,7 +27,7 @@ namespace GraphQL.Server.Transports.WebSockets
     public class WebSocketConnectionFactory<TSchema> : GraphQL.Server.Transports.WebSockets.IWebSocketConnectionFactory<TSchema>
         where TSchema : GraphQL.Types.ISchema
     {
-        public WebSocketConnectionFactory(Microsoft.Extensions.Logging.ILogger<GraphQL.Server.Transports.WebSockets.WebSocketConnectionFactory<TSchema>> logger, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory, GraphQL.Server.IGraphQLExecuter<TSchema> executer, System.Collections.Generic.IEnumerable<GraphQL.Server.Transports.Subscriptions.Abstractions.IOperationMessageListener> messageListeners, GraphQL.IDocumentWriter documentWriter) { }
+        public WebSocketConnectionFactory(Microsoft.Extensions.Logging.ILogger<GraphQL.Server.Transports.WebSockets.WebSocketConnectionFactory<TSchema>> logger, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory, GraphQL.Server.IGraphQLExecuter<TSchema> executer, System.Collections.Generic.IEnumerable<GraphQL.Server.Transports.Subscriptions.Abstractions.IOperationMessageListener> messageListeners, GraphQL.IGraphQLSerializer serializer) { }
         public GraphQL.Server.Transports.WebSockets.WebSocketConnection CreateConnection(System.Net.WebSockets.WebSocket socket, string connectionId) { }
     }
     public class WebSocketReaderPipeline : GraphQL.Server.Transports.Subscriptions.Abstractions.IReaderPipeline
@@ -42,7 +42,7 @@ namespace GraphQL.Server.Transports.WebSockets
     }
     public class WebSocketTransport : GraphQL.Server.Transports.Subscriptions.Abstractions.IMessageTransport, System.IDisposable
     {
-        public WebSocketTransport(System.Net.WebSockets.WebSocket socket, GraphQL.IDocumentWriter documentWriter) { }
+        public WebSocketTransport(System.Net.WebSockets.WebSocket socket, GraphQL.IGraphQLSerializer serializer) { }
         public System.Net.WebSockets.WebSocketCloseStatus? CloseStatus { get; }
         public GraphQL.Server.Transports.Subscriptions.Abstractions.IReaderPipeline Reader { get; }
         public GraphQL.Server.Transports.Subscriptions.Abstractions.IWriterPipeline Writer { get; }
@@ -51,7 +51,7 @@ namespace GraphQL.Server.Transports.WebSockets
     }
     public class WebSocketWriterPipeline : GraphQL.Server.Transports.Subscriptions.Abstractions.IWriterPipeline
     {
-        public WebSocketWriterPipeline(System.Net.WebSockets.WebSocket socket, GraphQL.IDocumentWriter documentWriter) { }
+        public WebSocketWriterPipeline(System.Net.WebSockets.WebSocket socket, GraphQL.IGraphQLSerializer serializer) { }
         public System.Threading.Tasks.Task Completion { get; }
         public System.Threading.Tasks.Task Complete() { }
         public bool Post(GraphQL.Server.Transports.Subscriptions.Abstractions.OperationMessage message) { }

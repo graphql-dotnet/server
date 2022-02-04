@@ -24,7 +24,7 @@ namespace GraphQL.Server.Transports.AspNetCore.NewtonsoftJson
                 DateParseHandling = DateParseHandling.None,
                 Converters =
                 {
-                    new InputsConverter()
+                    new InputsJsonConverter()
                 },
             };
             configure?.Invoke(settings);
@@ -77,7 +77,7 @@ namespace GraphQL.Server.Transports.AspNetCore.NewtonsoftJson
             return Task.FromResult(result);
         }
 
-        public Inputs DeserializeInputsFromJson(string json) => json?.ToInputs();
+        public Inputs DeserializeInputsFromJson(string json) => new GraphQLSerializer().Deserialize<Inputs>(json);
 
         private static GraphQLRequest ToGraphQLRequest(InternalGraphQLRequest internalGraphQLRequest)
             => new GraphQLRequest

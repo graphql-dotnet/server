@@ -11,7 +11,7 @@
   <ItemGroup>
     <PackageReference Include="Serilog.AspNetCore" Version="4.1.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="4.0.1" />
-    <PackageReference Include="GraphQL.MicrosoftDI" Version="5.0.0-preview-414" />
+    <PackageReference Include="GraphQL.MicrosoftDI" Version="5.0.0-preview-452" />
   </ItemGroup>
 
   <ItemGroup>

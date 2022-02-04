@@ -45,7 +45,7 @@ namespace GraphQL.Server.Benchmarks
             _httpRequest = GetHttpRequestFor(gqlRequestJson);
 
             gqlRequest.OperationName = "someOperationName";
-            gqlRequest.Inputs = SHORT_JSON.ToInputs();
+            gqlRequest.Inputs = new GraphQLSerializer().Deserialize<Inputs>(SHORT_JSON);
             var gqlRequestJson2 = Serializer.ToJson(gqlRequest);
             _httpRequest2 = GetHttpRequestFor(gqlRequestJson2);
         }
