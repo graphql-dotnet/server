@@ -15,7 +15,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
     {
         System.Threading.Tasks.Task Completion { get; }
         System.Threading.Tasks.Task Complete();
-        void LinkTo(System.Threading.Tasks.Dataflow.ITargetBlock<GraphQL.Server.Transports.Subscriptions.Abstractions.OperationMessage> target);
+        void LinkTo(System.Threading.Tasks.Dataflow.ITargetBlock<GraphQL.Transport.OperationMessage> target);
     }
     public interface IServerOperations
     {
@@ -26,15 +26,15 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
     }
     public interface ISubscriptionManager : System.Collections.Generic.IEnumerable<GraphQL.Server.Transports.Subscriptions.Abstractions.Subscription>, System.Collections.IEnumerable
     {
-        System.Threading.Tasks.Task SubscribeOrExecuteAsync(string id, GraphQL.Server.Transports.Subscriptions.Abstractions.OperationMessagePayload payload, GraphQL.Server.Transports.Subscriptions.Abstractions.MessageHandlingContext context);
+        System.Threading.Tasks.Task SubscribeOrExecuteAsync(string id, GraphQL.Transport.GraphQLRequest payload, GraphQL.Server.Transports.Subscriptions.Abstractions.MessageHandlingContext context);
         System.Threading.Tasks.Task UnsubscribeAsync(string id);
     }
     public interface IWriterPipeline
     {
         System.Threading.Tasks.Task Completion { get; }
         System.Threading.Tasks.Task Complete();
-        bool Post(GraphQL.Server.Transports.Subscriptions.Abstractions.OperationMessage message);
-        System.Threading.Tasks.Task SendAsync(GraphQL.Server.Transports.Subscriptions.Abstractions.OperationMessage message);
+        bool Post(GraphQL.Transport.OperationMessage message);
+        System.Threading.Tasks.Task SendAsync(GraphQL.Transport.OperationMessage message);
     }
     public class LogMessagesListener : GraphQL.Server.Transports.Subscriptions.Abstractions.IOperationMessageListener
     {
@@ -45,8 +45,8 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
     }
     public class MessageHandlingContext : System.Collections.Generic.Dictionary<string, object>, System.IDisposable
     {
-        public MessageHandlingContext(GraphQL.Server.Transports.Subscriptions.Abstractions.IServerOperations server, GraphQL.Server.Transports.Subscriptions.Abstractions.OperationMessage message) { }
-        public GraphQL.Server.Transports.Subscriptions.Abstractions.OperationMessage Message { get; }
+        public MessageHandlingContext(GraphQL.Server.Transports.Subscriptions.Abstractions.IServerOperations server, GraphQL.Transport.OperationMessage message) { }
+        public GraphQL.Transport.OperationMessage Message { get; }
         public System.Collections.Concurrent.ConcurrentDictionary<string, object> Properties { get; set; }
         public GraphQL.Server.Transports.Subscriptions.Abstractions.IReaderPipeline Reader { get; }
         public GraphQL.Server.Transports.Subscriptions.Abstractions.ISubscriptionManager Subscriptions { get; }
@@ -70,37 +70,18 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         public const string GQL_STOP = "stop";
         public MessageType() { }
     }
-    [System.Runtime.Serialization.DataContract]
-    public class OperationMessage
-    {
-        public OperationMessage() { }
-        [System.Runtime.Serialization.DataMember(Name="id")]
-        public string Id { get; set; }
-        [System.Runtime.Serialization.DataMember(Name="payload")]
-        public object Payload { get; set; }
-        [System.Runtime.Serialization.DataMember(Name="type")]
-        public string Type { get; set; }
-        public override string ToString() { }
-    }
-    public class OperationMessagePayload
-    {
-        public OperationMessagePayload() { }
-        public string OperationName { get; set; }
-        public string Query { get; set; }
-        public Newtonsoft.Json.Linq.JObject Variables { get; set; }
-    }
     public class ProtocolMessageListener : GraphQL.Server.Transports.Subscriptions.Abstractions.IOperationMessageListener
     {
-        public ProtocolMessageListener(Microsoft.Extensions.Logging.ILogger<GraphQL.Server.Transports.Subscriptions.Abstractions.ProtocolMessageListener> logger) { }
+        public ProtocolMessageListener(Microsoft.Extensions.Logging.ILogger<GraphQL.Server.Transports.Subscriptions.Abstractions.ProtocolMessageListener> logger, GraphQL.IGraphQLSerializer serializer) { }
         public System.Threading.Tasks.Task AfterHandleAsync(GraphQL.Server.Transports.Subscriptions.Abstractions.MessageHandlingContext context) { }
         public System.Threading.Tasks.Task BeforeHandleAsync(GraphQL.Server.Transports.Subscriptions.Abstractions.MessageHandlingContext context) { }
         public System.Threading.Tasks.Task HandleAsync(GraphQL.Server.Transports.Subscriptions.Abstractions.MessageHandlingContext context) { }
     }
     public class Subscription : System.IDisposable, System.IObserver<GraphQL.ExecutionResult>
     {
-        public Subscription(string id, GraphQL.Server.Transports.Subscriptions.Abstractions.OperationMessagePayload payload, GraphQL.Subscription.SubscriptionExecutionResult result, GraphQL.Server.Transports.Subscriptions.Abstractions.IWriterPipeline writer, System.Action<GraphQL.Server.Transports.Subscriptions.Abstractions.Subscription>? completed, Microsoft.Extensions.Logging.ILogger<GraphQL.Server.Transports.Subscriptions.Abstractions.Subscription> logger) { }
+        public Subscription(string id, GraphQL.Transport.GraphQLRequest payload, GraphQL.Subscription.SubscriptionExecutionResult result, GraphQL.Server.Transports.Subscriptions.Abstractions.IWriterPipeline writer, System.Action<GraphQL.Server.Transports.Subscriptions.Abstractions.Subscription>? completed, Microsoft.Extensions.Logging.ILogger<GraphQL.Server.Transports.Subscriptions.Abstractions.Subscription> logger) { }
         public string Id { get; }
-        public GraphQL.Server.Transports.Subscriptions.Abstractions.OperationMessagePayload OriginalPayload { get; }
+        public GraphQL.Transport.GraphQLRequest OriginalPayload { get; }
         public virtual void Dispose() { }
         public void OnCompleted() { }
         public void OnError(System.Exception error) { }
@@ -113,7 +94,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         public GraphQL.Server.Transports.Subscriptions.Abstractions.Subscription this[string id] { get; }
         public virtual void Dispose() { }
         public System.Collections.Generic.IEnumerator<GraphQL.Server.Transports.Subscriptions.Abstractions.Subscription> GetEnumerator() { }
-        public System.Threading.Tasks.Task SubscribeOrExecuteAsync(string id, GraphQL.Server.Transports.Subscriptions.Abstractions.OperationMessagePayload payload, GraphQL.Server.Transports.Subscriptions.Abstractions.MessageHandlingContext context) { }
+        public System.Threading.Tasks.Task SubscribeOrExecuteAsync(string id, GraphQL.Transport.GraphQLRequest payload, GraphQL.Server.Transports.Subscriptions.Abstractions.MessageHandlingContext context) { }
         public System.Threading.Tasks.Task UnsubscribeAsync(string id) { }
     }
     public class SubscriptionServer : GraphQL.Server.Transports.Subscriptions.Abstractions.IServerOperations, System.IDisposable

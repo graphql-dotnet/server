@@ -10,9 +10,4 @@
     <PackageReference Include="Castle.Core" Version="4.4.1" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\Transports.AspNetCore.NewtonsoftJson\Transports.AspNetCore.NewtonsoftJson.csproj" />
-    <ProjectReference Include="..\..\src\Transports.AspNetCore.SystemTextJson\Transports.AspNetCore.SystemTextJson.csproj" />
-  </ItemGroup>
-
 </Project>

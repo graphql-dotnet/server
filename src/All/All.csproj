@@ -11,8 +11,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Authorization.AspNetCore\Authorization.AspNetCore.csproj" />
     <ProjectReference Include="..\Core\Core.csproj" />
-    <ProjectReference Include="..\Transports.AspNetCore.NewtonsoftJson\Transports.AspNetCore.NewtonsoftJson.csproj" />
-    <ProjectReference Include="..\Transports.AspNetCore.SystemTextJson\Transports.AspNetCore.SystemTextJson.csproj" />
     <ProjectReference Include="..\Transports.AspNetCore\Transports.AspNetCore.csproj" />
     <ProjectReference Include="..\Transports.Subscriptions.Abstractions\Transports.Subscriptions.Abstractions.csproj" />
     <ProjectReference Include="..\Transports.Subscriptions.WebSockets\Transports.Subscriptions.WebSockets.csproj" />

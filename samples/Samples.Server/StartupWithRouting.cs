@@ -15,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using GraphQL.MicrosoftDI;
+using GraphQL.SystemTextJson;
 
 namespace GraphQL.Samples.Server
 {

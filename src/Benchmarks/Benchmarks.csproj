@@ -18,9 +18,4 @@
     <Compile Include="..\..\tests\Samples.Server.Tests\Serializer.cs" Link="Shared\Serializer.cs" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Transports.AspNetCore.NewtonsoftJson\Transports.AspNetCore.NewtonsoftJson.csproj" />
-    <ProjectReference Include="..\Transports.AspNetCore.SystemTextJson\Transports.AspNetCore.SystemTextJson.csproj" />
-  </ItemGroup>
-
 </Project>

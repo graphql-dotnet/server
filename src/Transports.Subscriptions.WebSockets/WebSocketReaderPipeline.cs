@@ -6,21 +6,21 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using GraphQL.Server.Transports.Subscriptions.Abstractions;
-using Newtonsoft.Json;
+using GraphQL.Transport;
 
 namespace GraphQL.Server.Transports.WebSockets
 {
     public class WebSocketReaderPipeline : IReaderPipeline
     {
         private readonly IPropagatorBlock<string, OperationMessage> _endBlock;
-        private readonly JsonSerializerSettings _serializerSettings;
+        private readonly IGraphQLTextSerializer _serializer;
         private readonly WebSocket _socket;
         private readonly ISourceBlock<string> _startBlock;
 
-        public WebSocketReaderPipeline(WebSocket socket, JsonSerializerSettings serializerSettings)
+        public WebSocketReaderPipeline(WebSocket socket, IGraphQLTextSerializer serializer)
         {
             _socket = socket;
-            _serializerSettings = serializerSettings;
+            _serializer = serializer;
 
             _startBlock = CreateMessageReader();
             _endBlock = CreateReaderJsonTransformer();
@@ -71,7 +71,7 @@ namespace GraphQL.Server.Transports.WebSockets
         protected IPropagatorBlock<string, OperationMessage> CreateReaderJsonTransformer()
         {
             var transformer = new TransformBlock<string, OperationMessage>(
-                input => JsonConvert.DeserializeObject<OperationMessage>(input, _serializerSettings),
+                input => _serializer.Deserialize<OperationMessage>(input),
                 new ExecutionDataflowBlockOptions
                 {
                     EnsureOrdered = true

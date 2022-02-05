@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using GraphQL.Server.Transports.Subscriptions.Abstractions.Internal;
 using GraphQL.Subscription;
+using GraphQL.Transport;
 using Microsoft.Extensions.Logging;
 
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions
@@ -36,7 +37,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         /// <inheritdoc />
         public async Task SubscribeOrExecuteAsync(
             string id,
-            OperationMessagePayload payload,
+            GraphQLRequest payload,
             MessageHandlingContext context)
         {
             if (id == null)
@@ -73,7 +74,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 
         private async Task<Subscription> ExecuteAsync(
             string id,
-            OperationMessagePayload payload,
+            GraphQLRequest payload,
             MessageHandlingContext context)
         {
             var writer = context.Writer;
@@ -84,7 +85,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             var result = await _executer.ExecuteAsync(
                 payload.OperationName,
                 payload.Query,
-                payload.Variables?.ToInputs(),
+                payload.Variables,
                 context,
                 null // TODO: find later a better way to specify services
             ).ConfigureAwait(false);
