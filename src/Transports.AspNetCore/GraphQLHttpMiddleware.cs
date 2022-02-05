@@ -222,7 +222,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             return Task.CompletedTask;
         }
 
-        protected Task WriteErrorResponseAsync(HttpContext context, string errorMessage, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest)
+        protected virtual Task WriteErrorResponseAsync(HttpContext context, string errorMessage, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest)
         {
             var result = new ExecutionResult
             {
