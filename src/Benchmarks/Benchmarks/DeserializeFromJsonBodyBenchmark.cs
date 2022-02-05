@@ -2,12 +2,9 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
-using GraphQL.Server.Transports.AspNetCore;
-using GraphQL.SystemTextJson;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Features;
-using NsjDeserializer = GraphQL.Server.Transports.AspNetCore.NewtonsoftJson.GraphQLRequestDeserializer;
-using StjDeserializer = GraphQL.Server.Transports.AspNetCore.SystemTextJson.GraphQLRequestDeserializer;
+using GraphQL.Transport;
+using NsjDeserializer = GraphQL.NewtonsoftJson.GraphQLSerializer;
+using StjDeserializer = GraphQL.SystemTextJson.GraphQLSerializer;
 
 namespace GraphQL.Server.Benchmarks
 {
@@ -17,8 +14,8 @@ namespace GraphQL.Server.Benchmarks
     {
         private NsjDeserializer _nsjDeserializer;
         private StjDeserializer _stjDeserializer;
-        private HttpRequest _httpRequest;
-        private HttpRequest _httpRequest2;
+        private Stream _httpRequestBody;
+        private Stream _httpRequestBody2;
 
         private const string SHORT_JSON = @"{
   ""key0"": null,
@@ -42,40 +39,37 @@ namespace GraphQL.Server.Benchmarks
 
             var gqlRequest = new GraphQLRequest { Query = SchemaIntrospection.IntrospectionQuery };
             var gqlRequestJson = Serializer.ToJson(gqlRequest);
-            _httpRequest = GetHttpRequestFor(gqlRequestJson);
+            _httpRequestBody = GetHttpRequestBodyFor(gqlRequestJson);
 
             gqlRequest.OperationName = "someOperationName";
-            gqlRequest.Inputs = new GraphQLSerializer().Deserialize<Inputs>(SHORT_JSON);
+            gqlRequest.Variables = new StjDeserializer().Deserialize<Inputs>(SHORT_JSON);
             var gqlRequestJson2 = Serializer.ToJson(gqlRequest);
-            _httpRequest2 = GetHttpRequestFor(gqlRequestJson2);
+            _httpRequestBody2 = GetHttpRequestBodyFor(gqlRequestJson2);
         }
 
-        private static HttpRequest GetHttpRequestFor(string gqlRequestJson)
+        private static Stream GetHttpRequestBodyFor(string gqlRequestJson)
         {
-            var httpContext = new DefaultHttpContext();
-            httpContext.Features.Set<IRequestBodyPipeFeature>(new RequestBodyPipeFeature(httpContext));
-            httpContext.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes(gqlRequestJson));
-            return httpContext.Request;
+            return new MemoryStream(Encoding.UTF8.GetBytes(gqlRequestJson));
         }
 
         [IterationSetup]
         public void IterationSetup()
         {
             // Reset stream positions
-            _httpRequest.Body.Position = 0;
-            _httpRequest2.Body.Position = 0;
+            _httpRequestBody.Position = 0;
+            _httpRequestBody2.Position = 0;
         }
 
         [Benchmark(Baseline = true)]
-        public Task<GraphQLRequestDeserializationResult> NewtonsoftJson() => _nsjDeserializer.DeserializeFromJsonBodyAsync(_httpRequest);
+        public ValueTask<GraphQLRequest[]> NewtonsoftJson() => _nsjDeserializer.ReadAsync<GraphQLRequest[]>(_httpRequestBody);
 
         [Benchmark]
-        public Task<GraphQLRequestDeserializationResult> SystemTextJson() => _stjDeserializer.DeserializeFromJsonBodyAsync(_httpRequest);
+        public ValueTask<GraphQLRequest[]> SystemTextJson() => _stjDeserializer.ReadAsync<GraphQLRequest[]>(_httpRequestBody);
 
         [Benchmark]
-        public Task<GraphQLRequestDeserializationResult> NewtonsoftJson_WithOpNameAndVariables() => _nsjDeserializer.DeserializeFromJsonBodyAsync(_httpRequest2);
+        public ValueTask<GraphQLRequest[]> NewtonsoftJson_WithOpNameAndVariables() => _nsjDeserializer.ReadAsync<GraphQLRequest[]>(_httpRequestBody2);
 
         [Benchmark]
-        public Task<GraphQLRequestDeserializationResult> SystemTextJson_WithOpNameAndVariables() => _stjDeserializer.DeserializeFromJsonBodyAsync(_httpRequest2);
+        public ValueTask<GraphQLRequest[]> SystemTextJson_WithOpNameAndVariables() => _stjDeserializer.ReadAsync<GraphQLRequest[]>(_httpRequestBody2);
     }
 }

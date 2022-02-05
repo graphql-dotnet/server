@@ -1,6 +1,6 @@
 using BenchmarkDotNet.Attributes;
-using NsjDeserializer = GraphQL.Server.Transports.AspNetCore.NewtonsoftJson.GraphQLRequestDeserializer;
-using StjDeserializer = GraphQL.Server.Transports.AspNetCore.SystemTextJson.GraphQLRequestDeserializer;
+using NsjDeserializer = GraphQL.NewtonsoftJson.GraphQLSerializer;
+using StjDeserializer = GraphQL.SystemTextJson.GraphQLSerializer;
 
 namespace GraphQL.Server.Benchmarks
 {
@@ -37,9 +37,9 @@ namespace GraphQL.Server.Benchmarks
         // other custom implementations someone else might want to contribute.
 
         [Benchmark(Baseline = true)]
-        public Inputs NewtonsoftJson() => _nsjDeserializer.DeserializeInputsFromJson(SHORT_JSON);
+        public Inputs NewtonsoftJson() => _nsjDeserializer.Deserialize<Inputs>(SHORT_JSON);
 
         [Benchmark]
-        public Inputs SystemTextJson() => _stjDeserializer.DeserializeInputsFromJson(SHORT_JSON);
+        public Inputs SystemTextJson() => _stjDeserializer.Deserialize<Inputs>(SHORT_JSON);
     }
 }

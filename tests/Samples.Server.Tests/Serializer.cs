@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
+using GraphQL.Transport;
 
 namespace GraphQL.Server
 {
@@ -29,17 +30,17 @@ namespace GraphQL.Server
 
             if (request.OperationName != null)
             {
-                dictionary[GraphQLRequest.OPERATION_NAME_KEY] = request.OperationName;
+                dictionary["operationName"] = request.OperationName;
             }
 
             if (request.Query != null)
             {
-                dictionary[GraphQLRequest.QUERY_KEY] = request.Query;
+                dictionary["query"] = request.Query;
             }
 
-            if (request.Inputs != null)
+            if (request.Variables != null)
             {
-                dictionary[GraphQLRequest.VARIABLES_KEY] = ToJson(request.Inputs);
+                dictionary["variables"] = ToJson(request.Variables);
             }
 
             return new FormUrlEncodedContent(dictionary);
@@ -51,9 +52,9 @@ namespace GraphQL.Server
         private static Dictionary<string, object> ToDictionary(this GraphQLRequest request)
             => new Dictionary<string, object>
             {
-                { GraphQLRequest.OPERATION_NAME_KEY, request.OperationName },
-                { GraphQLRequest.QUERY_KEY, request.Query },
-                { GraphQLRequest.VARIABLES_KEY, request.Inputs }
+                { "operationName", request.OperationName },
+                { "query", request.Query },
+                { "variables", request.Variables }
             };
     }
 }
