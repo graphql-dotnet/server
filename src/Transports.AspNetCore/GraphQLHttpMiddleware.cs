@@ -183,54 +183,21 @@ namespace GraphQL.Server.Transports.AspNetCore
 
         protected virtual async ValueTask<bool> HandleDeserializationErrorAsync(HttpContext context, Exception ex)
         {
-            await WriteErrorResponseAsync(
-                context.Response,
-                _serializer,
-                context.RequestAborted,
-                $"JSON body text could not be parsed. {ex.Message}",
-                HttpStatusCode.BadRequest);
+            await WriteErrorResponseAsync(context, $"JSON body text could not be parsed. {ex.Message}");
             return true;
         }
 
-        protected virtual async Task HandleNoQueryErrorAsync(HttpContext context)
-        {
-            await WriteErrorResponseAsync(
-                context.Response,
-                _serializer,
-                context.RequestAborted,
-                "GraphQL query is missing.",
-                HttpStatusCode.BadRequest);
-        }
+        protected virtual Task HandleNoQueryErrorAsync(HttpContext context)
+            => WriteErrorResponseAsync(context, "GraphQL query is missing.");
 
-        protected virtual async Task HandleContentTypeCouldNotBeParsedErrorAsync(HttpContext context)
-        {
-            await WriteErrorResponseAsync(
-                context.Response,
-                _serializer,
-                context.RequestAborted,
-                $"Invalid 'Content-Type' header: value '{context.Request.ContentType}' could not be parsed.",
-                HttpStatusCode.BadRequest);
-        }
+        protected virtual Task HandleContentTypeCouldNotBeParsedErrorAsync(HttpContext context)
+            => WriteErrorResponseAsync(context, $"Invalid 'Content-Type' header: value '{context.Request.ContentType}' could not be parsed.");
 
-        protected virtual async Task HandleInvalidContentTypeErrorAsync(HttpContext context)
-        {
-            await WriteErrorResponseAsync(
-                context.Response,
-                _serializer,
-                context.RequestAborted,
-                $"Invalid 'Content-Type' header: non-supported media type. Must be of '{MediaType.JSON}', '{MediaType.GRAPH_QL}' or '{MediaType.FORM}'. {DOCS_URL}",
-                HttpStatusCode.BadRequest);
-        }
+        protected virtual Task HandleInvalidContentTypeErrorAsync(HttpContext context)
+            => WriteErrorResponseAsync(context, $"Invalid 'Content-Type' header: non-supported media type. Must be of '{MediaType.JSON}', '{MediaType.GRAPH_QL}' or '{MediaType.FORM}'. {DOCS_URL}");
 
-        protected virtual async Task HandleInvalidHttpMethodErrorAsync(HttpContext context)
-        {
-            await WriteErrorResponseAsync(
-                context.Response,
-                _serializer,
-                context.RequestAborted,
-                $"Invalid HTTP method. Only GET and POST are supported. {DOCS_URL}",
-                HttpStatusCode.BadRequest);
-        }
+        protected virtual Task HandleInvalidHttpMethodErrorAsync(HttpContext context)
+            => WriteErrorResponseAsync(context, $"Invalid HTTP method. Only GET and POST are supported. {DOCS_URL}");
 
         private static Task<ExecutionResult> ExecuteRequestAsync(GraphQLRequest gqlRequest, IDictionary<string, object> userContext, IGraphQLExecuter<TSchema> executer, IServiceProvider requestServices, CancellationToken token)
             => executer.ExecuteAsync(
@@ -255,8 +222,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             return Task.CompletedTask;
         }
 
-        private Task WriteErrorResponseAsync(HttpResponse httpResponse, IGraphQLSerializer serializer, CancellationToken cancellationToken,
-            string errorMessage, HttpStatusCode httpStatusCode)
+        protected Task WriteErrorResponseAsync(HttpContext context, string errorMessage, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest)
         {
             var result = new ExecutionResult
             {
@@ -266,10 +232,10 @@ namespace GraphQL.Server.Transports.AspNetCore
                 }
             };
 
-            httpResponse.ContentType = "application/json";
-            httpResponse.StatusCode = (int)httpStatusCode;
+            context.Response.ContentType = "application/json";
+            context.Response.StatusCode = (int)httpStatusCode;
 
-            return serializer.WriteAsync(httpResponse.Body, result, cancellationToken);
+            return _serializer.WriteAsync(context.Response.Body, result, context.RequestAborted);
         }
 
         private Task WriteResponseAsync<TResult>(HttpResponse httpResponse, IGraphQLSerializer serializer, CancellationToken cancellationToken, TResult result)
