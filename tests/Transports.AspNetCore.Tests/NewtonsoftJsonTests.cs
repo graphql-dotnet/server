@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -45,10 +46,10 @@ namespace GraphQL.Server.Transports.AspNetCore.Tests
         }
 
         [Fact]
-        public async Task Dates_Should_Parse_As_Text()
+        public async Task Dates_Should_Parse_As_Dates()
         {
             var ret = await Deserialize(@"{""variables"":{""date"":""2015-12-22T10:10:10+03:00""}}");
-            ret.Single().Variables["date"].ShouldBeOfType<string>().ShouldBe("2015-12-22T10:10:10+03:00");
+            ret.Single().Variables["date"].ShouldBeOfType<DateTime>().ShouldBe(new DateTimeOffset(2015, 12, 22, 10, 10, 10, TimeSpan.FromHours(3)).LocalDateTime);
         }
 
         [Fact]
@@ -56,6 +57,14 @@ namespace GraphQL.Server.Transports.AspNetCore.Tests
         {
             var ret = await Deserialize(@"{""variables"":{""date"":""2015-12-22T10:10:10+03:00""}}");
             ret.Single().Extensions.ShouldBeNull();
+        }
+
+        [Fact]
+        public async Task Name_Matching_Is_Case_Sensitive()
+        {
+            var exception = await Should.ThrowAsync<Newtonsoft.Json.JsonException>(()
+                => Deserialize(@"{""VARIABLES"":{""date"":""2015-12-22T10:10:10+03:00""}}"));
+            exception.Message.ShouldBe("Exception of type 'Newtonsoft.Json.JsonException' was thrown.");
         }
 
         [Fact]
@@ -86,11 +95,7 @@ namespace GraphQL.Server.Transports.AspNetCore.Tests
         private async Task<GraphQLRequest[]> Deserialize(string jsonText)
         {
             var jsonStream = new System.IO.MemoryStream(Encoding.UTF8.GetBytes(jsonText));
-            var deserializer = new NewtonsoftJson.GraphQLSerializer(config =>
-            {
-                config.DateFormatHandling = Newtonsoft.Json.DateFormatHandling.IsoDateFormat;
-                config.DateParseHandling = Newtonsoft.Json.DateParseHandling.None;
-            });
+            var deserializer = new NewtonsoftJson.GraphQLSerializer();
             return await deserializer.ReadAsync<GraphQLRequest[]>(jsonStream);
         }
     }
