@@ -29,8 +29,6 @@ Provides the following packages:
 | GraphQL.Server.All                                   | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.All)](https://www.nuget.org/packages/GraphQL.Server.All)                                                                     | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.All)](https://www.nuget.org/packages/GraphQL.Server.All)                                                                     |
 | GraphQL.Server.Core                                  | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Core)](https://www.nuget.org/packages/GraphQL.Server.Core)                                                                   | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.Core)](https://www.nuget.org/packages/GraphQL.Server.Core)                                                                   |
 | GraphQL.Server.Transports.AspNetCore                 | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Transports.AspNetCore)](https://www.nuget.org/packages/GraphQL.Server.Transports.AspNetCore)                                 | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.Transports.AspNetCore)](https://www.nuget.org/packages/GraphQL.Server.Transports.AspNetCore)                                 |
-| GraphQL.Server.Transports.AspNetCore.NewtonsoftJson  | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Transports.AspNetCore.NewtonsoftJson)](https://www.nuget.org/packages/GraphQL.Server.Transports.AspNetCore.NewtonsoftJson)   | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.Transports.AspNetCore.NewtonsoftJson)](https://www.nuget.org/packages/GraphQL.Server.Transports.AspNetCore.NewtonsoftJson)   |
-| GraphQL.Server.Transports.AspNetCore.SystemTextJson  | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Transports.AspNetCore.SystemTextJson)](https://www.nuget.org/packages/GraphQL.Server.Transports.AspNetCore.SystemTextJson)   | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.Transports.AspNetCore.SystemTextJson)](https://www.nuget.org/packages/GraphQL.Server.Transports.AspNetCore.SystemTextJson)   |
 | GraphQL.Server.Transports.Subscriptions.Abstractions | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Transports.Subscriptions.Abstractions)](https://www.nuget.org/packages/GraphQL.Server.Transports.Subscriptions.Abstractions) | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.Transports.Subscriptions.Abstractions)](https://www.nuget.org/packages/GraphQL.Server.Transports.Subscriptions.Abstractions) |
 | GraphQL.Server.Transports.Subscriptions.WebSockets <br/> *formerly  known as `GraphQL.Server.Transports.WebSockets`* | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Transports.Subscriptions.WebSockets)](https://www.nuget.org/packages/GraphQL.Server.Transports.Subscriptions.WebSockets)     | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.Transports.Subscriptions.WebSockets)](https://www.nuget.org/packages/GraphQL.Server.Transports.Subscriptions.WebSockets)     |
 | GraphQL.Server.Ui.Altair                             | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Ui.Altair)](https://www.nuget.org/packages/GraphQL.Server.Ui.Altair)                                                         | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.Ui.Altair)](https://www.nuget.org/packages/GraphQL.Server.Ui.Altair)                                                         |
@@ -56,21 +54,21 @@ For just the HTTP middleware:
 > dotnet add package GraphQL.Server.Transports.AspNetCore
 ```
 
-The HTTP middleware needs an `IGraphQLRequestDeserializer` implementation.
+The HTTP middleware needs an `IGraphQLTextSerializer` implementation.
 
 .NET Core 3+:
 
 ```
-> dotnet add package GraphQL.Server.Transports.AspNetCore.SystemTextJson
+> dotnet add package GraphQL.SystemTextJson
 ```
 
 Legacy (prior to .NET Core 3):
 
 ```
-> dotnet add package GraphQL.Server.Transports.AspNetCore.NewtonsoftJson
+> dotnet add package GraphQL.NewtonsoftJson
 ```
 
-Or you can use your own `IGraphQLRequestDeserializer` implementation.
+Or you can use your own `IGraphQLTextSerializer` implementation.
 
 For more information on how to migrate from `Newtonsoft.Json` to `System.Text.Json` see
 [this article](https://docs.microsoft.com/en-us/dotnet/standard/serialization/system-text-json-migrate-from-newtonsoft-how-to).
