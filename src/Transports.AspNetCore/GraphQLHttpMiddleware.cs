@@ -34,10 +34,10 @@ namespace GraphQL.Server.Transports.AspNetCore
         private readonly RequestDelegate _next;
         private readonly IGraphQLTextSerializer _serializer;
 
-        public GraphQLHttpMiddleware(RequestDelegate next, IGraphQLTextSerializer deserializer)
+        public GraphQLHttpMiddleware(RequestDelegate next, IGraphQLTextSerializer serializer)
         {
             _next = next;
-            _serializer = deserializer;
+            _serializer = serializer;
         }
 
         public async Task InvokeAsync(HttpContext context)
