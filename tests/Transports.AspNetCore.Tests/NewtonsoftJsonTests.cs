@@ -59,13 +59,6 @@ namespace GraphQL.Server.Transports.AspNetCore.Tests
         }
 
         [Fact]
-        public async Task Name_Matching_Not_Case_Sensitive()
-        {
-            var ret = await Deserialize(@"{""VARIABLES"":{""date"":""2015-12-22T10:10:10+03:00""}}");
-            ret.Single().Variables["date"].ShouldBeOfType<string>().ShouldBe("2015-12-22T10:10:10+03:00");
-        }
-
-        [Fact]
         public async Task Decodes_Multiple_Queries()
         {
             var ret = await Deserialize(@"[{""query"":""abc""},{""query"":""def""}]");
@@ -93,7 +86,11 @@ namespace GraphQL.Server.Transports.AspNetCore.Tests
         private async Task<GraphQLRequest[]> Deserialize(string jsonText)
         {
             var jsonStream = new System.IO.MemoryStream(Encoding.UTF8.GetBytes(jsonText));
-            var deserializer = new NewtonsoftJson.GraphQLSerializer(_ => { });
+            var deserializer = new NewtonsoftJson.GraphQLSerializer(config =>
+            {
+                config.DateFormatHandling = Newtonsoft.Json.DateFormatHandling.IsoDateFormat;
+                config.DateParseHandling = Newtonsoft.Json.DateParseHandling.None;
+            });
             return await deserializer.ReadAsync<GraphQLRequest[]>(jsonStream);
         }
     }

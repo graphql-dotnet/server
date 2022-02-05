@@ -61,8 +61,8 @@ namespace GraphQL.Server.Transports.AspNetCore.Tests
         [Fact]
         public async Task Name_Matching_Is_Case_Sensitive()
         {
-            var ret = await Deserialize(@"{""VARIABLES"":{""date"":""2015-12-22T10:10:10+03:00""}}");
-            ret.Single().Variables.ShouldBeNull();
+            await Should.ThrowAsync<System.Text.Json.JsonException>(()
+                => Deserialize(@"{""VARIABLES"":{""date"":""2015-12-22T10:10:10+03:00""}}"));
         }
 
         [Fact]
