@@ -116,6 +116,15 @@ namespace Samples.Server.Tests
                 "JSON body text could not be parsed. 'o' is an invalid start of a property name. Expected a '\"'. Path: $ | LineNumber: 0 | BytePositionInLine: 1."
             },
 
+            // POST with JSON mime type that is null JSON should be a bad request
+            new object[]
+            {
+                HttpMethod.Post,
+                new StringContent("null", Encoding.UTF8, "application/json"),
+                HttpStatusCode.BadRequest,
+                "GraphQL query is missing."
+            },
+
             // GET with an empty QueryString should be a bad request
             new object[]
             {
@@ -123,7 +132,7 @@ namespace Samples.Server.Tests
                 null,
                 HttpStatusCode.BadRequest,
                 "GraphQL query is missing."
-            }
+            },
         };
 
         [Theory]
