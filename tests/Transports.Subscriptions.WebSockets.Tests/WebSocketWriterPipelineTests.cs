@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using GraphQL.Execution;
 using GraphQL.NewtonsoftJson;
-using GraphQL.Server.Transports.Subscriptions.Abstractions;
+using GraphQL.Transport;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Shouldly;
@@ -39,7 +39,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
                             }
                         }
                     },
-                    83
+                    95
                 },
                 new object[]
                 {
@@ -55,7 +55,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
                             }, 10)
                         }
                     },
-                    652
+                    664
                 },
                 new object[]
                 {
@@ -72,7 +72,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
                         }
                     },
                     // About 1 megabyte
-                    1_008_022
+                    1_008_034
                 },
                 new object[]
                 {
@@ -89,7 +89,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
                         }
                     },
                     // About 10 megabytes
-                    10_080_022
+                    10_080_034
                 },
                 new object[]
                 {
@@ -106,7 +106,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
                         }
                     },
                     // About 100 megabytes
-                    100_800_022
+                    100_800_034
                 },
             };
 
@@ -133,7 +133,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
 
             string resultingJson = Encoding.UTF8.GetString(_testWebSocket.Messages.First().ToArray());
             Assert.Equal(
-                "{\"payload\":{\"data\":{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}}}",
+                "{\"type\":null,\"payload\":{\"data\":{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}}}",
                 resultingJson);
         }
 
@@ -160,7 +160,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
 
             string resultingJson = Encoding.UTF8.GetString(_testWebSocket.Messages.First().ToArray());
             Assert.Equal(
-                "{\"payload\":" +
+                "{\"type\":null,\"payload\":" +
                     "{\"data\":[" +
                         "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
                         "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
@@ -226,7 +226,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
             Assert.Single(_testWebSocket.Messages);
             string resultingJson = Encoding.UTF8.GetString(_testWebSocket.Messages.First().ToArray());
             Assert.Equal(
-                "{\"id\":\"78F15F13-CA90-4BA6-AFF5-990C23FA882A\",\"type\":\"Type\",\"payload\":{\"data\":{\"Content\":\"Hello world\",\"SentAt\":\"2018-12-12T10:00:00+00:00\"}}}",
+                "{\"type\":\"Type\",\"id\":\"78F15F13-CA90-4BA6-AFF5-990C23FA882A\",\"payload\":{\"data\":{\"Content\":\"Hello world\",\"SentAt\":\"2018-12-12T10:00:00+00:00\"}}}",
                 resultingJson);
         }
 
