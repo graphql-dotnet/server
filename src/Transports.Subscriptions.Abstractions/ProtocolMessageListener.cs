@@ -66,7 +66,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             _logger.LogDebug("Handle start: {id}", message.Id);
             var payload = _serializer.ReadNode<GraphQLRequest>(message.Payload);
             if (payload == null)
-                throw new InvalidOperationException("Could not get OperationMessagePayload from message.Payload");
+                throw new InvalidOperationException("Could not get GraphQLRequest from OperationMessage.Payload");
 
             return context.Subscriptions.SubscribeOrExecuteAsync(
                 message.Id,
