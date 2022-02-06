@@ -195,7 +195,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             => WriteErrorResponseAsync(context, $"Invalid 'Content-Type' header: value '{context.Request.ContentType}' could not be parsed.", HttpStatusCode.UnsupportedMediaType);
 
         protected virtual Task HandleInvalidContentTypeErrorAsync(HttpContext context)
-            => WriteErrorResponseAsync(context, $"Invalid 'Content-Type' header: non-supported media type. Must be of '{MediaType.JSON}', '{MediaType.GRAPH_QL}' or '{MediaType.FORM}'. {DOCS_URL}", HttpStatusCode.UnsupportedMediaType);
+            => WriteErrorResponseAsync(context, $"Invalid 'Content-Type' header: non-supported media type '{context.Request.ContentType}'. Must be of '{MediaType.JSON}', '{MediaType.GRAPH_QL}' or '{MediaType.FORM}'. {DOCS_URL}", HttpStatusCode.UnsupportedMediaType);
 
         protected virtual Task HandleInvalidHttpMethodErrorAsync(HttpContext context)
             => WriteErrorResponseAsync(context, $"Invalid HTTP method. Only GET and POST are supported. {DOCS_URL}", HttpStatusCode.MethodNotAllowed);
