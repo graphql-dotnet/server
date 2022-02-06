@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Shouldly;
 using Xunit;
+using JsonSerializerSettings = GraphQL.NewtonsoftJson.JsonSerializerSettings;
 
 namespace GraphQL.Server.Transports.WebSockets.Tests
 {

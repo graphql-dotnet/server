@@ -61,9 +61,8 @@ namespace GraphQL.Server.Transports.AspNetCore.Tests
         [Fact]
         public async Task Name_Matching_Is_Case_Sensitive()
         {
-            var exception = await Should.ThrowAsync<System.Text.Json.JsonException>(()
-                => Deserialize(@"{""VARIABLES"":{""date"":""2015-12-22T10:10:10+03:00""}}"));
-            exception.Message.ShouldBe("The JSON value could not be converted to GraphQL.Transport.GraphQLRequest. Path: $ | LineNumber: 0 | BytePositionInLine: 14. Path: $ | LineNumber: 0 | BytePositionInLine: 1.");
+            var ret = await Deserialize(@"{""VARIABLES"":{""date"":""2015-12-22T10:10:10+03:00""}}");
+            ret.Single().Variables.ShouldBeNull();
         }
 
         [Fact]
