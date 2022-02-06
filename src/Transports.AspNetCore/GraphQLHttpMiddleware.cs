@@ -80,7 +80,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                 switch (mediaTypeHeader.MediaType)
                 {
                     case MediaType.JSON:
-                        GraphQLRequest[] deserializationResult = null;
+                        GraphQLRequest[] deserializationResult;
                         try
                         {
                             deserializationResult = await _serializer.ReadAsync<GraphQLRequest[]>(httpRequest.Body, cancellationToken);
@@ -89,6 +89,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                         {
                             if (!await HandleDeserializationErrorAsync(context, ex))
                                 throw;
+                            return;
                         }
                         if (deserializationResult?.Length == 1)
                             bodyGQLRequest = deserializationResult[0];
@@ -183,21 +184,21 @@ namespace GraphQL.Server.Transports.AspNetCore
 
         protected virtual async ValueTask<bool> HandleDeserializationErrorAsync(HttpContext context, Exception ex)
         {
-            await WriteErrorResponseAsync(context, $"JSON body text could not be parsed. {ex.Message}");
+            await WriteErrorResponseAsync(context, $"JSON body text could not be parsed. {ex.Message}", HttpStatusCode.BadRequest);
             return true;
         }
 
         protected virtual Task HandleNoQueryErrorAsync(HttpContext context)
-            => WriteErrorResponseAsync(context, "GraphQL query is missing.");
+            => WriteErrorResponseAsync(context, "GraphQL query is missing.", HttpStatusCode.BadRequest);
 
         protected virtual Task HandleContentTypeCouldNotBeParsedErrorAsync(HttpContext context)
-            => WriteErrorResponseAsync(context, $"Invalid 'Content-Type' header: value '{context.Request.ContentType}' could not be parsed.");
+            => WriteErrorResponseAsync(context, $"Invalid 'Content-Type' header: value '{context.Request.ContentType}' could not be parsed.", HttpStatusCode.UnsupportedMediaType);
 
         protected virtual Task HandleInvalidContentTypeErrorAsync(HttpContext context)
-            => WriteErrorResponseAsync(context, $"Invalid 'Content-Type' header: non-supported media type. Must be of '{MediaType.JSON}', '{MediaType.GRAPH_QL}' or '{MediaType.FORM}'. {DOCS_URL}");
+            => WriteErrorResponseAsync(context, $"Invalid 'Content-Type' header: non-supported media type. Must be of '{MediaType.JSON}', '{MediaType.GRAPH_QL}' or '{MediaType.FORM}'. {DOCS_URL}", HttpStatusCode.UnsupportedMediaType);
 
         protected virtual Task HandleInvalidHttpMethodErrorAsync(HttpContext context)
-            => WriteErrorResponseAsync(context, $"Invalid HTTP method. Only GET and POST are supported. {DOCS_URL}");
+            => WriteErrorResponseAsync(context, $"Invalid HTTP method. Only GET and POST are supported. {DOCS_URL}", HttpStatusCode.MethodNotAllowed);
 
         private static Task<ExecutionResult> ExecuteRequestAsync(GraphQLRequest gqlRequest, IDictionary<string, object> userContext, IGraphQLExecuter<TSchema> executer, IServiceProvider requestServices, CancellationToken token)
             => executer.ExecuteAsync(
@@ -222,7 +223,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             return Task.CompletedTask;
         }
 
-        protected virtual Task WriteErrorResponseAsync(HttpContext context, string errorMessage, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest)
+        protected virtual Task WriteErrorResponseAsync(HttpContext context, string errorMessage, HttpStatusCode httpStatusCode)
         {
             var result = new ExecutionResult
             {

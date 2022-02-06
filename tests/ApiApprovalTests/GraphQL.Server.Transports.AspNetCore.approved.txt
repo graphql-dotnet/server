@@ -26,7 +26,7 @@ namespace GraphQL.Server.Transports.AspNetCore
         public System.Threading.Tasks.Task InvokeAsync(Microsoft.AspNetCore.Http.HttpContext context) { }
         protected virtual System.Threading.Tasks.Task RequestExecutedAsync(in GraphQL.Server.Transports.AspNetCore.GraphQLRequestExecutionResult requestExecutionResult) { }
         protected virtual System.Threading.Tasks.Task RequestExecutingAsync(GraphQL.Transport.GraphQLRequest request, int? indexInBatch = default) { }
-        protected virtual System.Threading.Tasks.Task WriteErrorResponseAsync(Microsoft.AspNetCore.Http.HttpContext context, string errorMessage, System.Net.HttpStatusCode httpStatusCode = 400) { }
+        protected virtual System.Threading.Tasks.Task WriteErrorResponseAsync(Microsoft.AspNetCore.Http.HttpContext context, string errorMessage, System.Net.HttpStatusCode httpStatusCode) { }
     }
     public readonly struct GraphQLRequestExecutionResult
     {
