@@ -95,7 +95,7 @@ namespace Samples.Server.Tests
                 HttpMethod.Post,
                 new StringContent(Serializer.ToJson(new GraphQLRequest { Query = "query { __schema { queryType { name } } }" }), Encoding.UTF8, "something/unknown"),
                 HttpStatusCode.UnsupportedMediaType,
-                "Invalid 'Content-Type' header: non-supported media type. Must be of 'application/json', 'application/graphql' or 'application/x-www-form-urlencoded'. See: http://graphql.org/learn/serving-over-http/."
+                "Invalid 'Content-Type' header: non-supported media type 'something/unknown; charset=utf-8'. Must be of 'application/json', 'application/graphql' or 'application/x-www-form-urlencoded'. See: http://graphql.org/learn/serving-over-http/."
             },
 
             // POST with JSON mime type that doesn't start with an object or array token should be a bad request
