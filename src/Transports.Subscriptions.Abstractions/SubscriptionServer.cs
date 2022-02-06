@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
+using GraphQL.Transport;
 using Microsoft.Extensions.Logging;
 
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions

@@ -1,17 +1,19 @@
 using System;
 using System.Threading.Tasks;
+using GraphQL.Transport;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
 
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 {
     public class ProtocolMessageListener : IOperationMessageListener
     {
         private readonly ILogger<ProtocolMessageListener> _logger;
+        private readonly IGraphQLSerializer _serializer;
 
-        public ProtocolMessageListener(ILogger<ProtocolMessageListener> logger)
+        public ProtocolMessageListener(ILogger<ProtocolMessageListener> logger, IGraphQLSerializer serializer)
         {
             _logger = logger;
+            _serializer = serializer;
         }
 
         public Task BeforeHandleAsync(MessageHandlingContext context) => Task.CompletedTask;
@@ -62,9 +64,9 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         {
             var message = context.Message;
             _logger.LogDebug("Handle start: {id}", message.Id);
-            var payload = ((JObject)message.Payload).ToObject<OperationMessagePayload>();
+            var payload = _serializer.ReadNode<GraphQLRequest>(message.Payload);
             if (payload == null)
-                throw new InvalidOperationException("Could not get OperationMessagePayload from message.Payload");
+                throw new InvalidOperationException("Could not get GraphQLRequest from OperationMessage.Payload");
 
             return context.Subscriptions.SubscribeOrExecuteAsync(
                 message.Id,

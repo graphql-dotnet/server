@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
+using GraphQL.Transport;
 
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 {

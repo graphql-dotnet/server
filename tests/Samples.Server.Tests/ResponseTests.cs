@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using GraphQL.Server;
+using GraphQL.Transport;
 using Shouldly;
 using Xunit;
 
@@ -35,14 +36,14 @@ namespace Samples.Server.Tests
             var request = new GraphQLRequest
             {
                 Query = "mutation one ($content: String!, $fromId: String!, $sentAt: Date!) { addMessage(message: { content: $content, fromId: $fromId, sentAt: $sentAt }) { sentAt, content, from { id } } }",
-                Inputs = @"{ ""content"": ""one content"", ""sentAt"": ""2020-01-01"", ""fromId"": ""1"" }".ToInputs(),
+                Variables = @"{ ""content"": ""one content"", ""sentAt"": ""2020-01-01"", ""fromId"": ""1"" }".ToInputs(),
                 OperationName = "one"
             };
 
             var requestB = new GraphQLRequest
             {
                 Query = "mutation two ($content: String!, $fromId: String!, $sentAt: Date!) { addMessage(message: { content: $content, fromId: $fromId, sentAt: $sentAt }) { sentAt, content, from { id } } }",
-                Inputs = @"{ ""content"": ""two content"", ""sentAt"": ""2020-01-01"", ""fromId"": ""1"" }".ToInputs(),
+                Variables = @"{ ""content"": ""two content"", ""sentAt"": ""2020-01-01"", ""fromId"": ""1"" }".ToInputs(),
                 OperationName = "two"
             };
 
@@ -103,7 +104,7 @@ namespace Samples.Server.Tests
                 HttpMethod.Post,
                 new StringContent("Oops", Encoding.UTF8, "application/json"),
                 HttpStatusCode.BadRequest,
-                "JSON body text could not be parsed. Body text should start with '{' for normal graphql query or with '[' for batched query."
+                "JSON body text could not be parsed. 'O' is an invalid start of a value. Path: $ | LineNumber: 0 | BytePositionInLine: 0."
             },
 
             // POST with JSON mime type that is invalid JSON should be a bad request
@@ -115,6 +116,15 @@ namespace Samples.Server.Tests
                 "JSON body text could not be parsed. 'o' is an invalid start of a property name. Expected a '\"'. Path: $ | LineNumber: 0 | BytePositionInLine: 1."
             },
 
+            // POST with JSON mime type that is null JSON should be a bad request
+            new object[]
+            {
+                HttpMethod.Post,
+                new StringContent("null", Encoding.UTF8, "application/json"),
+                HttpStatusCode.BadRequest,
+                "GraphQL query is missing."
+            },
+
             // GET with an empty QueryString should be a bad request
             new object[]
             {
@@ -122,7 +132,7 @@ namespace Samples.Server.Tests
                 null,
                 HttpStatusCode.BadRequest,
                 "GraphQL query is missing."
-            }
+            },
         };
 
         [Theory]
@@ -152,7 +162,7 @@ namespace Samples.Server.Tests
             var request = new GraphQLRequest
             {
                 Query = "mutation ($content: String!, $fromId: String!, $sentAt: Date!) { addMessage(message: { content: $content, fromId: $fromId, sentAt: $sentAt }) { sentAt, content, from { id } } }",
-                Inputs = @"{ ""content"": ""some content"", ""sentAt"": ""2020-01-01"", ""fromId"": ""1"" }".ToInputs()
+                Variables = @"{ ""content"": ""some content"", ""sentAt"": ""2020-01-01"", ""fromId"": ""1"" }".ToInputs()
             };
             string response = await SendRequestAsync(request, requestType);
             response.ShouldBeEquivalentJson(
@@ -170,7 +180,7 @@ namespace Samples.Server.Tests
             var request = new GraphQLRequest
             {
                 Query = "mutation ($msg: MessageInputType!) { addMessage(message: $msg) { sentAt, content, from { id } } }",
-                Inputs = @"{ ""msg"": { ""content"": ""some content"", ""sentAt"": ""2020-01-01"", ""fromId"": ""1"" } }".ToInputs()
+                Variables = @"{ ""msg"": { ""content"": ""some content"", ""sentAt"": ""2020-01-01"", ""fromId"": ""1"" } }".ToInputs()
             };
             string response = await SendRequestAsync(request, requestType);
             response.ShouldBeEquivalentJson(
@@ -188,7 +198,7 @@ namespace Samples.Server.Tests
             var request = new GraphQLRequest
             {
                 Query = "{ __schema { queryType { name } } }",
-                Inputs = "{}".ToInputs()
+                Variables = "{}".ToInputs()
             };
             string response = await SendRequestAsync(request, requestType);
             response.ShouldBeEquivalentJson(@"{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}}", ignoreExtensions: true);

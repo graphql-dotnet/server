@@ -8,11 +8,12 @@
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Castle.Core" Version="4.4.1" />
+    <PackageReference Include="GraphQL.SystemTextJson" Version="5.0.0-preview-457" />
+    <PackageReference Include="GraphQL.NewtonsoftJson" Version="5.0.0-preview-457" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Transports.AspNetCore.NewtonsoftJson\Transports.AspNetCore.NewtonsoftJson.csproj" />
-    <ProjectReference Include="..\..\src\Transports.AspNetCore.SystemTextJson\Transports.AspNetCore.SystemTextJson.csproj" />
+    <ProjectReference Include="..\..\src\Transports.AspNetCore\Transports.AspNetCore.csproj" />
   </ItemGroup>
 
 </Project>

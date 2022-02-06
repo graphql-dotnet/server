@@ -6,6 +6,7 @@ using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using GraphQL.Instrumentation;
+using GraphQL.Transport;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,12 +32,12 @@ namespace GraphQL.Server.Transports.AspNetCore
         private const string DOCS_URL = "See: http://graphql.org/learn/serving-over-http/.";
 
         private readonly RequestDelegate _next;
-        private readonly IGraphQLRequestDeserializer _deserializer;
+        private readonly IGraphQLTextSerializer _serializer;
 
-        public GraphQLHttpMiddleware(RequestDelegate next, IGraphQLRequestDeserializer deserializer)
+        public GraphQLHttpMiddleware(RequestDelegate next, IGraphQLTextSerializer serializer)
         {
             _next = next;
-            _deserializer = deserializer;
+            _serializer = serializer;
         }
 
         public async Task InvokeAsync(HttpContext context)
@@ -90,17 +91,21 @@ namespace GraphQL.Server.Transports.AspNetCore
                 switch (mediaTypeHeader.MediaType)
                 {
                     case MediaType.JSON:
-                        var deserializationResult = await _deserializer.DeserializeFromJsonBodyAsync(httpRequest, cancellationToken);
-                        if (!deserializationResult.IsSuccessful)
+                        GraphQLRequest[] deserializationResult;
+                        try
                         {
-                            var message = deserializationResult.Exception is null
-                                ? "JSON body text could not be parsed."
-                                : $"JSON body text could not be parsed. {deserializationResult.Exception.Message}";
+                            deserializationResult = await _serializer.ReadAsync<GraphQLRequest[]>(httpRequest.Body, cancellationToken);
+                        }
+                        catch (Exception ex)
+                        {
+                            var message = $"JSON body text could not be parsed. {ex.Message}";
                             await WriteErrorResponseAsync(httpResponse, serializer, cancellationToken, message, HttpStatusCode.BadRequest);
                             return;
                         }
-                        bodyGQLRequest = deserializationResult.Single;
-                        bodyGQLBatchRequest = deserializationResult.Batch;
+                        if (deserializationResult?.Length == 1)
+                            bodyGQLRequest = deserializationResult[0];
+                        else
+                            bodyGQLBatchRequest = deserializationResult;
                         break;
 
                     case MediaType.GRAPH_QL:
@@ -133,7 +138,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                 gqlRequest = new GraphQLRequest
                 {
                     Query = urlGQLRequest.Query ?? bodyGQLRequest?.Query,
-                    Inputs = urlGQLRequest.Inputs ?? bodyGQLRequest?.Inputs,
+                    Variables = urlGQLRequest.Variables ?? bodyGQLRequest?.Variables,
                     Extensions = urlGQLRequest.Extensions ?? bodyGQLRequest?.Extensions,
                     OperationName = urlGQLRequest.OperationName ?? bodyGQLRequest?.OperationName
                 };
@@ -195,7 +200,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             => executer.ExecuteAsync(
                 gqlRequest.OperationName,
                 gqlRequest.Query,
-                gqlRequest.Inputs,
+                gqlRequest.Variables,
                 userContext,
                 requestServices,
                 token);
@@ -239,20 +244,25 @@ namespace GraphQL.Server.Transports.AspNetCore
             return serializer.WriteAsync(httpResponse.Body, result, cancellationToken);
         }
 
+        private const string QUERY_KEY = "query";
+        private const string VARIABLES_KEY = "variables";
+        private const string EXTENSIONS_KEY = "extensions";
+        private const string OPERATION_NAME_KEY = "operationName";
+
         private GraphQLRequest DeserializeFromQueryString(IQueryCollection queryCollection) => new GraphQLRequest
         {
-            Query = queryCollection.TryGetValue(GraphQLRequest.QUERY_KEY, out var queryValues) ? queryValues[0] : null,
-            Inputs = queryCollection.TryGetValue(GraphQLRequest.VARIABLES_KEY, out var variablesValues) ? _deserializer.DeserializeInputsFromJson(variablesValues[0]) : null,
-            Extensions = queryCollection.TryGetValue(GraphQLRequest.EXTENSIONS_KEY, out var extensionsValues) ? _deserializer.DeserializeInputsFromJson(extensionsValues[0]) : null,
-            OperationName = queryCollection.TryGetValue(GraphQLRequest.OPERATION_NAME_KEY, out var operationNameValues) ? operationNameValues[0] : null
+            Query = queryCollection.TryGetValue(QUERY_KEY, out var queryValues) ? queryValues[0] : null,
+            Variables = queryCollection.TryGetValue(VARIABLES_KEY, out var variablesValues) ? _serializer.Deserialize<Inputs>(variablesValues[0]) : null,
+            Extensions = queryCollection.TryGetValue(EXTENSIONS_KEY, out var extensionsValues) ? _serializer.Deserialize<Inputs>(extensionsValues[0]) : null,
+            OperationName = queryCollection.TryGetValue(OPERATION_NAME_KEY, out var operationNameValues) ? operationNameValues[0] : null
         };
 
         private GraphQLRequest DeserializeFromFormBody(IFormCollection formCollection) => new GraphQLRequest
         {
-            Query = formCollection.TryGetValue(GraphQLRequest.QUERY_KEY, out var queryValues) ? queryValues[0] : null,
-            Inputs = formCollection.TryGetValue(GraphQLRequest.VARIABLES_KEY, out var variablesValues) ? _deserializer.DeserializeInputsFromJson(variablesValues[0]) : null,
-            Extensions = formCollection.TryGetValue(GraphQLRequest.EXTENSIONS_KEY, out var extensionsValues) ? _deserializer.DeserializeInputsFromJson(extensionsValues[0]) : null,
-            OperationName = formCollection.TryGetValue(GraphQLRequest.OPERATION_NAME_KEY, out var operationNameValues) ? operationNameValues[0] : null
+            Query = formCollection.TryGetValue(QUERY_KEY, out var queryValues) ? queryValues[0] : null,
+            Variables = formCollection.TryGetValue(VARIABLES_KEY, out var variablesValues) ? _serializer.Deserialize<Inputs>(variablesValues[0]) : null,
+            Extensions = formCollection.TryGetValue(EXTENSIONS_KEY, out var extensionsValues) ? _serializer.Deserialize<Inputs>(extensionsValues[0]) : null,
+            OperationName = formCollection.TryGetValue(OPERATION_NAME_KEY, out var operationNameValues) ? operationNameValues[0] : null
         };
 
         private async Task<GraphQLRequest> DeserializeFromGraphBodyAsync(Stream bodyStream)

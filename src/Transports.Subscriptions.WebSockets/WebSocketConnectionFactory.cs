@@ -13,13 +13,13 @@ namespace GraphQL.Server.Transports.WebSockets
         private readonly ILoggerFactory _loggerFactory;
         private readonly IGraphQLExecuter<TSchema> _executer;
         private readonly IEnumerable<IOperationMessageListener> _messageListeners;
-        private readonly IGraphQLSerializer _serializer;
+        private readonly IGraphQLTextSerializer _serializer;
 
         public WebSocketConnectionFactory(ILogger<WebSocketConnectionFactory<TSchema>> logger,
             ILoggerFactory loggerFactory,
             IGraphQLExecuter<TSchema> executer,
             IEnumerable<IOperationMessageListener> messageListeners,
-            IGraphQLSerializer serializer)
+            IGraphQLTextSerializer serializer)
         {
             _logger = logger;
             _loggerFactory = loggerFactory;

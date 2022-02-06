@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using GraphQL.Samples.Server;
 using GraphQL.Server;
 using GraphQL.Server.Transports.AspNetCore;
+using GraphQL.Transport;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Hosting;
 
@@ -98,7 +99,7 @@ namespace Samples.Server.Tests
                     {
                         Query = queryStringOverride?.Query,
                         OperationName = queryStringOverride?.OperationName ?? request.OperationName,
-                        Inputs = queryStringOverride?.Inputs ?? request.Inputs
+                        Variables = queryStringOverride?.Variables ?? request.Variables
                     });
                     var graphContent = new StringContent(request.Query, Encoding.UTF8, MediaType.GRAPH_QL);
                     response = await Client.PostAsync(urlWithParams, graphContent);

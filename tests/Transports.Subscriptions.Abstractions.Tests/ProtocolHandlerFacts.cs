@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using GraphQL.NewtonsoftJson;
 using GraphQL.Subscription;
+using GraphQL.Transport;
 using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json.Linq;
 using NSubstitute;
@@ -34,7 +36,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
                     }
                 });
             _subscriptionManager = new SubscriptionManager(_documentExecuter, new NullLoggerFactory());
-            _sut = new ProtocolMessageListener(new NullLogger<ProtocolMessageListener>());
+            _sut = new ProtocolMessageListener(new NullLogger<ProtocolMessageListener>(), new GraphQLSerializer());
             _server = new SubscriptionServer(
                 _transport,
                 _subscriptionManager,
@@ -71,7 +73,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             {
                 Type = MessageType.GQL_START,
                 Id = "1",
-                Payload = JObject.FromObject(new OperationMessagePayload
+                Payload = FromObject(new GraphQLRequest
                 {
                     Query = @"mutation AddMessage($message: MessageInputType!) {
   addMessage(message: $message) {
@@ -108,7 +110,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             {
                 Type = MessageType.GQL_START,
                 Id = "1",
-                Payload = JObject.FromObject(new OperationMessagePayload
+                Payload = FromObject(new GraphQLRequest
                 {
                     Query = @"{
   human() {
@@ -140,7 +142,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             {
                 Type = MessageType.GQL_START,
                 Id = "1",
-                Payload = JObject.FromObject(new OperationMessagePayload
+                Payload = FromObject(new GraphQLRequest
                 {
                     Query = @"subscription MessageAdded {
   messageAdded {
@@ -168,7 +170,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             {
                 Type = MessageType.GQL_START,
                 Id = "1",
-                Payload = JObject.FromObject(new OperationMessagePayload
+                Payload = FromObject(new GraphQLRequest
                 {
                     Query = "query"
                 })
@@ -198,7 +200,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             {
                 Type = MessageType.GQL_CONNECTION_TERMINATE,
                 Id = "1",
-                Payload = JObject.FromObject(new OperationMessagePayload
+                Payload = FromObject(new GraphQLRequest
                 {
                     Query = "query"
                 })
@@ -230,6 +232,13 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             /* Then */
             Assert.Contains(_transportWriter.WrittenMessages,
                 message => message.Type == MessageType.GQL_CONNECTION_ERROR);
+        }
+
+        private JObject FromObject(object value)
+        {
+            var serializer = new GraphQLSerializer();
+            var data = serializer.Serialize(value);
+            return serializer.Deserialize<JObject>(data);
         }
     }
 }

@@ -3,8 +3,6 @@ using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
 using GraphQL.Server.Transports.Subscriptions.Abstractions;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 
 namespace GraphQL.Server.Transports.WebSockets
 {
@@ -12,17 +10,11 @@ namespace GraphQL.Server.Transports.WebSockets
     {
         private readonly WebSocket _socket;
 
-        public WebSocketTransport(WebSocket socket, IGraphQLSerializer serializer)
+        public WebSocketTransport(WebSocket socket, IGraphQLTextSerializer serializer)
         {
             _socket = socket;
-            var serializerSettings = new JsonSerializerSettings
-            {
-                DateFormatHandling = DateFormatHandling.IsoDateFormat,
-                DateFormatString = "yyyy'-'MM'-'dd'T'HH':'mm':'ss.FFFFFFF'Z'",
-                ContractResolver = new CamelCasePropertyNamesContractResolver()
-            };
 
-            Reader = new WebSocketReaderPipeline(_socket, serializerSettings);
+            Reader = new WebSocketReaderPipeline(_socket, serializer);
             Writer = new WebSocketWriterPipeline(_socket, serializer);
         }
 

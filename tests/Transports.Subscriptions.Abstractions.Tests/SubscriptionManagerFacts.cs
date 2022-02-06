@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using GraphQL.Subscription;
+using GraphQL.Transport;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using Xunit;
@@ -36,7 +37,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         {
             /* Given */
             string id = "1";
-            var payload = new OperationMessagePayload();
+            var payload = new GraphQLRequest();
             var context = new MessageHandlingContext(_server, null);
 
             _executer.ExecuteAsync(null, null, null, null, null).ReturnsForAnyArgs(
@@ -60,7 +61,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         {
             /* Given */
             string id = "1";
-            var payload = new OperationMessagePayload();
+            var payload = new GraphQLRequest();
             var context = new MessageHandlingContext(_server, null);
 
             _executer.ExecuteAsync(null, null, null, null, null).ReturnsForAnyArgs(
@@ -87,7 +88,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         {
             /* Given */
             string id = "1";
-            var payload = new OperationMessagePayload();
+            var payload = new GraphQLRequest();
             var context = new MessageHandlingContext(_server, null);
 
             _executer.ExecuteAsync(null, null, null, null, null).ReturnsForAnyArgs(
@@ -114,7 +115,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         {
             /* Given */
             string id = "1";
-            var payload = new OperationMessagePayload();
+            var payload = new GraphQLRequest();
             var context = new MessageHandlingContext(_server, null);
 
             /* When */
@@ -129,7 +130,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         {
             /* Given */
             string id = "1";
-            var payload = new OperationMessagePayload();
+            var payload = new GraphQLRequest();
             var context = new MessageHandlingContext(_server, null);
 
             /* When */
@@ -149,7 +150,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         {
             /* Given */
             string id = "1";
-            var payload = new OperationMessagePayload();
+            var payload = new GraphQLRequest();
             var context = new MessageHandlingContext(_server, null);
 
             await _sut.SubscribeOrExecuteAsync(id, payload, context);
@@ -166,7 +167,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         {
             /* Given */
             string id = "1";
-            var payload = new OperationMessagePayload();
+            var payload = new GraphQLRequest();
             var context = new MessageHandlingContext(_server, null);
 
             await _sut.SubscribeOrExecuteAsync(id, payload, context);

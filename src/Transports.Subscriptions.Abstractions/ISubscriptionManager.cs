@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using GraphQL.Transport;
 
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 {
@@ -15,7 +16,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         /// <param name="payload"></param>
         /// <param name="context"></param>
         /// <returns></returns>
-        Task SubscribeOrExecuteAsync(string id, OperationMessagePayload payload, MessageHandlingContext context);
+        Task SubscribeOrExecuteAsync(string id, GraphQLRequest payload, MessageHandlingContext context);
 
         /// <summary>
         ///     Unsubscribe subscription

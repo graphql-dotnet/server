@@ -2,8 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using GraphQL.Execution;
+using GraphQL.NewtonsoftJson;
 using GraphQL.Samples.Schemas.Chat;
+using GraphQL.Transport;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
@@ -30,7 +31,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
             _server = new SubscriptionServer(
                 _transport,
                 _subscriptions,
-                new[] { new ProtocolMessageListener(new NullLogger<ProtocolMessageListener>()) },
+                new[] { new ProtocolMessageListener(new NullLogger<ProtocolMessageListener>(), new GraphQLSerializer()) },
                 new NullLogger<SubscriptionServer>()
             );
         }
@@ -48,9 +49,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
             var results = dataMessages.Select(m =>
             {
                 var executionResult = (ExecutionResult)m.Payload;
-                var serializer = new Newtonsoft.Json.JsonSerializer();
-                serializer.Converters.Add(new NewtonsoftJson.ExecutionResultJsonConverter(new ErrorInfoProvider()));
-                return JObject.FromObject(executionResult, serializer);
+                return FromObject(executionResult);
             }).ToList();
 
             Assert.Contains(results, predicate);
@@ -77,7 +76,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
             {
                 Id = id,
                 Type = MessageType.GQL_START,
-                Payload = JObject.FromObject(new OperationMessagePayload
+                Payload = FromObject(new GraphQLRequest
                 {
                     OperationName = "",
                     Query = @"mutation AddMessage($message: MessageInputType!) {
@@ -89,7 +88,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
     content
   }
 }",
-                    Variables = JObject.Parse(@"{
+                    Variables = ToInputs(@"{
   ""message"": {
         ""content"": ""Message"",
         ""fromId"": ""1""
@@ -133,7 +132,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
             {
                 Id = id,
                 Type = MessageType.GQL_START,
-                Payload = JObject.FromObject(new OperationMessagePayload
+                Payload = FromObject(new GraphQLRequest
                 {
                     OperationName = "",
                     Query = @"query AllMessages { 
@@ -178,7 +177,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
             {
                 Id = id,
                 Type = MessageType.GQL_START,
-                Payload = JObject.FromObject(new OperationMessagePayload
+                Payload = FromObject(new GraphQLRequest
                 {
                     OperationName = "",
                     Query = @"subscription MessageAdded {
@@ -212,6 +211,16 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
             Assert.Contains(_transportWriter.WrittenMessages, message => message.Type == MessageType.GQL_CONNECTION_ACK);
             AssertReceivedData(_transportWriter.WrittenMessages, data => ((JObject)data["data"]).ContainsKey("messageAdded"));
             Assert.Contains(_transportWriter.WrittenMessages, message => message.Type == MessageType.GQL_COMPLETE);
+        }
+
+        private Inputs ToInputs(string json)
+            => new GraphQLSerializer().Deserialize<Inputs>(json);
+
+        private JObject FromObject(object value)
+        {
+            var serializer = new GraphQLSerializer();
+            var data = serializer.Serialize(value);
+            return serializer.Deserialize<JObject>(data);
         }
     }
 }

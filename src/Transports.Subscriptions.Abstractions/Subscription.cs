@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using GraphQL.Subscription;
+using GraphQL.Transport;
 using Microsoft.Extensions.Logging;
 
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions
@@ -20,7 +21,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         private IDisposable? _unsubscribe;
 
         public Subscription(string id,
-            OperationMessagePayload payload,
+            GraphQLRequest payload,
             SubscriptionExecutionResult result,
             IWriterPipeline writer,
             Action<Subscription>? completed,
@@ -37,7 +38,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 
         public string Id { get; }
 
-        public OperationMessagePayload OriginalPayload { get; }
+        public GraphQLRequest OriginalPayload { get; }
 
         public void OnCompleted()
         {
