@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using GraphQL.Execution;
 using GraphQL.NewtonsoftJson;
 using GraphQL.Samples.Schemas.Chat;
 using GraphQL.Transport;

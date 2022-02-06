@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -46,10 +45,10 @@ namespace GraphQL.Server.Transports.AspNetCore.Tests
         }
 
         [Fact]
-        public async Task Dates_Should_Parse_As_Dates()
+        public async Task Dates_Should_Parse_As_Text()
         {
             var ret = await Deserialize(@"{""variables"":{""date"":""2015-12-22T10:10:10+03:00""}}");
-            ret.Single().Variables["date"].ShouldBeOfType<DateTime>().ShouldBe(new DateTimeOffset(2015, 12, 22, 10, 10, 10, TimeSpan.FromHours(3)).LocalDateTime);
+            ret.Single().Variables["date"].ShouldBeOfType<string>().ShouldBe("2015-12-22T10:10:10+03:00");
         }
 
         [Fact]
@@ -62,9 +61,8 @@ namespace GraphQL.Server.Transports.AspNetCore.Tests
         [Fact]
         public async Task Name_Matching_Is_Case_Sensitive()
         {
-            var exception = await Should.ThrowAsync<Newtonsoft.Json.JsonException>(()
-                => Deserialize(@"{""VARIABLES"":{""date"":""2015-12-22T10:10:10+03:00""}}"));
-            exception.Message.ShouldBe("Exception of type 'Newtonsoft.Json.JsonException' was thrown.");
+            var ret = await Deserialize(@"{""VARIABLES"":{""date"":""2015-12-22T10:10:10+03:00""}}");
+            ret.Single().Variables.ShouldBeNull();
         }
 
         [Fact]
