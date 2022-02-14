@@ -40,7 +40,7 @@ namespace GraphQL.Samples.Server
 
         protected override CancellationToken GetCancellationToken(HttpContext context)
         {
-            // custom CancellationToken example 
+            // custom CancellationToken example
             var cts = CancellationTokenSource.CreateLinkedTokenSource(base.GetCancellationToken(context), new CancellationTokenSource(TimeSpan.FromSeconds(5)).Token);
             return cts.Token;
         }

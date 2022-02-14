@@ -8,7 +8,9 @@ namespace GraphQL.Server.Ui.GraphiQL
     public class GraphiQLOptions
     {
         public GraphiQLOptions() { }
+        public bool ExplorerExtensionEnabled { get; set; }
         public Microsoft.AspNetCore.Http.PathString GraphQLEndPoint { get; set; }
+        public bool HeaderEditorEnabled { get; set; }
         public System.Collections.Generic.Dictionary<string, string>? Headers { get; set; }
         public System.Func<GraphQL.Server.Ui.GraphiQL.GraphiQLOptions, System.IO.Stream> IndexStream { get; set; }
         public System.Func<GraphQL.Server.Ui.GraphiQL.GraphiQLOptions, string, string> PostConfigure { get; set; }

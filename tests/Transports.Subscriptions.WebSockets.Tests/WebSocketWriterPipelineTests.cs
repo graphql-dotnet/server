@@ -40,7 +40,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
                             }
                         }
                     },
-                    95
+                    83
                 },
                 new object[]
                 {
@@ -56,7 +56,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
                             }, 10)
                         }
                     },
-                    664
+                    652
                 },
                 new object[]
                 {
@@ -73,7 +73,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
                         }
                     },
                     // About 1 megabyte
-                    1_008_034
+                    1_008_022
                 },
                 new object[]
                 {
@@ -90,7 +90,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
                         }
                     },
                     // About 10 megabytes
-                    10_080_034
+                    10_080_022
                 },
                 new object[]
                 {
@@ -107,7 +107,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
                         }
                     },
                     // About 100 megabytes
-                    100_800_034
+                    100_800_022
                 },
             };
 
@@ -134,7 +134,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
 
             string resultingJson = Encoding.UTF8.GetString(_testWebSocket.Messages.First().ToArray());
             Assert.Equal(
-                "{\"type\":null,\"payload\":{\"data\":{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}}}",
+                "{\"payload\":{\"data\":{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}}}",
                 resultingJson);
         }
 
@@ -161,7 +161,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
 
             string resultingJson = Encoding.UTF8.GetString(_testWebSocket.Messages.First().ToArray());
             Assert.Equal(
-                "{\"type\":null,\"payload\":" +
+                "{\"payload\":" +
                     "{\"data\":[" +
                         "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
                         "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
