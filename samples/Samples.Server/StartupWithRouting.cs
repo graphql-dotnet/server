@@ -9,6 +9,7 @@ using GraphQL.Server.Ui.Altair;
 using GraphQL.Server.Ui.GraphiQL;
 using GraphQL.Server.Ui.Playground;
 using GraphQL.Server.Ui.Voyager;
+using GraphQL.SystemReactive;
 using GraphQL.SystemTextJson;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -41,7 +42,7 @@ namespace GraphQL.Samples.Server
 
             services.AddGraphQL(builder => builder
                 .AddServer(true)
-                .AddDocumentExecuter<SubscriptionDocumentExecuter>()
+                .AddSubscriptionExecutionStrategy()
                 .AddSchema<ChatSchema>()
                 .ConfigureExecutionOptions(options =>
                 {
