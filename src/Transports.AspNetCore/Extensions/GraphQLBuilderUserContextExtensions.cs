@@ -149,7 +149,7 @@ namespace GraphQL.Server
         /// <returns>The GraphQL builder.</returns>
         public static DI.IGraphQLBuilder AddDefaultEndpointSelectorPolicy(this DI.IGraphQLBuilder builder)
         {
-            builder.TryRegister<MatcherPolicy, GraphQLDefaultEndpointSelectorPolicy>(DI.ServiceLifetime.Singleton);
+            builder.Register<MatcherPolicy, GraphQLDefaultEndpointSelectorPolicy>(DI.ServiceLifetime.Singleton);
 
             return builder;
         }
