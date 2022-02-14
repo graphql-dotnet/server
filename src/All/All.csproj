@@ -22,6 +22,7 @@
     <PackageReference Include="GraphQL.MemoryCache" Version="5.0.0-preview-473" />
     <PackageReference Include="GraphQL.MicrosoftDI" Version="5.0.0-preview-473" />
     <PackageReference Include="GraphQL.SystemReactive" Version="5.0.0-preview-473" />
+    <PackageReference Include="GraphQL.SystemTextJson" Version="5.0.0-preview-473" />
   </ItemGroup>
 
 </Project>
