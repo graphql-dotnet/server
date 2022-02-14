@@ -27,7 +27,9 @@ namespace GraphQL.Server.Transports.WebSockets
     public class WebSocketConnectionFactory<TSchema> : GraphQL.Server.Transports.WebSockets.IWebSocketConnectionFactory<TSchema>
         where TSchema : GraphQL.Types.ISchema
     {
+        [System.Obsolete]
         public WebSocketConnectionFactory(Microsoft.Extensions.Logging.ILogger<GraphQL.Server.Transports.WebSockets.WebSocketConnectionFactory<TSchema>> logger, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory, GraphQL.Server.IGraphQLExecuter<TSchema> executer, System.Collections.Generic.IEnumerable<GraphQL.Server.Transports.Subscriptions.Abstractions.IOperationMessageListener> messageListeners, GraphQL.IGraphQLTextSerializer serializer) { }
+        public WebSocketConnectionFactory(Microsoft.Extensions.Logging.ILogger<GraphQL.Server.Transports.WebSockets.WebSocketConnectionFactory<TSchema>> logger, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory, GraphQL.Server.IGraphQLExecuter<TSchema> executer, System.Collections.Generic.IEnumerable<GraphQL.Server.Transports.Subscriptions.Abstractions.IOperationMessageListener> messageListeners, GraphQL.IGraphQLTextSerializer serializer, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory) { }
         public GraphQL.Server.Transports.WebSockets.WebSocketConnection CreateConnection(System.Net.WebSockets.WebSocket socket, string connectionId) { }
     }
     public class WebSocketReaderPipeline : GraphQL.Server.Transports.Subscriptions.Abstractions.IReaderPipeline

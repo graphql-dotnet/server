@@ -1,4 +1,6 @@
-test: ['tests/**/*', '!tests/ApiApprovalTests/**/*.txt']
+test:
+  - tests/*.Tests/**/*
+  - tests/ApiApprovalTests/**/*.cs
 
 CI:
   - .github/workflows/**/*

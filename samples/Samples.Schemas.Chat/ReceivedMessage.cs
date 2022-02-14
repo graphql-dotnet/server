@@ -8,6 +8,6 @@ namespace GraphQL.Samples.Schemas.Chat
 
         public string Content { get; set; }
 
-        public DateTime SentAt { get; set; }
+        public DateTime? SentAt { get; set; }
     }
 }
