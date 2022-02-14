@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../../Tests.props" />
 
   <PropertyGroup>
@@ -8,8 +8,8 @@
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Castle.Core" Version="4.4.1" />
-    <PackageReference Include="GraphQL.SystemTextJson" Version="5.0.0-preview-457" />
-    <PackageReference Include="GraphQL.NewtonsoftJson" Version="5.0.0-preview-457" />
+    <PackageReference Include="GraphQL.SystemTextJson" Version="5.0.0-preview-473" />
+    <PackageReference Include="GraphQL.NewtonsoftJson" Version="5.0.0-preview-473" />
   </ItemGroup>
 
   <ItemGroup>
