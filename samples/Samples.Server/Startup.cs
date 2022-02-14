@@ -43,7 +43,7 @@ namespace GraphQL.Samples.Server
 
             services.AddGraphQL(builder => builder
                 .AddServer(true)
-                .AddDocumentExecuter<SubscriptionDocumentExecuter>()
+                .AddSubscriptionExecutionStrategy()
                 .AddSchema<ChatSchema>()
                 .ConfigureExecutionOptions(options =>
                 {
