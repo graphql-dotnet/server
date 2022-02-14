@@ -41,8 +41,8 @@ namespace GraphQL.Server.Transports.WebSockets
             _loggerFactory = loggerFactory;
             _executer = executer;
             _messageListeners = messageListeners;
-            _serviceScopeFactory = serviceScopeFactory;
             _serializer = serializer;
+            _serviceScopeFactory = serviceScopeFactory;
         }
 
         public WebSocketConnection CreateConnection(WebSocket socket, string connectionId)
