@@ -19,10 +19,10 @@
     <ProjectReference Include="..\Ui.Playground\Ui.Playground.csproj" />
     <ProjectReference Include="..\Ui.Voyager\Ui.Voyager.csproj" />
 
-    <PackageReference Include="GraphQL.MemoryCache" Version="5.0.0-preview-473" />
-    <PackageReference Include="GraphQL.MicrosoftDI" Version="5.0.0-preview-473" />
-    <PackageReference Include="GraphQL.SystemReactive" Version="5.0.0-preview-473" />
-    <PackageReference Include="GraphQL.SystemTextJson" Version="5.0.0-preview-473" />
+    <PackageReference Include="GraphQL.MemoryCache" Version="5.0.0-preview-476" />
+    <PackageReference Include="GraphQL.MicrosoftDI" Version="5.0.0-preview-476" />
+    <PackageReference Include="GraphQL.SystemReactive" Version="5.0.0-preview-476" />
+    <PackageReference Include="GraphQL.SystemTextJson" Version="5.0.0-preview-476" />
   </ItemGroup>
 
 </Project>
