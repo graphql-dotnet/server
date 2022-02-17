@@ -34,7 +34,7 @@ namespace GraphQL.Samples.Server
         {
             services.AddSingleton<IChat, Chat>();
 
-            MicrosoftDI.GraphQLBuilderExtensions.AddGraphQL(services)
+            var graphql = MicrosoftDI.GraphQLBuilderExtensions.AddGraphQL(services)
                 .AddSubscriptionDocumentExecuter()
                 .AddServer(true)
                 .AddSchema<ChatSchema>()
@@ -44,12 +44,22 @@ namespace GraphQL.Samples.Server
                     var logger = options.RequestServices.GetRequiredService<ILogger<Startup>>();
                     options.UnhandledExceptionDelegate = ctx => logger.LogError("{Error} occurred", ctx.OriginalException.Message);
                 })
+
                 .AddSystemTextJson()
                 .AddErrorInfoProvider<CustomErrorInfoProvider>()
                 .Configure<ErrorInfoProviderOptions>(opt => opt.ExposeExceptionStackTrace = Environment.IsDevelopment())
                 .AddWebSockets()
                 .AddDataLoader()
                 .AddGraphTypes(typeof(ChatSchema).Assembly);
+
+            if (Configuration["serializer:type"] == "NewtonsoftJson")
+            {
+                graphql.AddNewtonsoftJson();
+            }
+            else
+            {
+                graphql.AddSystemTextJson();
+            }
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
