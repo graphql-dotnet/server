@@ -149,7 +149,17 @@ namespace GraphQL.Server.Transports.AspNetCore
                 : await userContextBuilder.BuildUserContext(context);
 
             var executer = context.RequestServices.GetRequiredService<IGraphQLExecuter<TSchema>>();
+            await HandleRequest(context, userContext, bodyGQLBatchRequest, gqlRequest, executer, cancellationToken);
+        }
 
+        protected virtual async Task HandleRequest(
+            HttpContext context,
+            IDictionary<string, object> userContext,
+            GraphQLRequest[] bodyGQLBatchRequest,
+            GraphQLRequest gqlRequest,
+            IGraphQLExecuter<TSchema> executer,
+            CancellationToken cancellationToken)
+        {
             // Normal execution with single graphql request
             if (bodyGQLBatchRequest == null)
             {
@@ -159,7 +169,7 @@ namespace GraphQL.Server.Transports.AspNetCore
 
                 await RequestExecutedAsync(new GraphQLRequestExecutionResult(gqlRequest, result, stopwatch.Elapsed));
 
-                await WriteResponseAsync(httpResponse, serializer, cancellationToken, result);
+                await WriteResponseAsync(context.Response, _serializer, cancellationToken, result);
             }
             // Execute multiple graphql requests in one batch
             else
@@ -178,7 +188,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                     executionResults[i] = result;
                 }
 
-                await WriteResponseAsync(httpResponse, serializer, cancellationToken, executionResults);
+                await WriteResponseAsync(context.Response, _serializer, cancellationToken, executionResults);
             }
         }
 
