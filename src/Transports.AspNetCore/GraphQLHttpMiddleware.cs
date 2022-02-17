@@ -26,25 +26,23 @@ namespace GraphQL.Server.Transports.AspNetCore
     /// Attention! The current implementation does not impose such a restriction and allows mutations in GET requests.
     /// </summary>
     /// <typeparam name="TSchema">Type of GraphQL schema that is used to validate and process requests.</typeparam>
-    public class GraphQLHttpMiddleware<TSchema>
+    public class GraphQLHttpMiddleware<TSchema> : IMiddleware
         where TSchema : ISchema
     {
         private const string DOCS_URL = "See: http://graphql.org/learn/serving-over-http/.";
 
-        private readonly RequestDelegate _next;
         private readonly IGraphQLTextSerializer _serializer;
 
-        public GraphQLHttpMiddleware(RequestDelegate next, IGraphQLTextSerializer serializer)
+        public GraphQLHttpMiddleware(IGraphQLTextSerializer serializer)
         {
-            _next = next;
             _serializer = serializer;
         }
 
-        public async Task InvokeAsync(HttpContext context)
+        public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
             if (context.WebSockets.IsWebSocketRequest)
             {
-                await _next(context);
+                await next(context);
                 return;
             }
 
@@ -53,7 +51,6 @@ namespace GraphQL.Server.Transports.AspNetCore
             var httpRequest = context.Request;
             var httpResponse = context.Response;
 
-            var serializer = context.RequestServices.GetRequiredService<IGraphQLSerializer>();
             var cancellationToken = GetCancellationToken(context);
 
             // GraphQL HTTP only supports GET and POST methods
@@ -149,7 +146,17 @@ namespace GraphQL.Server.Transports.AspNetCore
                 : await userContextBuilder.BuildUserContext(context);
 
             var executer = context.RequestServices.GetRequiredService<IGraphQLExecuter<TSchema>>();
+            await HandleRequestAsync(context, userContext, bodyGQLBatchRequest, gqlRequest, executer, cancellationToken);
+        }
 
+        protected virtual async Task HandleRequestAsync(
+            HttpContext context,
+            IDictionary<string, object> userContext,
+            GraphQLRequest[] bodyGQLBatchRequest,
+            GraphQLRequest gqlRequest,
+            IGraphQLExecuter<TSchema> executer,
+            CancellationToken cancellationToken)
+        {
             // Normal execution with single graphql request
             if (bodyGQLBatchRequest == null)
             {
@@ -159,7 +166,7 @@ namespace GraphQL.Server.Transports.AspNetCore
 
                 await RequestExecutedAsync(new GraphQLRequestExecutionResult(gqlRequest, result, stopwatch.Elapsed));
 
-                await WriteResponseAsync(httpResponse, serializer, cancellationToken, result);
+                await WriteResponseAsync(context.Response, _serializer, cancellationToken, result);
             }
             // Execute multiple graphql requests in one batch
             else
@@ -178,7 +185,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                     executionResults[i] = result;
                 }
 
-                await WriteResponseAsync(httpResponse, serializer, cancellationToken, executionResults);
+                await WriteResponseAsync(context.Response, _serializer, cancellationToken, executionResults);
             }
         }
 

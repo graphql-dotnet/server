@@ -10,7 +10,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         public void ConfigureServices(IServiceCollection services)
         {
             services
-                .AddGraphQL(builder => builder.AddWebSockets())
+                .AddGraphQL(builder => builder.AddWebSockets().AddWebSocketsHttpMiddleware<TestSchema>())
                 .AddSingleton<TestSchema>()
                 .AddLogging(builder =>
                 {

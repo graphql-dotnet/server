@@ -12,19 +12,17 @@ namespace GraphQL.Server.Transports.WebSockets
     /// ASP.NET Core middleware for processing GraphQL web socket requests. This middleware useful with and without ASP.NET Core routing.
     /// </summary>
     /// <typeparam name="TSchema">Type of GraphQL schema that is used to process requests.</typeparam>
-    public class GraphQLWebSocketsMiddleware<TSchema>
+    public class GraphQLWebSocketsMiddleware<TSchema> : IMiddleware
         where TSchema : ISchema
     {
-        private readonly RequestDelegate _next;
         private readonly ILogger<GraphQLWebSocketsMiddleware<TSchema>> _logger;
 
-        public GraphQLWebSocketsMiddleware(RequestDelegate next, ILogger<GraphQLWebSocketsMiddleware<TSchema>> logger)
+        public GraphQLWebSocketsMiddleware(ILogger<GraphQLWebSocketsMiddleware<TSchema>> logger)
         {
-            _next = next;
             _logger = logger;
         }
 
-        public async Task InvokeAsync(HttpContext context)
+        public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
             using (_logger.BeginScope(new Dictionary<string, object>
             {
@@ -35,7 +33,7 @@ namespace GraphQL.Server.Transports.WebSockets
                 if (!context.WebSockets.IsWebSocketRequest)
                 {
                     _logger.LogDebug("Request is not a valid websocket request");
-                    await _next(context);
+                    await next(context);
 
                     return;
                 }

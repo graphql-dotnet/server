@@ -3,15 +3,20 @@ namespace GraphQL.Server
     public static class GraphQLBuilderWebSocketsExtensions
     {
         public static GraphQL.DI.IGraphQLBuilder AddWebSockets(this GraphQL.DI.IGraphQLBuilder builder) { }
+        public static GraphQL.DI.IGraphQLBuilder AddWebSocketsHttpMiddleware<TSchema>(this GraphQL.DI.IGraphQLBuilder builder)
+            where TSchema : GraphQL.Types.ISchema { }
+        public static GraphQL.DI.IGraphQLBuilder AddWebSocketsHttpMiddleware<TSchema, TMiddleware>(this GraphQL.DI.IGraphQLBuilder builder)
+            where TSchema : GraphQL.Types.ISchema
+            where TMiddleware : GraphQL.Server.Transports.WebSockets.GraphQLWebSocketsMiddleware<TSchema> { }
     }
 }
 namespace GraphQL.Server.Transports.WebSockets
 {
-    public class GraphQLWebSocketsMiddleware<TSchema>
+    public class GraphQLWebSocketsMiddleware<TSchema> : Microsoft.AspNetCore.Http.IMiddleware
         where TSchema : GraphQL.Types.ISchema
     {
-        public GraphQLWebSocketsMiddleware(Microsoft.AspNetCore.Http.RequestDelegate next, Microsoft.Extensions.Logging.ILogger<GraphQL.Server.Transports.WebSockets.GraphQLWebSocketsMiddleware<TSchema>> logger) { }
-        public System.Threading.Tasks.Task InvokeAsync(Microsoft.AspNetCore.Http.HttpContext context) { }
+        public GraphQLWebSocketsMiddleware(Microsoft.Extensions.Logging.ILogger<GraphQL.Server.Transports.WebSockets.GraphQLWebSocketsMiddleware<TSchema>> logger) { }
+        public System.Threading.Tasks.Task InvokeAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next) { }
     }
     public interface IWebSocketConnectionFactory<TSchema>
         where TSchema : GraphQL.Types.ISchema
