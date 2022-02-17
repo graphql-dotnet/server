@@ -42,8 +42,8 @@ namespace GraphQL.Samples.Server
 
             services.AddGraphQL(builder => builder
                 .AddServer(true)
-                .AddMiddleware<ChatSchema, GraphQLHttpMiddlewareWithLogs<ChatSchema>>()
-                .AddWebSocketsMiddleware<ChatSchema>()
+                .AddHttpMiddleware<ChatSchema, GraphQLHttpMiddlewareWithLogs<ChatSchema>>()
+                .AddWebSocketsHttpMiddleware<ChatSchema>()
                 .AddSubscriptionExecutionStrategy()
                 .AddSchema<ChatSchema>()
                 .ConfigureExecutionOptions(options =>

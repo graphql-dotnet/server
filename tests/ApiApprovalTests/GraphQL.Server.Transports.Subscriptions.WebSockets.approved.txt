@@ -3,9 +3,9 @@ namespace GraphQL.Server
     public static class GraphQLBuilderWebSocketsExtensions
     {
         public static GraphQL.DI.IGraphQLBuilder AddWebSockets(this GraphQL.DI.IGraphQLBuilder builder) { }
-        public static GraphQL.DI.IGraphQLBuilder AddWebSocketsMiddleware<TSchema>(this GraphQL.DI.IGraphQLBuilder builder)
+        public static GraphQL.DI.IGraphQLBuilder AddWebSocketsHttpMiddleware<TSchema>(this GraphQL.DI.IGraphQLBuilder builder)
             where TSchema : GraphQL.Types.ISchema { }
-        public static GraphQL.DI.IGraphQLBuilder AddWebSocketsMiddleware<TSchema, TMiddleware>(this GraphQL.DI.IGraphQLBuilder builder)
+        public static GraphQL.DI.IGraphQLBuilder AddWebSocketsHttpMiddleware<TSchema, TMiddleware>(this GraphQL.DI.IGraphQLBuilder builder)
             where TSchema : GraphQL.Types.ISchema
             where TMiddleware : GraphQL.Server.Transports.WebSockets.GraphQLWebSocketsMiddleware<TSchema> { }
     }

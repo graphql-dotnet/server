@@ -2,9 +2,9 @@ namespace GraphQL.Server
 {
     public static class GraphQLBuilderMiddlewareExtensions
     {
-        public static GraphQL.DI.IGraphQLBuilder AddMiddleware<TSchema>(this GraphQL.DI.IGraphQLBuilder builder)
+        public static GraphQL.DI.IGraphQLBuilder AddHttpMiddleware<TSchema>(this GraphQL.DI.IGraphQLBuilder builder)
             where TSchema : GraphQL.Types.ISchema { }
-        public static GraphQL.DI.IGraphQLBuilder AddMiddleware<TSchema, TMiddleware>(this GraphQL.DI.IGraphQLBuilder builder)
+        public static GraphQL.DI.IGraphQLBuilder AddHttpMiddleware<TSchema, TMiddleware>(this GraphQL.DI.IGraphQLBuilder builder)
             where TSchema : GraphQL.Types.ISchema
             where TMiddleware : GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddleware<TSchema> { }
     }

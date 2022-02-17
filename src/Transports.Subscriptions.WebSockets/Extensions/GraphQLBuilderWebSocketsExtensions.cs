@@ -20,14 +20,14 @@ namespace GraphQL.Server
             return builder;
         }
 
-        public static IGraphQLBuilder AddWebSocketsMiddleware<TSchema>(this IGraphQLBuilder builder)
+        public static IGraphQLBuilder AddWebSocketsHttpMiddleware<TSchema>(this IGraphQLBuilder builder)
             where TSchema : ISchema
         {
             builder.Services.Register<GraphQLWebSocketsMiddleware<TSchema>, GraphQLWebSocketsMiddleware<TSchema>>(ServiceLifetime.Singleton);
             return builder;
         }
 
-        public static IGraphQLBuilder AddWebSocketsMiddleware<TSchema, TMiddleware>(this IGraphQLBuilder builder)
+        public static IGraphQLBuilder AddWebSocketsHttpMiddleware<TSchema, TMiddleware>(this IGraphQLBuilder builder)
             where TSchema : ISchema
             where TMiddleware : GraphQLWebSocketsMiddleware<TSchema>
         {

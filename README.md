@@ -129,8 +129,8 @@ public void ConfigureServices(IServiceCollection services)
     // Add GraphQL services and configure options
     services.AddGraphQL(builder => builder
         .AddServer(true)
-        .AddMiddleware<ChatSchema>()
-        .AddWebSocketsMiddleware<ChatSchema>()
+        .AddHttpMiddleware<ChatSchema>()
+        .AddWebSocketsHttpMiddleware<ChatSchema>()
         // For subscriptions support
         .AddDocumentExecuter<SubscriptionDocumentExecuter>()
         .AddSchema<ChatSchema>()
@@ -191,8 +191,8 @@ public void ConfigureServices(IServiceCollection services)
     // Add GraphQL services and configure options
     services.AddGraphQL(builder => builder
         .AddServer(true)
-        .AddMiddleware<ChatSchema>()
-        .AddWebSocketsMiddleware<ChatSchema>()
+        .AddHttpMiddleware<ChatSchema>()
+        .AddWebSocketsHttpMiddleware<ChatSchema>()
         // For subscriptions support
         .AddDocumentExecuter<SubscriptionDocumentExecuter>()
         .AddSchema<ChatSchema>()
