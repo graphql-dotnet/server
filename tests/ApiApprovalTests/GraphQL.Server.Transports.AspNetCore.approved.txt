@@ -36,6 +36,7 @@ namespace GraphQL.Server.Transports.AspNetCore
         protected virtual System.Threading.Tasks.Task RequestExecutedAsync(in GraphQL.Server.Transports.AspNetCore.GraphQLRequestExecutionResult requestExecutionResult) { }
         protected virtual System.Threading.Tasks.Task RequestExecutingAsync(GraphQL.Transport.GraphQLRequest request, int? indexInBatch = default) { }
         protected virtual System.Threading.Tasks.Task WriteErrorResponseAsync(Microsoft.AspNetCore.Http.HttpContext context, string errorMessage, System.Net.HttpStatusCode httpStatusCode) { }
+        protected virtual System.Threading.Tasks.Task WriteResponseAsync<TResult>(Microsoft.AspNetCore.Http.HttpResponse httpResponse, GraphQL.IGraphQLSerializer serializer, System.Threading.CancellationToken cancellationToken, TResult result) { }
     }
     public readonly struct GraphQLRequestExecutionResult
     {

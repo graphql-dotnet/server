@@ -246,7 +246,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             return _serializer.WriteAsync(context.Response.Body, result, GetCancellationToken(context));
         }
 
-        private Task WriteResponseAsync<TResult>(HttpResponse httpResponse, IGraphQLSerializer serializer, CancellationToken cancellationToken, TResult result)
+        protected virtual Task WriteResponseAsync<TResult>(HttpResponse httpResponse, IGraphQLSerializer serializer, CancellationToken cancellationToken, TResult result)
         {
             httpResponse.ContentType = "application/json";
             httpResponse.StatusCode = 200; // OK
