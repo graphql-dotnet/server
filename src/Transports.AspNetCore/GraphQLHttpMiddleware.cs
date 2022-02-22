@@ -146,11 +146,12 @@ namespace GraphQL.Server.Transports.AspNetCore
                 : await userContextBuilder.BuildUserContext(context);
 
             var executer = context.RequestServices.GetRequiredService<IGraphQLExecuter<TSchema>>();
-            await HandleRequestAsync(context, userContext, bodyGQLBatchRequest, gqlRequest, executer, cancellationToken);
+            await HandleRequestAsync(context, next, userContext, bodyGQLBatchRequest, gqlRequest, executer, cancellationToken);
         }
 
         protected virtual async Task HandleRequestAsync(
             HttpContext context,
+            RequestDelegate next,
             IDictionary<string, object> userContext,
             GraphQLRequest[] bodyGQLBatchRequest,
             GraphQLRequest gqlRequest,
