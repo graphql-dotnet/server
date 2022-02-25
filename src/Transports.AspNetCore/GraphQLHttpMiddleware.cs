@@ -38,7 +38,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             _serializer = serializer;
         }
 
-        public async Task InvokeAsync(HttpContext context, RequestDelegate next)
+        public virtual async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
             if (context.WebSockets.IsWebSocketRequest)
             {

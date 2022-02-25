@@ -16,7 +16,7 @@ namespace GraphQL.Server.Transports.WebSockets
         where TSchema : GraphQL.Types.ISchema
     {
         public GraphQLWebSocketsMiddleware(Microsoft.Extensions.Logging.ILogger<GraphQL.Server.Transports.WebSockets.GraphQLWebSocketsMiddleware<TSchema>> logger) { }
-        public System.Threading.Tasks.Task InvokeAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next) { }
+        public virtual System.Threading.Tasks.Task InvokeAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next) { }
     }
     public interface IWebSocketConnectionFactory<TSchema>
         where TSchema : GraphQL.Types.ISchema

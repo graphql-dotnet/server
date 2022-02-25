@@ -22,7 +22,7 @@ namespace GraphQL.Server.Transports.WebSockets
             _logger = logger;
         }
 
-        public async Task InvokeAsync(HttpContext context, RequestDelegate next)
+        public virtual async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
             using (_logger.BeginScope(new Dictionary<string, object>
             {
