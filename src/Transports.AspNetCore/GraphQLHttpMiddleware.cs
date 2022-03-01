@@ -80,7 +80,21 @@ namespace GraphQL.Server.Transports.AspNetCore
                         GraphQLRequest[] deserializationResult;
                         try
                         {
+#if NET5_0_OR_GREATER
+                            var sourceEncoding = GetEncoding(httpRequest);
+                            // Wrap content stream into a transcoding stream that buffers the data transcoded from the sourceEncoding to utf-8.
+                            if (sourceEncoding != null && sourceEncoding != System.Text.Encoding.UTF8)
+                            {
+                                using var tempStream = System.Text.Encoding.CreateTranscodingStream(httpRequest.Body, innerStreamEncoding: sourceEncoding, outerStreamEncoding: System.Text.Encoding.UTF8);
+                                deserializationResult = await _serializer.ReadAsync<GraphQLRequest[]>(tempStream, cancellationToken);
+                            }
+                            else
+                            {
+                                deserializationResult = await _serializer.ReadAsync<GraphQLRequest[]>(httpRequest.Body, cancellationToken);
+                            }
+#else
                             deserializationResult = await _serializer.ReadAsync<GraphQLRequest[]>(httpRequest.Body, cancellationToken);
+#endif
                         }
                         catch (Exception ex)
                         {
@@ -288,5 +302,39 @@ namespace GraphQL.Server.Transports.AspNetCore
 
             return new GraphQLRequest { Query = query }; // application/graphql MediaType supports only query text
         }
+
+#if NET5_0_OR_GREATER
+        private static System.Text.Encoding GetEncoding(HttpRequest request)
+        {
+            if (!request.Headers.TryGetValue("Content-Type", out var value))
+                return null;
+
+            string charset = value.ToString();
+            var position = charset.IndexOf("charset=");
+            if (position == -1)
+                return null;
+
+            charset = charset.Substring(position + 8);
+            if (string.IsNullOrEmpty(charset))
+                return null;
+
+            try
+            {
+                // Remove at most a single set of quotes.
+                if (charset.Length > 2 && charset[0] == '\"' && charset[charset.Length - 1] == '\"')
+                {
+                    return System.Text.Encoding.GetEncoding(charset.Substring(1, charset.Length - 2));
+                }
+                else
+                {
+                    return System.Text.Encoding.GetEncoding(charset);
+                }
+            }
+            catch (ArgumentException e)
+            {
+                throw new InvalidOperationException("The character set provided in ContentType is invalid.", e);
+            }
+        }
+#endif
     }
 }
