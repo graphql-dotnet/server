@@ -89,7 +89,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                             // Wrap content stream into a transcoding stream that buffers the data transcoded from the sourceEncoding to utf-8.
                             if (sourceEncoding != null && sourceEncoding != System.Text.Encoding.UTF8)
                             {
-                                using var tempStream = System.Text.Encoding.CreateTranscodingStream(httpRequest.Body, innerStreamEncoding: sourceEncoding, outerStreamEncoding: System.Text.Encoding.UTF8);
+                                using var tempStream = System.Text.Encoding.CreateTranscodingStream(httpRequest.Body, innerStreamEncoding: sourceEncoding, outerStreamEncoding: System.Text.Encoding.UTF8, leaveOpen: true);
                                 deserializationResult = await _serializer.ReadAsync<GraphQLRequest[]>(tempStream, cancellationToken);
                             }
                             else
