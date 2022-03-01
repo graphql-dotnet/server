@@ -81,7 +81,11 @@ namespace GraphQL.Server.Transports.AspNetCore
                         try
                         {
 #if NET5_0_OR_GREATER
-                            var sourceEncoding = GetEncoding(httpRequest);
+                            if (!TryGetEncoding(mediaTypeHeader.CharSet, out var sourceEncoding))
+                            {
+                                await HandleContentTypeCouldNotBeParsedErrorAsync(context);
+                                return;
+                            }
                             // Wrap content stream into a transcoding stream that buffers the data transcoded from the sourceEncoding to utf-8.
                             if (sourceEncoding != null && sourceEncoding != System.Text.Encoding.UTF8)
                             {
@@ -304,36 +308,31 @@ namespace GraphQL.Server.Transports.AspNetCore
         }
 
 #if NET5_0_OR_GREATER
-        private static System.Text.Encoding GetEncoding(HttpRequest request)
+        private static bool TryGetEncoding(string charset, out System.Text.Encoding encoding)
         {
-            if (!request.Headers.TryGetValue("Content-Type", out var value))
-                return null;
+            encoding = null;
 
-            string charset = value.ToString();
-            var position = charset.IndexOf("charset=");
-            if (position == -1)
-                return null;
-
-            charset = charset.Substring(position + 8);
             if (string.IsNullOrEmpty(charset))
-                return null;
+                return true;
 
             try
             {
                 // Remove at most a single set of quotes.
                 if (charset.Length > 2 && charset[0] == '\"' && charset[charset.Length - 1] == '\"')
                 {
-                    return System.Text.Encoding.GetEncoding(charset.Substring(1, charset.Length - 2));
+                    encoding = System.Text.Encoding.GetEncoding(charset.Substring(1, charset.Length - 2));
                 }
                 else
                 {
-                    return System.Text.Encoding.GetEncoding(charset);
+                    encoding = System.Text.Encoding.GetEncoding(charset);
                 }
             }
-            catch (ArgumentException e)
+            catch (ArgumentException)
             {
-                throw new InvalidOperationException("The character set provided in ContentType is invalid.", e);
+                return false;
             }
+
+            return true;
         }
 #endif
     }
