@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using GraphQL.Instrumentation;
+using GraphQL.Transport;
 using GraphQL.Types;
 using Microsoft.Extensions.Options;
 
@@ -27,11 +28,11 @@ namespace GraphQL.Server
             _options = options.Value;
         }
 
-        public virtual async Task<ExecutionResult> ExecuteAsync(string operationName, string query, Inputs variables, IDictionary<string, object> context, IServiceProvider requestServices, CancellationToken cancellationToken = default)
+        public virtual async Task<ExecutionResult> ExecuteAsync(GraphQLRequest request, IDictionary<string, object> context, IServiceProvider requestServices, CancellationToken cancellationToken = default)
         {
             var start = DateTime.UtcNow;
 
-            var options = GetOptions(operationName, query, variables, context, requestServices, cancellationToken);
+            var options = GetOptions(request, context, requestServices, cancellationToken);
             var result = await _documentExecuter.ExecuteAsync(options);
 
             if (options.EnableMetrics)
@@ -42,14 +43,15 @@ namespace GraphQL.Server
             return result;
         }
 
-        protected virtual ExecutionOptions GetOptions(string operationName, string query, Inputs variables, IDictionary<string, object> context, IServiceProvider requestServices, CancellationToken cancellationToken)
+        protected virtual ExecutionOptions GetOptions(GraphQLRequest request, IDictionary<string, object> context, IServiceProvider requestServices, CancellationToken cancellationToken)
         {
             var opts = new ExecutionOptions
             {
                 Schema = Schema,
-                OperationName = operationName,
-                Query = query,
-                Variables = variables,
+                OperationName = request.OperationName,
+                Query = request.Query,
+                Variables = request.Variables,
+                Extensions = request.Extensions,
                 UserContext = context,
                 CancellationToken = cancellationToken,
                 ComplexityConfiguration = _options.ComplexityConfiguration,

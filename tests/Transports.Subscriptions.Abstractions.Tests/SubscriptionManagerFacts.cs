@@ -15,7 +15,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         {
             _writer = Substitute.For<IWriterPipeline>();
             _executer = Substitute.For<IGraphQLExecuter>();
-            _executer.ExecuteAsync(null, null, null, null, null).ReturnsForAnyArgs(
+            _executer.ExecuteAsync(null, null, null).ReturnsForAnyArgs(
                 new SubscriptionExecutionResult
                 {
                     Streams = new Dictionary<string, IObservable<ExecutionResult>>
@@ -40,7 +40,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             var payload = new GraphQLRequest();
             var context = new MessageHandlingContext(_server, null);
 
-            _executer.ExecuteAsync(null, null, null, null, null).ReturnsForAnyArgs(
+            _executer.ExecuteAsync(null, null, null).ReturnsForAnyArgs(
                 new SubscriptionExecutionResult
                 {
                     Errors = new ExecutionErrors
@@ -64,7 +64,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             var payload = new GraphQLRequest();
             var context = new MessageHandlingContext(_server, null);
 
-            _executer.ExecuteAsync(null, null, null, null, null).ReturnsForAnyArgs(
+            _executer.ExecuteAsync(null, null, null).ReturnsForAnyArgs(
                 new SubscriptionExecutionResult
                 {
                     Streams = new Dictionary<string, IObservable<ExecutionResult>>
@@ -91,7 +91,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             var payload = new GraphQLRequest();
             var context = new MessageHandlingContext(_server, null);
 
-            _executer.ExecuteAsync(null, null, null, null, null).ReturnsForAnyArgs(
+            _executer.ExecuteAsync(null, null, null).ReturnsForAnyArgs(
                 new SubscriptionExecutionResult
                 {
                     Errors = new ExecutionErrors
@@ -138,9 +138,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
 
             /* Then */
             await _executer.Received().ExecuteAsync(
-                Arg.Is(payload.OperationName),
-                Arg.Is(payload.Query),
-                Arg.Any<Inputs>(),
+                Arg.Is(payload),
                 context,
                 null);
         }
