@@ -116,20 +116,21 @@ namespace GraphQL.Server.Transports.AspNetCore
                         bodyGQLRequest = await DeserializeFromGraphBodyAsync(httpRequest.Body);
                         break;
 
-                    case MediaType.FORM:
-                        var formCollection = await httpRequest.ReadFormAsync();
-                        try
-                        {
-                            bodyGQLRequest = DeserializeFromFormBody(formCollection);
-                        }
-                        catch (Exception ex)
-                        {
-                            if (!await HandleDeserializationErrorAsync(context, ex))
-                                throw;
-                        }
-                        break;
-
                     default:
+                        if (httpRequest.HasFormContentType)
+                        {
+                            var formCollection = await httpRequest.ReadFormAsync(cancellationToken);
+                            try
+                            {
+                                bodyGQLRequest = DeserializeFromFormBody(formCollection);
+                            }
+                            catch (Exception ex)
+                            {
+                                if (!await HandleDeserializationErrorAsync(context, ex))
+                                    throw;
+                            }
+                            break;
+                        }
                         await HandleInvalidContentTypeErrorAsync(context);
                         return;
                 }
