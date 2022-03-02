@@ -27,7 +27,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             _transportReader = _transport.Reader as TestableReader;
             _transportWriter = _transport.Writer as TestableWriter;
             _documentExecuter = Substitute.For<IGraphQLExecuter>();
-            _documentExecuter.ExecuteAsync(null, null, null, null, null).ReturnsForAnyArgs(
+            _documentExecuter.ExecuteAsync(null, null, null).ReturnsForAnyArgs(
                 new SubscriptionExecutionResult
                 {
                     Streams = new Dictionary<string, IObservable<ExecutionResult>>
@@ -67,7 +67,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         public async Task Receive_start_mutation()
         {
             /* Given */
-            _documentExecuter.ExecuteAsync(null, null, null, null, null).ReturnsForAnyArgs(
+            _documentExecuter.ExecuteAsync(null, null, null).ReturnsForAnyArgs(
                 new ExecutionResult());
             var expected = new OperationMessage
             {
@@ -104,7 +104,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         public async Task Receive_start_query()
         {
             /* Given */
-            _documentExecuter.ExecuteAsync(null, null, null, null, null).ReturnsForAnyArgs(
+            _documentExecuter.ExecuteAsync(null, null, null).ReturnsForAnyArgs(
                 new ExecutionResult());
             var expected = new OperationMessage
             {

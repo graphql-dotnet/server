@@ -227,11 +227,9 @@ namespace GraphQL.Server.Transports.AspNetCore
         protected virtual Task HandleInvalidHttpMethodErrorAsync(HttpContext context)
             => WriteErrorResponseAsync(context, $"Invalid HTTP method. Only GET and POST are supported. {DOCS_URL}", HttpStatusCode.MethodNotAllowed);
 
-        private static Task<ExecutionResult> ExecuteRequestAsync(GraphQLRequest gqlRequest, IDictionary<string, object> userContext, IGraphQLExecuter<TSchema> executer, IServiceProvider requestServices, CancellationToken token)
+        protected virtual Task<ExecutionResult> ExecuteRequestAsync(GraphQLRequest gqlRequest, IDictionary<string, object> userContext, IGraphQLExecuter<TSchema> executer, IServiceProvider requestServices, CancellationToken token)
             => executer.ExecuteAsync(
-                gqlRequest.OperationName,
-                gqlRequest.Query,
-                gqlRequest.Variables,
+                gqlRequest,
                 userContext,
                 requestServices,
                 token);

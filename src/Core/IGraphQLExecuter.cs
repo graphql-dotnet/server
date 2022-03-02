@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using GraphQL.Transport;
 using GraphQL.Types;
 
 namespace GraphQL.Server
@@ -14,14 +15,7 @@ namespace GraphQL.Server
         /// <summary>
         /// Execute operation
         /// </summary>
-        /// <param name="operationName"></param>
-        /// <param name="query"></param>
-        /// <param name="variables"></param>
-        /// <param name="context"></param>
-        /// <param name="requestServices"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        Task<ExecutionResult> ExecuteAsync(string operationName, string query, Inputs variables, IDictionary<string, object> context, IServiceProvider requestServices, CancellationToken cancellationToken = default);
+        Task<ExecutionResult> ExecuteAsync(GraphQLRequest request, IDictionary<string, object> context, IServiceProvider requestServices, CancellationToken cancellationToken = default);
     }
 
     public interface IGraphQLExecuter<TSchema> : IGraphQLExecuter

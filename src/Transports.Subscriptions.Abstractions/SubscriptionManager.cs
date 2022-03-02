@@ -94,9 +94,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             using (var scope = _serviceScopeFactory.CreateScope())
             {
                 result = await _executer.ExecuteAsync(
-                    payload.OperationName,
-                    payload.Query,
-                    payload.Variables,
+                    payload,
                     context,
                     scope.ServiceProvider
                 ).ConfigureAwait(false);

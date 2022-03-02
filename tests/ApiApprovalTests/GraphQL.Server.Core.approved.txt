@@ -5,8 +5,8 @@ namespace GraphQL.Server
     {
         public BasicGraphQLExecuter(TSchema schema, GraphQL.IDocumentExecuter documentExecuter, Microsoft.Extensions.Options.IOptions<GraphQL.Server.GraphQLOptions> options) { }
         public TSchema Schema { get; }
-        public virtual System.Threading.Tasks.Task<GraphQL.ExecutionResult> ExecuteAsync(string operationName, string query, GraphQL.Inputs variables, System.Collections.Generic.IDictionary<string, object> context, System.IServiceProvider requestServices, System.Threading.CancellationToken cancellationToken = default) { }
-        protected virtual GraphQL.ExecutionOptions GetOptions(string operationName, string query, GraphQL.Inputs variables, System.Collections.Generic.IDictionary<string, object> context, System.IServiceProvider requestServices, System.Threading.CancellationToken cancellationToken) { }
+        public virtual System.Threading.Tasks.Task<GraphQL.ExecutionResult> ExecuteAsync(GraphQL.Transport.GraphQLRequest request, System.Collections.Generic.IDictionary<string, object> context, System.IServiceProvider requestServices, System.Threading.CancellationToken cancellationToken = default) { }
+        protected virtual GraphQL.ExecutionOptions GetOptions(GraphQL.Transport.GraphQLRequest request, System.Collections.Generic.IDictionary<string, object> context, System.IServiceProvider requestServices, System.Threading.CancellationToken cancellationToken) { }
     }
     public class DefaultErrorInfoProvider : GraphQL.Execution.ErrorInfoProvider
     {
@@ -18,8 +18,8 @@ namespace GraphQL.Server
     {
         public DefaultGraphQLExecuter(TSchema schema, GraphQL.IDocumentExecuter documentExecuter, Microsoft.Extensions.Options.IOptions<GraphQL.Server.GraphQLOptions> options, System.Collections.Generic.IEnumerable<GraphQL.Execution.IDocumentExecutionListener> listeners, System.Collections.Generic.IEnumerable<GraphQL.Validation.IValidationRule> validationRules) { }
         public TSchema Schema { get; }
-        public virtual System.Threading.Tasks.Task<GraphQL.ExecutionResult> ExecuteAsync(string operationName, string query, GraphQL.Inputs variables, System.Collections.Generic.IDictionary<string, object> context, System.IServiceProvider requestServices, System.Threading.CancellationToken cancellationToken = default) { }
-        protected virtual GraphQL.ExecutionOptions GetOptions(string operationName, string query, GraphQL.Inputs variables, System.Collections.Generic.IDictionary<string, object> context, System.IServiceProvider requestServices, System.Threading.CancellationToken cancellationToken) { }
+        public virtual System.Threading.Tasks.Task<GraphQL.ExecutionResult> ExecuteAsync(GraphQL.Transport.GraphQLRequest request, System.Collections.Generic.IDictionary<string, object> context, System.IServiceProvider requestServices, System.Threading.CancellationToken cancellationToken = default) { }
+        protected virtual GraphQL.ExecutionOptions GetOptions(GraphQL.Transport.GraphQLRequest request, System.Collections.Generic.IDictionary<string, object> context, System.IServiceProvider requestServices, System.Threading.CancellationToken cancellationToken) { }
     }
     public static class GraphQLBuilderCoreExtensions
     {
@@ -36,7 +36,7 @@ namespace GraphQL.Server
     }
     public interface IGraphQLExecuter
     {
-        System.Threading.Tasks.Task<GraphQL.ExecutionResult> ExecuteAsync(string operationName, string query, GraphQL.Inputs variables, System.Collections.Generic.IDictionary<string, object> context, System.IServiceProvider requestServices, System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task<GraphQL.ExecutionResult> ExecuteAsync(GraphQL.Transport.GraphQLRequest request, System.Collections.Generic.IDictionary<string, object> context, System.IServiceProvider requestServices, System.Threading.CancellationToken cancellationToken = default);
     }
     public interface IGraphQLExecuter<TSchema> : GraphQL.Server.IGraphQLExecuter
         where TSchema : GraphQL.Types.ISchema
