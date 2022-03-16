@@ -1,4 +1,3 @@
-using System;
 using GraphQL.Transport;
 
 namespace GraphQL.Server.Transports.AspNetCore
