@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using GraphQL.Server.Transports.WebSockets;
 using GraphQL.Transport;
-using Microsoft.AspNetCore.Http;
 
 namespace GraphQL.Server.Transports.Subscriptions.WebSockets.Shane
 {
@@ -16,18 +15,17 @@ namespace GraphQL.Server.Transports.Subscriptions.WebSockets.Shane
         private readonly WebSocket _webSocket;
         private readonly AsyncMessagePump<Message> _pump;
         private readonly IGraphQLSerializer _serializer;
-        private readonly CancellationToken _cancellationToken;
         private readonly WebsocketWriterStream _stream;
         private readonly TaskCompletionSource<bool> _outputClosed = new();
+        private readonly CancellationToken _cancellationToken;
 
-        public WebSocketConnection(HttpContext httpContext, WebSocket webSocket, IGraphQLSerializer serializer)
+        public WebSocketConnection(WebSocket webSocket, IGraphQLSerializer serializer, CancellationToken cancellationToken)
         {
-            _cancellationToken = (httpContext ?? throw new ArgumentNullException(nameof(httpContext))).RequestAborted;
-            _cancellationToken.ThrowIfCancellationRequested();
             _webSocket = webSocket ?? throw new ArgumentNullException(nameof(webSocket));
             _stream = new(webSocket);
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
             _pump = new(SendMessageAsync);
+            _cancellationToken = cancellationToken;
         }
 
         public virtual async Task ExecuteAsync(IOperationMessageReceiveStream operationMessageReceiveStream)

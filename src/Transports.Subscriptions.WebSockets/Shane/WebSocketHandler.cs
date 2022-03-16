@@ -3,7 +3,9 @@
 using System;
 using System.Collections.Generic;
 using System.Net.WebSockets;
+using System.Threading;
 using System.Threading.Tasks;
+using GraphQL.Server.Transports.AspNetCore;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -45,9 +47,7 @@ public class WebSocketHandler : IWebSocketHandler
     private static readonly IEnumerable<string> _supportedSubProtocols = new List<string>(new[] { "graphql-transport-ws", "graphql-ws" }).AsReadOnly();
     public IEnumerable<string> SupportedSubProtocols => _supportedSubProtocols;
 
-    public int Priority => 100;
-
-    public Task ExecuteAsync(HttpContext httpContext, WebSocket webSocket, string subProtocol, IDictionary<string, object?> userContext)
+    public Task ExecuteAsync(HttpContext httpContext, WebSocket webSocket, string subProtocol, IDictionary<string, object?> userContext, CancellationToken cancellationToken)
     {
         if (httpContext == null)
             throw new ArgumentNullException(nameof(httpContext));
@@ -55,7 +55,7 @@ public class WebSocketHandler : IWebSocketHandler
             throw new ArgumentNullException(nameof(webSocket));
         if (userContext == null)
             throw new ArgumentNullException(nameof(userContext));
-        var webSocketConnection = new WebSocketConnection(httpContext, webSocket, _serializer);
+        var webSocketConnection = new WebSocketConnection(webSocket, _serializer, cancellationToken);
         IOperationMessageReceiveStream? operationMessageReceiveStream = null;
         try
         {

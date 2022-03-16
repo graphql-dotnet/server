@@ -44,7 +44,6 @@ namespace GraphQL.Samples.Server
             services.AddGraphQL(builder => builder
                 .AddServer(true)
                 .AddHttpMiddleware<ChatSchema, GraphQLHttpMiddlewareWithLogs<ChatSchema>>()
-                .AddWebSocketsHttpMiddleware<ChatSchema>()
                 .AddSubscriptionExecutionStrategy()
                 .AddSchema<ChatSchema>()
                 .ConfigureExecutionOptions(options =>
@@ -72,7 +71,6 @@ namespace GraphQL.Samples.Server
 
             app.UseWebSockets();
 
-            app.UseGraphQLWebSockets<ChatSchema>();
             app.UseGraphQL<ChatSchema, GraphQLHttpMiddlewareWithLogs<ChatSchema>>();
 
             app.UseGraphQLPlayground(new PlaygroundOptions

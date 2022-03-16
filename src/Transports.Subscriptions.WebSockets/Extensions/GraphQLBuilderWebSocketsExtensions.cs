@@ -1,9 +1,6 @@
 using GraphQL.DI;
-//using GraphQL.Server.Transports.Subscriptions.Abstractions;
+using GraphQL.Server.Transports.AspNetCore;
 using GraphQL.Server.Transports.Subscriptions.WebSockets.Shane;
-using GraphQL.Server.Transports.WebSockets.Shane;
-//using GraphQL.Server.Transports.WebSockets;
-using GraphQL.Types;
 
 namespace GraphQL.Server
 {
@@ -14,31 +11,10 @@ namespace GraphQL.Server
         /// </summary>
         public static IGraphQLBuilder AddWebSockets(this IGraphQLBuilder builder)
         {
-            /*
-            builder.Services
-                .Register(typeof(IWebSocketConnectionFactory<>), typeof(WebSocketConnectionFactory<>), DI.ServiceLifetime.Transient)
-                .Register<IOperationMessageListener, LogMessagesListener>(DI.ServiceLifetime.Transient)
-                .Register<IOperationMessageListener, ProtocolMessageListener>(DI.ServiceLifetime.Transient);
-            */
             builder.Services
                 .Register(typeof(IWebSocketHandler<>), typeof(WebSocketHandler<>), DI.ServiceLifetime.Singleton)
                 .Configure<WebSocketHandlerOptions>();
 
-            return builder;
-        }
-
-        public static IGraphQLBuilder AddWebSocketsHttpMiddleware<TSchema>(this IGraphQLBuilder builder)
-            where TSchema : ISchema
-        {
-            builder.Services.Register<GraphQLWebSocketsMiddleware<TSchema>, GraphQLWebSocketsMiddleware<TSchema>>(ServiceLifetime.Singleton);
-            return builder;
-        }
-
-        public static IGraphQLBuilder AddWebSocketsHttpMiddleware<TSchema, TMiddleware>(this IGraphQLBuilder builder)
-            where TSchema : ISchema
-            where TMiddleware : GraphQLWebSocketsMiddleware<TSchema>
-        {
-            builder.Services.Register<TMiddleware, TMiddleware>(ServiceLifetime.Singleton);
             return builder;
         }
     }

@@ -13,9 +13,9 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
             services.AddGraphQL(builder => builder
                 .AddSchema<TestSchema>()
                 .AddServer(false)
+                .AddHttpMiddleware<TestSchema>()
                 .AddNewtonsoftJson()
-                .AddWebSockets()
-                .AddWebSocketsHttpMiddleware<TestSchema>());
+                .AddWebSockets());
             services
                 .AddLogging(builder =>
                 {
@@ -28,7 +28,7 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         public void Configure(IApplicationBuilder app)
         {
             app.UseWebSockets();
-            app.UseGraphQLWebSockets<TestSchema>("/graphql");
+            app.UseGraphQL<TestSchema>();
         }
     }
 }

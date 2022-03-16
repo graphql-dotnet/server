@@ -1,8 +1,12 @@
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http.Headers;
+using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
 using GraphQL.Instrumentation;
@@ -42,7 +46,7 @@ namespace GraphQL.Server.Transports.AspNetCore
         {
             if (context.WebSockets.IsWebSocketRequest)
             {
-                await next(context);
+                await InvokeWebsocketAsync(context, next);
                 return;
             }
 
@@ -64,8 +68,8 @@ namespace GraphQL.Server.Transports.AspNetCore
             }
 
             // Parse POST body
-            GraphQLRequest bodyGQLRequest = null;
-            GraphQLRequest[] bodyGQLBatchRequest = null;
+            GraphQLRequest? bodyGQLRequest = null;
+            GraphQLRequest[]? bodyGQLBatchRequest = null;
             if (isPost)
             {
                 if (!MediaTypeHeaderValue.TryParse(httpRequest.ContentType, out var mediaTypeHeader))
@@ -77,7 +81,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                 switch (mediaTypeHeader.MediaType)
                 {
                     case MediaType.JSON:
-                        GraphQLRequest[] deserializationResult;
+                        GraphQLRequest[]? deserializationResult;
                         try
                         {
 #if NET5_0_OR_GREATER
@@ -138,14 +142,14 @@ namespace GraphQL.Server.Transports.AspNetCore
 
             // If we don't have a batch request, parse the query from URL too to determine the actual request to run.
             // Query string params take priority.
-            GraphQLRequest gqlRequest = null;
+            GraphQLRequest? gqlRequest = null;
             if (bodyGQLBatchRequest == null)
             {
                 var urlGQLRequest = DeserializeFromQueryString(httpRequest.Query);
 
                 gqlRequest = new GraphQLRequest
                 {
-                    Query = urlGQLRequest.Query ?? bodyGQLRequest?.Query,
+                    Query = urlGQLRequest.Query ?? bodyGQLRequest?.Query!,
                     Variables = urlGQLRequest.Variables ?? bodyGQLRequest?.Variables,
                     Extensions = urlGQLRequest.Extensions ?? bodyGQLRequest?.Extensions,
                     OperationName = urlGQLRequest.OperationName ?? bodyGQLRequest?.OperationName
@@ -159,21 +163,74 @@ namespace GraphQL.Server.Transports.AspNetCore
             }
 
             // Prepare context and execute
+            var userContext = await BuildUserContextAsync(context, cancellationToken);
+            var executer = context.RequestServices.GetRequiredService<IGraphQLExecuter<TSchema>>();
+            await HandleRequestAsync(context, next, userContext, bodyGQLBatchRequest, gqlRequest, executer, cancellationToken);
+        }
+
+        protected virtual async Task InvokeWebsocketAsync(HttpContext context, RequestDelegate next)
+        {
+            var webSocketHandlers = context.RequestServices.GetService<IEnumerable<IWebSocketHandler<TSchema>>>();
+            if (webSocketHandlers == null || !webSocketHandlers.Any())
+            {
+                await next(context);
+                return;
+            }
+
+            var cancellationToken = GetCancellationToken(context);
+
+            string selectedProtocol;
+            IWebSocketHandler selectedHandler;
+            // select a sub-protocol, preferring the first sub-protocol requested by the client
+            foreach (var protocol in context.WebSockets.WebSocketRequestedProtocols)
+            {
+                foreach (var handler in webSocketHandlers)
+                {
+                    if (handler.SupportedSubProtocols.Contains(protocol))
+                    {
+                        selectedProtocol = protocol;
+                        selectedHandler = handler;
+                        goto MatchedHandler;
+                    }
+                }
+            }
+
+            await HandleWebSocketSubProtocolNotSupportedAsync(context);
+            return;
+
+        MatchedHandler:
+            var socket = await context.WebSockets.AcceptWebSocketAsync(selectedProtocol);
+
+            if (socket.SubProtocol != selectedProtocol)
+            {
+                await socket.CloseAsync(
+                    WebSocketCloseStatus.ProtocolError,
+                    $"Invalid sub-protocol; expected '{selectedProtocol}'",
+                    cancellationToken);
+                return;
+            }
+
+            // Prepare context and execute
+            var userContext = await BuildUserContextAsync(context, cancellationToken);
+            // Connect, then wait until the websocket has disconnected (and all subscriptions ended)
+            await selectedHandler.ExecuteAsync(context, socket, selectedProtocol, userContext, cancellationToken);
+        }
+
+        protected virtual async Task<IDictionary<string, object?>> BuildUserContextAsync(HttpContext context, CancellationToken cancellationToken)
+        {
             var userContextBuilder = context.RequestServices.GetService<IUserContextBuilder>();
             var userContext = userContextBuilder == null
                 ? new Dictionary<string, object>() // in order to allow resolvers to exchange their state through this object
                 : await userContextBuilder.BuildUserContext(context);
-
-            var executer = context.RequestServices.GetRequiredService<IGraphQLExecuter<TSchema>>();
-            await HandleRequestAsync(context, next, userContext, bodyGQLBatchRequest, gqlRequest, executer, cancellationToken);
+            return userContext;
         }
 
         protected virtual async Task HandleRequestAsync(
             HttpContext context,
             RequestDelegate next,
-            IDictionary<string, object> userContext,
-            GraphQLRequest[] bodyGQLBatchRequest,
-            GraphQLRequest gqlRequest,
+            IDictionary<string, object?> userContext,
+            GraphQLRequest[]? bodyGQLBatchRequest,
+            GraphQLRequest? gqlRequest,
             IGraphQLExecuter<TSchema> executer,
             CancellationToken cancellationToken)
         {
@@ -181,8 +238,8 @@ namespace GraphQL.Server.Transports.AspNetCore
             if (bodyGQLBatchRequest == null)
             {
                 var stopwatch = ValueStopwatch.StartNew();
-                await RequestExecutingAsync(gqlRequest);
-                var result = await ExecuteRequestAsync(gqlRequest, userContext, executer, context.RequestServices, cancellationToken);
+                await RequestExecutingAsync(gqlRequest!);
+                var result = await ExecuteRequestAsync(gqlRequest!, userContext, executer, context.RequestServices, cancellationToken);
 
                 await RequestExecutedAsync(new GraphQLRequestExecutionResult(gqlRequest, result, stopwatch.Elapsed));
 
@@ -215,6 +272,9 @@ namespace GraphQL.Server.Transports.AspNetCore
             return true;
         }
 
+        protected virtual Task HandleWebSocketSubProtocolNotSupportedAsync(HttpContext context)
+            => WriteErrorResponseAsync(context, $"Invalid WebSocket sub-protocol(s): {string.Join(",", context.WebSockets.WebSocketRequestedProtocols.Select(x => $"'{x}'"))}", HttpStatusCode.BadRequest);
+
         protected virtual Task HandleNoQueryErrorAsync(HttpContext context)
             => WriteErrorResponseAsync(context, "GraphQL query is missing.", HttpStatusCode.BadRequest);
 
@@ -227,7 +287,7 @@ namespace GraphQL.Server.Transports.AspNetCore
         protected virtual Task HandleInvalidHttpMethodErrorAsync(HttpContext context)
             => WriteErrorResponseAsync(context, $"Invalid HTTP method. Only GET and POST are supported. {DOCS_URL}", HttpStatusCode.MethodNotAllowed);
 
-        protected virtual Task<ExecutionResult> ExecuteRequestAsync(GraphQLRequest gqlRequest, IDictionary<string, object> userContext, IGraphQLExecuter<TSchema> executer, IServiceProvider requestServices, CancellationToken token)
+        protected virtual Task<ExecutionResult> ExecuteRequestAsync(GraphQLRequest gqlRequest, IDictionary<string, object?> userContext, IGraphQLExecuter<TSchema> executer, IServiceProvider requestServices, CancellationToken token)
             => executer.ExecuteAsync(
                 gqlRequest,
                 userContext,
@@ -307,9 +367,9 @@ namespace GraphQL.Server.Transports.AspNetCore
         }
 
 #if NET5_0_OR_GREATER
-        private static bool TryGetEncoding(string charset, out System.Text.Encoding encoding)
+        private static bool TryGetEncoding(string? charset, out System.Text.Encoding encoding)
         {
-            encoding = null;
+            encoding = null!;
 
             if (string.IsNullOrEmpty(charset))
                 return true;
