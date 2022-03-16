@@ -21,6 +21,11 @@ namespace GraphQL.Server.Transports.WebSockets
                 cancellationToken);
         }
 
+        public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
+        {
+            return _webSocket.SendAsync(buffer, WebSocketMessageType.Text, false, cancellationToken);
+        }
+
         public override void Write(byte[] buffer, int offset, int count) => WriteAsync(buffer, offset, count).GetAwaiter().GetResult();
 
         public override Task FlushAsync(CancellationToken cancellationToken)

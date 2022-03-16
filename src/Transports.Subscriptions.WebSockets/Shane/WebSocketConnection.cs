@@ -36,10 +36,15 @@ namespace GraphQL.Server.Transports.Subscriptions.WebSockets.Shane
                 throw new ArgumentNullException(nameof(operationMessageReceiveStream));
             try
             {
+                // set up a buffer in case a message is longer than one block
                 var receiveStream = new MemoryStream();
-                byte[] buffer = new byte[4096];
+                // set up a 16KB data block
+                byte[] buffer = new byte[16384];
+                // prep a Memory instance pointing to the block
                 var bufferMemory = new Memory<byte>(buffer);
+                // prep a MemoryStream instance pointing to the block
                 var bufferStream = new MemoryStream(buffer, false);
+                // read messages until an exception occurs, the cancellation token is signaled, or a 'close' message is received
                 while (true)
                 {
                     var result = await _webSocket.ReceiveAsync(bufferMemory, _cancellationToken);
@@ -58,30 +63,40 @@ namespace GraphQL.Server.Transports.Subscriptions.WebSockets.Shane
                         // quit
                         return;
                     }
+                    // if this is the last block terminating a message
                     if (result.EndOfMessage)
                     {
+                        // if only one block of data was sent for this message
                         if (receiveStream.Length == 0)
                         {
+                            // if the message is empty, skip to the next message
                             if (result.Count == 0)
                                 continue;
+                            // read the message
                             bufferStream.Position = 0;
                             var message = await _serializer.ReadAsync<OperationMessage>(bufferStream, _cancellationToken);
+                            // dispatch the message
                             await operationMessageReceiveStream.OnMessageReceivedAsync(message);
                         }
                         else
                         {
-                            receiveStream.Write(buffer, 0, result.Count);
+                            // if there is any data in this block, add it to the buffer
+                            if (result.Count > 0)
+                                receiveStream.Write(buffer, 0, result.Count);
+                            // read the message from the buffer
                             receiveStream.Position = 0;
                             var message = await _serializer.ReadAsync<OperationMessage>(receiveStream, _cancellationToken);
+                            // clear the buffer
                             receiveStream.SetLength(0);
+                            // dispatch the message
                             await operationMessageReceiveStream.OnMessageReceivedAsync(message);
                         }
                     }
                     else
                     {
-                        if (result.Count == 0)
-                            continue;
-                        receiveStream.Write(buffer, 0, result.Count);
+                        // if there is any data in this block, add it to the buffer
+                        if (result.Count > 0)
+                            receiveStream.Write(buffer, 0, result.Count);
                     }
                 }
             }
