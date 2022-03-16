@@ -1,4 +1,5 @@
 using GraphQL.MicrosoftDI;
+using GraphQL.NewtonsoftJson;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -9,9 +10,13 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
     {
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddGraphQL(builder => builder
+                .AddSchema<TestSchema>()
+                .AddServer(false)
+                .AddNewtonsoftJson()
+                .AddWebSockets()
+                .AddWebSocketsHttpMiddleware<TestSchema>());
             services
-                .AddGraphQL(builder => builder.AddWebSockets().AddWebSocketsHttpMiddleware<TestSchema>())
-                .AddSingleton<TestSchema>()
                 .AddLogging(builder =>
                 {
                     // prevent writing errors to Console.Error during tests (required for testing on ubuntu)

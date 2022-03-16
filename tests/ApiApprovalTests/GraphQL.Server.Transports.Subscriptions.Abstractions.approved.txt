@@ -70,6 +70,18 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         public const string GQL_STOP = "stop";
         public MessageType() { }
     }
+    public class MessageTypeGraphQLTransportWs
+    {
+        public const string GQL_COMPLETE = "complete";
+        public const string GQL_CONNECTION_ACK = "connection_ack";
+        public const string GQL_CONNECTION_INIT = "connection_init";
+        public const string GQL_ERROR = "error";
+        public const string GQL_NEXT = "next";
+        public const string GQL_PING = "ping";
+        public const string GQL_PONG = "pong";
+        public const string GQL_SUBSCRIBE = "subscribe";
+        public MessageTypeGraphQLTransportWs() { }
+    }
     public class ProtocolMessageListener : GraphQL.Server.Transports.Subscriptions.Abstractions.IOperationMessageListener
     {
         public ProtocolMessageListener(Microsoft.Extensions.Logging.ILogger<GraphQL.Server.Transports.Subscriptions.Abstractions.ProtocolMessageListener> logger, GraphQL.IGraphQLSerializer serializer) { }

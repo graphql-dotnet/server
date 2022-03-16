@@ -49,16 +49,21 @@ namespace GraphQL.Server.Transports.WebSockets.Tests
         }
 
         [Fact]
-        public async Task Should_not_accept_websocket_with_wrong_protocol()
+        public async Task Should_accept_websocket_connection_2()
         {
             /* Given */
             /* When */
-            var socket = await ConnectAsync("do-not-accept");
-            var segment = new ArraySegment<byte>(new byte[1024]);
-            var received = await socket.ReceiveAsync(segment, CancellationToken.None);
+            var socket = await ConnectAsync("graphql-transport-ws");
 
             /* Then */
-            received.CloseStatus.ShouldBe(WebSocketCloseStatus.ProtocolError);
+            Assert.Equal(WebSocketState.Open, socket.State);
+        }
+
+        [Fact]
+        public async Task Should_not_accept_websocket_with_wrong_protocol()
+        {
+            var err = await Should.ThrowAsync<InvalidOperationException>(() => ConnectAsync("do-not-accept"));
+            err.Message.ShouldContain("400");
         }
 
         public void Dispose()

@@ -1,5 +1,5 @@
 using System;
-using GraphQL.Server.Transports.WebSockets;
+using GraphQL.Server.Transports.WebSockets.Shane;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Routing;
 

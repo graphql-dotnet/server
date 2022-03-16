@@ -20,6 +20,7 @@ namespace GraphQL.Server.Transports.WebSockets
         public GraphQLWebSocketsMiddleware(ILogger<GraphQLWebSocketsMiddleware<TSchema>> logger)
         {
             _logger = logger;
+            throw new System.Exception();
         }
 
         public virtual async Task InvokeAsync(HttpContext context, RequestDelegate next)

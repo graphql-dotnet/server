@@ -1,6 +1,8 @@
 using GraphQL.DI;
-using GraphQL.Server.Transports.Subscriptions.Abstractions;
-using GraphQL.Server.Transports.WebSockets;
+//using GraphQL.Server.Transports.Subscriptions.Abstractions;
+using GraphQL.Server.Transports.Subscriptions.WebSockets.Shane;
+using GraphQL.Server.Transports.WebSockets.Shane;
+//using GraphQL.Server.Transports.WebSockets;
 using GraphQL.Types;
 
 namespace GraphQL.Server
@@ -12,10 +14,15 @@ namespace GraphQL.Server
         /// </summary>
         public static IGraphQLBuilder AddWebSockets(this IGraphQLBuilder builder)
         {
+            /*
             builder.Services
                 .Register(typeof(IWebSocketConnectionFactory<>), typeof(WebSocketConnectionFactory<>), DI.ServiceLifetime.Transient)
                 .Register<IOperationMessageListener, LogMessagesListener>(DI.ServiceLifetime.Transient)
                 .Register<IOperationMessageListener, ProtocolMessageListener>(DI.ServiceLifetime.Transient);
+            */
+            builder.Services
+                .Register(typeof(IWebSocketHandler<>), typeof(WebSocketHandler<>), DI.ServiceLifetime.Singleton)
+                .Configure<WebSocketHandlerOptions>();
 
             return builder;
         }
