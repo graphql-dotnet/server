@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31919.166
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Transports.Subscriptions.WebSockets", "src\Transports.Subscriptions.WebSockets\Transports.Subscriptions.WebSockets.csproj", "{4DF1CB8E-30AA-4281-9056-D49FDBF4C496}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples.Schemas.Chat", "samples\Samples.Schemas.Chat\Samples.Schemas.Chat.csproj", "{EB56A378-89E5-4425-BFA6-6BA0F4A67432}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples.Server", "samples\Samples.Server\Samples.Server.csproj", "{85FBD882-AC9F-419F-95ED-42BBBC199CC2}"
@@ -27,8 +25,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ui.Playground", "src\Ui.Playground\Ui.Playground.csproj", "{C6DA4A1C-867A-4633-B15B-12A2EEE9F405}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ui.GraphiQL", "src\Ui.GraphiQL\Ui.GraphiQL.csproj", "{B83414A2-F9E3-44CC-982F-5D830F54BED3}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Transports.Subscriptions.Abstractions", "src\Transports.Subscriptions.Abstractions\Transports.Subscriptions.Abstractions.csproj", "{008D98EF-04FA-4C90-A833-A46799DA0BE4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Transports.Subscriptions.Abstractions.Tests", "tests\Transports.Subscriptions.Abstractions.Tests\Transports.Subscriptions.Abstractions.Tests.csproj", "{1D36AB04-82FD-4EDC-94C2-D1BA29E170EC}"
 EndProject
@@ -81,10 +77,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{4DF1CB8E-30AA-4281-9056-D49FDBF4C496}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4DF1CB8E-30AA-4281-9056-D49FDBF4C496}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4DF1CB8E-30AA-4281-9056-D49FDBF4C496}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4DF1CB8E-30AA-4281-9056-D49FDBF4C496}.Release|Any CPU.Build.0 = Release|Any CPU
 		{EB56A378-89E5-4425-BFA6-6BA0F4A67432}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{EB56A378-89E5-4425-BFA6-6BA0F4A67432}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EB56A378-89E5-4425-BFA6-6BA0F4A67432}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -109,10 +101,6 @@ Global
 		{B83414A2-F9E3-44CC-982F-5D830F54BED3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B83414A2-F9E3-44CC-982F-5D830F54BED3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B83414A2-F9E3-44CC-982F-5D830F54BED3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{008D98EF-04FA-4C90-A833-A46799DA0BE4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{008D98EF-04FA-4C90-A833-A46799DA0BE4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{008D98EF-04FA-4C90-A833-A46799DA0BE4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{008D98EF-04FA-4C90-A833-A46799DA0BE4}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1D36AB04-82FD-4EDC-94C2-D1BA29E170EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1D36AB04-82FD-4EDC-94C2-D1BA29E170EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1D36AB04-82FD-4EDC-94C2-D1BA29E170EC}.Release|Any CPU.ActiveCfg = Release|Any CPU

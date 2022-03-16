@@ -1,6 +1,4 @@
-using System;
-
-namespace GraphQL.Server.Transports.Subscriptions.WebSockets.Shane;
+namespace GraphQL.Server.Transports.AspNetCore.WebSockets;
 
 public class WebSocketHandlerOptions
 {

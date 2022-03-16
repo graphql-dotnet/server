@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../../Tests.props" />
 
   <PropertyGroup>
@@ -8,7 +8,6 @@
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <ProjectReference Include="..\..\src\Transports.AspNetCore\Transports.AspNetCore.csproj" />
-    <ProjectReference Include="..\..\src\Transports.Subscriptions.WebSockets\Transports.Subscriptions.WebSockets.csproj" />
     <PackageReference Include="Castle.Core" Version="4.4.1" />
     <PackageReference Include="GraphQL.MicrosoftDI" Version="5.0.0-preview-476" />
     <PackageReference Include="GraphQL.NewtonsoftJson" Version="5.0.0-preview-476" />

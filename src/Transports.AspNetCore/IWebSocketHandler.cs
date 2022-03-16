@@ -1,9 +1,6 @@
 #nullable enable
 
-using System.Collections.Generic;
 using System.Net.WebSockets;
-using System.Threading;
-using System.Threading.Tasks;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Http;
 

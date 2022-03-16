@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace GraphQL.Server.Transports.Subscriptions.WebSockets.Shane;
+namespace GraphQL.Server.Transports.AspNetCore.WebSockets;
 
 // Copyright (c) 2022 Shane Krueger
 // source: https://github.com/Shane32/AsyncResetEvents/blob/4e0e50226bef91747ccc4c62950c52eb7fe740fd/src/AsyncResetEvents/AsyncMessagePump.cs

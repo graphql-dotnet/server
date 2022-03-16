@@ -1,16 +1,9 @@
-#nullable enable
-
-using System;
-using System.Collections.Generic;
 using System.Net.WebSockets;
-using System.Threading;
-using System.Threading.Tasks;
-using GraphQL.Server.Transports.AspNetCore;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace GraphQL.Server.Transports.Subscriptions.WebSockets.Shane;
+namespace GraphQL.Server.Transports.AspNetCore.WebSockets;
 
 public class WebSocketHandler<TSchema> : WebSocketHandler, IWebSocketHandler<TSchema>
     where TSchema : ISchema

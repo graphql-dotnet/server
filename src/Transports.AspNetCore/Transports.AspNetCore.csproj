@@ -1,9 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>net6;net5;netcoreapp3.1</TargetFrameworks>
     <Description>HTTP middleware for GraphQL</Description>
     <PackageTags>GraphQL;middleware</PackageTags>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>true</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>

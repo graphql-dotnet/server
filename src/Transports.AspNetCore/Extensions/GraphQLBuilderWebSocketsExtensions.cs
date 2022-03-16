@@ -1,9 +1,14 @@
+#nullable enable
+
 using GraphQL.DI;
 using GraphQL.Server.Transports.AspNetCore;
-using GraphQL.Server.Transports.Subscriptions.WebSockets.Shane;
+using GraphQL.Server.Transports.AspNetCore.WebSockets;
 
 namespace GraphQL.Server
 {
+    /// <summary>
+    /// GraphQL specific extension methods for <see cref="IGraphQLBuilder"/>.
+    /// </summary>
     public static class GraphQLBuilderWebSocketsExtensions
     {
         /// <summary>
