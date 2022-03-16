@@ -137,60 +137,18 @@ namespace GraphQL.Server.Transports.Subscriptions.WebSockets.Shane
         public WebSocketHandler(GraphQL.IGraphQLSerializer serializer, GraphQL.Server.IGraphQLExecuter<TSchema> executer, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, GraphQL.Server.Transports.Subscriptions.WebSockets.Shane.WebSocketHandlerOptions options) { }
     }
 }
-namespace GraphQL.Server.Transports.WebSockets
+namespace GraphQL.Server.Transports.WebSockets.Shane
 {
     public class GraphQLWebSocketsMiddleware<TSchema> : Microsoft.AspNetCore.Http.IMiddleware
         where TSchema : GraphQL.Types.ISchema
     {
-        public GraphQLWebSocketsMiddleware(Microsoft.Extensions.Logging.ILogger<GraphQL.Server.Transports.WebSockets.GraphQLWebSocketsMiddleware<TSchema>> logger) { }
+        public GraphQLWebSocketsMiddleware(Microsoft.Extensions.Logging.ILogger<GraphQL.Server.Transports.WebSockets.Shane.GraphQLWebSocketsMiddleware<TSchema>> logger, System.Collections.Generic.IEnumerable<GraphQL.Server.Transports.Subscriptions.WebSockets.Shane.IWebSocketHandler<TSchema>> handlers) { }
+        public GraphQLWebSocketsMiddleware(Microsoft.Extensions.Logging.ILogger<GraphQL.Server.Transports.WebSockets.Shane.GraphQLWebSocketsMiddleware<TSchema>> logger, System.Collections.Generic.IEnumerable<GraphQL.Server.Transports.Subscriptions.WebSockets.Shane.IWebSocketHandler<TSchema>> handlers, GraphQL.Server.Transports.AspNetCore.IUserContextBuilder? userContextBuilder) { }
         public virtual System.Threading.Tasks.Task InvokeAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next) { }
     }
-    public interface IWebSocketConnectionFactory<TSchema>
-        where TSchema : GraphQL.Types.ISchema
-    {
-        GraphQL.Server.Transports.WebSockets.WebSocketConnection CreateConnection(System.Net.WebSockets.WebSocket socket, string connectionId);
-    }
-    public class WebSocketConnection : System.IDisposable
-    {
-        public WebSocketConnection(GraphQL.Server.Transports.WebSockets.WebSocketTransport transport, GraphQL.Server.Transports.Subscriptions.Abstractions.SubscriptionServer subscriptionServer) { }
-        public virtual System.Threading.Tasks.Task Connect() { }
-        public virtual void Dispose() { }
-    }
-    public class WebSocketConnectionFactory<TSchema> : GraphQL.Server.Transports.WebSockets.IWebSocketConnectionFactory<TSchema>
-        where TSchema : GraphQL.Types.ISchema
-    {
-        [System.Obsolete]
-        public WebSocketConnectionFactory(Microsoft.Extensions.Logging.ILogger<GraphQL.Server.Transports.WebSockets.WebSocketConnectionFactory<TSchema>> logger, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory, GraphQL.Server.IGraphQLExecuter<TSchema> executer, System.Collections.Generic.IEnumerable<GraphQL.Server.Transports.Subscriptions.Abstractions.IOperationMessageListener> messageListeners, GraphQL.IGraphQLTextSerializer serializer) { }
-        public WebSocketConnectionFactory(Microsoft.Extensions.Logging.ILogger<GraphQL.Server.Transports.WebSockets.WebSocketConnectionFactory<TSchema>> logger, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory, GraphQL.Server.IGraphQLExecuter<TSchema> executer, System.Collections.Generic.IEnumerable<GraphQL.Server.Transports.Subscriptions.Abstractions.IOperationMessageListener> messageListeners, GraphQL.IGraphQLTextSerializer serializer, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory) { }
-        public GraphQL.Server.Transports.WebSockets.WebSocketConnection CreateConnection(System.Net.WebSockets.WebSocket socket, string connectionId) { }
-    }
-    public class WebSocketReaderPipeline : GraphQL.Server.Transports.Subscriptions.Abstractions.IReaderPipeline
-    {
-        public WebSocketReaderPipeline(System.Net.WebSockets.WebSocket socket, GraphQL.IGraphQLTextSerializer serializer) { }
-        public System.Threading.Tasks.Task Completion { get; }
-        public System.Threading.Tasks.Task Complete() { }
-        public System.Threading.Tasks.Task Complete(System.Net.WebSockets.WebSocketCloseStatus closeStatus, string statusDescription) { }
-        protected System.Threading.Tasks.Dataflow.ISourceBlock<string> CreateMessageReader() { }
-        protected System.Threading.Tasks.Dataflow.IPropagatorBlock<string, GraphQL.Transport.OperationMessage> CreateReaderJsonTransformer() { }
-        public void LinkTo(System.Threading.Tasks.Dataflow.ITargetBlock<GraphQL.Transport.OperationMessage> target) { }
-    }
-    public class WebSocketTransport : GraphQL.Server.Transports.Subscriptions.Abstractions.IMessageTransport, System.IDisposable
-    {
-        public WebSocketTransport(System.Net.WebSockets.WebSocket socket, GraphQL.IGraphQLTextSerializer serializer) { }
-        public System.Net.WebSockets.WebSocketCloseStatus? CloseStatus { get; }
-        public GraphQL.Server.Transports.Subscriptions.Abstractions.IReaderPipeline Reader { get; }
-        public GraphQL.Server.Transports.Subscriptions.Abstractions.IWriterPipeline Writer { get; }
-        public System.Threading.Tasks.Task CloseAsync() { }
-        public void Dispose() { }
-    }
-    public class WebSocketWriterPipeline : GraphQL.Server.Transports.Subscriptions.Abstractions.IWriterPipeline
-    {
-        public WebSocketWriterPipeline(System.Net.WebSockets.WebSocket socket, GraphQL.IGraphQLSerializer serializer) { }
-        public System.Threading.Tasks.Task Completion { get; }
-        public System.Threading.Tasks.Task Complete() { }
-        public bool Post(GraphQL.Transport.OperationMessage message) { }
-        public System.Threading.Tasks.Task SendAsync(GraphQL.Transport.OperationMessage message) { }
-    }
+}
+namespace GraphQL.Server.Transports.WebSockets
+{
     public class WebsocketWriterStream : System.IO.Stream
     {
         public WebsocketWriterStream(System.Net.WebSockets.WebSocket webSocket) { }
@@ -206,16 +164,6 @@ namespace GraphQL.Server.Transports.WebSockets
         public override void SetLength(long value) { }
         public override void Write(byte[] buffer, int offset, int count) { }
         public override System.Threading.Tasks.Task WriteAsync(byte[] buffer, int offset, int count, System.Threading.CancellationToken cancellationToken) { }
-    }
-}
-namespace GraphQL.Server.Transports.WebSockets.Shane
-{
-    public class GraphQLWebSocketsMiddleware<TSchema> : Microsoft.AspNetCore.Http.IMiddleware
-        where TSchema : GraphQL.Types.ISchema
-    {
-        public GraphQLWebSocketsMiddleware(Microsoft.Extensions.Logging.ILogger<GraphQL.Server.Transports.WebSockets.Shane.GraphQLWebSocketsMiddleware<TSchema>> logger, System.Collections.Generic.IEnumerable<GraphQL.Server.Transports.Subscriptions.WebSockets.Shane.IWebSocketHandler<TSchema>> handlers) { }
-        public GraphQLWebSocketsMiddleware(Microsoft.Extensions.Logging.ILogger<GraphQL.Server.Transports.WebSockets.Shane.GraphQLWebSocketsMiddleware<TSchema>> logger, System.Collections.Generic.IEnumerable<GraphQL.Server.Transports.Subscriptions.WebSockets.Shane.IWebSocketHandler<TSchema>> handlers, GraphQL.Server.Transports.AspNetCore.IUserContextBuilder? userContextBuilder) { }
-        public virtual System.Threading.Tasks.Task InvokeAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next) { }
     }
 }
 namespace Microsoft.AspNetCore.Builder

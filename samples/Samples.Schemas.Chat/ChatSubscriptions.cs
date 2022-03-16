@@ -3,7 +3,6 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Security.Claims;
 using GraphQL.Resolvers;
-using GraphQL.Server.Transports.Subscriptions.Abstractions;
 using GraphQL.Subscription;
 using GraphQL.Types;
 
@@ -38,8 +37,8 @@ namespace GraphQL.Samples.Schemas.Chat
 
         private IObservable<Message> SubscribeById(IResolveEventStreamContext context)
         {
-            var messageContext = (MessageHandlingContext)context.UserContext;
-            var user = messageContext.Get<ClaimsPrincipal>("user");
+            var messageContext = context.UserContext;
+            var user = (ClaimsPrincipal)messageContext["user"];
 
             string sub = "Anonymous";
             if (user != null)
@@ -60,8 +59,8 @@ namespace GraphQL.Samples.Schemas.Chat
 
         private IObservable<Message> Subscribe(IResolveEventStreamContext context)
         {
-            var messageContext = (MessageHandlingContext)context.UserContext;
-            var user = messageContext.Get<ClaimsPrincipal>("user");
+            var messageContext = context.UserContext;
+            var user = (ClaimsPrincipal)messageContext["user"];
 
             string sub = "Anonymous";
             if (user != null)
