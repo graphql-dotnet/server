@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using GraphQL.Execution;
 using GraphQL.Subscription;
 using GraphQL.Transport;
 using Microsoft.Extensions.Logging;
@@ -57,22 +58,22 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         }
 
         /// <summary>
-        /// Handles errors that are raised from the source.
+        /// Handles errors that are raised from the source, wrapping the error
+        /// in an <see cref="ExecutionResult"/> instance and sending it to the client.
         /// </summary>
         public void OnError(Exception error)
         {
-            // pass along exceptions to the client
-            if (error is ExecutionError executionError)
+            // exceptions should already be wrapped by the GraphQL engine
+            if (error is not ExecutionError executionError)
             {
-                // exceptions should already be wrapped by the GraphQL engine
-                OnNext(new ExecutionResult { Errors = new ExecutionErrors { executionError } });
-            }
-            else
-            {
-                // in the unlikely event that an unhandled exception delegate throws an exception,
+                // but in the unlikely event that an unhandled exception delegate throws an exception,
                 // or for any other reason it is not an ExecutionError instance, wrap the error
-                OnNext(new ExecutionResult { Errors = new ExecutionErrors { new ExecutionError($"Unhandled error of type {error.GetType().Name}") } });
+                executionError = new UnhandledError($"Unhandled error of type {error?.GetType().Name}", error!);
             }
+
+            // pass along the error as an execution result instance
+            OnNext(new ExecutionResult { Errors = new ExecutionErrors { executionError } });
+
             // Optionally we can disconnect the client by calling OnComplete() here
             //
             // https://docs.microsoft.com/en-us/dotnet/standard/events/observer-design-pattern-best-practices
