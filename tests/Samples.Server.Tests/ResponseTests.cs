@@ -65,7 +65,7 @@ namespace Samples.Server.Tests
         }
 
         [Fact]
-        public async Task Batched_Query_Should_Return_Single_Result()
+        public async Task Batched_Query_Should_Return_Single_Result_As_Array()
         {
             string response = await SendBatchRequestAsync(
                 new GraphQLRequest { Query = "query one { __schema { queryType { name } } }", OperationName = "one" }
