@@ -56,7 +56,29 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             _unsubscribe = null;
         }
 
-        public void OnError(Exception error) => throw new NotImplementedException();
+        /// <summary>
+        /// Handles errors that are raised from the source.
+        /// </summary>
+        public void OnError(Exception error)
+        {
+            // pass along exceptions to the client
+            if (error is ExecutionError executionError)
+            {
+                // exceptions should already be wrapped by the GraphQL engine
+                OnNext(new ExecutionResult { Errors = new ExecutionErrors { executionError } });
+            }
+            else
+            {
+                // in the unlikely event that an unhandled exception delegate throws an exception,
+                // or for any other reason it is not an ExecutionError instance, wrap the error
+                OnNext(new ExecutionResult { Errors = new ExecutionErrors { new ExecutionError($"Unhandled error of type {error.GetType().Name}") } });
+            }
+            // Optionally we can disconnect the client by calling OnComplete() here
+            //
+            // https://docs.microsoft.com/en-us/dotnet/standard/events/observer-design-pattern-best-practices
+            // > Once the provider calls the OnError or IObserver<T>.OnCompleted method, there should be
+            // > no further notifications, and the provider can unsubscribe its observers.
+        }
 
         public void OnNext(ExecutionResult value)
         {
