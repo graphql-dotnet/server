@@ -63,6 +63,8 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
         /// </summary>
         public void OnError(Exception error)
         {
+            _logger.LogDebug("Subscription: {subscriptionId} got error", Id);
+
             // exceptions should already be wrapped by the GraphQL engine
             if (error is not ExecutionError executionError)
             {
