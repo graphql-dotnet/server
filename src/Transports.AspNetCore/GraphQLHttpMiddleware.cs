@@ -65,7 +65,7 @@ namespace GraphQL.Server.Transports.AspNetCore
 
             // Parse POST body
             GraphQLRequest bodyGQLRequest = null;
-            GraphQLRequest[] bodyGQLBatchRequest = null;
+            IList<GraphQLRequest> bodyGQLBatchRequest = null;
             if (isPost)
             {
                 if (!MediaTypeHeaderValue.TryParse(httpRequest.ContentType, out var mediaTypeHeader))
@@ -77,7 +77,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                 switch (mediaTypeHeader.MediaType)
                 {
                     case MediaType.JSON:
-                        GraphQLRequest[] deserializationResult;
+                        IList<GraphQLRequest> deserializationResult;
                         try
                         {
 #if NET5_0_OR_GREATER
@@ -90,14 +90,14 @@ namespace GraphQL.Server.Transports.AspNetCore
                             if (sourceEncoding != null && sourceEncoding != System.Text.Encoding.UTF8)
                             {
                                 using var tempStream = System.Text.Encoding.CreateTranscodingStream(httpRequest.Body, innerStreamEncoding: sourceEncoding, outerStreamEncoding: System.Text.Encoding.UTF8, leaveOpen: true);
-                                deserializationResult = await _serializer.ReadAsync<GraphQLRequest[]>(tempStream, cancellationToken);
+                                deserializationResult = await _serializer.ReadAsync<IList<GraphQLRequest>>(tempStream, cancellationToken);
                             }
                             else
                             {
-                                deserializationResult = await _serializer.ReadAsync<GraphQLRequest[]>(httpRequest.Body, cancellationToken);
+                                deserializationResult = await _serializer.ReadAsync<IList<GraphQLRequest>>(httpRequest.Body, cancellationToken);
                             }
 #else
-                            deserializationResult = await _serializer.ReadAsync<GraphQLRequest[]>(httpRequest.Body, cancellationToken);
+                            deserializationResult = await _serializer.ReadAsync<IList<GraphQLRequest>>(httpRequest.Body, cancellationToken);
 #endif
                         }
                         catch (Exception ex)
@@ -106,7 +106,8 @@ namespace GraphQL.Server.Transports.AspNetCore
                                 throw;
                             return;
                         }
-                        if (deserializationResult?.Length == 1)
+                        // https://github.com/graphql-dotnet/server/issues/751
+                        if (deserializationResult is GraphQLRequest[] array && array.Length == 1)
                             bodyGQLRequest = deserializationResult[0];
                         else
                             bodyGQLBatchRequest = deserializationResult;
@@ -172,7 +173,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             HttpContext context,
             RequestDelegate next,
             IDictionary<string, object> userContext,
-            GraphQLRequest[] bodyGQLBatchRequest,
+            IList<GraphQLRequest> bodyGQLBatchRequest,
             GraphQLRequest gqlRequest,
             IGraphQLExecuter<TSchema> executer,
             CancellationToken cancellationToken)
@@ -191,8 +192,8 @@ namespace GraphQL.Server.Transports.AspNetCore
             // Execute multiple graphql requests in one batch
             else
             {
-                var executionResults = new ExecutionResult[bodyGQLBatchRequest.Length];
-                for (int i = 0; i < bodyGQLBatchRequest.Length; ++i)
+                var executionResults = new ExecutionResult[bodyGQLBatchRequest.Count];
+                for (int i = 0; i < bodyGQLBatchRequest.Count; ++i)
                 {
                     var gqlRequestInBatch = bodyGQLBatchRequest[i];
 

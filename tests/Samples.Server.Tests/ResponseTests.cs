@@ -64,6 +64,15 @@ namespace Samples.Server.Tests
             response.ShouldBeEquivalentJson(@"[{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}},{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}},{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}}]", ignoreExtensions: true);
         }
 
+        [Fact]
+        public async Task Batched_Query_Should_Return_Single_Result_As_Array()
+        {
+            string response = await SendBatchRequestAsync(
+                new GraphQLRequest { Query = "query one { __schema { queryType { name } } }", OperationName = "one" }
+                );
+            response.ShouldBeEquivalentJson(@"[{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}}]", ignoreExtensions: true);
+        }
+
         [Theory]
         [MemberData(nameof(WrongQueryData))]
         public async Task Wrong_Query_Should_Return_Error(HttpMethod httpMethod, HttpContent httpContent,
