@@ -106,6 +106,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                                 throw;
                             return;
                         }
+                        // https://github.com/graphql-dotnet/server/issues/751
                         if (deserializationResult is GraphQLRequest[] array && array.Length == 1)
                             bodyGQLRequest = deserializationResult[0];
                         else
