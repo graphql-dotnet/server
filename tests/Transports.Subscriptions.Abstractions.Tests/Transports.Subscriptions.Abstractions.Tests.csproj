@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../../Tests.props" />
 
   <PropertyGroup>
@@ -12,7 +12,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\samples\Samples.Schemas.Chat\Samples.Schemas.Chat.csproj" />
     <ProjectReference Include="..\..\src\Transports.Subscriptions.Abstractions\Transports.Subscriptions.Abstractions.csproj" />
-    <PackageReference Include="GraphQL.NewtonsoftJson" Version="5.0.0-preview-476" />
+    <PackageReference Include="GraphQL.NewtonsoftJson" Version="5.0.0-preview-500" />
   </ItemGroup>
 
 </Project>

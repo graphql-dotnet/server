@@ -4,7 +4,6 @@ using System.Reactive.Linq;
 using System.Security.Claims;
 using GraphQL.Resolvers;
 using GraphQL.Server.Transports.Subscriptions.Abstractions;
-using GraphQL.Subscription;
 using GraphQL.Types;
 
 namespace GraphQL.Samples.Schemas.Chat
@@ -16,7 +15,7 @@ namespace GraphQL.Samples.Schemas.Chat
         public ChatSubscriptions(IChat chat)
         {
             _chat = chat;
-            AddField(new EventStreamFieldType
+            AddField(new FieldType
             {
                 Name = "messageAdded",
                 Type = typeof(MessageType),
@@ -24,7 +23,7 @@ namespace GraphQL.Samples.Schemas.Chat
                 Subscriber = new EventStreamResolver<Message>(Subscribe)
             });
 
-            AddField(new EventStreamFieldType
+            AddField(new FieldType
             {
                 Name = "messageAddedByUser",
                 Arguments = new QueryArguments(
@@ -36,7 +35,7 @@ namespace GraphQL.Samples.Schemas.Chat
             });
         }
 
-        private IObservable<Message> SubscribeById(IResolveEventStreamContext context)
+        private IObservable<Message> SubscribeById(IResolveFieldContext context)
         {
             var messageContext = (MessageHandlingContext)context.UserContext;
             var user = messageContext.Get<ClaimsPrincipal>("user");
@@ -58,7 +57,7 @@ namespace GraphQL.Samples.Schemas.Chat
             return message;
         }
 
-        private IObservable<Message> Subscribe(IResolveEventStreamContext context)
+        private IObservable<Message> Subscribe(IResolveFieldContext context)
         {
             var messageContext = (MessageHandlingContext)context.UserContext;
             var user = messageContext.Get<ClaimsPrincipal>("user");
