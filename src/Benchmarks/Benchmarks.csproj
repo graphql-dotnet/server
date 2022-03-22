@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>net6;net5;netcoreapp3.1</TargetFrameworks>
@@ -12,8 +12,8 @@
     <PackageReference Include="BenchmarkDotNet" Version="0.13.1" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.19" Condition="'$(TargetFramework)' == 'netcoreapp3.1'" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.2" Condition="'$(TargetFramework)' == 'net5'" />
-    <PackageReference Include="GraphQL.SystemTextJson" Version="5.0.0-preview-476" />
-    <PackageReference Include="GraphQL.NewtonsoftJson" Version="5.0.0-preview-476" />
+    <PackageReference Include="GraphQL.SystemTextJson" Version="5.0.0-preview-500" />
+    <PackageReference Include="GraphQL.NewtonsoftJson" Version="5.0.0-preview-500" />
   </ItemGroup>
 
   <ItemGroup>
