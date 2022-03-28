@@ -129,6 +129,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                             {
                                 if (!await HandleDeserializationErrorAsync(context, ex))
                                     throw;
+                                return;
                             }
                             break;
                         }
@@ -142,7 +143,17 @@ namespace GraphQL.Server.Transports.AspNetCore
             GraphQLRequest gqlRequest = null;
             if (bodyGQLBatchRequest == null)
             {
-                var urlGQLRequest = DeserializeFromQueryString(httpRequest.Query);
+                GraphQLRequest urlGQLRequest = null;
+                try
+                {
+                    urlGQLRequest = DeserializeFromQueryString(httpRequest.Query);
+                }
+                catch (Exception ex)
+                {
+                    if (!await HandleDeserializationErrorAsync(context, ex))
+                        throw;
+                    return;
+                }
 
                 gqlRequest = new GraphQLRequest
                 {
