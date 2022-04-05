@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
-using GraphQL.Subscription;
 using GraphQL.Transport;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
@@ -26,7 +25,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             string id = "1";
             var payload = new GraphQLRequest();
             var stream = new ReplaySubject<ExecutionResult>(1);
-            var result = new SubscriptionExecutionResult
+            var result = new ExecutionResult
             {
                 Streams = new Dictionary<string, IObservable<ExecutionResult>>
                 {
@@ -53,7 +52,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             string id = "1";
             var payload = new GraphQLRequest();
             var stream = new ReplaySubject<ExecutionResult>(1);
-            var result = new SubscriptionExecutionResult
+            var result = new ExecutionResult
             {
                 Streams = new Dictionary<string, IObservable<ExecutionResult>>
                 {
@@ -83,7 +82,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             string id = "1";
             var payload = new GraphQLRequest();
             var stream = new Subject<ExecutionResult>();
-            var result = new SubscriptionExecutionResult
+            var result = new ExecutionResult
             {
                 Streams = new Dictionary<string, IObservable<ExecutionResult>>
                 {
@@ -107,7 +106,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             var subject = new Subject<ExecutionResult>();
             subject.OnCompleted();
             var stream = subject;
-            var result = new SubscriptionExecutionResult
+            var result = new ExecutionResult
             {
                 Streams = new Dictionary<string, IObservable<ExecutionResult>>
                 {
@@ -129,7 +128,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             var unsubscribe = Substitute.For<IDisposable>();
             var stream = Substitute.For<IObservable<ExecutionResult>>();
             stream.Subscribe(null).ReturnsForAnyArgs(unsubscribe);
-            var result = new SubscriptionExecutionResult
+            var result = new ExecutionResult
             {
                 Streams = new Dictionary<string, IObservable<ExecutionResult>>
                 {
@@ -151,7 +150,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             /* Given */
             string id = "1";
             var payload = new GraphQLRequest();
-            var result = new SubscriptionExecutionResult
+            var result = new ExecutionResult
             {
                 Streams = new Dictionary<string, IObservable<ExecutionResult>>
                 {

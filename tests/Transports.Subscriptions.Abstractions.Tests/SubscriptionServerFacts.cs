@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using GraphQL.Subscription;
 using GraphQL.Transport;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
@@ -17,16 +16,16 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             _transport = new TestableSubscriptionTransport();
             _transportReader = _transport.Reader as TestableReader;
             _transportWriter = _transport.Writer as TestableWriter;
-            _documentExecuter = Substitute.For<IGraphQLExecuter>();
-            _documentExecuter.ExecuteAsync(null, null, null).ReturnsForAnyArgs(
-                new SubscriptionExecutionResult
+            _documentExecuter = Substitute.For<IDocumentExecuter>();
+            _documentExecuter.ExecuteAsync(null).ReturnsForAnyArgs(
+                new ExecutionResult
                 {
                     Streams = new Dictionary<string, IObservable<ExecutionResult>>
                     {
                         { "1", Substitute.For<IObservable<ExecutionResult>>() }
                     }
                 });
-            _subscriptionManager = new SubscriptionManager(_documentExecuter, new NullLoggerFactory());
+            _subscriptionManager = new SubscriptionManager(_documentExecuter, new NullLoggerFactory(), NoopServiceScopeFactory.Instance);
             _sut = new SubscriptionServer(
                 _transport,
                 _subscriptionManager,
@@ -37,7 +36,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         private readonly TestableSubscriptionTransport _transport;
         private readonly SubscriptionServer _sut;
         private readonly ISubscriptionManager _subscriptionManager;
-        private readonly IGraphQLExecuter _documentExecuter;
+        private readonly IDocumentExecuter _documentExecuter;
         private readonly IOperationMessageListener _messageListener;
         private readonly TestableReader _transportReader;
         private readonly TestableWriter _transportWriter;

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using GraphQL.DataLoader;
 using GraphQL.Execution;
+using GraphQL.Instrumentation;
 using GraphQL.MicrosoftDI;
 using GraphQL.Samples.Schemas.Chat;
 using GraphQL.Server;
@@ -9,7 +10,6 @@ using GraphQL.Server.Ui.Altair;
 using GraphQL.Server.Ui.GraphiQL;
 using GraphQL.Server.Ui.Playground;
 using GraphQL.Server.Ui.Voyager;
-using GraphQL.SystemReactive;
 using GraphQL.SystemTextJson;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -41,10 +41,9 @@ namespace GraphQL.Samples.Server
                 .Configure<ErrorInfoProviderOptions>(opt => opt.ExposeExceptionStackTrace = Environment.IsDevelopment());
 
             services.AddGraphQL(builder => builder
-                .AddServer(true)
+                .AddDocumentExecuter<ApolloTracingDocumentExecuter>()
                 .AddHttpMiddleware<ChatSchema, GraphQLHttpMiddlewareWithLogs<ChatSchema>>()
                 .AddWebSocketsHttpMiddleware<ChatSchema>()
-                .AddSubscriptionExecutionStrategy()
                 .AddSchema<ChatSchema>()
                 .ConfigureExecutionOptions(options =>
                 {
