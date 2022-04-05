@@ -8,10 +8,6 @@ namespace GraphQL.Server
         public virtual System.Threading.Tasks.Task<GraphQL.ExecutionResult> ExecuteAsync(GraphQL.Transport.GraphQLRequest request, System.Collections.Generic.IDictionary<string, object> context, System.IServiceProvider requestServices, System.Threading.CancellationToken cancellationToken = default) { }
         protected virtual GraphQL.ExecutionOptions GetOptions(GraphQL.Transport.GraphQLRequest request, System.Collections.Generic.IDictionary<string, object> context, System.IServiceProvider requestServices, System.Threading.CancellationToken cancellationToken) { }
     }
-    public class DefaultErrorInfoProvider : GraphQL.Execution.ErrorInfoProvider
-    {
-        public DefaultErrorInfoProvider(Microsoft.Extensions.Options.IOptions<GraphQL.Execution.ErrorInfoProviderOptions> options) { }
-    }
     [System.Obsolete]
     public class DefaultGraphQLExecuter<TSchema> : GraphQL.Server.IGraphQLExecuter, GraphQL.Server.IGraphQLExecuter<TSchema>
         where TSchema : GraphQL.Types.ISchema
