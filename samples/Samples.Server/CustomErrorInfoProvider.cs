@@ -1,9 +1,7 @@
 using System.Text;
 using GraphQL.Execution;
-using GraphQL.Server;
 using GraphQL.Server.Authorization.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.Options;
 
 namespace GraphQL.Samples.Server
 {
@@ -11,12 +9,11 @@ namespace GraphQL.Samples.Server
     /// Custom <see cref="ErrorInfoProvider"/> implementing a dedicated error message for the sample <see cref="IAuthorizationRequirement"/>
     /// used in this MS article: https://docs.microsoft.com/en-us/aspnet/core/security/authorization/policies
     /// </summary>
-    public class CustomErrorInfoProvider : DefaultErrorInfoProvider
+    public class CustomErrorInfoProvider : ErrorInfoProvider
     {
         private readonly IAuthorizationErrorMessageBuilder _messageBuilder;
 
-        public CustomErrorInfoProvider(IOptions<ErrorInfoProviderOptions> options, IAuthorizationErrorMessageBuilder messageBuilder)
-            : base(options)
+        public CustomErrorInfoProvider(IAuthorizationErrorMessageBuilder messageBuilder)
         {
             _messageBuilder = messageBuilder;
         }
