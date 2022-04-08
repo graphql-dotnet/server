@@ -14,15 +14,7 @@ namespace GraphQL.Authorization.ApiTests
     public class ApiApprovalTests
     {
         [Theory]
-        [InlineData(typeof(Server.Ui.Altair.AltairMiddleware))]
-        [InlineData(typeof(Server.Ui.GraphiQL.GraphiQLMiddleware))]
-        [InlineData(typeof(Server.Ui.Playground.PlaygroundMiddleware))]
-        [InlineData(typeof(Server.Ui.Voyager.VoyagerMiddleware))]
         [InlineData(typeof(Server.Authorization.AspNetCore.AuthorizationValidationRule))]
-        [InlineData(typeof(Server.GraphQLOptions))]
-        [InlineData(typeof(Server.Transports.AspNetCore.GraphQLHttpMiddleware<>))]
-        [InlineData(typeof(Server.Transports.Subscriptions.Abstractions.SubscriptionServer))]
-        [InlineData(typeof(Server.Transports.WebSockets.WebSocketTransport))]
         public void public_api_should_not_change_unintentionally(Type type)
         {
             string baseDir = AppDomain.CurrentDomain.BaseDirectory;
