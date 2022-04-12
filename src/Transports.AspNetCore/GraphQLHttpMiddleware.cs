@@ -329,9 +329,9 @@ namespace GraphQL.Server.Transports.AspNetCore
             try
             {
                 // Remove at most a single set of quotes.
-                if (charset.Length > 2 && charset[0] == '\"' && charset[charset.Length - 1] == '\"')
+                if (charset.Length > 2 && charset[0] == '\"' && charset[^1] == '\"')
                 {
-                    encoding = System.Text.Encoding.GetEncoding(charset.Substring(1, charset.Length - 2));
+                    encoding = System.Text.Encoding.GetEncoding(charset[1..^1]);
                 }
                 else
                 {
