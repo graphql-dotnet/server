@@ -39,9 +39,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout source
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup .NET Core SDK
-        uses: actions/setup-dotnet@v1
+        uses: actions/setup-dotnet@v2
         with:
           dotnet-version: |
             3.1.x
@@ -55,9 +55,9 @@ jobs:
       - name: Check formatting
         if: ${{ startsWith(matrix.os, 'ubuntu') }}
         run: |
-          dotnet tool install -g dotnet-format --version 6.0.243104 --add-source https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-tools/nuget/v3/index.json
-          dotnet format --no-restore --verify-no-changes -v diag --severity warn whitespace || (echo "Run 'dotnet format' to fix whitespace issues" && exit 1)
-          dotnet format --no-restore --verify-no-changes -v diag --severity warn analyzers || (echo "Run 'dotnet format' to fix analyzers issues" && exit 1)
+          dotnet format --no-restore --verify-no-changes --severity warn whitespace || (echo "Run 'dotnet format' to fix whitespace issues" && exit 1)
+          dotnet format --no-restore --verify-no-changes --severity warn analyzers || (echo "Run 'dotnet format' to fix analyzers issues" && exit 1)
+          dotnet format --no-restore --verify-no-changes --severity warn style || (echo "Run 'dotnet format' to fix style issues" && exit 1)
       - name: Build solution [Release]
         run: dotnet build --no-restore -c Release
       - name: Build solution [Debug]
@@ -66,9 +66,9 @@ jobs:
         run: dotnet test --no-restore --no-build -p:CollectCoverage=true
       - name: Upload coverage to codecov
         if: ${{ startsWith(matrix.os, 'ubuntu') }}
-        uses: codecov/codecov-action@v2.1.0
+        uses: codecov/codecov-action@v3
         with:
-          files: .coverage/GraphQL.Server.Authorization.AspNetCore.Tests/coverage.net5.opencover.xml,.coverage/GraphQL.Server.Samples.Server.Tests/coverage.netcoreapp3.1.opencover.xml,.coverage/GraphQL.Server.Transports.Subscriptions.Abstractions.Tests/coverage.net5.opencover.xml,.coverage/GraphQL.Server.Transports.Subscriptions.WebSockets.Tests/coverage.net5.opencover.xml,.coverage/GraphQL.Server.Transports.AspNetCore.Tests/coverage.net5.opencover.xml
+          files: .coverage/GraphQL.Server.Authorization.AspNetCore.Tests/coverage.net5.opencover.xml,.coverage/GraphQL.Server.Samples.Server.Tests/coverage.net5.opencover.xml,.coverage/GraphQL.Server.Transports.Subscriptions.Abstractions.Tests/coverage.net5.opencover.xml,.coverage/GraphQL.Server.Transports.Subscriptions.WebSockets.Tests/coverage.net5.opencover.xml,.coverage/GraphQL.Server.Transports.AspNetCore.Tests/coverage.net5.opencover.xml
 
   buildcheck:
     needs:

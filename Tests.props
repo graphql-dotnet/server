@@ -2,7 +2,7 @@
   <Import Project="$(MSBuildThisFileDirectory)Tests.local.props" Condition="Exists('$(MSBuildThisFileDirectory)Tests.local.props')" />
 
   <PropertyGroup>
-    <NoWarn>$(NoWarn);1591;IDE1006</NoWarn>
+    <NoWarn>$(NoWarn);0612;1591;IDE1006</NoWarn>
     <SingleTestPlatform Condition="'$(SingleTestPlatform)' == ''">false</SingleTestPlatform>
   </PropertyGroup>
 
@@ -15,7 +15,7 @@
     <PackageReference Include="Shouldly" Version="4.0.3" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3" />
-    <PackageReference Include="Moq" Version="4.16.1" />
+    <PackageReference Include="Moq" Version="4.17.2" />
     <PackageReference Include="NSubstitute" Version="4.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="3.1.19" Condition="'$(TargetFramework)' == 'netcoreapp3.1'" />
     <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="5.0.10" Condition="'$(TargetFramework)' == 'net5'" />
