@@ -2,14 +2,15 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using GraphQL.DataLoader;
 using GraphQL.Execution;
+using GraphQL.Instrumentation;
 using GraphQL.MicrosoftDI;
 using GraphQL.Samples.Schemas.Chat;
 using GraphQL.Server;
+using GraphQL.Server.Authorization.AspNetCore;
 using GraphQL.Server.Ui.Altair;
 using GraphQL.Server.Ui.GraphiQL;
 using GraphQL.Server.Ui.Playground;
 using GraphQL.Server.Ui.Voyager;
-using GraphQL.SystemReactive;
 using GraphQL.SystemTextJson;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -38,13 +39,14 @@ namespace GraphQL.Samples.Server
             services
                 .AddRouting()
                 .AddSingleton<IChat, Chat>()
-                .Configure<ErrorInfoProviderOptions>(opt => opt.ExposeExceptionStackTrace = Environment.IsDevelopment());
+                .Configure<ErrorInfoProviderOptions>(opt => opt.ExposeExceptionStackTrace = Environment.IsDevelopment())
+                .AddTransient<IAuthorizationErrorMessageBuilder, DefaultAuthorizationErrorMessageBuilder>(); // required by CustomErrorInfoProvider
 
             services.AddGraphQL(builder => builder
-                .AddServer(true)
+                .AddMetrics()
+                .AddDocumentExecuter<ApolloTracingDocumentExecuter>()
                 .AddHttpMiddleware<ChatSchema, GraphQLHttpMiddlewareWithLogs<ChatSchema>>()
                 .AddWebSocketsHttpMiddleware<ChatSchema>()
-                .AddSubscriptionExecutionStrategy()
                 .AddSchema<ChatSchema>()
                 .ConfigureExecutionOptions(options =>
                 {

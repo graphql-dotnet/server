@@ -20,7 +20,7 @@ namespace GraphQL.Samples.Schemas.Chat
                 Name = "messageAdded",
                 Type = typeof(MessageType),
                 Resolver = new FuncFieldResolver<Message>(ResolveMessage),
-                Subscriber = new EventStreamResolver<Message>(Subscribe)
+                StreamResolver = new SourceStreamResolver<Message>(Subscribe)
             });
 
             AddField(new FieldType
@@ -31,7 +31,7 @@ namespace GraphQL.Samples.Schemas.Chat
                 ),
                 Type = typeof(MessageType),
                 Resolver = new FuncFieldResolver<Message>(ResolveMessage),
-                Subscriber = new EventStreamResolver<Message>(SubscribeById)
+                StreamResolver = new SourceStreamResolver<Message>(SubscribeById)
             });
         }
 

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using GraphQL.NewtonsoftJson;
-using GraphQL.Subscription;
 using GraphQL.Transport;
 using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json.Linq;
@@ -16,7 +15,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         private readonly TestableSubscriptionTransport _transport;
         private readonly TestableReader _transportReader;
         private readonly TestableWriter _transportWriter;
-        private readonly IGraphQLExecuter _documentExecuter;
+        private readonly IDocumentExecuter _documentExecuter;
         private readonly SubscriptionManager _subscriptionManager;
         private readonly SubscriptionServer _server;
         private readonly ProtocolMessageListener _sut;
@@ -26,16 +25,16 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
             _transport = new TestableSubscriptionTransport();
             _transportReader = _transport.Reader as TestableReader;
             _transportWriter = _transport.Writer as TestableWriter;
-            _documentExecuter = Substitute.For<IGraphQLExecuter>();
-            _documentExecuter.ExecuteAsync(null, null, null).ReturnsForAnyArgs(
-                new SubscriptionExecutionResult
+            _documentExecuter = Substitute.For<IDocumentExecuter>();
+            _documentExecuter.ExecuteAsync(null).ReturnsForAnyArgs(
+                new ExecutionResult
                 {
                     Streams = new Dictionary<string, IObservable<ExecutionResult>>
                     {
                         { "1", Substitute.For<IObservable<ExecutionResult>>() }
                     }
                 });
-            _subscriptionManager = new SubscriptionManager(_documentExecuter, new NullLoggerFactory());
+            _subscriptionManager = new SubscriptionManager(_documentExecuter, new NullLoggerFactory(), NoopServiceScopeFactory.Instance);
             _sut = new ProtocolMessageListener(new NullLogger<ProtocolMessageListener>(), new GraphQLSerializer());
             _server = new SubscriptionServer(
                 _transport,
@@ -67,7 +66,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         public async Task Receive_start_mutation()
         {
             /* Given */
-            _documentExecuter.ExecuteAsync(null, null, null).ReturnsForAnyArgs(
+            _documentExecuter.ExecuteAsync(null).ReturnsForAnyArgs(
                 new ExecutionResult());
             var expected = new OperationMessage
             {
@@ -104,7 +103,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
         public async Task Receive_start_query()
         {
             /* Given */
-            _documentExecuter.ExecuteAsync(null, null, null).ReturnsForAnyArgs(
+            _documentExecuter.ExecuteAsync(null).ReturnsForAnyArgs(
                 new ExecutionResult());
             var expected = new OperationMessage
             {

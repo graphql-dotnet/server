@@ -19,7 +19,6 @@ namespace GraphQL.Authorization.ApiTests
         [InlineData(typeof(Server.Ui.Playground.PlaygroundMiddleware))]
         [InlineData(typeof(Server.Ui.Voyager.VoyagerMiddleware))]
         [InlineData(typeof(Server.Authorization.AspNetCore.AuthorizationValidationRule))]
-        [InlineData(typeof(Server.GraphQLOptions))]
         [InlineData(typeof(Server.Transports.AspNetCore.GraphQLHttpMiddleware<>))]
         [InlineData(typeof(Server.Transports.Subscriptions.Abstractions.SubscriptionServer))]
         [InlineData(typeof(Server.Transports.WebSockets.WebSocketTransport))]

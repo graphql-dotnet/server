@@ -176,7 +176,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                 ? new Dictionary<string, object>() // in order to allow resolvers to exchange their state through this object
                 : await userContextBuilder.BuildUserContext(context);
 
-            var executer = context.RequestServices.GetRequiredService<IGraphQLExecuter<TSchema>>();
+            var executer = context.RequestServices.GetRequiredService<IDocumentExecuter<TSchema>>();
             await HandleRequestAsync(context, next, userContext, bodyGQLBatchRequest, gqlRequest, executer, cancellationToken);
         }
 
@@ -186,7 +186,7 @@ namespace GraphQL.Server.Transports.AspNetCore
             IDictionary<string, object> userContext,
             IList<GraphQLRequest> bodyGQLBatchRequest,
             GraphQLRequest gqlRequest,
-            IGraphQLExecuter<TSchema> executer,
+            IDocumentExecuter<TSchema> executer,
             CancellationToken cancellationToken)
         {
             // Normal execution with single graphql request
@@ -239,12 +239,22 @@ namespace GraphQL.Server.Transports.AspNetCore
         protected virtual Task HandleInvalidHttpMethodErrorAsync(HttpContext context)
             => WriteErrorResponseAsync(context, $"Invalid HTTP method. Only GET and POST are supported. {DOCS_URL}", HttpStatusCode.MethodNotAllowed);
 
-        protected virtual Task<ExecutionResult> ExecuteRequestAsync(GraphQLRequest gqlRequest, IDictionary<string, object> userContext, IGraphQLExecuter<TSchema> executer, IServiceProvider requestServices, CancellationToken token)
-            => executer.ExecuteAsync(
-                gqlRequest,
-                userContext,
-                requestServices,
-                token);
+        protected virtual Task<ExecutionResult> ExecuteRequestAsync(
+            GraphQLRequest gqlRequest,
+            IDictionary<string, object> userContext,
+            IDocumentExecuter<TSchema> executer,
+            IServiceProvider requestServices,
+            CancellationToken token)
+            => executer.ExecuteAsync(new ExecutionOptions
+            {
+                Query = gqlRequest.Query,
+                OperationName = gqlRequest.OperationName,
+                Variables = gqlRequest.Variables,
+                Extensions = gqlRequest.Extensions,
+                UserContext = userContext,
+                RequestServices = requestServices,
+                CancellationToken = token
+            });
 
         protected virtual CancellationToken GetCancellationToken(HttpContext context) => context.RequestAborted;
 
