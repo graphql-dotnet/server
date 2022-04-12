@@ -20,6 +20,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
             _transport = new TestableSubscriptionTransport();
             _transportReader = _transport.Reader as TestableReader;
             _transportWriter = _transport.Writer as TestableWriter;
+#pragma warning disable CS0618 // Type or member is obsolete
             _subscriptions = new SubscriptionManager(
                 new BasicGraphQLExecuter<ChatSchema>(
                     new ChatSchema(_chat, new DefaultServiceProvider()),
@@ -27,6 +28,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
                     Options.Create(new GraphQLOptions { })
                     ),
                 new NullLoggerFactory());
+#pragma warning restore CS0618 // Type or member is obsolete
 
             _server = new SubscriptionServer(
                 _transport,
