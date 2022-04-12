@@ -1,7 +1,0 @@
-namespace GraphQL.Server
-{
-    public class DefaultErrorInfoProvider : GraphQL.Execution.ErrorInfoProvider
-    {
-        public DefaultErrorInfoProvider(Microsoft.Extensions.Options.IOptions<GraphQL.Execution.ErrorInfoProviderOptions> options) { }
-    }
-}
