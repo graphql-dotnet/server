@@ -2,14 +2,14 @@
   <Import Project="../../Tests.props" />
 
   <PropertyGroup>
-    <TargetFrameworks>net5;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>net6;net5;netcoreapp3.1</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Castle.Core" Version="4.4.1" />
-    <PackageReference Include="GraphQL.SystemTextJson" Version="5.0.0" />
-    <PackageReference Include="GraphQL.NewtonsoftJson" Version="5.0.0" />
+    <PackageReference Include="GraphQL.SystemTextJson" Version="5.1.1" />
+    <PackageReference Include="GraphQL.NewtonsoftJson" Version="5.1.1" />
   </ItemGroup>
 
   <ItemGroup>

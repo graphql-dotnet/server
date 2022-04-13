@@ -12,7 +12,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Authorization.AspNetCore\Authorization.AspNetCore.csproj" />
-    <ProjectReference Include="..\..\src\Core\Core.csproj" />
     <ProjectReference Include="..\..\src\Transports.AspNetCore\Transports.AspNetCore.csproj" />
     <ProjectReference Include="..\..\src\Transports.Subscriptions.Abstractions\Transports.Subscriptions.Abstractions.csproj" />
     <ProjectReference Include="..\..\src\Transports.Subscriptions.WebSockets\Transports.Subscriptions.WebSockets.csproj" />

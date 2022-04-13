@@ -10,7 +10,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Authorization.AspNetCore\Authorization.AspNetCore.csproj" />
-    <ProjectReference Include="..\Core\Core.csproj" />
     <ProjectReference Include="..\Transports.AspNetCore\Transports.AspNetCore.csproj" />
     <ProjectReference Include="..\Transports.Subscriptions.Abstractions\Transports.Subscriptions.Abstractions.csproj" />
     <ProjectReference Include="..\Transports.Subscriptions.WebSockets\Transports.Subscriptions.WebSockets.csproj" />
@@ -19,9 +18,9 @@
     <ProjectReference Include="..\Ui.Playground\Ui.Playground.csproj" />
     <ProjectReference Include="..\Ui.Voyager\Ui.Voyager.csproj" />
 
-    <PackageReference Include="GraphQL.MemoryCache" Version="5.0.0" />
-    <PackageReference Include="GraphQL.MicrosoftDI" Version="5.0.0" />
-    <PackageReference Include="GraphQL.SystemTextJson" Version="5.0.0" />
+    <PackageReference Include="GraphQL.MemoryCache" Version="5.1.1" />
+    <PackageReference Include="GraphQL.MicrosoftDI" Version="5.1.1" />
+    <PackageReference Include="GraphQL.SystemTextJson" Version="5.1.1" />
   </ItemGroup>
 
 </Project>
