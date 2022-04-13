@@ -1,6 +1,5 @@
 #nullable enable
 
-using System.Linq;
 using System.Text;
 using GraphQLParser.AST;
 using Microsoft.AspNetCore.Authorization;

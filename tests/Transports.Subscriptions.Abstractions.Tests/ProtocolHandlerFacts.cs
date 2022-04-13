@@ -1,12 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using GraphQL.NewtonsoftJson;
 using GraphQL.Transport;
 using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json.Linq;
 using NSubstitute;
-using Xunit;
 
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
 {

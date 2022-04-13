@@ -1,11 +1,6 @@
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using System.Text;
-using System.Threading.Tasks;
 using GraphQL.Transport;
-using Shouldly;
-using Xunit;
 
 namespace GraphQL.Server.Transports.AspNetCore.Tests
 {

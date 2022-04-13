@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
 using GraphQL.Execution;
 using GraphQL.Validation;
@@ -8,7 +5,6 @@ using GraphQLParser.AST;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Shouldly;
 
 namespace GraphQL.Server.Authorization.AspNetCore.Tests
 {

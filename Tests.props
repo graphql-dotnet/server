@@ -22,4 +22,9 @@
     <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="6.0.0" Condition="'$(TargetFramework)' == 'net6'" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Using Include="Shouldly" />
+    <Using Include="Xunit" />
+  </ItemGroup>
+
 </Project>

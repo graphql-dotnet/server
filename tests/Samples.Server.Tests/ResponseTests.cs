@@ -1,12 +1,7 @@
-using System.Collections.Generic;
 using System.Net;
-using System.Net.Http;
 using System.Text;
-using System.Threading.Tasks;
 using GraphQL.Server;
 using GraphQL.Transport;
-using Shouldly;
-using Xunit;
 
 namespace Samples.Server.Tests
 {

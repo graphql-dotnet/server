@@ -1,8 +1,5 @@
-using System.Collections.Generic;
 using GraphQL.Types;
 using GraphQL.Types.Relay.DataObjects;
-using Shouldly;
-using Xunit;
 
 namespace GraphQL.Server.Authorization.AspNetCore.Tests
 {

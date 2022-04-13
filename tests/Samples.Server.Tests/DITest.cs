@@ -1,12 +1,8 @@
-using System;
-using System.Linq;
 using GraphQL;
 using GraphQL.Samples.Server;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Shouldly;
-using Xunit;
 
 namespace Samples.Server.Tests
 {

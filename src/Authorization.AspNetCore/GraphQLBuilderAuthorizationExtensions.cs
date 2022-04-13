@@ -1,6 +1,5 @@
 #nullable enable
 
-using System;
 using GraphQL.DI;
 using GraphQL.Server.Authorization.AspNetCore;
 using Microsoft.AspNetCore.Authorization;

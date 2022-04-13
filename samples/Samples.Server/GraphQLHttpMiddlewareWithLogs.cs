@@ -1,10 +1,5 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using GraphQL.Server.Transports.AspNetCore;
 using GraphQL.Types;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 
 namespace GraphQL.Samples.Server
 {

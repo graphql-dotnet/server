@@ -1,4 +1,3 @@
-using System;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests

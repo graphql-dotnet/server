@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using GraphQL.DI;
 using GraphQL.Server.Transports.AspNetCore;
 using Microsoft.AspNetCore.Http;

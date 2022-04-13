@@ -1,12 +1,7 @@
-using System;
 using System.Net.WebSockets;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Hosting;
-using Shouldly;
-using Xunit;
 
 namespace GraphQL.Server.Transports.WebSockets.Tests
 {

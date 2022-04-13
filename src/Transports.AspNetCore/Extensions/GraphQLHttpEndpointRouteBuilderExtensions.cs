@@ -1,4 +1,3 @@
-using System;
 using GraphQL.Server.Transports.AspNetCore;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Routing;

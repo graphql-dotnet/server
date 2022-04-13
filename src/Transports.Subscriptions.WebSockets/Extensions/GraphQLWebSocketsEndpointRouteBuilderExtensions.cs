@@ -1,4 +1,3 @@
-using System;
 using GraphQL.Server.Transports.WebSockets;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Routing;

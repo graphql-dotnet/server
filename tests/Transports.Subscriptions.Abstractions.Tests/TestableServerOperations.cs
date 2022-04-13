@@ -1,5 +1,3 @@
-using System.Threading.Tasks;
-
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
 {
     public class TestableServerOperations : IServerOperations
