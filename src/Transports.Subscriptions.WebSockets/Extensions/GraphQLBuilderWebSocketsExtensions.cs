@@ -13,9 +13,9 @@ namespace GraphQL.Server
         public static IGraphQLBuilder AddWebSockets(this IGraphQLBuilder builder)
         {
             builder.Services
-                .Register(typeof(IWebSocketConnectionFactory<>), typeof(WebSocketConnectionFactory<>), DI.ServiceLifetime.Transient)
-                .Register<IOperationMessageListener, LogMessagesListener>(DI.ServiceLifetime.Transient)
-                .Register<IOperationMessageListener, ProtocolMessageListener>(DI.ServiceLifetime.Transient);
+                .Register(typeof(IWebSocketConnectionFactory<>), typeof(WebSocketConnectionFactory<>), ServiceLifetime.Transient)
+                .Register<IOperationMessageListener, LogMessagesListener>(ServiceLifetime.Transient)
+                .Register<IOperationMessageListener, ProtocolMessageListener>(ServiceLifetime.Transient);
 
             return builder;
         }

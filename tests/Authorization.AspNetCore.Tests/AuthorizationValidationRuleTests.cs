@@ -21,7 +21,7 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
             ShouldPassRule(config =>
             {
                 config.Query = @"query { post }";
-                config.Schema = BasicSchema<BasicQueryWithAttributesAndClassPolicy>().AuthorizeWith("SchemaPolicy");
+                config.Schema = BasicSchema<BasicQueryWithAttributesAndClassPolicy>().AuthorizeWithPolicy("SchemaPolicy");
                 config.User = CreatePrincipal(claims: new Dictionary<string, string>
                 {
                     { "Admin", "true" },
@@ -43,7 +43,7 @@ namespace GraphQL.Server.Authorization.AspNetCore.Tests
             ShouldFailRule(config =>
             {
                 config.Query = @"query { post }";
-                config.Schema = BasicSchema<BasicQueryWithAttributesAndClassPolicy>().AuthorizeWith("SchemaPolicy");
+                config.Schema = BasicSchema<BasicQueryWithAttributesAndClassPolicy>().AuthorizeWithPolicy("SchemaPolicy");
                 config.User = CreatePrincipal(claims: new Dictionary<string, string>
                 {
                     { "Admin", "true" },
@@ -310,7 +310,7 @@ Required claim 'admin' is not present.");
         }
 
         [GraphQLMetadata("Query")]
-        [GraphQLAuthorize("ClassPolicy")]
+        [Authorize("ClassPolicy")]
         public class BasicQueryWithAttributesAndClassPolicy
         {
             [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "for tests")]
@@ -320,7 +320,7 @@ Required claim 'admin' is not present.");
         [GraphQLMetadata("Query")]
         public class BasicQueryWithAttributesAndMethodPolicy
         {
-            [GraphQLAuthorize("FieldPolicy")]
+            [Authorize("FieldPolicy")]
             [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "for tests")]
             public string Post(string id) => "";
         }
@@ -328,7 +328,7 @@ Required claim 'admin' is not present.");
         [GraphQLMetadata("Query")]
         public class BasicQueryWithAttributesAndPropertyPolicy
         {
-            [GraphQLAuthorize("FieldPolicy")]
+            [Authorize("FieldPolicy")]
             public string Post { get; set; } = "";
         }
 
@@ -364,7 +364,7 @@ Required claim 'admin' is not present.");
             public IEnumerable<Post> PostsNonNull() => null;
         }
 
-        [GraphQLAuthorize("PostPolicy")]
+        [Authorize("PostPolicy")]
         public class Post
         {
             public string Id { get; set; }
@@ -395,7 +395,7 @@ Required claim 'admin' is not present.");
 
             query.Connection<PostGraphType>()
                 .Name("posts")
-                .AuthorizeWith("ConnectionPolicy")
+                .AuthorizeWithPolicy("ConnectionPolicy")
                 .Resolve(ctx => new Connection<Post>());
 
             return new Schema { Query = query };
@@ -405,7 +405,7 @@ Required claim 'admin' is not present.");
         {
             public AuthorInputType()
             {
-                Field(x => x.Name).AuthorizeWith("FieldPolicy");
+                Field(x => x.Name).AuthorizeWithPolicy("FieldPolicy");
             }
         }
     }

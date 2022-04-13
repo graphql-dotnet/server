@@ -9,10 +9,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Serilog.AspNetCore" Version="4.1.0" />
+    <PackageReference Include="GraphQL.DataLoader" Version="5.1.1" />
+    <PackageReference Include="Serilog.AspNetCore" Version="5.0.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="4.0.1" />
-    <PackageReference Include="GraphQL.MicrosoftDI" Version="5.0.0" />
-    <PackageReference Include="GraphQL.SystemTextJson" Version="5.0.0" />
+    <PackageReference Include="GraphQL.MicrosoftDI" Version="5.1.1" />
+    <PackageReference Include="GraphQL.SystemTextJson" Version="5.1.1" />
   </ItemGroup>
 
   <ItemGroup>

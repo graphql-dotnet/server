@@ -12,7 +12,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\samples\Samples.Schemas.Chat\Samples.Schemas.Chat.csproj" />
     <ProjectReference Include="..\..\src\Transports.Subscriptions.Abstractions\Transports.Subscriptions.Abstractions.csproj" />
-    <PackageReference Include="GraphQL.NewtonsoftJson" Version="5.0.0" />
+    <PackageReference Include="GraphQL.NewtonsoftJson" Version="5.1.1" />
   </ItemGroup>
 
 </Project>
