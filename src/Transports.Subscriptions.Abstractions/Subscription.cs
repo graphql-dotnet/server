@@ -72,11 +72,12 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
             // pass along the error as an execution result instance
             OnNext(new ExecutionResult { Errors = new ExecutionErrors { executionError } });
 
-            // Optionally we can disconnect the client by calling OnComplete() here
+            // Disconnect the client as no additional notification should be received from the source
             //
             // https://docs.microsoft.com/en-us/dotnet/standard/events/observer-design-pattern-best-practices
             // > Once the provider calls the OnError or IObserver<T>.OnCompleted method, there should be
             // > no further notifications, and the provider can unsubscribe its observers.
+            OnCompleted();
         }
 
         public void OnNext(ExecutionResult value)
