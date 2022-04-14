@@ -1,6 +1,4 @@
-using System.IO;
 using System.Text;
-using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using GraphQL.Transport;
 using NsjDeserializer = GraphQL.NewtonsoftJson.GraphQLSerializer;

@@ -1,5 +1,3 @@
-using System.Threading.Tasks;
-
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 {
     public interface IServerOperations //todo: inherit IDisposable

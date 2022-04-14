@@ -1,6 +1,5 @@
 #nullable enable
 
-using System;
 using GraphQL.Validation;
 using GraphQLParser.AST;
 using Microsoft.AspNetCore.Authorization;

@@ -1,4 +1,3 @@
-using System;
 using GraphQL.Server.Ui.Altair;
 using Microsoft.AspNetCore.Routing;
 

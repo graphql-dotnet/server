@@ -1,4 +1,3 @@
-using System;
 using GraphQL.Server.Ui.Voyager;
 using Microsoft.AspNetCore.Routing;
 

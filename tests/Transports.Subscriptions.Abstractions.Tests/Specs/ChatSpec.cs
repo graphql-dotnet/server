@@ -1,14 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using GraphQL.NewtonsoftJson;
 using GraphQL.Samples.Schemas.Chat;
 using GraphQL.Transport;
 using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
-using Xunit;
 
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
 {
@@ -21,12 +15,9 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
             _transportReader = _transport.Reader as TestableReader;
             _transportWriter = _transport.Writer as TestableWriter;
             _subscriptions = new SubscriptionManager(
-                new BasicGraphQLExecuter<ChatSchema>(
-                    new ChatSchema(_chat, new DefaultServiceProvider()),
-                    new SubscriptionDocumentExecuter(),
-                    Options.Create(new GraphQLOptions { })
-                    ),
-                new NullLoggerFactory());
+                new SchemaDocumentExecuter(new ChatSchema(_chat, new DefaultServiceProvider())),
+                new NullLoggerFactory(),
+                NoopServiceScopeFactory.Instance);
 
             _server = new SubscriptionServer(
                 _transport,

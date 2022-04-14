@@ -1,15 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using GraphQL.Execution;
 using GraphQL.NewtonsoftJson;
 using GraphQL.Transport;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using Shouldly;
-using Xunit;
 using JsonSerializerSettings = GraphQL.NewtonsoftJson.JsonSerializerSettings;
 
 namespace GraphQL.Server.Transports.WebSockets.Tests

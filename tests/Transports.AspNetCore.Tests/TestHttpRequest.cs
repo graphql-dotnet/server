@@ -1,7 +1,4 @@
-using System;
 using System.IO.Pipelines;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
 namespace GraphQL.Server.Transports.AspNetCore.Tests

@@ -25,14 +25,14 @@ namespace GraphQL.Server.Transports.AspNetCore
         where TSchema : GraphQL.Types.ISchema
     {
         public GraphQLHttpMiddleware(GraphQL.IGraphQLTextSerializer serializer) { }
-        protected virtual System.Threading.Tasks.Task<GraphQL.ExecutionResult> ExecuteRequestAsync(GraphQL.Transport.GraphQLRequest gqlRequest, System.Collections.Generic.IDictionary<string, object> userContext, GraphQL.Server.IGraphQLExecuter<TSchema> executer, System.IServiceProvider requestServices, System.Threading.CancellationToken token) { }
+        protected virtual System.Threading.Tasks.Task<GraphQL.ExecutionResult> ExecuteRequestAsync(GraphQL.Transport.GraphQLRequest gqlRequest, System.Collections.Generic.IDictionary<string, object> userContext, GraphQL.IDocumentExecuter<TSchema> executer, System.IServiceProvider requestServices, System.Threading.CancellationToken token) { }
         protected virtual System.Threading.CancellationToken GetCancellationToken(Microsoft.AspNetCore.Http.HttpContext context) { }
         protected virtual System.Threading.Tasks.Task HandleContentTypeCouldNotBeParsedErrorAsync(Microsoft.AspNetCore.Http.HttpContext context) { }
         protected virtual System.Threading.Tasks.ValueTask<bool> HandleDeserializationErrorAsync(Microsoft.AspNetCore.Http.HttpContext context, System.Exception ex) { }
         protected virtual System.Threading.Tasks.Task HandleInvalidContentTypeErrorAsync(Microsoft.AspNetCore.Http.HttpContext context) { }
         protected virtual System.Threading.Tasks.Task HandleInvalidHttpMethodErrorAsync(Microsoft.AspNetCore.Http.HttpContext context) { }
         protected virtual System.Threading.Tasks.Task HandleNoQueryErrorAsync(Microsoft.AspNetCore.Http.HttpContext context) { }
-        protected virtual System.Threading.Tasks.Task HandleRequestAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next, System.Collections.Generic.IDictionary<string, object> userContext, System.Collections.Generic.IList<GraphQL.Transport.GraphQLRequest> bodyGQLBatchRequest, GraphQL.Transport.GraphQLRequest gqlRequest, GraphQL.Server.IGraphQLExecuter<TSchema> executer, System.Threading.CancellationToken cancellationToken) { }
+        protected virtual System.Threading.Tasks.Task HandleRequestAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next, System.Collections.Generic.IDictionary<string, object> userContext, System.Collections.Generic.IList<GraphQL.Transport.GraphQLRequest> bodyGQLBatchRequest, GraphQL.Transport.GraphQLRequest gqlRequest, GraphQL.IDocumentExecuter<TSchema> executer, System.Threading.CancellationToken cancellationToken) { }
         public virtual System.Threading.Tasks.Task InvokeAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next) { }
         protected virtual System.Threading.Tasks.Task RequestExecutedAsync(in GraphQL.Server.Transports.AspNetCore.GraphQLRequestExecutionResult requestExecutionResult) { }
         protected virtual System.Threading.Tasks.Task RequestExecutingAsync(GraphQL.Transport.GraphQLRequest request, int? indexInBatch = default) { }

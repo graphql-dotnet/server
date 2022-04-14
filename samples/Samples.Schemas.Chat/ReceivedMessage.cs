@@ -1,5 +1,3 @@
-using System;
-
 namespace GraphQL.Samples.Schemas.Chat
 {
     public class ReceivedMessage
