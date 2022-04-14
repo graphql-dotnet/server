@@ -1,71 +1,70 @@
 using System.Threading.Tasks.Dataflow;
 using GraphQL.Transport;
 
-namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
+namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests;
+
+public class TestableReader : IReaderPipeline
 {
-    public class TestableReader : IReaderPipeline
+    private readonly BufferBlock<OperationMessage> _readBuffer;
+
+    public TestableReader()
     {
-        private readonly BufferBlock<OperationMessage> _readBuffer;
-
-        public TestableReader()
-        {
-            _readBuffer = new BufferBlock<OperationMessage>();
-        }
-
-        public void LinkTo(ITargetBlock<OperationMessage> target)
-        {
-            _readBuffer.LinkTo(target, new DataflowLinkOptions
-            {
-                PropagateCompletion = true
-            });
-        }
-
-        public Task Complete()
-        {
-            _readBuffer.Complete();
-            return Task.CompletedTask;
-        }
-
-        public Task Completion => _readBuffer.Completion;
-
-        public bool AddMessageToRead(OperationMessage message) => _readBuffer.Post(message);
+        _readBuffer = new BufferBlock<OperationMessage>();
     }
 
-    public class TestableWriter : IWriterPipeline
+    public void LinkTo(ITargetBlock<OperationMessage> target)
     {
-        private readonly ActionBlock<OperationMessage> _endBlock;
-
-        public TestableWriter()
+        _readBuffer.LinkTo(target, new DataflowLinkOptions
         {
-            WrittenMessages = new List<OperationMessage>();
-            _endBlock = new ActionBlock<OperationMessage>(message => WrittenMessages.Add(message));
-        }
-
-        public List<OperationMessage> WrittenMessages { get; }
-
-        public bool Post(OperationMessage message) => _endBlock.Post(message);
-
-        public Task SendAsync(OperationMessage message) => _endBlock.SendAsync(message);
-
-        public Task Completion => _endBlock.Completion;
-
-        public Task Complete()
-        {
-            _endBlock.Complete();
-            return Task.CompletedTask;
-        }
+            PropagateCompletion = true
+        });
     }
 
-    public class TestableSubscriptionTransport : IMessageTransport
+    public Task Complete()
     {
-        public TestableSubscriptionTransport()
-        {
-            Writer = new TestableWriter();
-            Reader = new TestableReader();
-        }
-
-        public IReaderPipeline Reader { get; }
-
-        public IWriterPipeline Writer { get; }
+        _readBuffer.Complete();
+        return Task.CompletedTask;
     }
+
+    public Task Completion => _readBuffer.Completion;
+
+    public bool AddMessageToRead(OperationMessage message) => _readBuffer.Post(message);
+}
+
+public class TestableWriter : IWriterPipeline
+{
+    private readonly ActionBlock<OperationMessage> _endBlock;
+
+    public TestableWriter()
+    {
+        WrittenMessages = new List<OperationMessage>();
+        _endBlock = new ActionBlock<OperationMessage>(message => WrittenMessages.Add(message));
+    }
+
+    public List<OperationMessage> WrittenMessages { get; }
+
+    public bool Post(OperationMessage message) => _endBlock.Post(message);
+
+    public Task SendAsync(OperationMessage message) => _endBlock.SendAsync(message);
+
+    public Task Completion => _endBlock.Completion;
+
+    public Task Complete()
+    {
+        _endBlock.Complete();
+        return Task.CompletedTask;
+    }
+}
+
+public class TestableSubscriptionTransport : IMessageTransport
+{
+    public TestableSubscriptionTransport()
+    {
+        Writer = new TestableWriter();
+        Reader = new TestableReader();
+    }
+
+    public IReaderPipeline Reader { get; }
+
+    public IWriterPipeline Writer { get; }
 }

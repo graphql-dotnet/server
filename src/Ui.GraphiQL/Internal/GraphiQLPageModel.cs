@@ -1,50 +1,49 @@
 using System.Text;
 using System.Text.Json;
 
-namespace GraphQL.Server.Ui.GraphiQL.Internal
+namespace GraphQL.Server.Ui.GraphiQL.Internal;
+
+// https://docs.microsoft.com/en-us/aspnet/core/mvc/razor-pages/?tabs=netcore-cli
+internal sealed class GraphiQLPageModel
 {
-    // https://docs.microsoft.com/en-us/aspnet/core/mvc/razor-pages/?tabs=netcore-cli
-    internal sealed class GraphiQLPageModel
+    private string? _graphiQLCSHtml;
+
+    private readonly GraphiQLOptions _options;
+
+    public GraphiQLPageModel(GraphiQLOptions options)
     {
-        private string? _graphiQLCSHtml;
+        _options = options;
+    }
 
-        private readonly GraphiQLOptions _options;
-
-        public GraphiQLPageModel(GraphiQLOptions options)
+    public string Render()
+    {
+        if (_graphiQLCSHtml == null)
         {
-            _options = options;
-        }
+            using var manifestResourceStream = _options.IndexStream(_options);
+            using var streamReader = new StreamReader(manifestResourceStream);
 
-        public string Render()
-        {
-            if (_graphiQLCSHtml == null)
+            var headers = new Dictionary<string, object>
             {
-                using var manifestResourceStream = _options.IndexStream(_options);
-                using var streamReader = new StreamReader(manifestResourceStream);
+                ["Accept"] = "application/json",
+                ["Content-Type"] = "application/json",
+            };
 
-                var headers = new Dictionary<string, object>
-                {
-                    ["Accept"] = "application/json",
-                    ["Content-Type"] = "application/json",
-                };
-
-                if (_options.Headers?.Count > 0)
-                {
-                    foreach (var item in _options.Headers)
-                        headers[item.Key] = item.Value;
-                }
-
-                var builder = new StringBuilder(streamReader.ReadToEnd())
-                    .Replace("@Model.GraphQLEndPoint", _options.GraphQLEndPoint)
-                    .Replace("@Model.SubscriptionsEndPoint", _options.SubscriptionsEndPoint)
-                    .Replace("@Model.Headers", JsonSerializer.Serialize<object>(headers))
-                    .Replace("@Model.HeaderEditorEnabled", _options.HeaderEditorEnabled ? "true" : "false")
-                    .Replace("@Model.GraphiQLElement", _options.ExplorerExtensionEnabled ? "GraphiQLWithExtensions.GraphiQLWithExtensions" : "GraphiQL");
-
-                _graphiQLCSHtml = _options.PostConfigure(_options, builder.ToString());
+            if (_options.Headers?.Count > 0)
+            {
+                foreach (var item in _options.Headers)
+                    headers[item.Key] = item.Value;
             }
 
-            return _graphiQLCSHtml;
+            var builder = new StringBuilder(streamReader.ReadToEnd())
+                .Replace("@Model.GraphQLEndPoint", _options.GraphQLEndPoint)
+                .Replace("@Model.SubscriptionsEndPoint", _options.SubscriptionsEndPoint)
+                .Replace("@Model.Headers", JsonSerializer.Serialize<object>(headers))
+                .Replace("@Model.HeaderEditorEnabled", _options.HeaderEditorEnabled ? "true" : "false")
+                .Replace("@Model.GraphiQLElement", _options.ExplorerExtensionEnabled ? "GraphiQLWithExtensions.GraphiQLWithExtensions" : "GraphiQL");
+
+            _graphiQLCSHtml = _options.PostConfigure(_options, builder.ToString());
         }
+
+        return _graphiQLCSHtml;
     }
 }

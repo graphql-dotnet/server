@@ -1,12 +1,11 @@
 using GraphQL.Types;
 
-namespace GraphQL.Samples.Schemas.Chat
+namespace GraphQL.Samples.Schemas.Chat;
+
+public class ChatQuery : ObjectGraphType
 {
-    public class ChatQuery : ObjectGraphType
+    public ChatQuery(IChat chat)
     {
-        public ChatQuery(IChat chat)
-        {
-            Field<ListGraphType<MessageType>>("messages", resolve: context => chat.AllMessages.Take(100));
-        }
+        Field<ListGraphType<MessageType>>("messages", resolve: context => chat.AllMessages.Take(100));
     }
 }

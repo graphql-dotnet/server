@@ -2,105 +2,104 @@ using GraphQL.Transport;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 
-namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests
+namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests;
+
+public class SubscriptionServerFacts
 {
-    public class SubscriptionServerFacts
+    public SubscriptionServerFacts()
     {
-        public SubscriptionServerFacts()
-        {
-            _messageListener = Substitute.For<IOperationMessageListener>();
-            _transport = new TestableSubscriptionTransport();
-            _transportReader = _transport.Reader as TestableReader;
-            _transportWriter = _transport.Writer as TestableWriter;
-            _documentExecuter = Substitute.For<IDocumentExecuter>();
-            _documentExecuter.ExecuteAsync(null).ReturnsForAnyArgs(
-                new ExecutionResult
+        _messageListener = Substitute.For<IOperationMessageListener>();
+        _transport = new TestableSubscriptionTransport();
+        _transportReader = _transport.Reader as TestableReader;
+        _transportWriter = _transport.Writer as TestableWriter;
+        _documentExecuter = Substitute.For<IDocumentExecuter>();
+        _documentExecuter.ExecuteAsync(null).ReturnsForAnyArgs(
+            new ExecutionResult
+            {
+                Streams = new Dictionary<string, IObservable<ExecutionResult>>
                 {
-                    Streams = new Dictionary<string, IObservable<ExecutionResult>>
-                    {
-                        { "1", Substitute.For<IObservable<ExecutionResult>>() }
-                    }
-                });
-            _subscriptionManager = new SubscriptionManager(_documentExecuter, new NullLoggerFactory(), NoopServiceScopeFactory.Instance);
-            _sut = new SubscriptionServer(
-                _transport,
-                _subscriptionManager,
-                new[] { _messageListener },
-                new NullLogger<SubscriptionServer>());
-        }
+                    { "1", Substitute.For<IObservable<ExecutionResult>>() }
+                }
+            });
+        _subscriptionManager = new SubscriptionManager(_documentExecuter, new NullLoggerFactory(), NoopServiceScopeFactory.Instance);
+        _sut = new SubscriptionServer(
+            _transport,
+            _subscriptionManager,
+            new[] { _messageListener },
+            new NullLogger<SubscriptionServer>());
+    }
 
-        private readonly TestableSubscriptionTransport _transport;
-        private readonly SubscriptionServer _sut;
-        private readonly ISubscriptionManager _subscriptionManager;
-        private readonly IDocumentExecuter _documentExecuter;
-        private readonly IOperationMessageListener _messageListener;
-        private readonly TestableReader _transportReader;
-        private readonly TestableWriter _transportWriter;
+    private readonly TestableSubscriptionTransport _transport;
+    private readonly SubscriptionServer _sut;
+    private readonly ISubscriptionManager _subscriptionManager;
+    private readonly IDocumentExecuter _documentExecuter;
+    private readonly IOperationMessageListener _messageListener;
+    private readonly TestableReader _transportReader;
+    private readonly TestableWriter _transportWriter;
 
-        [Fact]
-        public async Task Listener_BeforeHandle()
+    [Fact]
+    public async Task Listener_BeforeHandle()
+    {
+        /* Given */
+        var expected = new OperationMessage
         {
-            /* Given */
-            var expected = new OperationMessage
-            {
-                Type = MessageType.GQL_CONNECTION_INIT
-            };
-            _transportReader.AddMessageToRead(expected);
-            await _transportReader.Complete();
+            Type = MessageType.GQL_CONNECTION_INIT
+        };
+        _transportReader.AddMessageToRead(expected);
+        await _transportReader.Complete();
 
-            /* When */
-            await _sut.OnConnect();
+        /* When */
+        await _sut.OnConnect();
 
-            /* Then */
-            await _messageListener.Received().BeforeHandleAsync(Arg.Is<MessageHandlingContext>(context =>
-                context.Writer == _transportWriter
-                && context.Reader == _transportReader
-                && context.Subscriptions == _subscriptionManager
-                && context.Message == expected));
-        }
+        /* Then */
+        await _messageListener.Received().BeforeHandleAsync(Arg.Is<MessageHandlingContext>(context =>
+            context.Writer == _transportWriter
+            && context.Reader == _transportReader
+            && context.Subscriptions == _subscriptionManager
+            && context.Message == expected));
+    }
 
-        [Fact]
-        public async Task Listener_Handle()
+    [Fact]
+    public async Task Listener_Handle()
+    {
+        /* Given */
+        var expected = new OperationMessage
         {
-            /* Given */
-            var expected = new OperationMessage
-            {
-                Type = MessageType.GQL_CONNECTION_INIT
-            };
-            _transportReader.AddMessageToRead(expected);
-            await _transportReader.Complete();
+            Type = MessageType.GQL_CONNECTION_INIT
+        };
+        _transportReader.AddMessageToRead(expected);
+        await _transportReader.Complete();
 
-            /* When */
-            await _sut.OnConnect();
+        /* When */
+        await _sut.OnConnect();
 
-            /* Then */
-            await _messageListener.Received().HandleAsync(Arg.Is<MessageHandlingContext>(context =>
-                context.Writer == _transportWriter
-                && context.Reader == _transportReader
-                && context.Subscriptions == _subscriptionManager
-                && context.Message == expected));
-        }
+        /* Then */
+        await _messageListener.Received().HandleAsync(Arg.Is<MessageHandlingContext>(context =>
+            context.Writer == _transportWriter
+            && context.Reader == _transportReader
+            && context.Subscriptions == _subscriptionManager
+            && context.Message == expected));
+    }
 
-        [Fact]
-        public async Task Listener_AfterHandle()
+    [Fact]
+    public async Task Listener_AfterHandle()
+    {
+        /* Given */
+        var expected = new OperationMessage
         {
-            /* Given */
-            var expected = new OperationMessage
-            {
-                Type = MessageType.GQL_CONNECTION_INIT
-            };
-            _transportReader.AddMessageToRead(expected);
-            await _transportReader.Complete();
+            Type = MessageType.GQL_CONNECTION_INIT
+        };
+        _transportReader.AddMessageToRead(expected);
+        await _transportReader.Complete();
 
-            /* When */
-            await _sut.OnConnect();
+        /* When */
+        await _sut.OnConnect();
 
-            /* Then */
-            await _messageListener.Received().AfterHandleAsync(Arg.Is<MessageHandlingContext>(context =>
-                context.Writer == _transportWriter
-                && context.Reader == _transportReader
-                && context.Subscriptions == _subscriptionManager
-                && context.Message == expected));
-        }
+        /* Then */
+        await _messageListener.Received().AfterHandleAsync(Arg.Is<MessageHandlingContext>(context =>
+            context.Writer == _transportWriter
+            && context.Reader == _transportReader
+            && context.Subscriptions == _subscriptionManager
+            && context.Message == expected));
     }
 }

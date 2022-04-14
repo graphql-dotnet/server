@@ -2,20 +2,19 @@ using System.Security.Claims;
 using GraphQL.Types;
 using GraphQL.Validation;
 
-namespace GraphQL.Server.Authorization.AspNetCore.Tests
+namespace GraphQL.Server.Authorization.AspNetCore.Tests;
+
+public class ValidationTestConfig
 {
-    public class ValidationTestConfig
-    {
-        public string Query { get; set; }
+    public string Query { get; set; }
 
-        public ISchema Schema { get; set; }
+    public ISchema Schema { get; set; }
 
-        public List<IValidationRule> Rules { get; set; } = new List<IValidationRule>();
+    public List<IValidationRule> Rules { get; set; } = new List<IValidationRule>();
 
-        public ClaimsPrincipal User { get; set; }
+    public ClaimsPrincipal User { get; set; }
 
-        public Inputs Inputs { get; set; }
+    public Inputs Inputs { get; set; }
 
-        public Action<IValidationResult> ValidateResult = _ => { };
-    }
+    public Action<IValidationResult> ValidateResult = _ => { };
 }

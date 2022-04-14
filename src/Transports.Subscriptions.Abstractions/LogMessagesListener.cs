@@ -1,24 +1,23 @@
 using Microsoft.Extensions.Logging;
 
-namespace GraphQL.Server.Transports.Subscriptions.Abstractions
+namespace GraphQL.Server.Transports.Subscriptions.Abstractions;
+
+public class LogMessagesListener : IOperationMessageListener
 {
-    public class LogMessagesListener : IOperationMessageListener
+    private readonly ILogger<LogMessagesListener> _logger;
+
+    public LogMessagesListener(ILogger<LogMessagesListener> logger)
     {
-        private readonly ILogger<LogMessagesListener> _logger;
-
-        public LogMessagesListener(ILogger<LogMessagesListener> logger)
-        {
-            _logger = logger;
-        }
-
-        public Task BeforeHandleAsync(MessageHandlingContext context) => Task.FromResult(true);
-
-        public Task HandleAsync(MessageHandlingContext context)
-        {
-            _logger.LogDebug("Received message: {message}", context.Message);
-            return Task.CompletedTask;
-        }
-
-        public Task AfterHandleAsync(MessageHandlingContext context) => Task.CompletedTask;
+        _logger = logger;
     }
+
+    public Task BeforeHandleAsync(MessageHandlingContext context) => Task.FromResult(true);
+
+    public Task HandleAsync(MessageHandlingContext context)
+    {
+        _logger.LogDebug("Received message: {message}", context.Message);
+        return Task.CompletedTask;
+    }
+
+    public Task AfterHandleAsync(MessageHandlingContext context) => Task.CompletedTask;
 }
