@@ -1,14 +1,13 @@
 using GraphQL.Types;
 
-namespace GraphQL.Samples.Schemas.Chat
+namespace GraphQL.Samples.Schemas.Chat;
+
+public class ChatSchema : Schema
 {
-    public class ChatSchema : Schema
+    public ChatSchema(IChat chat, IServiceProvider provider) : base(provider)
     {
-        public ChatSchema(IChat chat, IServiceProvider provider) : base(provider)
-        {
-            Query = new ChatQuery(chat);
-            Mutation = new ChatMutation(chat);
-            Subscription = new ChatSubscriptions(chat);
-        }
+        Query = new ChatQuery(chat);
+        Mutation = new ChatMutation(chat);
+        Subscription = new ChatSubscriptions(chat);
     }
 }

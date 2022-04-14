@@ -1,47 +1,46 @@
 using System.Text;
 using System.Text.Json;
 
-namespace GraphQL.Server.Ui.Voyager.Internal
+namespace GraphQL.Server.Ui.Voyager.Internal;
+
+// https://docs.microsoft.com/en-us/aspnet/core/mvc/razor-pages/?tabs=netcore-cli
+internal sealed class VoyagerPageModel
 {
-    // https://docs.microsoft.com/en-us/aspnet/core/mvc/razor-pages/?tabs=netcore-cli
-    internal sealed class VoyagerPageModel
+    private string? _voyagerCSHtml;
+
+    private readonly VoyagerOptions _options;
+
+    public VoyagerPageModel(VoyagerOptions options)
     {
-        private string? _voyagerCSHtml;
+        _options = options;
+    }
 
-        private readonly VoyagerOptions _options;
-
-        public VoyagerPageModel(VoyagerOptions options)
+    public string Render()
+    {
+        if (_voyagerCSHtml == null)
         {
-            _options = options;
-        }
+            using var manifestResourceStream = _options.IndexStream(_options);
+            using var streamReader = new StreamReader(manifestResourceStream);
 
-        public string Render()
-        {
-            if (_voyagerCSHtml == null)
+            var headers = new Dictionary<string, object>
             {
-                using var manifestResourceStream = _options.IndexStream(_options);
-                using var streamReader = new StreamReader(manifestResourceStream);
+                ["Accept"] = "application/json",
+                ["Content-Type"] = "application/json",
+            };
 
-                var headers = new Dictionary<string, object>
-                {
-                    ["Accept"] = "application/json",
-                    ["Content-Type"] = "application/json",
-                };
-
-                if (_options.Headers?.Count > 0)
-                {
-                    foreach (var item in _options.Headers)
-                        headers[item.Key] = item.Value;
-                }
-
-                var builder = new StringBuilder(streamReader.ReadToEnd())
-                    .Replace("@Model.GraphQLEndPoint", _options.GraphQLEndPoint)
-                    .Replace("@Model.Headers", JsonSerializer.Serialize<object>(headers));
-
-                _voyagerCSHtml = _options.PostConfigure(_options, builder.ToString());
+            if (_options.Headers?.Count > 0)
+            {
+                foreach (var item in _options.Headers)
+                    headers[item.Key] = item.Value;
             }
 
-            return _voyagerCSHtml;
+            var builder = new StringBuilder(streamReader.ReadToEnd())
+                .Replace("@Model.GraphQLEndPoint", _options.GraphQLEndPoint)
+                .Replace("@Model.Headers", JsonSerializer.Serialize<object>(headers));
+
+            _voyagerCSHtml = _options.PostConfigure(_options, builder.ToString());
         }
+
+        return _voyagerCSHtml;
     }
 }

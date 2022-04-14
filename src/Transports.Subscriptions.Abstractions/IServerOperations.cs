@@ -1,13 +1,12 @@
-namespace GraphQL.Server.Transports.Subscriptions.Abstractions
+namespace GraphQL.Server.Transports.Subscriptions.Abstractions;
+
+public interface IServerOperations //todo: inherit IDisposable
 {
-    public interface IServerOperations //todo: inherit IDisposable
-    {
-        Task Terminate();
+    Task Terminate();
 
-        IReaderPipeline TransportReader { get; }
+    IReaderPipeline TransportReader { get; }
 
-        IWriterPipeline TransportWriter { get; }
+    IWriterPipeline TransportWriter { get; }
 
-        ISubscriptionManager Subscriptions { get; }
-    }
+    ISubscriptionManager Subscriptions { get; }
 }

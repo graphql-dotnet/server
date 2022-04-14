@@ -6,234 +6,233 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using JsonSerializerSettings = GraphQL.NewtonsoftJson.JsonSerializerSettings;
 
-namespace GraphQL.Server.Transports.WebSockets.Tests
+namespace GraphQL.Server.Transports.WebSockets.Tests;
+
+public class WebSocketWriterPipelineFacts
 {
-    public class WebSocketWriterPipelineFacts
+    private readonly TestWebSocket _testWebSocket;
+
+    public WebSocketWriterPipelineFacts()
     {
-        private readonly TestWebSocket _testWebSocket;
+        _testWebSocket = new TestWebSocket();
+    }
 
-        public WebSocketWriterPipelineFacts()
+    public static IEnumerable<object[]> TestData =>
+        new List<object[]>
         {
-            _testWebSocket = new TestWebSocket();
-        }
-
-        public static IEnumerable<object[]> TestData =>
-            new List<object[]>
+            new object[]
             {
-                new object[]
+                new OperationMessage
                 {
-                    new OperationMessage
+                    Payload = new ExecutionResult
                     {
-                        Payload = new ExecutionResult
+                        Executed = true,
+                        Data = new TestMessage
                         {
-                            Executed = true,
-                            Data = new TestMessage
-                            {
-                                Content = "Hello world",
-                                SentAt = new DateTimeOffset(2018, 12, 12, 10, 0, 0, TimeSpan.Zero)
-                            }
+                            Content = "Hello world",
+                            SentAt = new DateTimeOffset(2018, 12, 12, 10, 0, 0, TimeSpan.Zero)
                         }
-                    },
-                    83
-                },
-                new object[]
-                {
-                    new OperationMessage
-                    {
-                        Payload = new ExecutionResult
-                        {
-                            Executed = true,
-                            Data = Enumerable.Repeat(new TestMessage
-                            {
-                                Content = "Hello world",
-                                SentAt = new DateTimeOffset(2018, 12, 12, 10, 0, 0, TimeSpan.Zero)
-                            }, 10)
-                        }
-                    },
-                    652
-                },
-                new object[]
-                {
-                    new OperationMessage
-                    {
-                        Payload = new ExecutionResult
-                        {
-                            Executed = true,
-                            Data = Enumerable.Repeat(new TestMessage
-                            {
-                                Content = "Hello world",
-                                SentAt = new DateTimeOffset(2018, 12, 12, 10, 0, 0, TimeSpan.Zero)
-                            }, 16_000)
-                        }
-                    },
-                    // About 1 megabyte
-                    1_008_022
-                },
-                new object[]
-                {
-                    new OperationMessage
-                    {
-                        Payload = new ExecutionResult
-                        {
-                            Executed = true,
-                            Data = Enumerable.Repeat(new TestMessage
-                            {
-                                Content = "Hello world",
-                                SentAt = new DateTimeOffset(2018, 12, 12, 10, 0, 0, TimeSpan.Zero)
-                            }, 160_000)
-                        }
-                    },
-                    // About 10 megabytes
-                    10_080_022
-                },
-                new object[]
-                {
-                    new OperationMessage
-                    {
-                        Payload = new ExecutionResult
-                        {
-                            Executed = true,
-                            Data = Enumerable.Repeat(new TestMessage
-                            {
-                                Content = "Hello world",
-                                SentAt = new DateTimeOffset(2018, 12, 12, 10, 0, 0, TimeSpan.Zero)
-                            }, 1_600_000)
-                        }
-                    },
-                    // About 100 megabytes
-                    100_800_022
-                },
-            };
-
-        [Fact]
-        public async Task should_post_single_message()
-        {
-            var webSocketWriterPipeline = CreateWebSocketWriterPipeline(new CamelCaseNamingStrategy());
-            var message = new OperationMessage
-            {
-                Payload = new ExecutionResult
-                {
-                    Executed = true,
-                    Data = new TestMessage
-                    {
-                        Content = "Hello world",
-                        SentAt = new DateTimeOffset(2018, 12, 12, 10, 0, 0, TimeSpan.Zero)
                     }
-                }
-            };
-            Assert.True(webSocketWriterPipeline.Post(message));
-            await webSocketWriterPipeline.Complete();
-            await webSocketWriterPipeline.Completion;
-            Assert.Single(_testWebSocket.Messages);
-
-            string resultingJson = Encoding.UTF8.GetString(_testWebSocket.Messages.First().ToArray());
-            Assert.Equal(
-                "{\"payload\":{\"data\":{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}}}",
-                resultingJson);
-        }
-
-        [Fact]
-        public async Task should_post_array_of_10_messages()
-        {
-            var webSocketWriterPipeline = CreateWebSocketWriterPipeline(new CamelCaseNamingStrategy());
-            var message = new OperationMessage
+                },
+                83
+            },
+            new object[]
             {
-                Payload = new ExecutionResult
+                new OperationMessage
                 {
-                    Executed = true,
-                    Data = Enumerable.Repeat(new TestMessage
+                    Payload = new ExecutionResult
                     {
-                        Content = "Hello world",
-                        SentAt = new DateTimeOffset(2018, 12, 12, 10, 0, 0, TimeSpan.Zero)
-                    }, 10)
-                }
-            };
-            Assert.True(webSocketWriterPipeline.Post(message));
-            await webSocketWriterPipeline.Complete();
-            await webSocketWriterPipeline.Completion;
-            Assert.Single(_testWebSocket.Messages);
-
-            string resultingJson = Encoding.UTF8.GetString(_testWebSocket.Messages.First().ToArray());
-            Assert.Equal(
-                "{\"payload\":" +
-                    "{\"data\":[" +
-                        "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
-                        "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
-                        "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
-                        "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
-                        "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
-                        "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
-                        "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
-                        "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
-                        "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
-                        "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}" +
-                    "]}" +
-                "}",
-                resultingJson);
-        }
-
-        [Theory]
-        [MemberData(nameof(TestData))]
-        public async Task should_post_for_any_message_length(OperationMessage message, long expectedLength)
-        {
-            var webSocketWriterPipeline = CreateWebSocketWriterPipeline(new CamelCaseNamingStrategy());
-            Assert.True(webSocketWriterPipeline.Post(message));
-            await webSocketWriterPipeline.Complete();
-            await webSocketWriterPipeline.Completion;
-            Assert.Single(_testWebSocket.Messages);
-            _testWebSocket.Messages.First().Length.ShouldBe(expectedLength);
-        }
-
-        [Theory]
-        [MemberData(nameof(TestData))]
-        public async Task should_send_for_any_message_length(OperationMessage message, long expectedLength)
-        {
-            var webSocketWriterPipeline = CreateWebSocketWriterPipeline(new CamelCaseNamingStrategy());
-            await webSocketWriterPipeline.SendAsync(message);
-            await webSocketWriterPipeline.Complete();
-            await webSocketWriterPipeline.Completion;
-            Assert.Single(_testWebSocket.Messages);
-            Assert.Equal(expectedLength, _testWebSocket.Messages.First().Length);
-        }
-
-        [Fact]
-        public async Task should_support_correct_case()
-        {
-            var webSocketWriterPipeline = CreateWebSocketWriterPipeline(new DefaultNamingStrategy());
-            var operationMessage = new OperationMessage
-            {
-                Id = "78F15F13-CA90-4BA6-AFF5-990C23FA882A",
-                Type = "Type",
-                Payload = new ExecutionResult
-                {
-                    Executed = true,
-                    Data = new TestMessage
-                    {
-                        Content = "Hello world",
-                        SentAt = new DateTimeOffset(2018, 12, 12, 10, 0, 0, TimeSpan.Zero)
+                        Executed = true,
+                        Data = Enumerable.Repeat(new TestMessage
+                        {
+                            Content = "Hello world",
+                            SentAt = new DateTimeOffset(2018, 12, 12, 10, 0, 0, TimeSpan.Zero)
+                        }, 10)
                     }
-                }
-            };
-
-            await webSocketWriterPipeline.SendAsync(operationMessage);
-            await webSocketWriterPipeline.Complete();
-            await webSocketWriterPipeline.Completion;
-            Assert.Single(_testWebSocket.Messages);
-            string resultingJson = Encoding.UTF8.GetString(_testWebSocket.Messages.First().ToArray());
-            Assert.Equal(
-                "{\"type\":\"Type\",\"id\":\"78F15F13-CA90-4BA6-AFF5-990C23FA882A\",\"payload\":{\"data\":{\"Content\":\"Hello world\",\"SentAt\":\"2018-12-12T10:00:00+00:00\"}}}",
-                resultingJson);
-        }
-
-        private WebSocketWriterPipeline CreateWebSocketWriterPipeline(NamingStrategy namingStrategy)
-        {
-            return new WebSocketWriterPipeline(_testWebSocket, new GraphQLSerializer(
-                new JsonSerializerSettings
+                },
+                652
+            },
+            new object[]
+            {
+                new OperationMessage
                 {
-                    ContractResolver = new GraphQLContractResolver(new ErrorInfoProvider()) { NamingStrategy = namingStrategy },
-                    NullValueHandling = NullValueHandling.Ignore,
-                    Formatting = Formatting.None
-                }));
-        }
+                    Payload = new ExecutionResult
+                    {
+                        Executed = true,
+                        Data = Enumerable.Repeat(new TestMessage
+                        {
+                            Content = "Hello world",
+                            SentAt = new DateTimeOffset(2018, 12, 12, 10, 0, 0, TimeSpan.Zero)
+                        }, 16_000)
+                    }
+                },
+                // About 1 megabyte
+                1_008_022
+            },
+            new object[]
+            {
+                new OperationMessage
+                {
+                    Payload = new ExecutionResult
+                    {
+                        Executed = true,
+                        Data = Enumerable.Repeat(new TestMessage
+                        {
+                            Content = "Hello world",
+                            SentAt = new DateTimeOffset(2018, 12, 12, 10, 0, 0, TimeSpan.Zero)
+                        }, 160_000)
+                    }
+                },
+                // About 10 megabytes
+                10_080_022
+            },
+            new object[]
+            {
+                new OperationMessage
+                {
+                    Payload = new ExecutionResult
+                    {
+                        Executed = true,
+                        Data = Enumerable.Repeat(new TestMessage
+                        {
+                            Content = "Hello world",
+                            SentAt = new DateTimeOffset(2018, 12, 12, 10, 0, 0, TimeSpan.Zero)
+                        }, 1_600_000)
+                    }
+                },
+                // About 100 megabytes
+                100_800_022
+            },
+        };
+
+    [Fact]
+    public async Task should_post_single_message()
+    {
+        var webSocketWriterPipeline = CreateWebSocketWriterPipeline(new CamelCaseNamingStrategy());
+        var message = new OperationMessage
+        {
+            Payload = new ExecutionResult
+            {
+                Executed = true,
+                Data = new TestMessage
+                {
+                    Content = "Hello world",
+                    SentAt = new DateTimeOffset(2018, 12, 12, 10, 0, 0, TimeSpan.Zero)
+                }
+            }
+        };
+        Assert.True(webSocketWriterPipeline.Post(message));
+        await webSocketWriterPipeline.Complete();
+        await webSocketWriterPipeline.Completion;
+        Assert.Single(_testWebSocket.Messages);
+
+        string resultingJson = Encoding.UTF8.GetString(_testWebSocket.Messages.First().ToArray());
+        Assert.Equal(
+            "{\"payload\":{\"data\":{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}}}",
+            resultingJson);
+    }
+
+    [Fact]
+    public async Task should_post_array_of_10_messages()
+    {
+        var webSocketWriterPipeline = CreateWebSocketWriterPipeline(new CamelCaseNamingStrategy());
+        var message = new OperationMessage
+        {
+            Payload = new ExecutionResult
+            {
+                Executed = true,
+                Data = Enumerable.Repeat(new TestMessage
+                {
+                    Content = "Hello world",
+                    SentAt = new DateTimeOffset(2018, 12, 12, 10, 0, 0, TimeSpan.Zero)
+                }, 10)
+            }
+        };
+        Assert.True(webSocketWriterPipeline.Post(message));
+        await webSocketWriterPipeline.Complete();
+        await webSocketWriterPipeline.Completion;
+        Assert.Single(_testWebSocket.Messages);
+
+        string resultingJson = Encoding.UTF8.GetString(_testWebSocket.Messages.First().ToArray());
+        Assert.Equal(
+            "{\"payload\":" +
+                "{\"data\":[" +
+                    "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
+                    "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
+                    "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
+                    "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
+                    "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
+                    "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
+                    "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
+                    "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
+                    "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}," +
+                    "{\"content\":\"Hello world\",\"sentAt\":\"2018-12-12T10:00:00+00:00\"}" +
+                "]}" +
+            "}",
+            resultingJson);
+    }
+
+    [Theory]
+    [MemberData(nameof(TestData))]
+    public async Task should_post_for_any_message_length(OperationMessage message, long expectedLength)
+    {
+        var webSocketWriterPipeline = CreateWebSocketWriterPipeline(new CamelCaseNamingStrategy());
+        Assert.True(webSocketWriterPipeline.Post(message));
+        await webSocketWriterPipeline.Complete();
+        await webSocketWriterPipeline.Completion;
+        Assert.Single(_testWebSocket.Messages);
+        _testWebSocket.Messages.First().Length.ShouldBe(expectedLength);
+    }
+
+    [Theory]
+    [MemberData(nameof(TestData))]
+    public async Task should_send_for_any_message_length(OperationMessage message, long expectedLength)
+    {
+        var webSocketWriterPipeline = CreateWebSocketWriterPipeline(new CamelCaseNamingStrategy());
+        await webSocketWriterPipeline.SendAsync(message);
+        await webSocketWriterPipeline.Complete();
+        await webSocketWriterPipeline.Completion;
+        Assert.Single(_testWebSocket.Messages);
+        Assert.Equal(expectedLength, _testWebSocket.Messages.First().Length);
+    }
+
+    [Fact]
+    public async Task should_support_correct_case()
+    {
+        var webSocketWriterPipeline = CreateWebSocketWriterPipeline(new DefaultNamingStrategy());
+        var operationMessage = new OperationMessage
+        {
+            Id = "78F15F13-CA90-4BA6-AFF5-990C23FA882A",
+            Type = "Type",
+            Payload = new ExecutionResult
+            {
+                Executed = true,
+                Data = new TestMessage
+                {
+                    Content = "Hello world",
+                    SentAt = new DateTimeOffset(2018, 12, 12, 10, 0, 0, TimeSpan.Zero)
+                }
+            }
+        };
+
+        await webSocketWriterPipeline.SendAsync(operationMessage);
+        await webSocketWriterPipeline.Complete();
+        await webSocketWriterPipeline.Completion;
+        Assert.Single(_testWebSocket.Messages);
+        string resultingJson = Encoding.UTF8.GetString(_testWebSocket.Messages.First().ToArray());
+        Assert.Equal(
+            "{\"type\":\"Type\",\"id\":\"78F15F13-CA90-4BA6-AFF5-990C23FA882A\",\"payload\":{\"data\":{\"Content\":\"Hello world\",\"SentAt\":\"2018-12-12T10:00:00+00:00\"}}}",
+            resultingJson);
+    }
+
+    private WebSocketWriterPipeline CreateWebSocketWriterPipeline(NamingStrategy namingStrategy)
+    {
+        return new WebSocketWriterPipeline(_testWebSocket, new GraphQLSerializer(
+            new JsonSerializerSettings
+            {
+                ContractResolver = new GraphQLContractResolver(new ErrorInfoProvider()) { NamingStrategy = namingStrategy },
+                NullValueHandling = NullValueHandling.Ignore,
+                Formatting = Formatting.None
+            }));
     }
 }

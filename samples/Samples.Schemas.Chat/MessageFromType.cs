@@ -1,13 +1,12 @@
 using GraphQL.Types;
 
-namespace GraphQL.Samples.Schemas.Chat
+namespace GraphQL.Samples.Schemas.Chat;
+
+public class MessageFromType : ObjectGraphType<MessageFrom>
 {
-    public class MessageFromType : ObjectGraphType<MessageFrom>
+    public MessageFromType()
     {
-        public MessageFromType()
-        {
-            Field(o => o.Id);
-            Field(o => o.DisplayName);
-        }
+        Field(o => o.Id);
+        Field(o => o.DisplayName);
     }
 }
