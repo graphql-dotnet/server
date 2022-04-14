@@ -30,8 +30,29 @@ public class GraphQLHttpMiddleware<TSchema> : GraphQLHttpMiddleware
 
     // important: when using convention-based ASP.NET Core middleware, the first constructor is always used
 
-    /************* WebSocket support ************
-    
+    /// <summary>
+    /// Initializes a new instance.
+    /// </summary>
+    public GraphQLHttpMiddleware(
+        RequestDelegate next,
+        IGraphQLTextSerializer serializer,
+        IDocumentExecuter<TSchema> documentExecuter,
+        IServiceScopeFactory serviceScopeFactory,
+        GraphQLHttpMiddlewareOptions options)
+        : base(next, serializer, options)
+    {
+        _documentExecuter = documentExecuter ?? throw new ArgumentNullException(nameof(documentExecuter));
+        _serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
+        var getRule = new HttpGetValidationRule();
+        _getValidationRules = DocumentValidator.CoreRules.Append(getRule).ToArray();
+        _getCachedDocumentValidationRules = new[] { getRule };
+        var postRule = new HttpPostValidationRule();
+        _postValidationRules = DocumentValidator.CoreRules.Append(postRule).ToArray();
+        _postCachedDocumentValidationRules = new[] { postRule };
+    }
+
+    /************* WebSocket support ***********
+
     /// <summary>
     /// Initializes a new instance.
     /// </summary>
@@ -48,8 +69,6 @@ public class GraphQLHttpMiddleware<TSchema> : GraphQLHttpMiddleware
     {
     }
 
-    *********************************/
-
     /// <summary>
     /// Initializes a new instance.
     /// </summary>
@@ -58,9 +77,9 @@ public class GraphQLHttpMiddleware<TSchema> : GraphQLHttpMiddleware
         IGraphQLTextSerializer serializer,
         IDocumentExecuter<TSchema> documentExecuter,
         IServiceScopeFactory serviceScopeFactory,
-        GraphQLHttpMiddlewareOptions options /*,
-        IEnumerable<IWebSocketHandler<TSchema>>? webSocketHandlers = null */)
-        : base(next, serializer, options /*, webSocketHandlers */)
+        GraphQLHttpMiddlewareOptions options,
+        IEnumerable<IWebSocketHandler<TSchema>>? webSocketHandlers = null)
+        : base(next, serializer, options, webSocketHandlers)
     {
         _documentExecuter = documentExecuter ?? throw new ArgumentNullException(nameof(documentExecuter));
         _serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
@@ -71,8 +90,6 @@ public class GraphQLHttpMiddleware<TSchema> : GraphQLHttpMiddleware
         _postValidationRules = DocumentValidator.CoreRules.Append(postRule).ToArray();
         _postCachedDocumentValidationRules = new[] { postRule };
     }
-
-    /************* WebSocket support ***********
 
     private static IEnumerable<IWebSocketHandler<TSchema>> CreateWebSocketHandlers(
         IGraphQLSerializer serializer,
