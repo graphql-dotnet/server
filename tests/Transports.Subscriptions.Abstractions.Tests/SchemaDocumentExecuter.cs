@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using GraphQL.Types;
 
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests

@@ -1,13 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using GraphQL.NewtonsoftJson;
 using GraphQL.Samples.Schemas.Chat;
 using GraphQL.Transport;
 using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json.Linq;
-using Xunit;
 
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions.Tests.Specs
 {

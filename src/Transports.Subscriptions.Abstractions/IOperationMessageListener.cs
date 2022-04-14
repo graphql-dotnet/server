@@ -1,5 +1,3 @@
-using System.Threading.Tasks;
-
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions
 {
     /// <summary>

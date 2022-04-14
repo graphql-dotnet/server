@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using GraphQL.Transport;
 
 namespace GraphQL.Server.Transports.Subscriptions.Abstractions

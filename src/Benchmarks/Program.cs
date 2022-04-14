@@ -1,4 +1,3 @@
-using System.Linq;
 using BenchmarkDotNet.Running;
 
 namespace GraphQL.Server.Benchmarks

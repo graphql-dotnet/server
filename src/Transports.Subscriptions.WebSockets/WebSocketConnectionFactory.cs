@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Net.WebSockets;
 using GraphQL.Server.Transports.Subscriptions.Abstractions;
 using GraphQL.Types;
