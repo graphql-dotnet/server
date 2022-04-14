@@ -76,14 +76,6 @@ namespace GraphQL.Server.Transports.AspNetCore
         protected override System.Threading.Tasks.Task<GraphQL.ExecutionResult> ExecuteRequestAsync(Microsoft.AspNetCore.Http.HttpContext context, GraphQL.Transport.GraphQLRequest request, System.IServiceProvider serviceProvider, System.Collections.Generic.IDictionary<string, object?> userContext) { }
         protected override System.Threading.Tasks.Task<GraphQL.ExecutionResult> ExecuteScopedRequestAsync(Microsoft.AspNetCore.Http.HttpContext context, GraphQL.Transport.GraphQLRequest request, System.Collections.Generic.IDictionary<string, object?> userContext) { }
     }
-    public readonly struct GraphQLRequestExecutionResult
-    {
-        public GraphQLRequestExecutionResult(GraphQL.Transport.GraphQLRequest request, GraphQL.ExecutionResult result, System.TimeSpan elapsed, int? indexInBatch = default) { }
-        public System.TimeSpan Elapsed { get; }
-        public int? IndexInBatch { get; }
-        public GraphQL.Transport.GraphQLRequest Request { get; }
-        public GraphQL.ExecutionResult Result { get; }
-    }
     public sealed class HttpGetValidationRule : GraphQL.Validation.IValidationRule
     {
         public HttpGetValidationRule() { }
