@@ -68,6 +68,14 @@ namespace Samples.Server.Tests
             response.ShouldBeEquivalentJson(@"[{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}}]", ignoreExtensions: true);
         }
 
+        [Fact]
+        public async Task Mutation_For_Get_Fails()
+        {
+            var response = await SendRequestAsync(new GraphQLRequest { Query = "mutation { __typename }" }, RequestType.Get);
+
+            response.ShouldBe(@"{""errors"":[{""message"":""Only query operations allowed for GET requests."",""locations"":[{""line"":1,""column"":1}],""extensions"":{""code"":""HTTP_METHOD_VALIDATION"",""codes"":[""HTTP_METHOD_VALIDATION""]}}]}");
+        }
+
         [Theory]
         [MemberData(nameof(WrongQueryData))]
         public async Task Wrong_Query_Should_Return_Error(HttpMethod httpMethod, HttpContent httpContent,
