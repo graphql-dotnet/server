@@ -1,48 +1,47 @@
 using System.Text;
 using System.Text.Json;
 
-namespace GraphQL.Server.Ui.Altair.Internal
+namespace GraphQL.Server.Ui.Altair.Internal;
+
+// https://docs.microsoft.com/en-us/aspnet/core/mvc/razor-pages/?tabs=netcore-cli
+internal sealed class AltairPageModel
 {
-    // https://docs.microsoft.com/en-us/aspnet/core/mvc/razor-pages/?tabs=netcore-cli
-    internal sealed class AltairPageModel
+    private string? _altairCSHtml;
+
+    private readonly AltairOptions _options;
+
+    public AltairPageModel(AltairOptions options)
     {
-        private string? _altairCSHtml;
+        _options = options;
+    }
 
-        private readonly AltairOptions _options;
-
-        public AltairPageModel(AltairOptions options)
+    public string Render()
+    {
+        if (_altairCSHtml == null)
         {
-            _options = options;
-        }
+            using var manifestResourceStream = _options.IndexStream(_options);
+            using var streamReader = new StreamReader(manifestResourceStream);
 
-        public string Render()
-        {
-            if (_altairCSHtml == null)
+            var headers = new Dictionary<string, object>
             {
-                using var manifestResourceStream = _options.IndexStream(_options);
-                using var streamReader = new StreamReader(manifestResourceStream);
+                ["Accept"] = "application/json",
+                ["Content-Type"] = "application/json",
+            };
 
-                var headers = new Dictionary<string, object>
-                {
-                    ["Accept"] = "application/json",
-                    ["Content-Type"] = "application/json",
-                };
-
-                if (_options.Headers?.Count > 0)
-                {
-                    foreach (var item in _options.Headers)
-                        headers[item.Key] = item.Value;
-                }
-
-                var builder = new StringBuilder(streamReader.ReadToEnd())
-                    .Replace("@Model.GraphQLEndPoint", _options.GraphQLEndPoint)
-                    .Replace("@Model.SubscriptionsEndPoint", _options.SubscriptionsEndPoint)
-                    .Replace("@Model.Headers", JsonSerializer.Serialize<object>(headers));
-
-                _altairCSHtml = _options.PostConfigure(_options, builder.ToString());
+            if (_options.Headers?.Count > 0)
+            {
+                foreach (var item in _options.Headers)
+                    headers[item.Key] = item.Value;
             }
 
-            return _altairCSHtml;
+            var builder = new StringBuilder(streamReader.ReadToEnd())
+                .Replace("@Model.GraphQLEndPoint", _options.GraphQLEndPoint)
+                .Replace("@Model.SubscriptionsEndPoint", _options.SubscriptionsEndPoint)
+                .Replace("@Model.Headers", JsonSerializer.Serialize<object>(headers));
+
+            _altairCSHtml = _options.PostConfigure(_options, builder.ToString());
         }
+
+        return _altairCSHtml;
     }
 }

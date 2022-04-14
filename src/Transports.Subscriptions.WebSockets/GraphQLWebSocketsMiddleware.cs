@@ -4,64 +4,63 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace GraphQL.Server.Transports.WebSockets
+namespace GraphQL.Server.Transports.WebSockets;
+
+/// <summary>
+/// ASP.NET Core middleware for processing GraphQL web socket requests. This middleware useful with and without ASP.NET Core routing.
+/// </summary>
+/// <typeparam name="TSchema">Type of GraphQL schema that is used to process requests.</typeparam>
+public class GraphQLWebSocketsMiddleware<TSchema> : IMiddleware
+    where TSchema : ISchema
 {
-    /// <summary>
-    /// ASP.NET Core middleware for processing GraphQL web socket requests. This middleware useful with and without ASP.NET Core routing.
-    /// </summary>
-    /// <typeparam name="TSchema">Type of GraphQL schema that is used to process requests.</typeparam>
-    public class GraphQLWebSocketsMiddleware<TSchema> : IMiddleware
-        where TSchema : ISchema
+    private readonly ILogger<GraphQLWebSocketsMiddleware<TSchema>> _logger;
+
+    public GraphQLWebSocketsMiddleware(ILogger<GraphQLWebSocketsMiddleware<TSchema>> logger)
     {
-        private readonly ILogger<GraphQLWebSocketsMiddleware<TSchema>> _logger;
+        _logger = logger;
+    }
 
-        public GraphQLWebSocketsMiddleware(ILogger<GraphQLWebSocketsMiddleware<TSchema>> logger)
+    public virtual async Task InvokeAsync(HttpContext context, RequestDelegate next)
+    {
+        using (_logger.BeginScope(new Dictionary<string, object>
         {
-            _logger = logger;
-        }
-
-        public virtual async Task InvokeAsync(HttpContext context, RequestDelegate next)
+            ["ConnectionId"] = context.Connection.Id,
+            ["Request"] = context.Request
+        }))
         {
-            using (_logger.BeginScope(new Dictionary<string, object>
+            if (!context.WebSockets.IsWebSocketRequest)
             {
-                ["ConnectionId"] = context.Connection.Id,
-                ["Request"] = context.Request
-            }))
+                _logger.LogDebug("Request is not a valid websocket request");
+                await next(context);
+
+                return;
+            }
+
+            _logger.LogDebug("Connection is a valid websocket request");
+
+            var socket = await context.WebSockets.AcceptWebSocketAsync("graphql-ws");
+
+            if (!context.WebSockets.WebSocketRequestedProtocols.Contains(socket.SubProtocol))
             {
-                if (!context.WebSockets.IsWebSocketRequest)
-                {
-                    _logger.LogDebug("Request is not a valid websocket request");
-                    await next(context);
+                _logger.LogError(
+                    "Websocket connection does not have correct protocol: graphql-ws. Request protocols: {protocols}",
+                    context.WebSockets.WebSocketRequestedProtocols);
 
-                    return;
-                }
+                await socket.CloseAsync(
+                    WebSocketCloseStatus.ProtocolError,
+                    "Server only supports graphql-ws protocol",
+                    context.RequestAborted);
 
-                _logger.LogDebug("Connection is a valid websocket request");
+                return;
+            }
 
-                var socket = await context.WebSockets.AcceptWebSocketAsync("graphql-ws");
+            using (_logger.BeginScope($"GraphQL websocket connection: {context.Connection.Id}"))
+            {
+                var connectionFactory = context.RequestServices.GetRequiredService<IWebSocketConnectionFactory<TSchema>>();
+                using var connection = connectionFactory.CreateConnection(socket, context.Connection.Id);
 
-                if (!context.WebSockets.WebSocketRequestedProtocols.Contains(socket.SubProtocol))
-                {
-                    _logger.LogError(
-                        "Websocket connection does not have correct protocol: graphql-ws. Request protocols: {protocols}",
-                        context.WebSockets.WebSocketRequestedProtocols);
-
-                    await socket.CloseAsync(
-                        WebSocketCloseStatus.ProtocolError,
-                        "Server only supports graphql-ws protocol",
-                        context.RequestAborted);
-
-                    return;
-                }
-
-                using (_logger.BeginScope($"GraphQL websocket connection: {context.Connection.Id}"))
-                {
-                    var connectionFactory = context.RequestServices.GetRequiredService<IWebSocketConnectionFactory<TSchema>>();
-                    using var connection = connectionFactory.CreateConnection(socket, context.Connection.Id);
-
-                    // Wait until the websocket has disconnected (and all subscriptions ended)
-                    await connection.Connect();
-                }
+                // Wait until the websocket has disconnected (and all subscriptions ended)
+                await connection.Connect();
             }
         }
     }

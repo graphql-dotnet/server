@@ -1,8 +1,8 @@
-namespace GraphQL.Server.Benchmarks
+namespace GraphQL.Server.Benchmarks;
+
+public static class SchemaIntrospection
 {
-    public static class SchemaIntrospection
-    {
-        public static readonly string IntrospectionQuery = @"
+    public static readonly string IntrospectionQuery = @"
   query IntrospectionQuery {
     __schema {
       queryType { name }
@@ -92,5 +92,4 @@ namespace GraphQL.Server.Benchmarks
     }
   }
 ";
-    }
 }

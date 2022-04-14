@@ -2,74 +2,73 @@ using System.Collections.Concurrent;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 
-namespace GraphQL.Samples.Schemas.Chat
+namespace GraphQL.Samples.Schemas.Chat;
+
+public interface IChat
 {
-    public interface IChat
+    ConcurrentStack<Message> AllMessages { get; }
+
+    Message AddMessage(Message message);
+
+    IObservable<Message> Messages(string user);
+
+    Message AddMessage(ReceivedMessage message);
+}
+
+public class Chat : IChat
+{
+    private readonly ISubject<Message> _messageStream = new ReplaySubject<Message>(1);
+
+    public Chat()
     {
-        ConcurrentStack<Message> AllMessages { get; }
-
-        Message AddMessage(Message message);
-
-        IObservable<Message> Messages(string user);
-
-        Message AddMessage(ReceivedMessage message);
+        AllMessages = new ConcurrentStack<Message>();
+        Users = new ConcurrentDictionary<string, string>
+        {
+            ["1"] = "developer",
+            ["2"] = "tester"
+        };
     }
 
-    public class Chat : IChat
-    {
-        private readonly ISubject<Message> _messageStream = new ReplaySubject<Message>(1);
+    public ConcurrentDictionary<string, string> Users { get; set; }
 
-        public Chat()
+    public ConcurrentStack<Message> AllMessages { get; }
+
+    public Message AddMessage(ReceivedMessage message)
+    {
+        if (!Users.TryGetValue(message.FromId, out string displayName))
         {
-            AllMessages = new ConcurrentStack<Message>();
-            Users = new ConcurrentDictionary<string, string>
-            {
-                ["1"] = "developer",
-                ["2"] = "tester"
-            };
+            displayName = "(unknown)";
         }
 
-        public ConcurrentDictionary<string, string> Users { get; set; }
-
-        public ConcurrentStack<Message> AllMessages { get; }
-
-        public Message AddMessage(ReceivedMessage message)
+        return AddMessage(new Message
         {
-            if (!Users.TryGetValue(message.FromId, out string displayName))
+            Content = message.Content,
+            SentAt = message.SentAt ?? DateTime.UtcNow,
+            From = new MessageFrom
             {
-                displayName = "(unknown)";
+                DisplayName = displayName,
+                Id = message.FromId
             }
-
-            return AddMessage(new Message
-            {
-                Content = message.Content,
-                SentAt = message.SentAt ?? DateTime.UtcNow,
-                From = new MessageFrom
-                {
-                    DisplayName = displayName,
-                    Id = message.FromId
-                }
-            });
-        }
-
-        public Message AddMessage(Message message)
-        {
-            AllMessages.Push(message);
-            _messageStream.OnNext(message);
-            return message;
-        }
-
-        public IObservable<Message> Messages(string user)
-        {
-            return _messageStream
-                .Select(message =>
-                {
-                    message.Sub = user;
-                    return message;
-                })
-                .AsObservable();
-        }
-
-        public void AddError(Exception exception) => _messageStream.OnError(exception);
+        });
     }
+
+    public Message AddMessage(Message message)
+    {
+        AllMessages.Push(message);
+        _messageStream.OnNext(message);
+        return message;
+    }
+
+    public IObservable<Message> Messages(string user)
+    {
+        return _messageStream
+            .Select(message =>
+            {
+                message.Sub = user;
+                return message;
+            })
+            .AsObservable();
+    }
+
+    public void AddError(Exception exception) => _messageStream.OnError(exception);
 }

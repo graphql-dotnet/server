@@ -1,9 +1,8 @@
-namespace GraphQL.Server.Transports.WebSockets.Tests
-{
-    public class TestMessage
-    {
-        public string Content { get; set; }
+namespace GraphQL.Server.Transports.WebSockets.Tests;
 
-        public DateTimeOffset SentAt { get; set; }
-    }
+public class TestMessage
+{
+    public string Content { get; set; }
+
+    public DateTimeOffset SentAt { get; set; }
 }
