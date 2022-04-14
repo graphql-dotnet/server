@@ -37,7 +37,6 @@ namespace GraphQL.Samples.Server
             services.AddGraphQL(builder => builder
                 .AddMetrics()
                 .AddDocumentExecuter<ApolloTracingDocumentExecuter>()
-                .AddHttpMiddleware<ChatSchema, GraphQLHttpMiddlewareWithLogs<ChatSchema>>()
                 .AddWebSocketsHttpMiddleware<ChatSchema>()
                 .AddSchema<ChatSchema>()
                 .ConfigureExecutionOptions(options =>
@@ -71,7 +70,7 @@ namespace GraphQL.Samples.Server
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapGraphQLWebSockets<ChatSchema>();
-                endpoints.MapGraphQL<ChatSchema, GraphQLHttpMiddlewareWithLogs<ChatSchema>>();
+                endpoints.MapGraphQL<GraphQLHttpMiddlewareWithLogs<ChatSchema>>();
 
                 endpoints.MapGraphQLPlayground(new PlaygroundOptions
                 {

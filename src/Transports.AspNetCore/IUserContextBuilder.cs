@@ -12,6 +12,6 @@ namespace GraphQL.Server.Transports.AspNetCore
         /// </summary>
         /// <param name="httpContext">The <see cref="HttpContext"/> for the current request</param>
         /// <returns>Returns the UserContext</returns>
-        Task<IDictionary<string, object>> BuildUserContext(HttpContext httpContext);
+        ValueTask<IDictionary<string, object>> BuildUserContextAsync(HttpContext httpContext);
     }
 }

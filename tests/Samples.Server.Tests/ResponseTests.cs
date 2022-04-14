@@ -71,15 +71,18 @@ namespace Samples.Server.Tests
         [Theory]
         [MemberData(nameof(WrongQueryData))]
         public async Task Wrong_Query_Should_Return_Error(HttpMethod httpMethod, HttpContent httpContent,
-            HttpStatusCode expectedStatusCode, string expectedErrorMsg)
+            HttpStatusCode expectedStatusCode, string expectedErrorMsg, string code)
         {
             var response = await SendRequestAsync(httpMethod, httpContent);
-            string expected = @"{""errors"":[{""message"":""" + expectedErrorMsg + @"""}]}";
+            string expected = expectedErrorMsg == null ? null : @"{""errors"":[{""message"":""" + expectedErrorMsg + @""",""extensions"":{""code"":""" + code + @""",""codes"":[""" + code + @"""]}}]}";
 
             response.StatusCode.ShouldBe(expectedStatusCode);
 
             string content = await response.Content.ReadAsStringAsync();
-            content.ShouldBeEquivalentJson(expected);
+            if (expected == null)
+                content.ShouldBe("");
+            else
+                content.ShouldBeEquivalentJson(expected);
         }
 
         public static IEnumerable<object[]> WrongQueryData => new object[][]
@@ -89,8 +92,9 @@ namespace Samples.Server.Tests
             {
                 HttpMethod.Put,
                 new StringContent(Serializer.ToJson(new GraphQLRequest { Query = "query { __schema { queryType { name } } }" }), Encoding.UTF8, "application/json"),
-                HttpStatusCode.MethodNotAllowed,
-                "Invalid HTTP method. Only GET and POST are supported. See: http://graphql.org/learn/serving-over-http/.",
+                HttpStatusCode.NotFound,
+                null,
+                null,
             },
 
             // POST with unsupported mime type should be a unsupported media type
@@ -99,7 +103,8 @@ namespace Samples.Server.Tests
                 HttpMethod.Post,
                 new StringContent(Serializer.ToJson(new GraphQLRequest { Query = "query { __schema { queryType { name } } }" }), Encoding.UTF8, "something/unknown"),
                 HttpStatusCode.UnsupportedMediaType,
-                "Invalid 'Content-Type' header: non-supported media type 'something/unknown; charset=utf-8'. Must be of 'application/json', 'application/graphql' or 'application/x-www-form-urlencoded'. See: http://graphql.org/learn/serving-over-http/."
+                @"Invalid 'Content-Type' header: non-supported media type 'something/unknown; charset=utf-8'. Must be 'application/json', 'application/graphql' or a form body.",
+                "INVALID_CONTENT_TYPE",
             },
 
             // MediaTypeHeaderValue ctor throws exception
@@ -118,7 +123,8 @@ namespace Samples.Server.Tests
                 HttpMethod.Post,
                 new StringContent("Oops", Encoding.UTF8, "application/json"),
                 HttpStatusCode.BadRequest,
-                "JSON body text could not be parsed. 'O' is an invalid start of a value. Path: $ | LineNumber: 0 | BytePositionInLine: 0."
+                "JSON body text could not be parsed. 'O' is an invalid start of a value. Path: $ | LineNumber: 0 | BytePositionInLine: 0.",
+                "JSON_INVALID",
             },
 
             // POST with JSON mime type that is invalid JSON should be a bad request
@@ -127,7 +133,8 @@ namespace Samples.Server.Tests
                 HttpMethod.Post,
                 new StringContent("{oops}", Encoding.UTF8, "application/json"),
                 HttpStatusCode.BadRequest,
-                "JSON body text could not be parsed. 'o' is an invalid start of a property name. Expected a '\"'. Path: $ | LineNumber: 0 | BytePositionInLine: 1."
+                "JSON body text could not be parsed. 'o' is an invalid start of a property name. Expected a '\"'. Path: $ | LineNumber: 0 | BytePositionInLine: 1.",
+                "JSON_INVALID",
             },
 
             // POST with JSON mime type that is null JSON should be a bad request
@@ -136,7 +143,8 @@ namespace Samples.Server.Tests
                 HttpMethod.Post,
                 new StringContent("null", Encoding.UTF8, "application/json"),
                 HttpStatusCode.BadRequest,
-                "GraphQL query is missing."
+                "GraphQL query is missing.",
+                "QUERY_MISSING",
             },
 
             // GET with an empty QueryString should be a bad request
@@ -145,12 +153,12 @@ namespace Samples.Server.Tests
                 HttpMethod.Get,
                 null,
                 HttpStatusCode.BadRequest,
-                "GraphQL query is missing."
+                "GraphQL query is missing.",
+                "QUERY_MISSING",
             },
         };
 
         [Theory]
-        [InlineData(RequestType.Get)]
         [InlineData(RequestType.PostWithJson)]
         [InlineData(RequestType.PostWithGraph)]
         [InlineData(RequestType.PostWithForm)]
@@ -167,7 +175,6 @@ namespace Samples.Server.Tests
         }
 
         [Theory]
-        [InlineData(RequestType.Get)]
         [InlineData(RequestType.PostWithJson)]
         [InlineData(RequestType.PostWithGraph)]
         [InlineData(RequestType.PostWithForm)]
@@ -185,7 +192,6 @@ namespace Samples.Server.Tests
         }
 
         [Theory]
-        [InlineData(RequestType.Get)]
         [InlineData(RequestType.PostWithJson)]
         [InlineData(RequestType.PostWithGraph)]
         [InlineData(RequestType.PostWithForm)]
