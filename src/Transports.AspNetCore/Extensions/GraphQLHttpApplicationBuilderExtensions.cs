@@ -1,3 +1,5 @@
+#nullable enable
+
 using GraphQL.Server.Transports.AspNetCore;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Http;
