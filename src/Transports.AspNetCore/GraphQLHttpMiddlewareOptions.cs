@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Http;
 namespace GraphQL.Server.Transports.AspNetCore;
 
 /// <summary>
-/// Configuration options for <see cref="GraphQLHttpMiddleware{TSchema}"/>.
+/// Configuration options for <see cref="GraphQLHttpMiddleware"/>.
 /// </summary>
 public class GraphQLHttpMiddlewareOptions
 {
