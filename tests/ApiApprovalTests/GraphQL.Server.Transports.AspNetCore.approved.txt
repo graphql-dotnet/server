@@ -88,7 +88,7 @@ namespace GraphQL.Server.Transports.AspNetCore
     }
     public interface IUserContextBuilder
     {
-        System.Threading.Tasks.ValueTask<System.Collections.Generic.IDictionary<string, object>> BuildUserContextAsync(Microsoft.AspNetCore.Http.HttpContext httpContext);
+        System.Threading.Tasks.ValueTask<System.Collections.Generic.IDictionary<string, object?>> BuildUserContextAsync(Microsoft.AspNetCore.Http.HttpContext context);
     }
     public static class MediaType
     {
