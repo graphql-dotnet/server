@@ -7,8 +7,8 @@ namespace GraphQL.Server.Transports.AspNetCore;
 /// <summary>
 /// Creates a user context from a <see cref="HttpContext"/>.
 /// <br/><br/>
-/// The generated user context may be used one or more times while executing
-/// a GraphQL request or subscription.
+/// The generated user context may be used for one or more GraphQL requests or
+/// subscriptions over the same HTTP connection.
 /// </summary>
 public interface IUserContextBuilder
 {
