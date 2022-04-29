@@ -35,7 +35,7 @@ public class Startup
             .AddTransient<IAuthorizationErrorMessageBuilder, DefaultAuthorizationErrorMessageBuilder>(); // required by CustomErrorInfoProvider
 
         services.AddGraphQL(builder => builder
-            .AddPersistentQueries().AddMemoryCache()
+            .AddPersistedQueries().AddMemoryCache()
             .AddMetrics()
             .AddDocumentExecuter<ApolloTracingDocumentExecuter>()
             .AddHttpMiddleware<ChatSchema, GraphQLHttpMiddlewareWithLogs<ChatSchema>>()

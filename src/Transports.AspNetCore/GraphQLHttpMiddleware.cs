@@ -162,7 +162,7 @@ public class GraphQLHttpMiddleware<TSchema> : IMiddleware
                 Hash = urlGQLRequest.Hash ?? bodyGQLRequest?.Hash,
             };
 
-            if (string.IsNullOrWhiteSpace(gqlRequest.Query) && (string.IsNullOrWhiteSpace(gqlRequest.Hash) || _persistedQueriesExecutor == null))
+            if (string.IsNullOrWhiteSpace(gqlRequest.Query) && (_persistedQueriesExecutor == null || string.IsNullOrWhiteSpace(gqlRequest.Hash)))
             {
                 await HandleNoQueryErrorAsync(context);
                 return;
