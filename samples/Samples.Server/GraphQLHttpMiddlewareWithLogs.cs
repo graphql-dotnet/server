@@ -1,3 +1,4 @@
+using GraphQL.PersistedQueries;
 using GraphQL.Server.Transports.AspNetCore;
 using GraphQL.Types;
 
@@ -11,8 +12,9 @@ public class GraphQLHttpMiddlewareWithLogs<TSchema> : GraphQLHttpMiddleware<TSch
 
     public GraphQLHttpMiddlewareWithLogs(
         ILogger<GraphQLHttpMiddleware<TSchema>> logger,
-        IGraphQLTextSerializer requestDeserializer)
-        : base(requestDeserializer)
+        IGraphQLTextSerializer requestDeserializer,
+        IPersistedQueriesExecutor persistedQueriesExecutor = null)
+        : base(requestDeserializer, persistedQueriesExecutor)
     {
         _logger = logger;
     }

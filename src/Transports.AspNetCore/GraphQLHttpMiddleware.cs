@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Headers;
 using GraphQL.Instrumentation;
+using GraphQL.PersistedQueries;
 using GraphQL.Transport;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Http;
@@ -27,10 +28,12 @@ public class GraphQLHttpMiddleware<TSchema> : IMiddleware
     private const string DOCS_URL = "See: http://graphql.org/learn/serving-over-http/.";
 
     private readonly IGraphQLTextSerializer _serializer;
+    private readonly IPersistedQueriesExecutor _persistedQueriesExecutor;
 
-    public GraphQLHttpMiddleware(IGraphQLTextSerializer serializer)
+    public GraphQLHttpMiddleware(IGraphQLTextSerializer serializer, IPersistedQueriesExecutor persistedQueriesExecutor = null)
     {
         _serializer = serializer;
+        _persistedQueriesExecutor = persistedQueriesExecutor;
     }
 
     public virtual async Task InvokeAsync(HttpContext context, RequestDelegate next)
@@ -155,10 +158,11 @@ public class GraphQLHttpMiddleware<TSchema> : IMiddleware
                 Query = urlGQLRequest.Query ?? bodyGQLRequest?.Query,
                 Variables = urlGQLRequest.Variables ?? bodyGQLRequest?.Variables,
                 Extensions = urlGQLRequest.Extensions ?? bodyGQLRequest?.Extensions,
-                OperationName = urlGQLRequest.OperationName ?? bodyGQLRequest?.OperationName
+                OperationName = urlGQLRequest.OperationName ?? bodyGQLRequest?.OperationName,
+                Hash = urlGQLRequest.Hash ?? bodyGQLRequest?.Hash,
             };
 
-            if (string.IsNullOrWhiteSpace(gqlRequest.Query))
+            if (string.IsNullOrWhiteSpace(gqlRequest.Query) && (string.IsNullOrWhiteSpace(gqlRequest.Hash) || _persistedQueriesExecutor == null))
             {
                 await HandleNoQueryErrorAsync(context);
                 return;
@@ -189,7 +193,16 @@ public class GraphQLHttpMiddleware<TSchema> : IMiddleware
         {
             var stopwatch = ValueStopwatch.StartNew();
             await RequestExecutingAsync(gqlRequest);
-            var result = await ExecuteRequestAsync(gqlRequest, userContext, executer, context.RequestServices, cancellationToken);
+
+            ExecutionResult result;
+            if (_persistedQueriesExecutor != null)
+            {
+                result = await _persistedQueriesExecutor.ExecuteRequestAsync(gqlRequest, userContext, executer, context.RequestServices, cancellationToken);
+            }
+            else
+            {
+                result = await ExecuteRequestAsync(gqlRequest, userContext, executer, context.RequestServices, cancellationToken);
+            }
 
             await RequestExecutedAsync(new GraphQLRequestExecutionResult(gqlRequest, result, stopwatch.Elapsed));
 
@@ -205,7 +218,16 @@ public class GraphQLHttpMiddleware<TSchema> : IMiddleware
 
                 var stopwatch = ValueStopwatch.StartNew();
                 await RequestExecutingAsync(gqlRequestInBatch, i);
-                var result = await ExecuteRequestAsync(gqlRequestInBatch, userContext, executer, context.RequestServices, cancellationToken);
+
+                ExecutionResult result;
+                if (_persistedQueriesExecutor != null)
+                {
+                    result = await _persistedQueriesExecutor.ExecuteRequestAsync(gqlRequestInBatch, userContext, executer, context.RequestServices, cancellationToken);
+                }
+                else
+                {
+                    result = await ExecuteRequestAsync(gqlRequestInBatch, userContext, executer, context.RequestServices, cancellationToken);
+                }
 
                 await RequestExecutedAsync(new GraphQLRequestExecutionResult(gqlRequestInBatch, result, stopwatch.Elapsed, i));
 
@@ -293,13 +315,15 @@ public class GraphQLHttpMiddleware<TSchema> : IMiddleware
     private const string VARIABLES_KEY = "variables";
     private const string EXTENSIONS_KEY = "extensions";
     private const string OPERATION_NAME_KEY = "operationName";
+    private const string HASH_KEY = "hash";
 
     private GraphQLRequest DeserializeFromQueryString(IQueryCollection queryCollection) => new GraphQLRequest
     {
         Query = queryCollection.TryGetValue(QUERY_KEY, out var queryValues) ? queryValues[0] : null,
         Variables = queryCollection.TryGetValue(VARIABLES_KEY, out var variablesValues) ? _serializer.Deserialize<Inputs>(variablesValues[0]) : null,
         Extensions = queryCollection.TryGetValue(EXTENSIONS_KEY, out var extensionsValues) ? _serializer.Deserialize<Inputs>(extensionsValues[0]) : null,
-        OperationName = queryCollection.TryGetValue(OPERATION_NAME_KEY, out var operationNameValues) ? operationNameValues[0] : null
+        OperationName = queryCollection.TryGetValue(OPERATION_NAME_KEY, out var operationNameValues) ? operationNameValues[0] : null,
+        Hash = queryCollection.TryGetValue(HASH_KEY, out var hashNameValues) ? hashNameValues[0] : null
     };
 
     private GraphQLRequest DeserializeFromFormBody(IFormCollection formCollection) => new GraphQLRequest
@@ -307,7 +331,8 @@ public class GraphQLHttpMiddleware<TSchema> : IMiddleware
         Query = formCollection.TryGetValue(QUERY_KEY, out var queryValues) ? queryValues[0] : null,
         Variables = formCollection.TryGetValue(VARIABLES_KEY, out var variablesValues) ? _serializer.Deserialize<Inputs>(variablesValues[0]) : null,
         Extensions = formCollection.TryGetValue(EXTENSIONS_KEY, out var extensionsValues) ? _serializer.Deserialize<Inputs>(extensionsValues[0]) : null,
-        OperationName = formCollection.TryGetValue(OPERATION_NAME_KEY, out var operationNameValues) ? operationNameValues[0] : null
+        OperationName = formCollection.TryGetValue(OPERATION_NAME_KEY, out var operationNameValues) ? operationNameValues[0] : null,
+        Hash = formCollection.TryGetValue(HASH_KEY, out var hashNameValues) ? hashNameValues[0] : null
     };
 
     private async Task<GraphQLRequest> DeserializeFromGraphBodyAsync(Stream bodyStream)

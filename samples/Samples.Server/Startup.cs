@@ -10,6 +10,7 @@ using GraphQL.Server.Ui.GraphiQL;
 using GraphQL.Server.Ui.Playground;
 using GraphQL.Server.Ui.Voyager;
 using GraphQL.SystemTextJson;
+using GraphQL.Caching;
 
 namespace GraphQL.Samples.Server;
 
@@ -34,6 +35,7 @@ public class Startup
             .AddTransient<IAuthorizationErrorMessageBuilder, DefaultAuthorizationErrorMessageBuilder>(); // required by CustomErrorInfoProvider
 
         services.AddGraphQL(builder => builder
+            .AddPersistentQueries().AddMemoryCache()
             .AddMetrics()
             .AddDocumentExecuter<ApolloTracingDocumentExecuter>()
             .AddHttpMiddleware<ChatSchema, GraphQLHttpMiddlewareWithLogs<ChatSchema>>()
