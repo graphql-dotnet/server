@@ -14,7 +14,7 @@ public class ValidationTestConfig
 
     public ClaimsPrincipal User { get; set; }
 
-    public Inputs Inputs { get; set; }
+    public Inputs Variables { get; set; }
 
     public Action<IValidationResult> ValidateResult = _ => { };
 }
