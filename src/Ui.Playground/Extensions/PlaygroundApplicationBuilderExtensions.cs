@@ -22,7 +22,7 @@ public static class PlaygroundApplicationBuilderExtensions
     public static IApplicationBuilder UseGraphQLPlayground(this IApplicationBuilder app, PlaygroundOptions options, string path = "/ui/playground")
     {
         return app.UseWhen(
-           context => context.Request.Path.StartsWithSegments(path, out var remaining) && string.IsNullOrEmpty(remaining),
+           context => HttpMethods.IsGet(context.Request.Method) && context.Request.Path.StartsWithSegments(path, out var remaining) && string.IsNullOrEmpty(remaining),
            b => b.UseMiddleware<PlaygroundMiddleware>(options ?? new PlaygroundOptions()));
     }
 }

@@ -22,7 +22,7 @@ public static class GraphiQLApplicationBuilderExtensions
     public static IApplicationBuilder UseGraphQLGraphiQL(this IApplicationBuilder app, GraphiQLOptions options, string path = "/ui/graphiql")
     {
         return app.UseWhen(
-           context => context.Request.Path.StartsWithSegments(path, out var remaining) && string.IsNullOrEmpty(remaining),
+           context => HttpMethods.IsGet(context.Request.Method) && context.Request.Path.StartsWithSegments(path, out var remaining) && string.IsNullOrEmpty(remaining),
            b => b.UseMiddleware<GraphiQLMiddleware>(options ?? new GraphiQLOptions()));
     }
 }

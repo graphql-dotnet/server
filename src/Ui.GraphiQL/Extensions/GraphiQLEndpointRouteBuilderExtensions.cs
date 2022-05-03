@@ -30,7 +30,7 @@ public static class GraphiQLEndpointRouteBuilderExtensions
             throw new ArgumentNullException(nameof(endpoints));
 
         var requestDelegate = endpoints.CreateApplicationBuilder().UseMiddleware<GraphiQLMiddleware>(options ?? new GraphiQLOptions()).Build();
-        return new GraphiQLEndpointConventionBuilder(endpoints.Map(pattern, requestDelegate).WithDisplayName("GraphiQL"));
+        return new GraphiQLEndpointConventionBuilder(endpoints.MapGet(pattern, requestDelegate).WithDisplayName("GraphiQL"));
     }
 }
 
