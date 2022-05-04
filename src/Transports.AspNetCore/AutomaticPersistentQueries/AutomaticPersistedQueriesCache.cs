@@ -6,9 +6,11 @@ namespace GraphQL.Server.Transports.AspNetCore;
 public class AutomaticPersistedQueriesCache : IAutomaticPersistedQueriesCache
 {
     private readonly MemoryCache _memoryCache;
+    private readonly AutomaticPersistedQueriesCacheOptions _options;
 
     public AutomaticPersistedQueriesCache(IOptions<AutomaticPersistedQueriesCacheOptions> options)
     {
+        _options = options.Value;
         _memoryCache = new MemoryCache(options);
     }
 
@@ -16,7 +18,7 @@ public class AutomaticPersistedQueriesCache : IAutomaticPersistedQueriesCache
 
     public ValueTask SetQueryByHash(string hash, string query)
     {
-        _memoryCache.Set(hash, query);
+        _memoryCache.Set(hash, query, new MemoryCacheEntryOptions { SlidingExpiration = _options.SlidingExpiration });
         return default;
     }
 }
