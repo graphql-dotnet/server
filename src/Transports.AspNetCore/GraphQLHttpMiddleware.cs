@@ -160,7 +160,7 @@ public class GraphQLHttpMiddleware<TSchema> : IMiddleware
                 OperationName = urlGQLRequest.OperationName ?? bodyGQLRequest?.OperationName
             };
 
-            if (string.IsNullOrWhiteSpace(gqlRequest.Query) && !(gqlRequest.Extensions?.TryGetValue("hash", out object _) ?? false))
+            if (string.IsNullOrWhiteSpace(gqlRequest.Query) && !(gqlRequest.Extensions?.TryGetValue(HASH_KEY, out object _) ?? false))
             {
                 await HandleNoQueryErrorAsync(context);
                 return;
@@ -244,7 +244,7 @@ public class GraphQLHttpMiddleware<TSchema> : IMiddleware
         CancellationToken token)
     {
         string hash = null;
-        if (gqlRequest.Extensions?.TryGetValue("hash", out object hashObject) ?? false)
+        if (gqlRequest.Extensions?.TryGetValue(HASH_KEY, out object hashObject) ?? false)
         {
             hash = hashObject as string;
         }
@@ -340,6 +340,7 @@ public class GraphQLHttpMiddleware<TSchema> : IMiddleware
     private const string VARIABLES_KEY = "variables";
     private const string EXTENSIONS_KEY = "extensions";
     private const string OPERATION_NAME_KEY = "operationName";
+    private const string HASH_KEY = "hash";
 
     private GraphQLRequest DeserializeFromQueryString(IQueryCollection queryCollection) => new GraphQLRequest
     {
