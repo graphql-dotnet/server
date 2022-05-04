@@ -30,7 +30,7 @@ public static class AltairEndpointRouteBuilderExtensions
             throw new ArgumentNullException(nameof(endpoints));
 
         var requestDelegate = endpoints.CreateApplicationBuilder().UseMiddleware<AltairMiddleware>(options ?? new AltairOptions()).Build();
-        return new AltairEndpointConventionBuilder(endpoints.Map(pattern, requestDelegate).WithDisplayName("GraphQL Altair"));
+        return new AltairEndpointConventionBuilder(endpoints.MapGet(pattern, requestDelegate).WithDisplayName("GraphQL Altair"));
     }
 }
 

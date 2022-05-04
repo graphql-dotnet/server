@@ -1,4 +1,5 @@
 using GraphQL.Server.Ui.Voyager;
+using Microsoft.AspNetCore.Http;
 
 namespace Microsoft.AspNetCore.Builder;
 
@@ -22,7 +23,7 @@ public static class VoyagerApplicationBuilderExtensions
     public static IApplicationBuilder UseGraphQLVoyager(this IApplicationBuilder app, VoyagerOptions options, string path = "/ui/voyager")
     {
         return app.UseWhen(
-           context => context.Request.Path.StartsWithSegments(path, out var remaining) && string.IsNullOrEmpty(remaining),
+           context => HttpMethods.IsGet(context.Request.Method) && context.Request.Path.StartsWithSegments(path, out var remaining) && string.IsNullOrEmpty(remaining),
            b => b.UseMiddleware<VoyagerMiddleware>(options ?? new VoyagerOptions()));
     }
 }
