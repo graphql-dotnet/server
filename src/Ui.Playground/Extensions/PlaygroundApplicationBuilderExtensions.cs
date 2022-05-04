@@ -1,4 +1,5 @@
 using GraphQL.Server.Ui.Playground;
+using Microsoft.AspNetCore.Http;
 
 namespace Microsoft.AspNetCore.Builder;
 
