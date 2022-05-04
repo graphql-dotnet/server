@@ -12,16 +12,16 @@ namespace GraphQL.Server;
 public static class GraphQLBuilderMiddlewareExtensions
 {
     public static IGraphQLBuilder AddHttpMiddleware<TSchema>(this IGraphQLBuilder builder)
-      where TSchema : ISchema
+        where TSchema : ISchema
     {
-        builder.Services.Register<GraphQLHttpMiddleware<TSchema>, GraphQLHttpMiddleware<TSchema>>(ServiceLifetime.Singleton);
-        return builder;
+        return builder.AddHttpMiddleware<TSchema, GraphQLHttpMiddleware<TSchema>>();
     }
 
     public static IGraphQLBuilder AddHttpMiddleware<TSchema, TMiddleware>(this IGraphQLBuilder builder)
         where TSchema : ISchema
         where TMiddleware : GraphQLHttpMiddleware<TSchema>
     {
+        builder.Services.TryRegister<IAutomaticPersistedQueriesCache, AutomaticPersistedQueriesDefaultCache>(ServiceLifetime.Singleton);
         builder.Services.Register<TMiddleware, TMiddleware>(ServiceLifetime.Singleton);
         return builder;
     }

@@ -20,7 +20,6 @@
     <ProjectReference Include="..\..\..\graphql-dotnet\src\GraphQL.DataLoader\GraphQL.DataLoader.csproj" />        
     <ProjectReference Include="..\..\..\graphql-dotnet\src\GraphQL.MicrosoftDI\GraphQL.MicrosoftDI.csproj" />
     <ProjectReference Include="..\..\..\graphql-dotnet\src\GraphQL.SystemTextJson\GraphQL.SystemTextJson.csproj" />
-    <ProjectReference Include="..\..\..\graphql-dotnet\src\GraphQL.MemoryCache\GraphQL.MemoryCache.csproj" />    
     <ProjectReference Include="..\..\src\Transports.AspNetCore\Transports.AspNetCore.csproj" />
     <ProjectReference Include="..\..\src\Authorization.AspNetCore\Authorization.AspNetCore.csproj" />
     <ProjectReference Include="..\..\src\Transports.Subscriptions.WebSockets\Transports.Subscriptions.WebSockets.csproj" />

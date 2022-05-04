@@ -90,7 +90,7 @@ namespace GraphQL.Server.Transports.Subscriptions.Abstractions
     }
     public class SubscriptionManager : GraphQL.Server.Transports.Subscriptions.Abstractions.ISubscriptionManager, System.Collections.Generic.IEnumerable<GraphQL.Server.Transports.Subscriptions.Abstractions.Subscription>, System.Collections.IEnumerable, System.IDisposable
     {
-        public SubscriptionManager(GraphQL.IDocumentExecuter executer, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, GraphQL.PersistedQueries.IPersistedQueriesExecutor persistedQueriesExecutor = null) { }
+        public SubscriptionManager(GraphQL.IDocumentExecuter executer, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory) { }
         public GraphQL.Server.Transports.Subscriptions.Abstractions.Subscription this[string id] { get; }
         public virtual void Dispose() { }
         public System.Collections.Generic.IEnumerator<GraphQL.Server.Transports.Subscriptions.Abstractions.Subscription> GetEnumerator() { }

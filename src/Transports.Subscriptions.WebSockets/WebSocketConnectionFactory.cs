@@ -1,5 +1,4 @@
 using System.Net.WebSockets;
-using GraphQL.PersistedQueries;
 using GraphQL.Server.Transports.Subscriptions.Abstractions;
 using GraphQL.Types;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,7 +15,6 @@ public class WebSocketConnectionFactory<TSchema> : IWebSocketConnectionFactory<T
     private readonly IEnumerable<IOperationMessageListener> _messageListeners;
     private readonly IGraphQLTextSerializer _serializer;
     private readonly IServiceScopeFactory _serviceScopeFactory;
-    private readonly IPersistedQueriesExecutor _persistedQueriesExecutor;
 
     public WebSocketConnectionFactory(
         ILogger<WebSocketConnectionFactory<TSchema>> logger,
@@ -24,8 +22,7 @@ public class WebSocketConnectionFactory<TSchema> : IWebSocketConnectionFactory<T
         IDocumentExecuter<TSchema> executer,
         IEnumerable<IOperationMessageListener> messageListeners,
         IGraphQLTextSerializer serializer,
-        IServiceScopeFactory serviceScopeFactory,
-        IPersistedQueriesExecutor persistedQueriesExecutor = null)
+        IServiceScopeFactory serviceScopeFactory)
     {
         _logger = logger;
         _loggerFactory = loggerFactory;
@@ -33,7 +30,6 @@ public class WebSocketConnectionFactory<TSchema> : IWebSocketConnectionFactory<T
         _messageListeners = messageListeners;
         _serviceScopeFactory = serviceScopeFactory;
         _serializer = serializer;
-        _persistedQueriesExecutor = persistedQueriesExecutor;
     }
 
     public WebSocketConnection CreateConnection(WebSocket socket, string connectionId)
@@ -41,7 +37,7 @@ public class WebSocketConnectionFactory<TSchema> : IWebSocketConnectionFactory<T
         _logger.LogDebug("Creating server for connection {connectionId}", connectionId);
 
         var transport = new WebSocketTransport(socket, _serializer);
-        var manager = new SubscriptionManager(_executer, _loggerFactory, _serviceScopeFactory, _persistedQueriesExecutor);
+        var manager = new SubscriptionManager(_executer, _loggerFactory, _serviceScopeFactory);
         var server = new SubscriptionServer(
             transport,
             manager,

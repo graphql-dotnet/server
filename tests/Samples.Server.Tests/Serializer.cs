@@ -50,6 +50,7 @@ internal static class Serializer
         {
             { "operationName", request.OperationName },
             { "query", request.Query },
-            { "variables", request.Variables }
+            { "variables", request.Variables },
+            { "extensions", request.Extensions },
         };
 }

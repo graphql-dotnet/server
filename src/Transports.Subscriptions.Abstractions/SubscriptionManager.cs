@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Concurrent;
-using GraphQL.PersistedQueries;
 using GraphQL.Server.Transports.Subscriptions.Abstractions.Internal;
 using GraphQL.Transport;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,18 +15,16 @@ public class SubscriptionManager : ISubscriptionManager, IDisposable
     private readonly ILogger<SubscriptionManager> _logger;
     private readonly IServiceScopeFactory _serviceScopeFactory;
     private readonly ILoggerFactory _loggerFactory;
-    private readonly IPersistedQueriesExecutor _persistedQueriesExecutor;
     private volatile bool _disposed;
 
     private readonly ConcurrentDictionary<string, Subscription> _subscriptions = new();
 
-    public SubscriptionManager(IDocumentExecuter executer, ILoggerFactory loggerFactory, IServiceScopeFactory serviceScopeFactory, IPersistedQueriesExecutor persistedQueriesExecutor = null)
+    public SubscriptionManager(IDocumentExecuter executer, ILoggerFactory loggerFactory, IServiceScopeFactory serviceScopeFactory)
     {
         _executer = executer;
         _loggerFactory = loggerFactory;
         _logger = loggerFactory.CreateLogger<SubscriptionManager>();
         _serviceScopeFactory = serviceScopeFactory;
-        _persistedQueriesExecutor = persistedQueriesExecutor;
     }
 
     public Subscription this[string id] => _subscriptions[id];
@@ -85,22 +82,15 @@ public class SubscriptionManager : ISubscriptionManager, IDisposable
         ExecutionResult result;
         using (var scope = _serviceScopeFactory.CreateScope())
         {
-            if (_persistedQueriesExecutor != null)
+            result = await _executer.ExecuteAsync(new ExecutionOptions
             {
-                result = await _persistedQueriesExecutor.ExecuteRequestAsync(payload, context, _executer, scope.ServiceProvider, default);
-            }
-            else
-            {
-                result = await _executer.ExecuteAsync(new ExecutionOptions
-                {
-                    Query = payload.Query,
-                    OperationName = payload.OperationName,
-                    Variables = payload.Variables,
-                    Extensions = payload.Extensions,
-                    RequestServices = scope.ServiceProvider,
-                    UserContext = context,
-                }).ConfigureAwait(false);
-            }
+                Query = payload.Query,
+                OperationName = payload.OperationName,
+                Variables = payload.Variables,
+                Extensions = payload.Extensions,
+                RequestServices = scope.ServiceProvider,
+                UserContext = context,
+            }).ConfigureAwait(false);
         }
 
         if (result.Errors != null && result.Errors.Any())
