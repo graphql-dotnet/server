@@ -27,12 +27,12 @@ public class GraphQLHttpMiddleware<TSchema> : IMiddleware
     private const string DOCS_URL = "See: http://graphql.org/learn/serving-over-http/.";
 
     private readonly IGraphQLTextSerializer _serializer;
-    private readonly IAutomaticPersistedQueryCache _automaticPersistedQueriesCache;
+    private readonly IAutomaticPersistedQueryCache _automaticPersistedQueryCache;
 
-    public GraphQLHttpMiddleware(IGraphQLTextSerializer serializer, IAutomaticPersistedQueryCache automaticPersistedQueriesCache)
+    public GraphQLHttpMiddleware(IGraphQLTextSerializer serializer, IAutomaticPersistedQueryCache automaticPersistedQueryCache)
     {
         _serializer = serializer;
-        _automaticPersistedQueriesCache = automaticPersistedQueriesCache;
+        _automaticPersistedQueryCache = automaticPersistedQueryCache;
     }
 
     public virtual async Task InvokeAsync(HttpContext context, RequestDelegate next)
@@ -271,7 +271,7 @@ public class GraphQLHttpMiddleware<TSchema> : IMiddleware
             }
             else
             {
-                var queryFromCache = await _automaticPersistedQueriesCache.GetQuery(hash);
+                var queryFromCache = await _automaticPersistedQueryCache.GetQuery(hash);
 
                 if (queryFromCache == null)
                 {
@@ -285,7 +285,7 @@ public class GraphQLHttpMiddleware<TSchema> : IMiddleware
         }
         else if (!string.IsNullOrWhiteSpace(hash))
         {
-            var success = await _automaticPersistedQueriesCache.SetQuery(hash, gqlRequest.Query);
+            var success = await _automaticPersistedQueryCache.SetQuery(hash, gqlRequest.Query);
 
             if (!success)
             {

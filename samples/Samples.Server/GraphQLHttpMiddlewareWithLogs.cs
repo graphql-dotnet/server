@@ -12,8 +12,8 @@ public class GraphQLHttpMiddlewareWithLogs<TSchema> : GraphQLHttpMiddleware<TSch
     public GraphQLHttpMiddlewareWithLogs(
         ILogger<GraphQLHttpMiddleware<TSchema>> logger,
         IGraphQLTextSerializer requestDeserializer,
-        IAutomaticPersistedQueryCache automaticPersistedQueriesCache)
-        : base(requestDeserializer, automaticPersistedQueriesCache)
+        IAutomaticPersistedQueryCache automaticPersistedQueryCache)
+        : base(requestDeserializer, automaticPersistedQueryCache)
     {
         _logger = logger;
     }

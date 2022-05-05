@@ -47,7 +47,7 @@ namespace GraphQL.Server.Transports.AspNetCore
     public class GraphQLHttpMiddleware<TSchema> : Microsoft.AspNetCore.Http.IMiddleware
         where TSchema : GraphQL.Types.ISchema
     {
-        public GraphQLHttpMiddleware(GraphQL.IGraphQLTextSerializer serializer, GraphQL.Server.Transports.AspNetCore.IAutomaticPersistedQueryCache automaticPersistedQueriesCache) { }
+        public GraphQLHttpMiddleware(GraphQL.IGraphQLTextSerializer serializer, GraphQL.Server.Transports.AspNetCore.IAutomaticPersistedQueryCache automaticPersistedQueryCache) { }
         protected virtual GraphQL.ExecutionResult CreateExecutionResult(GraphQL.ExecutionError error) { }
         protected virtual System.Threading.Tasks.Task<GraphQL.ExecutionResult> ExecuteRequestAsync(GraphQL.Transport.GraphQLRequest gqlRequest, System.Collections.Generic.IDictionary<string, object> userContext, GraphQL.IDocumentExecuter<TSchema> executer, System.IServiceProvider requestServices, System.Threading.CancellationToken token) { }
         protected virtual System.Threading.CancellationToken GetCancellationToken(Microsoft.AspNetCore.Http.HttpContext context) { }
