@@ -1,5 +1,4 @@
 using GraphQL;
-using GraphQL.Server.Transports.AspNetCore;
 using GraphQL.Transport;
 
 namespace Samples.Server.Tests;
@@ -49,7 +48,7 @@ public class AutomaticPersistedQueries : BaseTest
         {
             ["persistedQuery"] = new Dictionary<string, object>
             {
-                ["sha256Hash"] = AutomaticPersistedQueryCache.ComputeSHA256(query)
+                ["sha256Hash"] = "21b820e95efe78b9775900fb710c2e1d4038dd30d989d28a90ca9b76e3c4fc1c"
             }
         });
 

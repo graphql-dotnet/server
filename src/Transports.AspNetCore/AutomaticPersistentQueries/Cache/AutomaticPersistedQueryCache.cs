@@ -31,7 +31,7 @@ public class AutomaticPersistedQueryCache : IAutomaticPersistedQueryCache
     {
         var result = false;
 
-        if (hash.Equals(ComputeQuerySHA256(query), StringComparison.InvariantCultureIgnoreCase))
+        if (hash.Equals(ComputeSHA256(query), StringComparison.InvariantCultureIgnoreCase))
         {
             _memoryCache.Set(hash, query, new MemoryCacheEntryOptions { SlidingExpiration = _options.SlidingExpiration });
             result = true;
@@ -44,9 +44,7 @@ public class AutomaticPersistedQueryCache : IAutomaticPersistedQueryCache
 #endif
     }
 
-    protected virtual string ComputeQuerySHA256(string query) => ComputeSHA256(query);
-
-    public static string ComputeSHA256(string input)
+    protected virtual string ComputeSHA256(string input)
     {
         var bytes = SHA256.Create().ComputeHash(Encoding.UTF8.GetBytes(input));
 
