@@ -27,9 +27,9 @@ public class GraphQLHttpMiddleware<TSchema> : IMiddleware
     private const string DOCS_URL = "See: http://graphql.org/learn/serving-over-http/.";
 
     private readonly IGraphQLTextSerializer _serializer;
-    private readonly IAutomaticPersistedQueriesCache _automaticPersistedQueriesCache;
+    private readonly IAutomaticPersistedQueryCache _automaticPersistedQueriesCache;
 
-    public GraphQLHttpMiddleware(IGraphQLTextSerializer serializer, IAutomaticPersistedQueriesCache automaticPersistedQueriesCache)
+    public GraphQLHttpMiddleware(IGraphQLTextSerializer serializer, IAutomaticPersistedQueryCache automaticPersistedQueriesCache)
     {
         _serializer = serializer;
         _automaticPersistedQueriesCache = automaticPersistedQueriesCache;
@@ -160,7 +160,7 @@ public class GraphQLHttpMiddleware<TSchema> : IMiddleware
                 OperationName = urlGQLRequest.OperationName ?? bodyGQLRequest?.OperationName
             };
 
-            if (string.IsNullOrWhiteSpace(gqlRequest.Query) && !(gqlRequest.Extensions?.TryGetValue(HASH_KEY, out object _) ?? false))
+            if (string.IsNullOrWhiteSpace(gqlRequest.Query) && GetHash(gqlRequest) == null)
             {
                 await HandleNoQueryErrorAsync(context);
                 return;
@@ -175,6 +175,22 @@ public class GraphQLHttpMiddleware<TSchema> : IMiddleware
 
         var executer = context.RequestServices.GetRequiredService<IDocumentExecuter<TSchema>>();
         await HandleRequestAsync(context, next, userContext, bodyGQLBatchRequest, gqlRequest, executer, cancellationToken);
+    }
+
+    // https://www.apollographql.com/docs/react/api/link/persisted-queries/#protocol
+    protected virtual string GetHash(GraphQLRequest gqlRequest)
+    {
+        if (
+            (gqlRequest.Extensions?.TryGetValue("persistedQuery", out var persistedQueryObject) ?? false) &&
+            persistedQueryObject is Dictionary<string, object> persistedQuery &&
+            persistedQuery.TryGetValue("sha256Hash", out var sha256HashObject) &&
+            sha256HashObject is string sha256Hash &&
+            !string.IsNullOrWhiteSpace(sha256Hash))
+        {
+            return sha256Hash;
+        }
+
+        return null;
     }
 
     protected virtual async Task HandleRequestAsync(
@@ -224,8 +240,10 @@ public class GraphQLHttpMiddleware<TSchema> : IMiddleware
         return true;
     }
 
+    private const string QUERY_IS_MISSING = "GraphQL query is missing.";
+
     protected virtual Task HandleNoQueryErrorAsync(HttpContext context)
-        => WriteErrorResponseAsync(context, "GraphQL query is missing.", HttpStatusCode.BadRequest);
+        => WriteErrorResponseAsync(context, QUERY_IS_MISSING, HttpStatusCode.BadRequest);
 
     protected virtual Task HandleContentTypeCouldNotBeParsedErrorAsync(HttpContext context)
         => WriteErrorResponseAsync(context, $"Invalid 'Content-Type' header: value '{context.Request.ContentType}' could not be parsed.", HttpStatusCode.UnsupportedMediaType);
@@ -243,37 +261,21 @@ public class GraphQLHttpMiddleware<TSchema> : IMiddleware
         IServiceProvider requestServices,
         CancellationToken token)
     {
-        string hash = null;
-        if (gqlRequest.Extensions?.TryGetValue(HASH_KEY, out object hashObject) ?? false)
-        {
-            hash = hashObject as string;
-        }
+        var hash = GetHash(gqlRequest);
 
         if (string.IsNullOrWhiteSpace(gqlRequest.Query))
         {
             if (string.IsNullOrWhiteSpace(hash))
             {
-                return new ExecutionResult
-                {
-                    Errors = new ExecutionErrors
-                    {
-                        new ExecutionError("GraphQL query is missing.")
-                    }
-                };
+                return CreateExecutionResult(new ExecutionError(QUERY_IS_MISSING));
             }
             else
             {
-                var queryFromCache = await _automaticPersistedQueriesCache.GetQueryByHash(hash);
+                var queryFromCache = await _automaticPersistedQueriesCache.GetQuery(hash);
 
                 if (queryFromCache == null)
                 {
-                    return new ExecutionResult
-                    {
-                        Errors = new ExecutionErrors
-                        {
-                            new PersistedQueryNotFoundError(hash)
-                        }
-                    };
+                    return CreateExecutionResult(new PersistedQueryNotFoundError(hash));
                 }
                 else
                 {
@@ -283,7 +285,12 @@ public class GraphQLHttpMiddleware<TSchema> : IMiddleware
         }
         else if (!string.IsNullOrWhiteSpace(hash))
         {
-            await _automaticPersistedQueriesCache.SetQueryByHash(hash, gqlRequest.Query);
+            var success = await _automaticPersistedQueriesCache.SetQuery(hash, gqlRequest.Query);
+
+            if (!success)
+            {
+                return CreateExecutionResult(new PersistedQueryBadHashError(hash));
+            }
         }
 
         return await executer.ExecuteAsync(new ExecutionOptions
@@ -297,6 +304,8 @@ public class GraphQLHttpMiddleware<TSchema> : IMiddleware
             CancellationToken = token
         });
     }
+
+    protected virtual ExecutionResult CreateExecutionResult(ExecutionError error) => new ExecutionResult { Errors = new ExecutionErrors { error } };
 
     protected virtual CancellationToken GetCancellationToken(HttpContext context) => context.RequestAborted;
 
@@ -314,13 +323,7 @@ public class GraphQLHttpMiddleware<TSchema> : IMiddleware
 
     protected virtual Task WriteErrorResponseAsync(HttpContext context, string errorMessage, HttpStatusCode httpStatusCode)
     {
-        var result = new ExecutionResult
-        {
-            Errors = new ExecutionErrors
-            {
-                new ExecutionError(errorMessage)
-            }
-        };
+        var result = CreateExecutionResult(new ExecutionError(errorMessage));
 
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = (int)httpStatusCode;
@@ -340,7 +343,6 @@ public class GraphQLHttpMiddleware<TSchema> : IMiddleware
     private const string VARIABLES_KEY = "variables";
     private const string EXTENSIONS_KEY = "extensions";
     private const string OPERATION_NAME_KEY = "operationName";
-    private const string HASH_KEY = "hash";
 
     private GraphQLRequest DeserializeFromQueryString(IQueryCollection queryCollection) => new GraphQLRequest
     {

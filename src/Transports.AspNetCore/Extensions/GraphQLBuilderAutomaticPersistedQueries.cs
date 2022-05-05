@@ -8,10 +8,10 @@ namespace GraphQL.Server;
 /// </summary>
 public static class GraphQLBuilderAutomaticPersistedQueries
 {
-    public static IGraphQLBuilder AddAutomaticPersistedQueries(this IGraphQLBuilder builder, Action<AutomaticPersistedQueriesCacheOptions> action = null)
+    public static IGraphQLBuilder AddAutomaticPersistedQueries(this IGraphQLBuilder builder, Action<AutomaticPersistedQueryCacheOptions> action = null)
     {
         builder.Services.Configure(action);
-        builder.Services.TryRegister<IAutomaticPersistedQueriesCache, AutomaticPersistedQueriesCache>(ServiceLifetime.Singleton);
+        builder.Services.TryRegister<IAutomaticPersistedQueryCache, AutomaticPersistedQueryCache>(ServiceLifetime.Singleton);
         return builder;
     }
 }

@@ -2,7 +2,7 @@ namespace GraphQL.Server
 {
     public static class GraphQLBuilderAutomaticPersistedQueries
     {
-        public static GraphQL.DI.IGraphQLBuilder AddAutomaticPersistedQueries(this GraphQL.DI.IGraphQLBuilder builder, System.Action<GraphQL.Server.Transports.AspNetCore.AutomaticPersistedQueriesCacheOptions> action = null) { }
+        public static GraphQL.DI.IGraphQLBuilder AddAutomaticPersistedQueries(this GraphQL.DI.IGraphQLBuilder builder, System.Action<GraphQL.Server.Transports.AspNetCore.AutomaticPersistedQueryCacheOptions> action = null) { }
     }
     public static class GraphQLBuilderMiddlewareExtensions
     {
@@ -25,28 +25,33 @@ namespace GraphQL.Server
 }
 namespace GraphQL.Server.Transports.AspNetCore
 {
-    public class AutomaticPersistedQueriesCache : GraphQL.Server.Transports.AspNetCore.IAutomaticPersistedQueriesCache
+    public class AutomaticPersistedQueryCache : GraphQL.Server.Transports.AspNetCore.IAutomaticPersistedQueryCache
     {
-        public AutomaticPersistedQueriesCache(Microsoft.Extensions.Options.IOptions<GraphQL.Server.Transports.AspNetCore.AutomaticPersistedQueriesCacheOptions> options) { }
-        public System.Threading.Tasks.ValueTask<string> GetQueryByHash(string hash) { }
-        public System.Threading.Tasks.ValueTask SetQueryByHash(string hash, string query) { }
+        public AutomaticPersistedQueryCache(Microsoft.Extensions.Options.IOptions<GraphQL.Server.Transports.AspNetCore.AutomaticPersistedQueryCacheOptions> options) { }
+        protected virtual string ComputeQuerySHA256(string query) { }
+        public System.Threading.Tasks.ValueTask<string> GetQuery(string hash) { }
+        public System.Threading.Tasks.ValueTask<bool> SetQuery(string hash, string query) { }
+        public static string ComputeSHA256(string input) { }
     }
-    public class AutomaticPersistedQueriesCacheOptions : Microsoft.Extensions.Caching.Memory.MemoryCacheOptions
+    public class AutomaticPersistedQueryCacheOptions : Microsoft.Extensions.Caching.Memory.MemoryCacheOptions
     {
-        public AutomaticPersistedQueriesCacheOptions() { }
+        public AutomaticPersistedQueryCacheOptions() { }
+        public System.TimeSpan? SlidingExpiration { get; set; }
     }
-    public class AutomaticPersistedQueriesDefaultCache : GraphQL.Server.Transports.AspNetCore.IAutomaticPersistedQueriesCache
+    public class AutomaticPersistedQueryDefaultCache : GraphQL.Server.Transports.AspNetCore.IAutomaticPersistedQueryCache
     {
-        public AutomaticPersistedQueriesDefaultCache() { }
-        public System.Threading.Tasks.ValueTask<string> GetQueryByHash(string hash) { }
-        public System.Threading.Tasks.ValueTask SetQueryByHash(string hash, string query) { }
+        public AutomaticPersistedQueryDefaultCache() { }
+        public System.Threading.Tasks.ValueTask<string> GetQuery(string hash) { }
+        public System.Threading.Tasks.ValueTask<bool> SetQuery(string hash, string query) { }
     }
     public class GraphQLHttpMiddleware<TSchema> : Microsoft.AspNetCore.Http.IMiddleware
         where TSchema : GraphQL.Types.ISchema
     {
-        public GraphQLHttpMiddleware(GraphQL.IGraphQLTextSerializer serializer, GraphQL.Server.Transports.AspNetCore.IAutomaticPersistedQueriesCache automaticPersistedQueriesCache) { }
+        public GraphQLHttpMiddleware(GraphQL.IGraphQLTextSerializer serializer, GraphQL.Server.Transports.AspNetCore.IAutomaticPersistedQueryCache automaticPersistedQueriesCache) { }
+        protected virtual GraphQL.ExecutionResult CreateExecutionResult(GraphQL.ExecutionError error) { }
         protected virtual System.Threading.Tasks.Task<GraphQL.ExecutionResult> ExecuteRequestAsync(GraphQL.Transport.GraphQLRequest gqlRequest, System.Collections.Generic.IDictionary<string, object> userContext, GraphQL.IDocumentExecuter<TSchema> executer, System.IServiceProvider requestServices, System.Threading.CancellationToken token) { }
         protected virtual System.Threading.CancellationToken GetCancellationToken(Microsoft.AspNetCore.Http.HttpContext context) { }
+        protected virtual string GetHash(GraphQL.Transport.GraphQLRequest gqlRequest) { }
         protected virtual System.Threading.Tasks.Task HandleContentTypeCouldNotBeParsedErrorAsync(Microsoft.AspNetCore.Http.HttpContext context) { }
         protected virtual System.Threading.Tasks.ValueTask<bool> HandleDeserializationErrorAsync(Microsoft.AspNetCore.Http.HttpContext context, System.Exception ex) { }
         protected virtual System.Threading.Tasks.Task HandleInvalidContentTypeErrorAsync(Microsoft.AspNetCore.Http.HttpContext context) { }
@@ -67,10 +72,10 @@ namespace GraphQL.Server.Transports.AspNetCore
         public GraphQL.Transport.GraphQLRequest Request { get; }
         public GraphQL.ExecutionResult Result { get; }
     }
-    public interface IAutomaticPersistedQueriesCache
+    public interface IAutomaticPersistedQueryCache
     {
-        System.Threading.Tasks.ValueTask<string> GetQueryByHash(string hash);
-        System.Threading.Tasks.ValueTask SetQueryByHash(string hash, string query);
+        System.Threading.Tasks.ValueTask<string> GetQuery(string hash);
+        System.Threading.Tasks.ValueTask<bool> SetQuery(string hash, string query);
     }
     public interface IUserContextBuilder
     {
@@ -82,7 +87,13 @@ namespace GraphQL.Server.Transports.AspNetCore
         public const string GRAPH_QL = "application/graphql";
         public const string JSON = "application/json";
     }
-    public class PersistedQueryNotFoundError : GraphQL.ExecutionError
+    [System.Serializable]
+    public class PersistedQueryBadHashError : GraphQL.Validation.ValidationError
+    {
+        public PersistedQueryBadHashError(string hash) { }
+    }
+    [System.Serializable]
+    public class PersistedQueryNotFoundError : GraphQL.Validation.ValidationError
     {
         public PersistedQueryNotFoundError(string hash) { }
     }

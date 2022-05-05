@@ -21,7 +21,7 @@ public static class GraphQLBuilderMiddlewareExtensions
         where TSchema : ISchema
         where TMiddleware : GraphQLHttpMiddleware<TSchema>
     {
-        builder.Services.TryRegister<IAutomaticPersistedQueriesCache, AutomaticPersistedQueriesDefaultCache>(ServiceLifetime.Singleton);
+        builder.Services.TryRegister<IAutomaticPersistedQueryCache, AutomaticPersistedQueryDefaultCache>(ServiceLifetime.Singleton);
         builder.Services.Register<TMiddleware, TMiddleware>(ServiceLifetime.Singleton);
         return builder;
     }

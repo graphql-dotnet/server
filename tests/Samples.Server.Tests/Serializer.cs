@@ -39,6 +39,11 @@ internal static class Serializer
             dictionary["variables"] = ToJson(request.Variables);
         }
 
+        if (request.Extensions != null)
+        {
+            dictionary["extensions"] = ToJson(request.Extensions);
+        }
+
         return new FormUrlEncodedContent(dictionary);
     }
 
