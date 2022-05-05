@@ -28,10 +28,9 @@ namespace GraphQL.Server.Transports.AspNetCore
     public class AutomaticPersistedQueryCache : GraphQL.Server.Transports.AspNetCore.IAutomaticPersistedQueryCache
     {
         public AutomaticPersistedQueryCache(Microsoft.Extensions.Options.IOptions<GraphQL.Server.Transports.AspNetCore.AutomaticPersistedQueryCacheOptions> options) { }
-        protected virtual string ComputeQuerySHA256(string query) { }
+        protected virtual string ComputeSHA256(string input) { }
         public System.Threading.Tasks.ValueTask<string> GetQuery(string hash) { }
         public System.Threading.Tasks.ValueTask<bool> SetQuery(string hash, string query) { }
-        public static string ComputeSHA256(string input) { }
     }
     public class AutomaticPersistedQueryCacheOptions : Microsoft.Extensions.Caching.Memory.MemoryCacheOptions
     {

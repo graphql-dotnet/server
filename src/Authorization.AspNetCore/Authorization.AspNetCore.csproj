@@ -8,8 +8,7 @@
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
-    <!--<PackageReference Include="GraphQL" Version="5.1.1" />-->
-    <ProjectReference Include="..\..\..\graphql-dotnet\src\GraphQL\GraphQL.csproj" />
+    <PackageReference Include="GraphQL" Version="5.1.1" />
   </ItemGroup>
 
 </Project>

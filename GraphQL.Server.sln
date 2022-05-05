@@ -73,14 +73,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "All", "src\All\All.csproj",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Transports.AspNetCore.Tests", "tests\Transports.AspNetCore.Tests\Transports.AspNetCore.Tests.csproj", "{1857A25B-C4A3-4332-9077-3F2516AC6059}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL", "..\graphql-dotnet\src\GraphQL\GraphQL.csproj", "{D8EF120B-3140-4342-BB15-EBE5746D67F7}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.DataLoader", "..\graphql-dotnet\src\GraphQL.DataLoader\GraphQL.DataLoader.csproj", "{197EC87D-D35B-494A-B0AD-C22D8F1097F0}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.MicrosoftDI", "..\graphql-dotnet\src\GraphQL.MicrosoftDI\GraphQL.MicrosoftDI.csproj", "{ED939E94-57E9-41AA-A4D5-CE80621750A9}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.SystemTextJson", "..\graphql-dotnet\src\GraphQL.SystemTextJson\GraphQL.SystemTextJson.csproj", "{D9B98B9A-27A3-4BD9-B45B-9EA38A5FECB3}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -159,22 +151,6 @@ Global
 		{1857A25B-C4A3-4332-9077-3F2516AC6059}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1857A25B-C4A3-4332-9077-3F2516AC6059}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1857A25B-C4A3-4332-9077-3F2516AC6059}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D8EF120B-3140-4342-BB15-EBE5746D67F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D8EF120B-3140-4342-BB15-EBE5746D67F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D8EF120B-3140-4342-BB15-EBE5746D67F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D8EF120B-3140-4342-BB15-EBE5746D67F7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{197EC87D-D35B-494A-B0AD-C22D8F1097F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{197EC87D-D35B-494A-B0AD-C22D8F1097F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{197EC87D-D35B-494A-B0AD-C22D8F1097F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{197EC87D-D35B-494A-B0AD-C22D8F1097F0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{ED939E94-57E9-41AA-A4D5-CE80621750A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{ED939E94-57E9-41AA-A4D5-CE80621750A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{ED939E94-57E9-41AA-A4D5-CE80621750A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{ED939E94-57E9-41AA-A4D5-CE80621750A9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D9B98B9A-27A3-4BD9-B45B-9EA38A5FECB3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D9B98B9A-27A3-4BD9-B45B-9EA38A5FECB3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D9B98B9A-27A3-4BD9-B45B-9EA38A5FECB3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D9B98B9A-27A3-4BD9-B45B-9EA38A5FECB3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
