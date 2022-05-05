@@ -30,7 +30,7 @@ public static class VoyagerEndpointRouteBuilderExtensions
             throw new ArgumentNullException(nameof(endpoints));
 
         var requestDelegate = endpoints.CreateApplicationBuilder().UseMiddleware<VoyagerMiddleware>(options ?? new VoyagerOptions()).Build();
-        return new VoyagerEndpointConventionBuilder(endpoints.Map(pattern, requestDelegate).WithDisplayName("GraphQL Voyager"));
+        return new VoyagerEndpointConventionBuilder(endpoints.MapGet(pattern, requestDelegate).WithDisplayName("GraphQL Voyager"));
     }
 }
 

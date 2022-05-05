@@ -1,4 +1,5 @@
 using GraphQL.Server.Ui.Altair;
+using Microsoft.AspNetCore.Http;
 
 namespace Microsoft.AspNetCore.Builder;
 
@@ -22,7 +23,7 @@ public static class AltairApplicationBuilderExtensions
     public static IApplicationBuilder UseGraphQLAltair(this IApplicationBuilder app, AltairOptions options, string path = "/ui/altair")
     {
         return app.UseWhen(
-           context => context.Request.Path.StartsWithSegments(path, out var remaining) && string.IsNullOrEmpty(remaining),
+           context => HttpMethods.IsGet(context.Request.Method) && context.Request.Path.StartsWithSegments(path, out var remaining) && string.IsNullOrEmpty(remaining),
            b => b.UseMiddleware<AltairMiddleware>(options ?? new AltairOptions()));
     }
 }
