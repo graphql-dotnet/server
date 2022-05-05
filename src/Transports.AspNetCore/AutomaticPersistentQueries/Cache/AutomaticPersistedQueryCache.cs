@@ -16,32 +16,17 @@ public class AutomaticPersistedQueryCache : IAutomaticPersistedQueryCache
         _memoryCache = new MemoryCache(options);
     }
 
-    public ValueTask<string> GetQuery(string hash)
-    {
-        var result = _memoryCache.Get<string>(hash);
-
-#if NET5_0_OR_GREATER
-        return ValueTask.FromResult(result);
-#else
-        return new ValueTask<string>(result);
-#endif
-    }
+    public ValueTask<string> GetQuery(string hash) => new ValueTask<string>(_memoryCache.Get<string>(hash));
 
     public ValueTask<bool> SetQuery(string hash, string query)
     {
-        var result = false;
-
         if (hash.Equals(ComputeSHA256(query), StringComparison.InvariantCultureIgnoreCase))
         {
             _memoryCache.Set(hash, query, new MemoryCacheEntryOptions { SlidingExpiration = _options.SlidingExpiration });
-            result = true;
+            return new ValueTask<bool>(true);
         }
 
-#if NET5_0_OR_GREATER
-        return ValueTask.FromResult(result);
-#else
-        return new ValueTask<bool>(result);
-#endif
+        return default;
     }
 
     protected virtual string ComputeSHA256(string input)
