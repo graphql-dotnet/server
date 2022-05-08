@@ -11,8 +11,8 @@
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.13.1" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
-    <PackageReference Include="GraphQL.SystemTextJson" Version="5.1.1" />
-    <PackageReference Include="GraphQL.NewtonsoftJson" Version="5.1.1" />
+    <PackageReference Include="GraphQL.SystemTextJson" Version="5.2.0" />
+    <PackageReference Include="GraphQL.NewtonsoftJson" Version="5.2.0" />
   </ItemGroup>
 
   <ItemGroup>
