@@ -6,6 +6,7 @@ updates:
   schedule:
     interval: "daily"
   ignore:
+    - dependency-name: "GraphQL"
     - dependency-name: "GraphQL.DataLoader"
     - dependency-name: "GraphQL.MemoryCache"
     - dependency-name: "GraphQL.MicrosoftDI"
