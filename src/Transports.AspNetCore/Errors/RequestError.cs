@@ -5,7 +5,8 @@ using GraphQL.Execution;
 namespace GraphQL.Server.Transports.AspNetCore.Errors;
 
 /// <summary>
-/// Represents an error that occurred prior to the execution of the request.
+/// Represents an error that occurred prior to the execution of the GraphQL request.
+/// This refers to any errors that arise before passing the request inside the GraphQL engine, that is, even before its validation.
 /// </summary>
 public class RequestError : ExecutionError
 {
