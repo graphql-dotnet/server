@@ -116,28 +116,27 @@ public class GraphQLHttpMiddleware<TSchema> : GraphQLHttpMiddleware
     protected override async Task<ExecutionResult> ExecuteScopedRequestAsync(HttpContext context, GraphQLRequest request, IDictionary<string, object?> userContext)
     {
         using var scope = _serviceScopeFactory.CreateScope();
-        return await ExecuteRequestAsync(context, request, scope.ServiceProvider, userContext);
+        try
+        {
+            return await ExecuteRequestAsync(context, request, scope.ServiceProvider, userContext);
+        }
+        finally
+        {
+            if (scope is IAsyncDisposable ad)
+                await ad.DisposeAsync();
+        }
     }
 
     /// <inheritdoc/>
-    protected override async Task<ExecutionResult> ExecuteRequestAsync(HttpContext context, GraphQLRequest request, IServiceProvider serviceProvider, IDictionary<string, object?> userContext)
+    protected override async Task<ExecutionResult> ExecuteRequestAsync(HttpContext context, GraphQLRequest? request, IServiceProvider serviceProvider, IDictionary<string, object?> userContext)
     {
-        if (request?.Query == null)
-        {
-            return new ExecutionResult
-            {
-                Errors = new ExecutionErrors {
-                    new QueryMissingError()
-                }
-            };
-        }
         var opts = new ExecutionOptions
         {
-            Query = request.Query,
-            Variables = request.Variables,
-            Extensions = request.Extensions,
+            Query = request?.Query,
+            Variables = request?.Variables,
+            Extensions = request?.Extensions,
             CancellationToken = context.RequestAborted,
-            OperationName = request.OperationName,
+            OperationName = request?.OperationName,
             RequestServices = serviceProvider,
             UserContext = userContext,
         };
@@ -237,7 +236,7 @@ public abstract class GraphQLHttpMiddleware
 
         // Parse POST body
         GraphQLRequest? bodyGQLRequest = null;
-        IList<GraphQLRequest>? bodyGQLBatchRequest = null;
+        IList<GraphQLRequest?>? bodyGQLBatchRequest = null;
         if (isPost)
         {
             if (!MediaTypeHeaderValue.TryParse(httpRequest.ContentType, out var mediaTypeHeader))
@@ -249,7 +248,7 @@ public abstract class GraphQLHttpMiddleware
             switch (mediaTypeHeader.MediaType)
             {
                 case MEDIATYPE_JSON:
-                    IList<GraphQLRequest>? deserializationResult;
+                    IList<GraphQLRequest?>? deserializationResult;
                     try
                     {
 #if NET5_0_OR_GREATER
@@ -262,14 +261,14 @@ public abstract class GraphQLHttpMiddleware
                         if (sourceEncoding != null && sourceEncoding != System.Text.Encoding.UTF8)
                         {
                             using var tempStream = System.Text.Encoding.CreateTranscodingStream(httpRequest.Body, innerStreamEncoding: sourceEncoding, outerStreamEncoding: System.Text.Encoding.UTF8, leaveOpen: true);
-                            deserializationResult = await _serializer.ReadAsync<IList<GraphQLRequest>>(tempStream, context.RequestAborted);
+                            deserializationResult = await _serializer.ReadAsync<IList<GraphQLRequest?>>(tempStream, context.RequestAborted);
                         }
                         else
                         {
-                            deserializationResult = await _serializer.ReadAsync<IList<GraphQLRequest>>(httpRequest.Body, context.RequestAborted);
+                            deserializationResult = await _serializer.ReadAsync<IList<GraphQLRequest?>>(httpRequest.Body, context.RequestAborted);
                         }
 #else
-                        deserializationResult = await _serializer.ReadAsync<IList<GraphQLRequest>>(httpRequest.Body, context.RequestAborted);
+                        deserializationResult = await _serializer.ReadAsync<IList<GraphQLRequest?>>(httpRequest.Body, context.RequestAborted);
 #endif
                     }
                     catch (Exception ex)
@@ -332,17 +331,11 @@ public abstract class GraphQLHttpMiddleware
 
             gqlRequest = new GraphQLRequest
             {
-                Query = urlGQLRequest?.Query ?? bodyGQLRequest?.Query!,
+                Query = urlGQLRequest?.Query ?? bodyGQLRequest?.Query,
                 Variables = urlGQLRequest?.Variables ?? bodyGQLRequest?.Variables,
                 Extensions = urlGQLRequest?.Extensions ?? bodyGQLRequest?.Extensions,
                 OperationName = urlGQLRequest?.OperationName ?? bodyGQLRequest?.OperationName
             };
-
-            if (string.IsNullOrWhiteSpace(gqlRequest.Query))
-            {
-                await HandleNoQueryErrorAsync(context, _next);
-                return;
-            }
 
             // Prepare context and execute
             await HandleRequestAsync(context, _next, gqlRequest);
@@ -411,7 +404,7 @@ public abstract class GraphQLHttpMiddleware
     protected virtual async Task HandleBatchRequestAsync(
         HttpContext context,
         RequestDelegate next,
-        IList<GraphQLRequest> gqlRequests)
+        IList<GraphQLRequest?> gqlRequests)
     {
         var userContext = await BuildUserContextAsync(context);
         var results = new ExecutionResult[gqlRequests.Count];
@@ -470,7 +463,7 @@ public abstract class GraphQLHttpMiddleware
     /// options.CachedDocumentValidationRules = new[] { rule };
     /// </code>
     /// </summary>
-    protected abstract Task<ExecutionResult> ExecuteRequestAsync(HttpContext context, GraphQLRequest request, IServiceProvider serviceProvider, IDictionary<string, object?> userContext);
+    protected abstract Task<ExecutionResult> ExecuteRequestAsync(HttpContext context, GraphQLRequest? request, IServiceProvider serviceProvider, IDictionary<string, object?> userContext);
 
     /// <summary>
     /// Builds the user context based on a <see cref="HttpContext"/>.
@@ -602,12 +595,6 @@ public abstract class GraphQLHttpMiddleware
     /// </summary>
     protected virtual Task HandleWebSocketSubProtocolNotSupportedAsync(HttpContext context, RequestDelegate next)
         => WriteErrorResponseAsync(context, HttpStatusCode.BadRequest, new WebSocketSubProtocolNotSupportedError(context.WebSockets.WebSocketRequestedProtocols));
-
-    /// <summary>
-    /// Writes a '400 GraphQL query is missing.' message to the output.
-    /// </summary>
-    protected virtual Task HandleNoQueryErrorAsync(HttpContext context, RequestDelegate next)
-        => WriteErrorResponseAsync(context, Options.ValidationErrorsReturnBadRequest ? HttpStatusCode.BadRequest : HttpStatusCode.OK, new QueryMissingError());
 
     /// <summary>
     /// Writes a '415 Invalid Content-Type header: could not be parsed.' message to the output.
