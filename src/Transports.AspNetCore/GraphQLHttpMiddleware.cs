@@ -157,12 +157,6 @@ public class GraphQLHttpMiddleware<TSchema> : IMiddleware
                 Extensions = urlGQLRequest.Extensions ?? bodyGQLRequest?.Extensions,
                 OperationName = urlGQLRequest.OperationName ?? bodyGQLRequest?.OperationName
             };
-
-            if (string.IsNullOrWhiteSpace(gqlRequest.Query))
-            {
-                await HandleNoQueryErrorAsync(context);
-                return;
-            }
         }
 
         // Prepare context and execute
@@ -284,7 +278,7 @@ public class GraphQLHttpMiddleware<TSchema> : IMiddleware
     protected virtual Task WriteResponseAsync<TResult>(HttpResponse httpResponse, IGraphQLSerializer serializer, CancellationToken cancellationToken, TResult result)
     {
         httpResponse.ContentType = "application/json";
-        httpResponse.StatusCode = 200; // OK
+        httpResponse.StatusCode = result is not ExecutionResult executionResult || executionResult.Executed ? 200 : 400; // BadRequest when fails validation; OK otherwise
 
         return serializer.WriteAsync(httpResponse.Body, result, cancellationToken);
     }

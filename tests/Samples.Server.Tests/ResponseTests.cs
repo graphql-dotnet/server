@@ -71,10 +71,9 @@ public class ResponseTests : BaseTest
     [Theory]
     [MemberData(nameof(WrongQueryData))]
     public async Task Wrong_Query_Should_Return_Error(HttpMethod httpMethod, HttpContent httpContent,
-        HttpStatusCode expectedStatusCode, string expectedErrorMsg)
+        HttpStatusCode expectedStatusCode, string expected)
     {
         var response = await SendRequestAsync(httpMethod, httpContent);
-        string expected = @"{""errors"":[{""message"":""" + expectedErrorMsg + @"""}]}";
 
         response.StatusCode.ShouldBe(expectedStatusCode);
 
@@ -90,7 +89,7 @@ public class ResponseTests : BaseTest
             HttpMethod.Put,
             new StringContent(Serializer.ToJson(new GraphQLRequest { Query = "query { __schema { queryType { name } } }" }), Encoding.UTF8, "application/json"),
             HttpStatusCode.MethodNotAllowed,
-            "Invalid HTTP method. Only GET and POST are supported. See: http://graphql.org/learn/serving-over-http/.",
+            @"{""errors"":[{""message"":""Invalid HTTP method. Only GET and POST are supported. See: http://graphql.org/learn/serving-over-http/.""}]}",
         },
 
         // POST with unsupported mime type should be a unsupported media type
@@ -99,7 +98,7 @@ public class ResponseTests : BaseTest
             HttpMethod.Post,
             new StringContent(Serializer.ToJson(new GraphQLRequest { Query = "query { __schema { queryType { name } } }" }), Encoding.UTF8, "something/unknown"),
             HttpStatusCode.UnsupportedMediaType,
-            "Invalid 'Content-Type' header: non-supported media type 'something/unknown; charset=utf-8'. Must be of 'application/json', 'application/graphql' or 'application/x-www-form-urlencoded'. See: http://graphql.org/learn/serving-over-http/."
+            @"{""errors"":[{""message"":""Invalid 'Content-Type' header: non-supported media type 'something/unknown; charset=utf-8'. Must be of 'application/json', 'application/graphql' or 'application/x-www-form-urlencoded'. See: http://graphql.org/learn/serving-over-http/.""}]}"
         },
 
         // MediaTypeHeaderValue ctor throws exception
@@ -118,7 +117,7 @@ public class ResponseTests : BaseTest
             HttpMethod.Post,
             new StringContent("Oops", Encoding.UTF8, "application/json"),
             HttpStatusCode.BadRequest,
-            "JSON body text could not be parsed. 'O' is an invalid start of a value. Path: $ | LineNumber: 0 | BytePositionInLine: 0."
+            @"{""errors"":[{""message"":""JSON body text could not be parsed. 'O' is an invalid start of a value. Path: $ | LineNumber: 0 | BytePositionInLine: 0.""}]}"
         },
 
         // POST with JSON mime type that is invalid JSON should be a bad request
@@ -127,7 +126,7 @@ public class ResponseTests : BaseTest
             HttpMethod.Post,
             new StringContent("{oops}", Encoding.UTF8, "application/json"),
             HttpStatusCode.BadRequest,
-            "JSON body text could not be parsed. 'o' is an invalid start of a property name. Expected a '\"'. Path: $ | LineNumber: 0 | BytePositionInLine: 1."
+            @"{""errors"":[{""message"":""JSON body text could not be parsed. 'o' is an invalid start of a property name. Expected a '""'. Path: $ | LineNumber: 0 | BytePositionInLine: 1.""}]}"
         },
 
         // POST with JSON mime type that is null JSON should be a bad request
@@ -136,7 +135,7 @@ public class ResponseTests : BaseTest
             HttpMethod.Post,
             new StringContent("null", Encoding.UTF8, "application/json"),
             HttpStatusCode.BadRequest,
-            "GraphQL query is missing."
+            @"{""errors"":[{""message"":""GraphQL query is missing."",""extensions"":{""code"":""QUERY_MISSING"",""codes"":[""QUERY_MISSING""]}}]}"
         },
 
         // GET with an empty QueryString should be a bad request
@@ -145,7 +144,34 @@ public class ResponseTests : BaseTest
             HttpMethod.Get,
             null,
             HttpStatusCode.BadRequest,
-            "GraphQL query is missing."
+            @"{""errors"":[{""message"":""GraphQL query is missing."",""extensions"":{""code"":""QUERY_MISSING"",""codes"":[""QUERY_MISSING""]}}]}"
+        },
+
+        // POST with a GraphQL parsing error should be a bad request
+        new object[]
+        {
+            HttpMethod.Post,
+            new StringContent(@"{""query"":""parseError""}", Encoding.UTF8, "application/json"),
+            HttpStatusCode.BadRequest,
+            @"{""errors"":[{""message"":""Error parsing query: Expected \u0022query/mutation/subscription/fragment/schema/scalar/type/interface/union/enum/input/extend/directive\u0022, found Name \u0022parseError\u0022"",""locations"":[{""line"":1,""column"":1}],""extensions"":{""code"":""SYNTAX_ERROR"",""codes"":[""SYNTAX_ERROR""]}}]}"
+        },
+
+        // POST with no operation should be a bad request
+        new object[]
+        {
+            HttpMethod.Post,
+            new StringContent(@"{""query"":""fragment frag on Query { hello }""}", Encoding.UTF8, "application/json"),
+            HttpStatusCode.BadRequest,
+            @"{""errors"":[{""message"":""Document does not contain any operations."",""extensions"":{""code"":""NO_OPERATION"",""codes"":[""NO_OPERATION""]}}]}"
+        },
+
+        // POST with validation error should be a bad request
+        new object[]
+        {
+            HttpMethod.Post,
+            new StringContent(@"{""query"":""{ dummy }""}", Encoding.UTF8, "application/json"),
+            HttpStatusCode.BadRequest,
+            @"{""errors"":[{""message"":""Cannot query field \u0027dummy\u0027 on type \u0027ChatQuery\u0027."",""locations"":[{""line"":1,""column"":3}],""extensions"":{""code"":""FIELDS_ON_CORRECT_TYPE"",""codes"":[""FIELDS_ON_CORRECT_TYPE""],""number"":""5.3.1""}}]}"
         },
     };
 
