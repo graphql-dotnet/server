@@ -1,6 +1,5 @@
 using GraphQL.DataLoader;
 using GraphQL.Execution;
-using GraphQL.Instrumentation;
 using GraphQL.MicrosoftDI;
 using GraphQL.Samples.Schemas.Chat;
 using GraphQL.Server;
@@ -34,8 +33,7 @@ public class Startup
             .AddTransient<IAuthorizationErrorMessageBuilder, DefaultAuthorizationErrorMessageBuilder>(); // required by CustomErrorInfoProvider
 
         services.AddGraphQL(builder => builder
-            .AddMetrics()
-            .AddDocumentExecuter<ApolloTracingDocumentExecuter>()
+            .AddApolloTracing()
             .AddHttpMiddleware<ChatSchema, GraphQLHttpMiddlewareWithLogs<ChatSchema>>()
             .AddWebSocketsHttpMiddleware<ChatSchema>()
             .AddSchema<ChatSchema>()
