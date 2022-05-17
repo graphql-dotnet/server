@@ -1,6 +1,5 @@
 using GraphQL.DataLoader;
 using GraphQL.Execution;
-using GraphQL.Instrumentation;
 using GraphQL.MicrosoftDI;
 using GraphQL.Samples.Schemas.Chat;
 using GraphQL.Server;
