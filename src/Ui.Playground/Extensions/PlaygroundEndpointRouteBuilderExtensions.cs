@@ -30,7 +30,7 @@ public static class PlaygroundEndpointRouteBuilderExtensions
             throw new ArgumentNullException(nameof(endpoints));
 
         var requestDelegate = endpoints.CreateApplicationBuilder().UseMiddleware<PlaygroundMiddleware>(options ?? new PlaygroundOptions()).Build();
-        return new PlaygroundEndpointConventionBuilder(endpoints.Map(pattern, requestDelegate).WithDisplayName("GraphQL Playground"));
+        return new PlaygroundEndpointConventionBuilder(endpoints.MapGet(pattern, requestDelegate).WithDisplayName("GraphQL Playground"));
     }
 }
 

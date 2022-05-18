@@ -39,6 +39,11 @@ internal static class Serializer
             dictionary["variables"] = ToJson(request.Variables);
         }
 
+        if (request.Extensions != null)
+        {
+            dictionary["extensions"] = ToJson(request.Extensions);
+        }
+
         return new FormUrlEncodedContent(dictionary);
     }
 
@@ -46,10 +51,29 @@ internal static class Serializer
         => ToFormUrlEncodedContent(request).ReadAsStringAsync();
 
     private static Dictionary<string, object> ToDictionary(this GraphQLRequest request)
-        => new Dictionary<string, object>
+    {
+        var dictionary = new Dictionary<string, object>();
+
+        if (request.OperationName != null)
         {
-            { "operationName", request.OperationName },
-            { "query", request.Query },
-            { "variables", request.Variables }
-        };
+            dictionary["operationName"] = request.OperationName;
+        }
+
+        if (request.Query != null)
+        {
+            dictionary["query"] = request.Query;
+        }
+
+        if (request.Variables != null)
+        {
+            dictionary["variables"] = request.Variables;
+        }
+
+        if (request.Extensions != null)
+        {
+            dictionary["extensions"] = request.Extensions;
+        }
+
+        return dictionary;
+    }
 }

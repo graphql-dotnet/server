@@ -92,7 +92,7 @@ public class ValidationTestBase : IDisposable
             Document = document,
             Operation = document.Definitions.OfType<GraphQLOperationDefinition>().First(),
             Rules = config.Rules,
-            Variables = config.Inputs
+            Variables = config.Variables
         }).GetAwaiter().GetResult().validationResult;
     }
 

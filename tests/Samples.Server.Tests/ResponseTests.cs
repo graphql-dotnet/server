@@ -79,10 +79,9 @@ public class ResponseTests : BaseTest
     [Theory]
     [MemberData(nameof(WrongQueryData))]
     public async Task Wrong_Query_Should_Return_Error(HttpMethod httpMethod, HttpContent httpContent,
-        HttpStatusCode expectedStatusCode, string expectedErrorMsg, string code)
+        HttpStatusCode expectedStatusCode, string expected)
     {
         var response = await SendRequestAsync(httpMethod, httpContent);
-        string expected = expectedErrorMsg == null ? null : @"{""errors"":[{""message"":""" + expectedErrorMsg + @""",""extensions"":{""code"":""" + code + @""",""codes"":[""" + code + @"""]}}]}";
 
         response.StatusCode.ShouldBe(expectedStatusCode);
 
@@ -102,7 +101,6 @@ public class ResponseTests : BaseTest
             new StringContent(Serializer.ToJson(new GraphQLRequest { Query = "query { __schema { queryType { name } } }" }), Encoding.UTF8, "application/json"),
             HttpStatusCode.NotFound,
             null,
-            null,
         },
 
         // POST with unsupported mime type should be a unsupported media type
@@ -111,8 +109,7 @@ public class ResponseTests : BaseTest
             HttpMethod.Post,
             new StringContent(Serializer.ToJson(new GraphQLRequest { Query = "query { __schema { queryType { name } } }" }), Encoding.UTF8, "something/unknown"),
             HttpStatusCode.UnsupportedMediaType,
-            @"Invalid 'Content-Type' header: non-supported media type 'something/unknown; charset=utf-8'. Must be 'application/json', 'application/graphql' or a form body.",
-            "INVALID_CONTENT_TYPE",
+            @"{""errors"":[{""message"":""Invalid 'Content-Type' header: non-supported media type 'something/unknown; charset=utf-8'. Must be 'application/json', 'application/graphql' or a form body."",""extensions"":{""code"":""INVALID_CONTENT_TYPE"",""codes"":[""INVALID_CONTENT_TYPE""]}}]}"
         },
 
         // MediaTypeHeaderValue ctor throws exception
@@ -122,7 +119,7 @@ public class ResponseTests : BaseTest
         //    HttpMethod.Post,
         //    new StringContent(Serializer.ToJson(new GraphQLRequest { Query = "query { __schema { queryType { name } } }" }), Encoding.UTF8, "application/json; charset=utf-3"),
         //    HttpStatusCode.UnsupportedMediaType,
-        //    "Invalid 'Content-Type' header: non-supported media type 'application/json; charset=utf-3'. Must be of 'application/json', 'application/graphql' or 'application/x-www-form-urlencoded'. See: http://graphql.org/learn/serving-over-http/."
+        //    @"{""errors"":[{""message"":""Invalid 'Content-Type' header: non-supported media type 'application/json; charset=utf-3'. Must be 'application/json', 'application/graphql' or a form body."",""extensions"":{""code"":""INVALID_CONTENT_TYPE"",""codes"":[""INVALID_CONTENT_TYPE""]}}]}"
         //},
 
         // POST with JSON mime type that doesn't start with an object or array token should be a bad request
@@ -131,8 +128,7 @@ public class ResponseTests : BaseTest
             HttpMethod.Post,
             new StringContent("Oops", Encoding.UTF8, "application/json"),
             HttpStatusCode.BadRequest,
-            "JSON body text could not be parsed. 'O' is an invalid start of a value. Path: $ | LineNumber: 0 | BytePositionInLine: 0.",
-            "JSON_INVALID",
+            @"{""errors"":[{""message"":""JSON body text could not be parsed. 'O' is an invalid start of a value. Path: $ | LineNumber: 0 | BytePositionInLine: 0."",""extensions"":{""code"":""JSON_INVALID"",""codes"":[""JSON_INVALID""]}}]}"
         },
 
         // POST with JSON mime type that is invalid JSON should be a bad request
@@ -141,8 +137,7 @@ public class ResponseTests : BaseTest
             HttpMethod.Post,
             new StringContent("{oops}", Encoding.UTF8, "application/json"),
             HttpStatusCode.BadRequest,
-            "JSON body text could not be parsed. 'o' is an invalid start of a property name. Expected a '\"'. Path: $ | LineNumber: 0 | BytePositionInLine: 1.",
-            "JSON_INVALID",
+            @"{""errors"":[{""message"":""JSON body text could not be parsed. 'o' is an invalid start of a property name. Expected a '""'. Path: $ | LineNumber: 0 | BytePositionInLine: 1."",""extensions"":{""code"":""JSON_INVALID"",""codes"":[""JSON_INVALID""]}}]}"
         },
 
         // POST with JSON mime type that is null JSON should be a bad request
@@ -151,8 +146,7 @@ public class ResponseTests : BaseTest
             HttpMethod.Post,
             new StringContent("null", Encoding.UTF8, "application/json"),
             HttpStatusCode.BadRequest,
-            "GraphQL query is missing.",
-            "QUERY_MISSING",
+            @"{""errors"":[{""message"":""GraphQL query is missing."",""extensions"":{""code"":""QUERY_MISSING"",""codes"":[""QUERY_MISSING""]}}]}"
         },
 
         // GET with an empty QueryString should be a bad request
@@ -161,8 +155,34 @@ public class ResponseTests : BaseTest
             HttpMethod.Get,
             null,
             HttpStatusCode.BadRequest,
-            "GraphQL query is missing.",
-            "QUERY_MISSING",
+            @"{""errors"":[{""message"":""GraphQL query is missing."",""extensions"":{""code"":""QUERY_MISSING"",""codes"":[""QUERY_MISSING""]}}]}"
+        },
+
+        // POST with a GraphQL parsing error should be a bad request
+        new object[]
+        {
+            HttpMethod.Post,
+            new StringContent(@"{""query"":""parseError""}", Encoding.UTF8, "application/json"),
+            HttpStatusCode.BadRequest,
+            @"{""errors"":[{""message"":""Error parsing query: Expected \u0022query/mutation/subscription/fragment/schema/scalar/type/interface/union/enum/input/extend/directive\u0022, found Name \u0022parseError\u0022"",""locations"":[{""line"":1,""column"":1}],""extensions"":{""code"":""SYNTAX_ERROR"",""codes"":[""SYNTAX_ERROR""]}}]}"
+        },
+
+        // POST with no operation should be a bad request
+        new object[]
+        {
+            HttpMethod.Post,
+            new StringContent(@"{""query"":""fragment frag on Query { hello }""}", Encoding.UTF8, "application/json"),
+            HttpStatusCode.BadRequest,
+            @"{""errors"":[{""message"":""Document does not contain any operations."",""extensions"":{""code"":""NO_OPERATION"",""codes"":[""NO_OPERATION""]}}]}"
+        },
+
+        // POST with validation error should be a bad request
+        new object[]
+        {
+            HttpMethod.Post,
+            new StringContent(@"{""query"":""{ dummy }""}", Encoding.UTF8, "application/json"),
+            HttpStatusCode.BadRequest,
+            @"{""errors"":[{""message"":""Cannot query field \u0027dummy\u0027 on type \u0027ChatQuery\u0027."",""locations"":[{""line"":1,""column"":3}],""extensions"":{""code"":""FIELDS_ON_CORRECT_TYPE"",""codes"":[""FIELDS_ON_CORRECT_TYPE""],""number"":""5.3.1""}}]}"
         },
     };
 
