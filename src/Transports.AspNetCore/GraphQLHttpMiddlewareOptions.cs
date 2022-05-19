@@ -19,6 +19,13 @@ public class GraphQLHttpMiddlewareOptions
 
     /// <summary>
     /// Enables handling of POST requests, including form submissions, JSON-formatted requests and raw query requests.
+    /// <para>Supported media types are:</para>
+    /// <list type="bullet">
+    /// <item>application/x-www-form-urlencoded</item>
+    /// <item>multipart/form-data</item>
+    /// <item>application/json</item>
+    /// <item>application/graphql</item>
+    /// </list>
     /// </summary>
     public bool HandlePost { get; set; } = true;
 
