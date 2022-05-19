@@ -8,7 +8,8 @@ using Microsoft.AspNetCore.Http;
 namespace GraphQL.Server.Transports.AspNetCore;
 
 /// <summary>
-/// Authorization parameters
+/// Authorization parameters. This struct is used to group all necessary parameters together and perform arbitrary
+/// actions based on provided authentication properties/attributes/etc. It is not intended to be called from user code.
 /// </summary>
 public struct AuthorizationParameters<TState>
 {
