@@ -14,7 +14,7 @@ public static class AuthorizationHelper
 {
     /// <summary>
     /// Performs connection authorization according to the options set within
-    /// <see cref="AuthorizationParameters{T}"/>.  Returns <see langword="true"/>
+    /// <see cref="AuthorizationParameters{TState}"/>.  Returns <see langword="true"/>
     /// if authorization was successful or not required.
     /// </summary>
     public static async ValueTask<bool> AuthorizeAsync<TState>(AuthorizationParameters<TState> options, TState state)
