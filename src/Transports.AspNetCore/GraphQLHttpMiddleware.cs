@@ -632,7 +632,8 @@ public abstract class GraphQLHttpMiddleware
     {
         var result = new ExecutionResult
         {
-            Errors = new ExecutionErrors {
+            Errors = new ExecutionErrors
+            {
                 executionError
             },
         };
