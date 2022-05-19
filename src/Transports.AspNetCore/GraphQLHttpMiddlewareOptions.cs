@@ -42,7 +42,7 @@ public class GraphQLHttpMiddlewareOptions
     /// <summary>
     /// Enables parallel execution of batched GraphQL requests.
     /// </summary>
-    public bool BatchedRequestsExecuteInParallel { get; set; } = true;
+    public bool ExecuteBatchedRequestsInParallel { get; set; } = true;
 
     /// <summary>
     /// When enabled, GraphQL requests with validation errors

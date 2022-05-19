@@ -415,7 +415,7 @@ public abstract class GraphQLHttpMiddleware
         else
         {
             // Batched execution with multiple graphql requests
-            if (!Options.BatchedRequestsExecuteInParallel)
+            if (!Options.ExecuteBatchedRequestsInParallel)
             {
                 for (int i = 0; i < gqlRequests.Count; i++)
                 {

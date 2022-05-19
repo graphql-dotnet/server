@@ -10,7 +10,7 @@ namespace GraphQL.Server.Transports.AspNetCore;
 /// <summary>
 /// Authorization parameters
 /// </summary>
-public struct AuthorizationParameters<T>
+public struct AuthorizationParameters<TState>
 {
     /// <summary>
     /// Initializes an instance with a specified <see cref="Microsoft.AspNetCore.Http.HttpContext"/>
@@ -19,9 +19,9 @@ public struct AuthorizationParameters<T>
     public AuthorizationParameters(
         HttpContext httpContext,
         GraphQLHttpMiddlewareOptions middlewareOptions,
-        Func<T, Task>? onNotAuthenticated,
-        Func<T, Task>? onNotAuthorizedRole,
-        Func<T, AuthorizationResult, Task>? onNotAuthorizedPolicy)
+        Func<TState, Task>? onNotAuthenticated,
+        Func<TState, Task>? onNotAuthorizedRole,
+        Func<TState, AuthorizationResult, Task>? onNotAuthorizedPolicy)
     {
         HttpContext = httpContext;
         AuthorizationRequired = middlewareOptions.AuthorizationRequired;
@@ -50,19 +50,19 @@ public struct AuthorizationParameters<T>
     /// A delegate which executes if <see cref="AuthorizationRequired"/> is set
     /// but <see cref="IIdentity.IsAuthenticated"/> returns <see langword="false"/>.
     /// </summary>
-    public Func<T, Task>? OnNotAuthenticated { get; set; }
+    public Func<TState, Task>? OnNotAuthenticated { get; set; }
 
     /// <summary>
     /// A delegate which executes if <see cref="AuthorizedRoles"/> is set but
     /// <see cref="ClaimsPrincipal.IsInRole(string)"/> returns <see langword="false"/>
     /// for all roles.
     /// </summary>
-    public Func<T, Task>? OnNotAuthorizedRole { get; set; }
+    public Func<TState, Task>? OnNotAuthorizedRole { get; set; }
 
     /// <summary>
     /// A delegate which executes if <see cref="AuthorizedPolicy"/> is set but
     /// <see cref="IAuthorizationService.AuthorizeAsync(ClaimsPrincipal, object, string)"/>
     /// returns an unsuccessful <see cref="AuthorizationResult"/> for the specified policy.
     /// </summary>
-    public Func<T, AuthorizationResult, Task>? OnNotAuthorizedPolicy { get; set; }
+    public Func<TState, AuthorizationResult, Task>? OnNotAuthorizedPolicy { get; set; }
 }
