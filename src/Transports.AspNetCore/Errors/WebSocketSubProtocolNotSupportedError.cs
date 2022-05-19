@@ -11,7 +11,7 @@ public class WebSocketSubProtocolNotSupportedError : RequestError
 {
     /// <inheritdoc cref="WebSocketSubProtocolNotSupportedError"/>
     public WebSocketSubProtocolNotSupportedError(IEnumerable<string> requestedSubProtocols)
-        : base($"Invalid WebSocket sub-protocol(s): {string.Join(",", requestedSubProtocols.Select(x => $"'{x}'"))}")
+        : base($"Invalid requested WebSocket sub-protocol(s): {string.Join(",", requestedSubProtocols.Select(x => $"'{x}'"))}")
     {
     }
 }
