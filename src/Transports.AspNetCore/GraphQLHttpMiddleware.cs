@@ -677,7 +677,7 @@ public abstract class GraphQLHttpMiddleware
 #if NET5_0_OR_GREATER
     private static bool TryGetEncoding(string? charset, out System.Text.Encoding? encoding)
     {
-        encoding = null!;
+        encoding = null;
 
         if (string.IsNullOrEmpty(charset))
             return true;
