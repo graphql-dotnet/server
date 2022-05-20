@@ -113,7 +113,7 @@ public class GraphQLHttpMiddleware<TSchema> : GraphQLHttpMiddleware
     ******************************/
 
     /// <inheritdoc/>
-    protected override async Task<ExecutionResult> ExecuteScopedRequestAsync(HttpContext context, GraphQLRequest request, IDictionary<string, object?> userContext)
+    protected override async Task<ExecutionResult> ExecuteScopedRequestAsync(HttpContext context, GraphQLRequest? request, IDictionary<string, object?> userContext)
     {
         using var scope = _serviceScopeFactory.CreateScope();
         try
@@ -446,7 +446,7 @@ public abstract class GraphQLHttpMiddleware
     /// <see cref="ExecuteRequestAsync(HttpContext, GraphQLRequest, IServiceProvider, IDictionary{string, object?})">ExecuteRequestAsync</see>,
     /// disposing of the scope when the asynchronous operation completes.
     /// </summary>
-    protected abstract Task<ExecutionResult> ExecuteScopedRequestAsync(HttpContext context, GraphQLRequest request, IDictionary<string, object?> userContext);
+    protected abstract Task<ExecutionResult> ExecuteScopedRequestAsync(HttpContext context, GraphQLRequest? request, IDictionary<string, object?> userContext);
 
     /// <summary>
     /// Executes a GraphQL request.
