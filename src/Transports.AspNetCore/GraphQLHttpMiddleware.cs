@@ -653,7 +653,7 @@ public abstract class GraphQLHttpMiddleware
 
     private GraphQLRequest DeserializeFromFormBody(IFormCollection formCollection) => new()
     {
-        Query = formCollection.TryGetValue(QUERY_KEY, out var queryValues) ? queryValues[0] : null!,
+        Query = formCollection.TryGetValue(QUERY_KEY, out var queryValues) ? queryValues[0] : null,
         Variables = formCollection.TryGetValue(VARIABLES_KEY, out var variablesValues) ? _serializer.Deserialize<Inputs>(variablesValues[0]) : null,
         Extensions = formCollection.TryGetValue(EXTENSIONS_KEY, out var extensionsValues) ? _serializer.Deserialize<Inputs>(extensionsValues[0]) : null,
         OperationName = formCollection.TryGetValue(OPERATION_NAME_KEY, out var operationNameValues) ? operationNameValues[0] : null,
