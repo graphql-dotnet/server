@@ -593,7 +593,7 @@ public abstract class GraphQLHttpMiddleware
         => WriteErrorResponseAsync(context, HttpStatusCode.BadRequest, new BatchedRequestsNotSupportedError());
 
     /// <summary>
-    /// Writes a '400 Invalid WebSocket sub-protocol.' message to the output.
+    /// Writes a '400 Invalid requested WebSocket sub-protocol(s).' message to the output.
     /// </summary>
     protected virtual Task HandleWebSocketSubProtocolNotSupportedAsync(HttpContext context, RequestDelegate next)
         => WriteErrorResponseAsync(context, HttpStatusCode.BadRequest, new WebSocketSubProtocolNotSupportedError(context.WebSockets.WebSocketRequestedProtocols));
