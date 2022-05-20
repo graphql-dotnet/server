@@ -670,7 +670,7 @@ public abstract class GraphQLHttpMiddleware
         // read query text
         string query = await streamReader.ReadToEndAsync();
 
-        // return request
+        // return request; application/graphql MediaType supports only query text
         return new GraphQLRequest { Query = query };
     }
 
