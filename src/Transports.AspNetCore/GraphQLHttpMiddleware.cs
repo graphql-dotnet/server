@@ -417,14 +417,7 @@ public abstract class GraphQLHttpMiddleware
         else
         {
             // Batched execution with multiple graphql requests
-            if (!Options.ExecuteBatchedRequestsInParallel)
-            {
-                for (int i = 0; i < gqlRequests.Count; i++)
-                {
-                    results[i] = await ExecuteRequestAsync(context, gqlRequests[i], context.RequestServices, userContext);
-                }
-            }
-            else
+            if (Options.ExecuteBatchedRequestsInParallel)
             {
                 var resultTasks = new Task<ExecutionResult>[gqlRequests.Count];
                 for (int i = 0; i < gqlRequests.Count; i++)
@@ -435,6 +428,13 @@ public abstract class GraphQLHttpMiddleware
                 for (int i = 0; i < gqlRequests.Count; i++)
                 {
                     results[i] = await resultTasks[i];
+                }
+            }
+            else
+            {
+                for (int i = 0; i < gqlRequests.Count; i++)
+                {
+                    results[i] = await ExecuteRequestAsync(context, gqlRequests[i], context.RequestServices, userContext);
                 }
             }
         }
