@@ -645,7 +645,7 @@ public abstract class GraphQLHttpMiddleware
 
     private GraphQLRequest DeserializeFromQueryString(IQueryCollection queryCollection) => new()
     {
-        Query = queryCollection.TryGetValue(QUERY_KEY, out var queryValues) ? queryValues[0] : null!,
+        Query = queryCollection.TryGetValue(QUERY_KEY, out var queryValues) ? queryValues[0] : null,
         Variables = Options.ReadVariablesFromQueryString && queryCollection.TryGetValue(VARIABLES_KEY, out var variablesValues) ? _serializer.Deserialize<Inputs>(variablesValues[0]) : null,
         Extensions = Options.ReadExtensionsFromQueryString && queryCollection.TryGetValue(EXTENSIONS_KEY, out var extensionsValues) ? _serializer.Deserialize<Inputs>(extensionsValues[0]) : null,
         OperationName = queryCollection.TryGetValue(OPERATION_NAME_KEY, out var operationNameValues) ? operationNameValues[0] : null,
