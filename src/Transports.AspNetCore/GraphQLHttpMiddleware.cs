@@ -495,7 +495,7 @@ public abstract class GraphQLHttpMiddleware
     }
 
     /// <summary>
-    /// Writes the specified object (usually a GraphQL response) as JSON to the HTTP response stream.
+    /// Writes the specified object (usually a GraphQL response represented as an instance of <see cref="ExecutionResult"/>) as JSON to the HTTP response stream.
     /// </summary>
     protected virtual Task WriteJsonResponseAsync<TResult>(HttpContext context, HttpStatusCode httpStatusCode, TResult result)
     {
