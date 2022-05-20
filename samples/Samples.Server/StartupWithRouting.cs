@@ -35,7 +35,6 @@ public class StartupWithRouting
 
         services.AddGraphQL(builder => builder
             .AddApolloTracing()
-            .AddHttpMiddleware<ChatSchema, GraphQLHttpMiddlewareWithLogs<ChatSchema>>()
             .AddWebSocketsHttpMiddleware<ChatSchema>()
             .AddSchema<ChatSchema>()
             .ConfigureExecutionOptions(options =>
@@ -69,7 +68,7 @@ public class StartupWithRouting
         app.UseEndpoints(endpoints =>
         {
             endpoints.MapGraphQLWebSockets<ChatSchema>();
-            endpoints.MapGraphQL<ChatSchema, GraphQLHttpMiddlewareWithLogs<ChatSchema>>();
+            endpoints.MapGraphQL<GraphQLHttpMiddlewareWithLogs<ChatSchema>>();
 
             endpoints.MapGraphQLPlayground(new PlaygroundOptions
             {

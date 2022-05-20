@@ -1,16 +1,17 @@
+#nullable enable
+
 using Microsoft.AspNetCore.Http;
 
 namespace GraphQL.Server.Transports.AspNetCore;
 
 /// <summary>
-/// Interface which is responsible of building a UserContext for a GraphQL request
+/// Creates a user context from a <see cref="HttpContext"/>.
+/// <br/><br/>
+/// The generated user context may be used for one or more GraphQL requests or
+/// subscriptions over the same HTTP connection.
 /// </summary>
 public interface IUserContextBuilder
 {
-    /// <summary>
-    /// Builds the UserContext using the specified <see cref="HttpContext"/>
-    /// </summary>
-    /// <param name="httpContext">The <see cref="HttpContext"/> for the current request</param>
-    /// <returns>Returns the UserContext</returns>
-    Task<IDictionary<string, object>> BuildUserContext(HttpContext httpContext);
+    /// <inheritdoc cref="IUserContextBuilder"/>
+    ValueTask<IDictionary<string, object?>> BuildUserContextAsync(HttpContext context);
 }

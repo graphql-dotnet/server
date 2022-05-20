@@ -1,3 +1,5 @@
+#nullable enable
+
 using GraphQL.DI;
 using GraphQL.Server.Transports.AspNetCore;
 using Microsoft.AspNetCore.Http;
@@ -22,9 +24,10 @@ public static class GraphQLBuilderUserContextExtensions
         {
             if (options.UserContext == null || options.UserContext.Count == 0 && options.UserContext.GetType() == typeof(Dictionary<string, object>))
             {
-                var httpContext = options.RequestServices.GetRequiredService<IHttpContextAccessor>().HttpContext;
-                var contextBuilder = options.RequestServices.GetRequiredService<IUserContextBuilder>();
-                options.UserContext = await contextBuilder.BuildUserContext(httpContext);
+                var requestServices = options.RequestServices ?? throw new MissingRequestServicesException();
+                var httpContext = requestServices.GetRequiredService<IHttpContextAccessor>().HttpContext!;
+                var contextBuilder = requestServices.GetRequiredService<IUserContextBuilder>();
+                options.UserContext = await contextBuilder.BuildUserContextAsync(httpContext);
             }
         });
 
@@ -39,14 +42,15 @@ public static class GraphQLBuilderUserContextExtensions
     /// <param name="creator">A delegate used to create the user context from the <see cref="HttpContext"/>.</param>
     /// <returns>The GraphQL builder.</returns>
     public static IGraphQLBuilder AddUserContextBuilder<TUserContext>(this IGraphQLBuilder builder, Func<HttpContext, TUserContext> creator)
-        where TUserContext : class, IDictionary<string, object>
+        where TUserContext : class, IDictionary<string, object?>
     {
         builder.Services.Register<IUserContextBuilder>(new UserContextBuilder<TUserContext>(creator));
         builder.ConfigureExecutionOptions(options =>
         {
             if (options.UserContext == null || options.UserContext.Count == 0 && options.UserContext.GetType() == typeof(Dictionary<string, object>))
             {
-                var httpContext = options.RequestServices.GetRequiredService<IHttpContextAccessor>().HttpContext;
+                var requestServices = options.RequestServices ?? throw new MissingRequestServicesException();
+                var httpContext = requestServices.GetRequiredService<IHttpContextAccessor>().HttpContext!;
                 options.UserContext = creator(httpContext);
             }
         });
@@ -62,14 +66,15 @@ public static class GraphQLBuilderUserContextExtensions
     /// <param name="creator">A delegate used to create the user context from the <see cref="HttpContext"/>.</param>
     /// <returns>The GraphQL builder.</returns>
     public static IGraphQLBuilder AddUserContextBuilder<TUserContext>(this IGraphQLBuilder builder, Func<HttpContext, Task<TUserContext>> creator)
-        where TUserContext : class, IDictionary<string, object>
+        where TUserContext : class, IDictionary<string, object?>
     {
-        builder.Services.Register<IUserContextBuilder>(new UserContextBuilder<TUserContext>(creator));
+        builder.Services.Register<IUserContextBuilder>(new UserContextBuilder<TUserContext>(context => new(creator(context))));
         builder.ConfigureExecutionOptions(async options =>
         {
             if (options.UserContext == null || options.UserContext.Count == 0 && options.UserContext.GetType() == typeof(Dictionary<string, object>))
             {
-                var httpContext = options.RequestServices.GetRequiredService<IHttpContextAccessor>().HttpContext;
+                var requestServices = options.RequestServices ?? throw new MissingRequestServicesException();
+                var httpContext = requestServices.GetRequiredService<IHttpContextAccessor>().HttpContext!;
                 options.UserContext = await creator(httpContext);
             }
         });

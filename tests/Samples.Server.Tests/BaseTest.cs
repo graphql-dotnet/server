@@ -1,7 +1,6 @@
 using System.Text;
 using GraphQL.Samples.Server;
 using GraphQL.Server;
-using GraphQL.Server.Transports.AspNetCore;
 using GraphQL.Transport;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Hosting;
@@ -85,7 +84,7 @@ public abstract class BaseTest : IDisposable
             case RequestType.PostWithJson:
                 // Details passed in body content as JSON, with url query string params also allowed
                 string json = Serializer.ToJson(request);
-                var jsonContent = new StringContent(json, Encoding.UTF8, MediaType.JSON);
+                var jsonContent = new StringContent(json, Encoding.UTF8, "application/json");
                 response = await Client.PostAsync(url, jsonContent);
                 break;
 
@@ -98,7 +97,7 @@ public abstract class BaseTest : IDisposable
                     OperationName = queryStringOverride?.OperationName ?? request.OperationName,
                     Variables = queryStringOverride?.Variables ?? request.Variables
                 });
-                var graphContent = new StringContent(request.Query, Encoding.UTF8, MediaType.GRAPH_QL);
+                var graphContent = new StringContent(request.Query, Encoding.UTF8, "application/graphql");
                 response = await Client.PostAsync(urlWithParams, graphContent);
                 break;
 

@@ -68,6 +68,14 @@ public class ResponseTests : BaseTest
         response.ShouldBeEquivalentJson(@"[{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}}]", ignoreExtensions: true);
     }
 
+    [Fact]
+    public async Task Mutation_For_Get_Fails()
+    {
+        var response = await SendRequestAsync(new GraphQLRequest { Query = "mutation { __typename }" }, RequestType.Get);
+
+        response.ShouldBe(@"{""errors"":[{""message"":""Only query operations allowed for GET requests."",""locations"":[{""line"":1,""column"":1}],""extensions"":{""code"":""HTTP_METHOD_VALIDATION"",""codes"":[""HTTP_METHOD_VALIDATION""]}}]}");
+    }
+
     [Theory]
     [MemberData(nameof(WrongQueryData))]
     public async Task Wrong_Query_Should_Return_Error(HttpMethod httpMethod, HttpContent httpContent,
@@ -78,7 +86,10 @@ public class ResponseTests : BaseTest
         response.StatusCode.ShouldBe(expectedStatusCode);
 
         string content = await response.Content.ReadAsStringAsync();
-        content.ShouldBeEquivalentJson(expected);
+        if (expected == null)
+            content.ShouldBe("");
+        else
+            content.ShouldBeEquivalentJson(expected);
     }
 
     public static IEnumerable<object[]> WrongQueryData => new object[][]
@@ -88,8 +99,8 @@ public class ResponseTests : BaseTest
         {
             HttpMethod.Put,
             new StringContent(Serializer.ToJson(new GraphQLRequest { Query = "query { __schema { queryType { name } } }" }), Encoding.UTF8, "application/json"),
-            HttpStatusCode.MethodNotAllowed,
-            @"{""errors"":[{""message"":""Invalid HTTP method. Only GET and POST are supported. See: http://graphql.org/learn/serving-over-http/.""}]}",
+            HttpStatusCode.NotFound,
+            null,
         },
 
         // POST with unsupported mime type should be a unsupported media type
@@ -98,7 +109,7 @@ public class ResponseTests : BaseTest
             HttpMethod.Post,
             new StringContent(Serializer.ToJson(new GraphQLRequest { Query = "query { __schema { queryType { name } } }" }), Encoding.UTF8, "something/unknown"),
             HttpStatusCode.UnsupportedMediaType,
-            @"{""errors"":[{""message"":""Invalid 'Content-Type' header: non-supported media type 'something/unknown; charset=utf-8'. Must be of 'application/json', 'application/graphql' or 'application/x-www-form-urlencoded'. See: http://graphql.org/learn/serving-over-http/.""}]}"
+            @"{""errors"":[{""message"":""Invalid 'Content-Type' header: non-supported media type 'something/unknown; charset=utf-8'. Must be 'application/json', 'application/graphql' or a form body."",""extensions"":{""code"":""INVALID_CONTENT_TYPE"",""codes"":[""INVALID_CONTENT_TYPE""]}}]}"
         },
 
         // MediaTypeHeaderValue ctor throws exception
@@ -108,7 +119,7 @@ public class ResponseTests : BaseTest
         //    HttpMethod.Post,
         //    new StringContent(Serializer.ToJson(new GraphQLRequest { Query = "query { __schema { queryType { name } } }" }), Encoding.UTF8, "application/json; charset=utf-3"),
         //    HttpStatusCode.UnsupportedMediaType,
-        //    "Invalid 'Content-Type' header: non-supported media type 'application/json; charset=utf-3'. Must be of 'application/json', 'application/graphql' or 'application/x-www-form-urlencoded'. See: http://graphql.org/learn/serving-over-http/."
+        //    @"{""errors"":[{""message"":""Invalid 'Content-Type' header: non-supported media type 'application/json; charset=utf-3'. Must be 'application/json', 'application/graphql' or a form body."",""extensions"":{""code"":""INVALID_CONTENT_TYPE"",""codes"":[""INVALID_CONTENT_TYPE""]}}]}"
         //},
 
         // POST with JSON mime type that doesn't start with an object or array token should be a bad request
@@ -117,7 +128,7 @@ public class ResponseTests : BaseTest
             HttpMethod.Post,
             new StringContent("Oops", Encoding.UTF8, "application/json"),
             HttpStatusCode.BadRequest,
-            @"{""errors"":[{""message"":""JSON body text could not be parsed. 'O' is an invalid start of a value. Path: $ | LineNumber: 0 | BytePositionInLine: 0.""}]}"
+            @"{""errors"":[{""message"":""JSON body text could not be parsed. 'O' is an invalid start of a value. Path: $ | LineNumber: 0 | BytePositionInLine: 0."",""extensions"":{""code"":""JSON_INVALID"",""codes"":[""JSON_INVALID""]}}]}"
         },
 
         // POST with JSON mime type that is invalid JSON should be a bad request
@@ -126,7 +137,7 @@ public class ResponseTests : BaseTest
             HttpMethod.Post,
             new StringContent("{oops}", Encoding.UTF8, "application/json"),
             HttpStatusCode.BadRequest,
-            @"{""errors"":[{""message"":""JSON body text could not be parsed. 'o' is an invalid start of a property name. Expected a '""'. Path: $ | LineNumber: 0 | BytePositionInLine: 1.""}]}"
+            @"{""errors"":[{""message"":""JSON body text could not be parsed. 'o' is an invalid start of a property name. Expected a '""'. Path: $ | LineNumber: 0 | BytePositionInLine: 1."",""extensions"":{""code"":""JSON_INVALID"",""codes"":[""JSON_INVALID""]}}]}"
         },
 
         // POST with JSON mime type that is null JSON should be a bad request
@@ -176,7 +187,6 @@ public class ResponseTests : BaseTest
     };
 
     [Theory]
-    [InlineData(RequestType.Get)]
     [InlineData(RequestType.PostWithJson)]
     [InlineData(RequestType.PostWithGraph)]
     [InlineData(RequestType.PostWithForm)]
@@ -193,7 +203,6 @@ public class ResponseTests : BaseTest
     }
 
     [Theory]
-    [InlineData(RequestType.Get)]
     [InlineData(RequestType.PostWithJson)]
     [InlineData(RequestType.PostWithGraph)]
     [InlineData(RequestType.PostWithForm)]
@@ -211,7 +220,6 @@ public class ResponseTests : BaseTest
     }
 
     [Theory]
-    [InlineData(RequestType.Get)]
     [InlineData(RequestType.PostWithJson)]
     [InlineData(RequestType.PostWithGraph)]
     [InlineData(RequestType.PostWithForm)]

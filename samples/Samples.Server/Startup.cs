@@ -4,6 +4,7 @@ using GraphQL.MicrosoftDI;
 using GraphQL.Samples.Schemas.Chat;
 using GraphQL.Server;
 using GraphQL.Server.Authorization.AspNetCore;
+using GraphQL.Server.Transports.AspNetCore;
 using GraphQL.Server.Ui.Altair;
 using GraphQL.Server.Ui.GraphiQL;
 using GraphQL.Server.Ui.Playground;
@@ -34,7 +35,6 @@ public class Startup
 
         services.AddGraphQL(builder => builder
             .AddApolloTracing()
-            .AddHttpMiddleware<ChatSchema, GraphQLHttpMiddlewareWithLogs<ChatSchema>>()
             .AddWebSocketsHttpMiddleware<ChatSchema>()
             .AddSchema<ChatSchema>()
             .ConfigureExecutionOptions(options =>
@@ -63,7 +63,7 @@ public class Startup
         app.UseWebSockets();
 
         app.UseGraphQLWebSockets<ChatSchema>();
-        app.UseGraphQL<ChatSchema, GraphQLHttpMiddlewareWithLogs<ChatSchema>>();
+        app.UseGraphQL<GraphQLHttpMiddlewareWithLogs<ChatSchema>>("/graphql", new GraphQLHttpMiddlewareOptions());
 
         app.UseGraphQLPlayground(new PlaygroundOptions
         {

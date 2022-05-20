@@ -1,95 +1,160 @@
 namespace GraphQL.Server
 {
-    public static class GraphQLBuilderMiddlewareExtensions
-    {
-        public static GraphQL.DI.IGraphQLBuilder AddHttpMiddleware<TSchema>(this GraphQL.DI.IGraphQLBuilder builder)
-            where TSchema : GraphQL.Types.ISchema { }
-        public static GraphQL.DI.IGraphQLBuilder AddHttpMiddleware<TSchema, TMiddleware>(this GraphQL.DI.IGraphQLBuilder builder)
-            where TSchema : GraphQL.Types.ISchema
-            where TMiddleware : GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddleware<TSchema> { }
-    }
     public static class GraphQLBuilderUserContextExtensions
     {
         public static GraphQL.DI.IGraphQLBuilder AddDefaultEndpointSelectorPolicy(this GraphQL.DI.IGraphQLBuilder builder) { }
         public static GraphQL.DI.IGraphQLBuilder AddUserContextBuilder<TUserContextBuilder>(this GraphQL.DI.IGraphQLBuilder builder)
             where TUserContextBuilder :  class, GraphQL.Server.Transports.AspNetCore.IUserContextBuilder { }
         public static GraphQL.DI.IGraphQLBuilder AddUserContextBuilder<TUserContext>(this GraphQL.DI.IGraphQLBuilder builder, System.Func<Microsoft.AspNetCore.Http.HttpContext, System.Threading.Tasks.Task<TUserContext>> creator)
-            where TUserContext :  class, System.Collections.Generic.IDictionary<string, object> { }
+            where TUserContext :  class, System.Collections.Generic.IDictionary<string, object?> { }
         public static GraphQL.DI.IGraphQLBuilder AddUserContextBuilder<TUserContext>(this GraphQL.DI.IGraphQLBuilder builder, System.Func<Microsoft.AspNetCore.Http.HttpContext, TUserContext> creator)
-            where TUserContext :  class, System.Collections.Generic.IDictionary<string, object> { }
+            where TUserContext :  class, System.Collections.Generic.IDictionary<string, object?> { }
     }
 }
 namespace GraphQL.Server.Transports.AspNetCore
 {
-    public class GraphQLHttpMiddleware<TSchema> : Microsoft.AspNetCore.Http.IMiddleware
+    public static class AuthorizationHelper
+    {
+        public static System.Threading.Tasks.ValueTask<bool> AuthorizeAsync<TState>(GraphQL.Server.Transports.AspNetCore.AuthorizationParameters<TState> options, TState state) { }
+    }
+    public readonly struct AuthorizationParameters<TState>
+    {
+        public AuthorizationParameters(Microsoft.AspNetCore.Http.HttpContext httpContext, GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions middlewareOptions, System.Func<TState, System.Threading.Tasks.Task>? onNotAuthenticated, System.Func<TState, System.Threading.Tasks.Task>? onNotAuthorizedRole, System.Func<TState, Microsoft.AspNetCore.Authorization.AuthorizationResult, System.Threading.Tasks.Task>? onNotAuthorizedPolicy) { }
+        public bool AuthorizationRequired { get; }
+        public string? AuthorizedPolicy { get; }
+        public System.Collections.Generic.List<string>? AuthorizedRoles { get; }
+        public Microsoft.AspNetCore.Http.HttpContext HttpContext { get; }
+        public System.Func<TState, System.Threading.Tasks.Task>? OnNotAuthenticated { get; }
+        public System.Func<TState, Microsoft.AspNetCore.Authorization.AuthorizationResult, System.Threading.Tasks.Task>? OnNotAuthorizedPolicy { get; }
+        public System.Func<TState, System.Threading.Tasks.Task>? OnNotAuthorizedRole { get; }
+    }
+    public abstract class GraphQLHttpMiddleware
+    {
+        public GraphQLHttpMiddleware(Microsoft.AspNetCore.Http.RequestDelegate next, GraphQL.IGraphQLTextSerializer serializer, GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions options) { }
+        protected GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions Options { get; }
+        protected virtual System.Threading.Tasks.ValueTask<System.Collections.Generic.IDictionary<string, object?>> BuildUserContextAsync(Microsoft.AspNetCore.Http.HttpContext context) { }
+        protected abstract System.Threading.Tasks.Task<GraphQL.ExecutionResult> ExecuteRequestAsync(Microsoft.AspNetCore.Http.HttpContext context, GraphQL.Transport.GraphQLRequest? request, System.IServiceProvider serviceProvider, System.Collections.Generic.IDictionary<string, object?> userContext);
+        protected abstract System.Threading.Tasks.Task<GraphQL.ExecutionResult> ExecuteScopedRequestAsync(Microsoft.AspNetCore.Http.HttpContext context, GraphQL.Transport.GraphQLRequest? request, System.Collections.Generic.IDictionary<string, object?> userContext);
+        protected virtual System.Threading.Tasks.ValueTask<bool> HandleAuthorizeAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next) { }
+        protected virtual System.Threading.Tasks.ValueTask<bool> HandleAuthorizeWebSocketConnectionAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next) { }
+        protected virtual System.Threading.Tasks.Task HandleBatchRequestAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next, System.Collections.Generic.IList<GraphQL.Transport.GraphQLRequest?> gqlRequests) { }
+        protected virtual System.Threading.Tasks.Task HandleBatchedRequestsNotSupportedAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next) { }
+        protected virtual System.Threading.Tasks.Task HandleContentTypeCouldNotBeParsedErrorAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next) { }
+        protected virtual System.Threading.Tasks.ValueTask<bool> HandleDeserializationErrorAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next, System.Exception exception) { }
+        protected virtual System.Threading.Tasks.Task HandleInvalidContentTypeErrorAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next) { }
+        protected virtual System.Threading.Tasks.Task HandleInvalidHttpMethodErrorAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next) { }
+        protected virtual System.Threading.Tasks.Task HandleNotAuthenticatedAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next) { }
+        protected virtual System.Threading.Tasks.Task HandleNotAuthorizedPolicyAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next, Microsoft.AspNetCore.Authorization.AuthorizationResult authorizationResult) { }
+        protected virtual System.Threading.Tasks.Task HandleNotAuthorizedRoleAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next) { }
+        protected virtual System.Threading.Tasks.Task HandleRequestAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next, GraphQL.Transport.GraphQLRequest gqlRequest) { }
+        protected virtual System.Threading.Tasks.Task HandleWebSocketSubProtocolNotSupportedAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next) { }
+        public virtual System.Threading.Tasks.Task InvokeAsync(Microsoft.AspNetCore.Http.HttpContext context) { }
+        protected virtual System.Threading.Tasks.Task WriteErrorResponseAsync(Microsoft.AspNetCore.Http.HttpContext context, System.Net.HttpStatusCode httpStatusCode, GraphQL.ExecutionError executionError) { }
+        protected virtual System.Threading.Tasks.Task WriteErrorResponseAsync(Microsoft.AspNetCore.Http.HttpContext context, System.Net.HttpStatusCode httpStatusCode, string errorMessage) { }
+        protected virtual System.Threading.Tasks.Task WriteJsonResponseAsync<TResult>(Microsoft.AspNetCore.Http.HttpContext context, System.Net.HttpStatusCode httpStatusCode, TResult result) { }
+    }
+    public class GraphQLHttpMiddlewareOptions
+    {
+        public GraphQLHttpMiddlewareOptions() { }
+        public bool AuthorizationRequired { get; set; }
+        public string? AuthorizedPolicy { get; set; }
+        public System.Collections.Generic.List<string> AuthorizedRoles { get; set; }
+        public bool EnableBatchedRequests { get; set; }
+        public bool ExecuteBatchedRequestsInParallel { get; set; }
+        public bool HandleGet { get; set; }
+        public bool HandlePost { get; set; }
+        public bool ReadExtensionsFromQueryString { get; set; }
+        public bool ReadQueryStringOnPost { get; set; }
+        public bool ReadVariablesFromQueryString { get; set; }
+        public bool ValidationErrorsReturnBadRequest { get; set; }
+    }
+    public class GraphQLHttpMiddleware<TSchema> : GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddleware
         where TSchema : GraphQL.Types.ISchema
     {
-        public GraphQLHttpMiddleware(GraphQL.IGraphQLTextSerializer serializer) { }
-        protected virtual System.Threading.Tasks.Task<GraphQL.ExecutionResult> ExecuteRequestAsync(GraphQL.Transport.GraphQLRequest gqlRequest, System.Collections.Generic.IDictionary<string, object> userContext, GraphQL.IDocumentExecuter<TSchema> executer, System.IServiceProvider requestServices, System.Threading.CancellationToken token) { }
-        protected virtual System.Threading.CancellationToken GetCancellationToken(Microsoft.AspNetCore.Http.HttpContext context) { }
-        protected virtual System.Threading.Tasks.Task HandleContentTypeCouldNotBeParsedErrorAsync(Microsoft.AspNetCore.Http.HttpContext context) { }
-        protected virtual System.Threading.Tasks.ValueTask<bool> HandleDeserializationErrorAsync(Microsoft.AspNetCore.Http.HttpContext context, System.Exception ex) { }
-        protected virtual System.Threading.Tasks.Task HandleInvalidContentTypeErrorAsync(Microsoft.AspNetCore.Http.HttpContext context) { }
-        protected virtual System.Threading.Tasks.Task HandleInvalidHttpMethodErrorAsync(Microsoft.AspNetCore.Http.HttpContext context) { }
-        protected virtual System.Threading.Tasks.Task HandleNoQueryErrorAsync(Microsoft.AspNetCore.Http.HttpContext context) { }
-        protected virtual System.Threading.Tasks.Task HandleRequestAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next, System.Collections.Generic.IDictionary<string, object> userContext, System.Collections.Generic.IList<GraphQL.Transport.GraphQLRequest> bodyGQLBatchRequest, GraphQL.Transport.GraphQLRequest gqlRequest, GraphQL.IDocumentExecuter<TSchema> executer, System.Threading.CancellationToken cancellationToken) { }
-        public virtual System.Threading.Tasks.Task InvokeAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next) { }
-        protected virtual System.Threading.Tasks.Task RequestExecutedAsync(in GraphQL.Server.Transports.AspNetCore.GraphQLRequestExecutionResult requestExecutionResult) { }
-        protected virtual System.Threading.Tasks.Task RequestExecutingAsync(GraphQL.Transport.GraphQLRequest request, int? indexInBatch = default) { }
-        protected virtual System.Threading.Tasks.Task WriteErrorResponseAsync(Microsoft.AspNetCore.Http.HttpContext context, string errorMessage, System.Net.HttpStatusCode httpStatusCode) { }
-        protected virtual System.Threading.Tasks.Task WriteResponseAsync<TResult>(Microsoft.AspNetCore.Http.HttpResponse httpResponse, GraphQL.IGraphQLSerializer serializer, System.Threading.CancellationToken cancellationToken, TResult result) { }
+        public GraphQLHttpMiddleware(Microsoft.AspNetCore.Http.RequestDelegate next, GraphQL.IGraphQLTextSerializer serializer, GraphQL.IDocumentExecuter<TSchema> documentExecuter, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions options) { }
+        protected override System.Threading.Tasks.Task<GraphQL.ExecutionResult> ExecuteRequestAsync(Microsoft.AspNetCore.Http.HttpContext context, GraphQL.Transport.GraphQLRequest? request, System.IServiceProvider serviceProvider, System.Collections.Generic.IDictionary<string, object?> userContext) { }
+        protected override System.Threading.Tasks.Task<GraphQL.ExecutionResult> ExecuteScopedRequestAsync(Microsoft.AspNetCore.Http.HttpContext context, GraphQL.Transport.GraphQLRequest? request, System.Collections.Generic.IDictionary<string, object?> userContext) { }
     }
-    public readonly struct GraphQLRequestExecutionResult
+    public sealed class HttpGetValidationRule : GraphQL.Validation.IValidationRule
     {
-        public GraphQLRequestExecutionResult(GraphQL.Transport.GraphQLRequest request, GraphQL.ExecutionResult result, System.TimeSpan elapsed, int? indexInBatch = default) { }
-        public System.TimeSpan Elapsed { get; }
-        public int? IndexInBatch { get; }
-        public GraphQL.Transport.GraphQLRequest Request { get; }
-        public GraphQL.ExecutionResult Result { get; }
+        public HttpGetValidationRule() { }
+        public System.Threading.Tasks.ValueTask<GraphQL.Validation.INodeVisitor?> ValidateAsync(GraphQL.Validation.ValidationContext context) { }
+    }
+    public sealed class HttpPostValidationRule : GraphQL.Validation.IValidationRule
+    {
+        public HttpPostValidationRule() { }
+        public System.Threading.Tasks.ValueTask<GraphQL.Validation.INodeVisitor?> ValidateAsync(GraphQL.Validation.ValidationContext context) { }
     }
     public interface IUserContextBuilder
     {
-        System.Threading.Tasks.Task<System.Collections.Generic.IDictionary<string, object>> BuildUserContext(Microsoft.AspNetCore.Http.HttpContext httpContext);
-    }
-    public static class MediaType
-    {
-        public const string FORM = "application/x-www-form-urlencoded";
-        public const string GRAPH_QL = "application/graphql";
-        public const string JSON = "application/json";
+        System.Threading.Tasks.ValueTask<System.Collections.Generic.IDictionary<string, object?>> BuildUserContextAsync(Microsoft.AspNetCore.Http.HttpContext context);
     }
     public class UserContextBuilder<TUserContext> : GraphQL.Server.Transports.AspNetCore.IUserContextBuilder
-        where TUserContext : System.Collections.Generic.IDictionary<string, object>
+        where TUserContext : System.Collections.Generic.IDictionary<string, object?>
     {
-        public UserContextBuilder(System.Func<Microsoft.AspNetCore.Http.HttpContext, System.Threading.Tasks.Task<TUserContext>> func) { }
+        public UserContextBuilder(System.Func<Microsoft.AspNetCore.Http.HttpContext, System.Threading.Tasks.ValueTask<TUserContext>> func) { }
         public UserContextBuilder(System.Func<Microsoft.AspNetCore.Http.HttpContext, TUserContext> func) { }
-        public System.Threading.Tasks.Task<System.Collections.Generic.IDictionary<string, object>> BuildUserContext(Microsoft.AspNetCore.Http.HttpContext httpContext) { }
+        public System.Threading.Tasks.ValueTask<System.Collections.Generic.IDictionary<string, object?>> BuildUserContextAsync(Microsoft.AspNetCore.Http.HttpContext context) { }
+    }
+}
+namespace GraphQL.Server.Transports.AspNetCore.Errors
+{
+    public class AccessDeniedError : GraphQL.Validation.ValidationError
+    {
+        public AccessDeniedError(string resource) { }
+        public AccessDeniedError(string resource, GraphQLParser.ROM originalQuery, params GraphQLParser.AST.ASTNode[] nodes) { }
+        public Microsoft.AspNetCore.Authorization.AuthorizationResult? PolicyAuthorizationResult { get; set; }
+        public string? PolicyRequired { get; set; }
+        public System.Collections.Generic.List<string>? RolesRequired { get; set; }
+    }
+    public class BatchedRequestsNotSupportedError : GraphQL.Execution.RequestError
+    {
+        public BatchedRequestsNotSupportedError() { }
+    }
+    public class HttpMethodValidationError : GraphQL.Validation.ValidationError
+    {
+        public HttpMethodValidationError(GraphQLParser.ROM originalQuery, GraphQLParser.AST.ASTNode node, string message) { }
+    }
+    public class InvalidContentTypeError : GraphQL.Execution.RequestError
+    {
+        public InvalidContentTypeError() { }
+        public InvalidContentTypeError(string message) { }
+    }
+    public class JsonInvalidError : GraphQL.Execution.RequestError
+    {
+        public JsonInvalidError() { }
+        public JsonInvalidError(System.Exception innerException) { }
+    }
+    public class WebSocketSubProtocolNotSupportedError : GraphQL.Execution.RequestError
+    {
+        public WebSocketSubProtocolNotSupportedError(System.Collections.Generic.IEnumerable<string> requestedSubProtocols) { }
     }
 }
 namespace Microsoft.AspNetCore.Builder
 {
-    public static class GraphQLHttpApplicationBuilderExtensions
-    {
-        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQL<TSchema>(this Microsoft.AspNetCore.Builder.IApplicationBuilder builder, Microsoft.AspNetCore.Http.PathString path)
-            where TSchema : GraphQL.Types.ISchema { }
-        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQL<TSchema>(this Microsoft.AspNetCore.Builder.IApplicationBuilder builder, string path = "/graphql")
-            where TSchema : GraphQL.Types.ISchema { }
-        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQL<TSchema, TMiddleware>(this Microsoft.AspNetCore.Builder.IApplicationBuilder builder, Microsoft.AspNetCore.Http.PathString path)
-            where TSchema : GraphQL.Types.ISchema
-            where TMiddleware : GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddleware<TSchema> { }
-        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQL<TSchema, TMiddleware>(this Microsoft.AspNetCore.Builder.IApplicationBuilder builder, string path = "/graphql")
-            where TSchema : GraphQL.Types.ISchema
-            where TMiddleware : GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddleware<TSchema> { }
-    }
-    public class GraphQLHttpEndpointConventionBuilder : Microsoft.AspNetCore.Builder.IEndpointConventionBuilder
+    public class GraphQLEndpointConventionBuilder : Microsoft.AspNetCore.Builder.IEndpointConventionBuilder
     {
         public void Add(System.Action<Microsoft.AspNetCore.Builder.EndpointBuilder> convention) { }
     }
+    public static class GraphQLHttpApplicationBuilderExtensions
+    {
+        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQL(this Microsoft.AspNetCore.Builder.IApplicationBuilder builder, Microsoft.AspNetCore.Http.PathString path, System.Action<GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions>? configureMiddleware = null) { }
+        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQL(this Microsoft.AspNetCore.Builder.IApplicationBuilder builder, string path = "/graphql", System.Action<GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions>? configureMiddleware = null) { }
+        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQL<TSchema>(this Microsoft.AspNetCore.Builder.IApplicationBuilder builder, Microsoft.AspNetCore.Http.PathString path, System.Action<GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions>? configureMiddleware = null)
+            where TSchema : GraphQL.Types.ISchema { }
+        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQL<TMiddleware>(this Microsoft.AspNetCore.Builder.IApplicationBuilder builder, Microsoft.AspNetCore.Http.PathString path, params object[] args)
+            where TMiddleware : GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddleware { }
+        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQL<TSchema>(this Microsoft.AspNetCore.Builder.IApplicationBuilder builder, string path = "/graphql", System.Action<GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions>? configureMiddleware = null)
+            where TSchema : GraphQL.Types.ISchema { }
+        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQL<TMiddleware>(this Microsoft.AspNetCore.Builder.IApplicationBuilder builder, string path = "/graphql", params object[] args)
+            where TMiddleware : GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddleware { }
+    }
     public static class GraphQLHttpEndpointRouteBuilderExtensions
     {
-        public static Microsoft.AspNetCore.Builder.GraphQLHttpEndpointConventionBuilder MapGraphQL<TSchema>(this Microsoft.AspNetCore.Routing.IEndpointRouteBuilder endpoints, string pattern = "graphql")
+        public static Microsoft.AspNetCore.Builder.GraphQLEndpointConventionBuilder MapGraphQL(this Microsoft.AspNetCore.Routing.IEndpointRouteBuilder endpoints, string pattern = "graphql", System.Action<GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions>? configureMiddleware = null) { }
+        public static Microsoft.AspNetCore.Builder.GraphQLEndpointConventionBuilder MapGraphQL<TSchema>(this Microsoft.AspNetCore.Routing.IEndpointRouteBuilder endpoints, string pattern = "graphql", System.Action<GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions>? configureMiddleware = null)
             where TSchema : GraphQL.Types.ISchema { }
-        public static Microsoft.AspNetCore.Builder.GraphQLHttpEndpointConventionBuilder MapGraphQL<TSchema, TMiddleware>(this Microsoft.AspNetCore.Routing.IEndpointRouteBuilder endpoints, string pattern = "graphql")
-            where TSchema : GraphQL.Types.ISchema
-            where TMiddleware : GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddleware<TSchema> { }
+        public static Microsoft.AspNetCore.Builder.GraphQLEndpointConventionBuilder MapGraphQL<TMiddleware>(this Microsoft.AspNetCore.Routing.IEndpointRouteBuilder endpoints, string pattern = "graphql", params object[] args)
+            where TMiddleware : GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddleware { }
     }
 }
