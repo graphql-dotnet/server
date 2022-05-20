@@ -1,5 +1,3 @@
-#nullable enable
-
 using GraphQL.Server.Transports.AspNetCore.Errors;
 using GraphQL.Validation;
 using GraphQLParser.AST;
