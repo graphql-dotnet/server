@@ -651,7 +651,7 @@ public abstract class GraphQLHttpMiddleware
         OperationName = queryCollection.TryGetValue(OPERATION_NAME_KEY, out var operationNameValues) ? operationNameValues[0] : null,
     };
 
-    private GraphQLRequest DeserializeFromFormBody(IFormCollection formCollection) => new GraphQLRequest
+    private GraphQLRequest DeserializeFromFormBody(IFormCollection formCollection) => new()
     {
         Query = formCollection.TryGetValue(QUERY_KEY, out var queryValues) ? queryValues[0] : null!,
         Variables = formCollection.TryGetValue(VARIABLES_KEY, out var variablesValues) ? _serializer.Deserialize<Inputs>(variablesValues[0]) : null,
