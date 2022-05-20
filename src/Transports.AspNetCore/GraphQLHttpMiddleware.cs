@@ -376,7 +376,7 @@ public abstract class GraphQLHttpMiddleware
     /// request was handled (typically by returning an error message).  If <see langword="false"/>
     /// is returned, the request is processed normally.
     /// <br/><br/>
-    /// By default this does not check authorization rules becuase authentication may take place within
+    /// By default this does not check authorization rules because authentication may take place within
     /// the WebSocket connection during the ConnectionInit message.  Authorization checks for
     /// WebSocket connections occur then, after authorization has taken place.
     /// </summary>
