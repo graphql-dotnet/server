@@ -17,7 +17,7 @@ namespace GraphQL.Server.Transports.AspNetCore;
 /// Type of GraphQL schema that is used to validate and process requests.
 /// This may be a typed schema as well as <see cref="ISchema"/>.  In both cases registered schemas will be pulled from
 /// the dependency injection framework.  Note that when specifying <see cref="ISchema"/> the first schema registered via
-/// <see cref="GraphQL.GraphQLBuilderExtensions.AddSchema{TSchema}(IGraphQLBuilder, TSchema)">AddSchema</see>
+/// <see cref="GraphQLBuilderExtensions.AddSchema{TSchema}(DI.IGraphQLBuilder, DI.ServiceLifetime)">AddSchema</see>
 /// will be pulled (the "default" schema).
 /// </typeparam>
 public class GraphQLHttpMiddleware<TSchema> : GraphQLHttpMiddleware
