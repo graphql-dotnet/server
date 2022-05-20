@@ -475,7 +475,7 @@ public abstract class GraphQLHttpMiddleware
     /// <see cref="HttpContext"/>.
     /// <br/><br/>
     /// To tailor the user context individually for each request, call
-    /// <see cref="global::GraphQL.GraphQLBuilderExtensions.ConfigureExecutionOptions(IGraphQLBuilder, Action{ExecutionOptions})"/>
+    /// <see cref="GraphQLBuilderExtensions.ConfigureExecutionOptions(DI.IGraphQLBuilder, Action{ExecutionOptions})"/>
     /// to set or modify the user context, pulling the HTTP context from
     /// <see cref="IHttpContextAccessor"/> via <see cref="ExecutionOptions.RequestServices"/>
     /// if needed.
