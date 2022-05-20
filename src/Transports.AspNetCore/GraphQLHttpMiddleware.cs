@@ -12,7 +12,6 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace GraphQL.Server.Transports.AspNetCore;
 
-
 /// <inheritdoc/>
 /// <typeparam name="TSchema">
 /// Type of GraphQL schema that is used to validate and process requests.
