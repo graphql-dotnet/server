@@ -1,5 +1,3 @@
-#nullable enable
-
 using System.Net;
 using System.Net.Http.Headers;
 using GraphQL.Server.Transports.AspNetCore.Errors;
