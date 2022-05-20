@@ -92,7 +92,8 @@ public static class GraphQLBuilderUserContextExtensions
         where TUserContext : class, IDictionary<string, object?>
     {
         builder.Services.Register<IUserContextBuilder>(new UserContextBuilder<TUserContext>(creator ?? throw new ArgumentNullException(nameof(creator))));
-        builder.ConfigureExecutionOptions(options => {
+        builder.ConfigureExecutionOptions(options =>
+        {
             if (options.UserContext == null || options.UserContext.Count == 0 && options.UserContext.GetType() == typeof(Dictionary<string, object>))
             {
                 var requestServices = options.RequestServices ?? throw new MissingRequestServicesException();
@@ -111,7 +112,8 @@ public static class GraphQLBuilderUserContextExtensions
         if (creator == null)
             throw new ArgumentNullException(nameof(creator));
         builder.Services.Register<IUserContextBuilder>(new UserContextBuilder<TUserContext>((context, payload) => new(creator(context, payload))));
-        builder.ConfigureExecutionOptions(async options => {
+        builder.ConfigureExecutionOptions(async options =>
+        {
             if (options.UserContext == null || options.UserContext.Count == 0 && options.UserContext.GetType() == typeof(Dictionary<string, object>))
             {
                 var requestServices = options.RequestServices ?? throw new MissingRequestServicesException();
