@@ -19,6 +19,13 @@ public class GraphQLHttpMiddlewareOptions
 
     /// <summary>
     /// Enables handling of POST requests, including form submissions, JSON-formatted requests and raw query requests.
+    /// <para>Supported media types are:</para>
+    /// <list type="bullet">
+    /// <item>application/x-www-form-urlencoded</item>
+    /// <item>multipart/form-data</item>
+    /// <item>application/json</item>
+    /// <item>application/graphql</item>
+    /// </list>
     /// </summary>
     public bool HandlePost { get; set; } = true;
 
@@ -42,7 +49,7 @@ public class GraphQLHttpMiddlewareOptions
     /// <summary>
     /// Enables parallel execution of batched GraphQL requests.
     /// </summary>
-    public bool BatchedRequestsExecuteInParallel { get; set; } = true;
+    public bool ExecuteBatchedRequestsInParallel { get; set; } = true;
 
     /// <summary>
     /// When enabled, GraphQL requests with validation errors
@@ -77,6 +84,8 @@ public class GraphQLHttpMiddlewareOptions
     /// If set, requires that <see cref="IIdentity.IsAuthenticated"/> return <see langword="true"/>
     /// for the user within <see cref="HttpContext.User"/>
     /// prior to executing the GraphQL request or accepting the WebSocket connection.
+    /// Technically this property should be named as AuthenticationRequired but for
+    /// ASP.NET Core / GraphQL.NET naming and design decisions it was called so. 
     /// </summary>
     public bool AuthorizationRequired { get; set; }
 

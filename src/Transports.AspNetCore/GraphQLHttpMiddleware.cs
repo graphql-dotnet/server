@@ -12,7 +12,6 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace GraphQL.Server.Transports.AspNetCore;
 
-
 /// <inheritdoc/>
 /// <typeparam name="TSchema">
 /// Type of GraphQL schema that is used to validate and process requests.
@@ -415,7 +414,7 @@ public abstract class GraphQLHttpMiddleware
         else
         {
             // Batched execution with multiple graphql requests
-            if (!Options.BatchedRequestsExecuteInParallel)
+            if (!Options.ExecuteBatchedRequestsInParallel)
             {
                 for (int i = 0; i < gqlRequests.Count; i++)
                 {
@@ -632,7 +631,8 @@ public abstract class GraphQLHttpMiddleware
     {
         var result = new ExecutionResult
         {
-            Errors = new ExecutionErrors {
+            Errors = new ExecutionErrors
+            {
                 executionError
             },
         };

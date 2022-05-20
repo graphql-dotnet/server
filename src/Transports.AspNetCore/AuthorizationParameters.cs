@@ -8,9 +8,12 @@ using Microsoft.AspNetCore.Http;
 namespace GraphQL.Server.Transports.AspNetCore;
 
 /// <summary>
-/// Authorization parameters
+/// Authorization parameters.
+/// This struct is used to group all necessary parameters together and perform arbitrary
+/// actions based on provided authentication properties/attributes/etc.
+/// It is not intended to be called from user code.
 /// </summary>
-public struct AuthorizationParameters<T>
+public readonly struct AuthorizationParameters<TState>
 {
     /// <summary>
     /// Initializes an instance with a specified <see cref="Microsoft.AspNetCore.Http.HttpContext"/>
@@ -19,9 +22,9 @@ public struct AuthorizationParameters<T>
     public AuthorizationParameters(
         HttpContext httpContext,
         GraphQLHttpMiddlewareOptions middlewareOptions,
-        Func<T, Task>? onNotAuthenticated,
-        Func<T, Task>? onNotAuthorizedRole,
-        Func<T, AuthorizationResult, Task>? onNotAuthorizedPolicy)
+        Func<TState, Task>? onNotAuthenticated,
+        Func<TState, Task>? onNotAuthorizedRole,
+        Func<TState, AuthorizationResult, Task>? onNotAuthorizedPolicy)
     {
         HttpContext = httpContext;
         AuthorizationRequired = middlewareOptions.AuthorizationRequired;
@@ -35,34 +38,34 @@ public struct AuthorizationParameters<T>
     /// <summary>
     /// Gets or sets the <see cref="Microsoft.AspNetCore.Http.HttpContext"/> for the request.
     /// </summary>
-    public HttpContext HttpContext { get; set; }
+    public HttpContext HttpContext { get; }
 
     /// <inheritdoc cref="GraphQLHttpMiddlewareOptions.AuthorizationRequired"/>
-    public bool AuthorizationRequired { get; set; }
+    public bool AuthorizationRequired { get; }
 
     /// <inheritdoc cref="GraphQLHttpMiddlewareOptions.AuthorizedRoles"/>
-    public List<string>? AuthorizedRoles { get; set; }
+    public List<string>? AuthorizedRoles { get; }
 
     /// <inheritdoc cref="GraphQLHttpMiddlewareOptions.AuthorizedPolicy"/>
-    public string? AuthorizedPolicy { get; set; }
+    public string? AuthorizedPolicy { get; }
 
     /// <summary>
     /// A delegate which executes if <see cref="AuthorizationRequired"/> is set
     /// but <see cref="IIdentity.IsAuthenticated"/> returns <see langword="false"/>.
     /// </summary>
-    public Func<T, Task>? OnNotAuthenticated { get; set; }
+    public Func<TState, Task>? OnNotAuthenticated { get; }
 
     /// <summary>
     /// A delegate which executes if <see cref="AuthorizedRoles"/> is set but
     /// <see cref="ClaimsPrincipal.IsInRole(string)"/> returns <see langword="false"/>
     /// for all roles.
     /// </summary>
-    public Func<T, Task>? OnNotAuthorizedRole { get; set; }
+    public Func<TState, Task>? OnNotAuthorizedRole { get; }
 
     /// <summary>
     /// A delegate which executes if <see cref="AuthorizedPolicy"/> is set but
     /// <see cref="IAuthorizationService.AuthorizeAsync(ClaimsPrincipal, object, string)"/>
     /// returns an unsuccessful <see cref="AuthorizationResult"/> for the specified policy.
     /// </summary>
-    public Func<T, AuthorizationResult, Task>? OnNotAuthorizedPolicy { get; set; }
+    public Func<TState, AuthorizationResult, Task>? OnNotAuthorizedPolicy { get; }
 }
