@@ -114,15 +114,16 @@ public class GraphQLHttpMiddleware<TSchema> : GraphQLHttpMiddleware
     /// <inheritdoc/>
     protected override async Task<ExecutionResult> ExecuteScopedRequestAsync(HttpContext context, GraphQLRequest? request, IDictionary<string, object?> userContext)
     {
-        using var scope = _serviceScopeFactory.CreateScope();
-        try
+        var scope = _serviceScopeFactory.CreateScope();
+        if (scope is IAsyncDisposable ad)
         {
-            return await ExecuteRequestAsync(context, request, scope.ServiceProvider, userContext);
+            await using (ad.ConfigureAwait(false))
+                return await ExecuteRequestAsync(context, request, scope.ServiceProvider, userContext);
         }
-        finally
+        else
         {
-            if (scope is IAsyncDisposable ad)
-                await ad.DisposeAsync();
+            using (scope)
+                return await ExecuteRequestAsync(context, request, scope.ServiceProvider, userContext);
         }
     }
 
