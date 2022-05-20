@@ -1,7 +1,6 @@
 using System.Text;
 using GraphQL.Samples.Server;
 using GraphQL.Server;
-using GraphQL.Server.Transports.AspNetCore;
 using GraphQL.Transport;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Hosting;
