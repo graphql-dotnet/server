@@ -340,7 +340,6 @@ public abstract class GraphQLHttpMiddleware
                 OperationName = urlGQLRequest?.OperationName ?? bodyGQLRequest?.OperationName
             };
 
-            // Prepare context and execute
             await HandleRequestAsync(context, _next, gqlRequest);
         }
         else if (Options.EnableBatchedRequests)
