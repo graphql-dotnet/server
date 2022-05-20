@@ -89,12 +89,6 @@ namespace GraphQL.Server.Transports.AspNetCore
     {
         System.Threading.Tasks.ValueTask<System.Collections.Generic.IDictionary<string, object?>> BuildUserContextAsync(Microsoft.AspNetCore.Http.HttpContext context);
     }
-    public static class MediaType
-    {
-        public const string FORM = "application/x-www-form-urlencoded";
-        public const string GRAPH_QL = "application/graphql";
-        public const string JSON = "application/json";
-    }
     public class UserContextBuilder<TUserContext> : GraphQL.Server.Transports.AspNetCore.IUserContextBuilder
         where TUserContext : System.Collections.Generic.IDictionary<string, object?>
     {
