@@ -578,7 +578,7 @@ public abstract class GraphQLHttpMiddleware
     /// <summary>
     /// Writes a '400 JSON body text could not be parsed.' message to the output.
     /// Return <see langword="false"/> to rethrow the exception or <see langword="true"/>
-    /// if it has been handled.
+    /// if it has been handled.  By default returns <see langword="true"/>.
     /// </summary>
     protected virtual async ValueTask<bool> HandleDeserializationErrorAsync(HttpContext context, RequestDelegate next, Exception exception)
     {
