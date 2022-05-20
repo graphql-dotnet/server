@@ -605,7 +605,7 @@ public abstract class GraphQLHttpMiddleware
         => WriteErrorResponseAsync(context, HttpStatusCode.UnsupportedMediaType, new InvalidContentTypeError($"value '{context.Request.ContentType}' could not be parsed."));
 
     /// <summary>
-    /// Writes a '415 Invalid Content-Type header: non-supported type.' message to the output.
+    /// Writes a '415 Invalid Content-Type header: non-supported media type.' message to the output.
     /// </summary>
     protected virtual Task HandleInvalidContentTypeErrorAsync(HttpContext context, RequestDelegate next)
         => WriteErrorResponseAsync(context, HttpStatusCode.UnsupportedMediaType, new InvalidContentTypeError($"non-supported media type '{context.Request.ContentType}'. Must be '{MEDIATYPE_JSON}', '{MEDIATYPE_GRAPHQL}' or a form body."));
