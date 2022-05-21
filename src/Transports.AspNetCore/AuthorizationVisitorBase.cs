@@ -25,6 +25,8 @@ public abstract partial class AuthorizationVisitorBase : INodeVisitor
     /// <inheritdoc/>
     public virtual void Enter(ASTNode node, ValidationContext context)
     {
+        // if the node is the selected operation, or if it is a fragment referenced by the current operation,
+        // then enable authorization checks on decendant nodes (_checkTree = true)
         if (node == context.Operation || (node is GraphQLFragmentDefinition fragmentDefinition && _fragmentDefinitionsToCheck != null && _fragmentDefinitionsToCheck.Contains(fragmentDefinition)))
         {
             var type = context.TypeInfo.GetLastType()?.GetNamedType();
@@ -39,6 +41,7 @@ public abstract partial class AuthorizationVisitorBase : INodeVisitor
         {
             if (node is GraphQLField fieldNode)
             {
+                // if a directive indicates to skip this field, skip authorization checks until Leave() is called for this node
                 if (SkipField(fieldNode, context))
                 {
                     _checkTree = false;
@@ -47,10 +50,18 @@ public abstract partial class AuthorizationVisitorBase : INodeVisitor
                 else
                 {
                     var field = context.TypeInfo.GetFieldDef();
-                    // might be null if no match was found in the schema
-                    // and skip processing for __typeName
+                    // Note: 'field' might be null here if no match was found in the schema (which causes a different validation error).
+                    // Also, skip processing for __typeName entirely; do not consider it an anonymous field or
+                    // a field that would require authentication for the type -- in this manner, a selection for
+                    // only __typename will require authentication, but a selection for __typename and an anonymous
+                    // field will not.
                     if (field != null && field != context.Schema.TypeNameMetaFieldType)
                     {
+                        // If the field is marked as AllowAnonymous, record that we have encountered a field for this type
+                        // which is anonymous; if it is not, record that we have encountered a field for this type
+                        // which will require the type to be authenticated.
+                        // Also, __type and __schema are implicitly marked as AllowAnonymous; the schema can be marked
+                        // with authorization requirements if introspection queries are to be disallowed.
                         var fieldAnonymousAllowed = field.IsAnonymousAllowed() || field == context.Schema.TypeMetaFieldType || field == context.Schema.SchemaMetaFieldType;
                         var ti = _onlyAnonymousSelected.Peek();
                         if (fieldAnonymousAllowed)
@@ -58,33 +69,46 @@ public abstract partial class AuthorizationVisitorBase : INodeVisitor
                         else
                             ti.AnyAuthenticated = true;
 
+                        // Fields, unlike types, are validated immediately.
                         if (!fieldAnonymousAllowed)
                         {
                             Validate(field, node, context);
                         }
                     }
+
                     // prep for descendants, if any
+                    // note: this causes a heap allocation for each node; struct is possible but changes
+                    // to the struct (which occur for each field) will require a pop and push; there are a
+                    // number of other ideas that could be implemented here to reduce allocations
                     _onlyAnonymousSelected.Push(new());
                 }
             }
             else if (node is GraphQLFragmentSpread fragmentSpread)
             {
                 var ti = _onlyAnonymousSelected.Peek();
-                var fragmentName = fragmentSpread.FragmentName.Name.StringValue;
-                if (_fragments?.TryGetValue(fragmentName, out var fragmentInfo) == true)
+                // if the type already requires authentication, it doesn't matter if the fragment fields
+                // are marked as anonymous or not. (note that fragment fields will still get authenticated)
+                if (!ti.AnyAuthenticated)
                 {
-                    ti.AnyAuthenticated |= fragmentInfo.AnyAuthenticated;
-                    ti.AnyAnonymous |= fragmentInfo.AnyAnonymous;
-                    if (fragmentInfo.WaitingOnFragments?.Count > 0)
+                    // check processed fragments to see if the specified fragment has already been processed;
+                    // if so, copy the fragment information in here; otherwise mark this type as being dependent
+                    // on fragment fields
+                    var fragmentName = fragmentSpread.FragmentName.Name.StringValue;
+                    if (_fragments?.TryGetValue(fragmentName, out var fragmentInfo) == true)
+                    {
+                        ti.AnyAuthenticated |= fragmentInfo.AnyAuthenticated;
+                        ti.AnyAnonymous |= fragmentInfo.AnyAnonymous;
+                        if (fragmentInfo.WaitingOnFragments?.Count > 0)
+                        {
+                            ti.WaitingOnFragments ??= new();
+                            ti.WaitingOnFragments.AddRange(fragmentInfo.WaitingOnFragments);
+                        }
+                    }
+                    else
                     {
                         ti.WaitingOnFragments ??= new();
-                        ti.WaitingOnFragments.AddRange(fragmentInfo.WaitingOnFragments);
+                        ti.WaitingOnFragments.Add(fragmentName);
                     }
-                }
-                else
-                {
-                    ti.WaitingOnFragments ??= new();
-                    ti.WaitingOnFragments.Add(fragmentName);
                 }
             }
             else if (node is GraphQLArgument)
@@ -108,11 +132,14 @@ public abstract partial class AuthorizationVisitorBase : INodeVisitor
     {
         if (!_checkTree)
         {
+            // if we are within a field skipped by a directive, resume auth checks at the appropriate time
             if (_checkUntil == node)
             {
                 _checkTree = true;
                 _checkUntil = null;
             }
+            // in any case if this tree is not being checked (not the selected operation or not a fragment spread in use),
+            // then return (no auth checks)
             return;
         }
         if (node == context.Operation)
@@ -122,6 +149,8 @@ public abstract partial class AuthorizationVisitorBase : INodeVisitor
         }
         else if (node is GraphQLFragmentDefinition fragmentDefinition)
         {
+            // once a fragment is done being processed, apply it to all types waiting on fragment checks,
+            // and process checks for types that are not waiting on any fragments
             _checkTree = false;
             var fragmentName = fragmentDefinition.FragmentName.Name.StringValue;
             var ti = _onlyAnonymousSelected.Pop();
@@ -134,6 +163,8 @@ public abstract partial class AuthorizationVisitorBase : INodeVisitor
             PopAndProcess();
         }
 
+        // pop the current type info, and validate the type if it does not contain only fields marked
+        // with AllowAnonymous (assuming it is not waiting on fragments)
         void PopAndProcess()
         {
             var info = _onlyAnonymousSelected.Pop();
@@ -158,7 +189,6 @@ public abstract partial class AuthorizationVisitorBase : INodeVisitor
     /// </summary>
     protected virtual bool SkipField(GraphQLField node, ValidationContext context)
     {
-        // check 
         var skipDirective = node.Directives?.FirstOrDefault(x => x.Name == "skip");
         if (skipDirective != null)
         {
