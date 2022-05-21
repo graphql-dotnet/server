@@ -172,8 +172,10 @@ public abstract class GraphQLHttpMiddleware
     private const string VARIABLES_KEY = "variables";
     private const string EXTENSIONS_KEY = "extensions";
     private const string OPERATION_NAME_KEY = "operationName";
+    private const string MEDIATYPE_GRAPHQLJSON = "application/graphql+json";
     private const string MEDIATYPE_JSON = "application/json";
     private const string MEDIATYPE_GRAPHQL = "application/graphql";
+    private const string CONTENTTYPE_GRAPHQLJSON = "application/graphql+json; charset=utf-8";
 
     /// <summary>
     /// Gets the options configured for this instance.
@@ -246,8 +248,9 @@ public abstract class GraphQLHttpMiddleware
                 return;
             }
 
-            switch (mediaTypeHeader.MediaType)
+            switch (mediaTypeHeader.MediaType?.ToLowerInvariant())
             {
+                case MEDIATYPE_GRAPHQLJSON:
                 case MEDIATYPE_JSON:
                     IList<GraphQLRequest?>? deserializationResult;
                     try
@@ -493,11 +496,23 @@ public abstract class GraphQLHttpMiddleware
     }
 
     /// <summary>
+    /// Selects a response content type string based on the <see cref="HttpContext"/>.
+    /// Defaults to <see cref="CONTENTTYPE_GRAPHQLJSON"/>.  Override this value for compatibility
+    /// with non-conforming GraphQL clients.
+    /// <br/><br/>
+    /// Note that by default, the response will be written as UTF-8 encoded JSON, regardless
+    /// of the content-type value here.  For more complex behavior patterns, override
+    /// <see cref="WriteJsonResponseAsync{TResult}(HttpContext, HttpStatusCode, TResult)"/>.
+    /// </summary>
+    protected virtual string SelectResponseContentType(HttpContext context)
+        => CONTENTTYPE_GRAPHQLJSON;
+
+    /// <summary>
     /// Writes the specified object (usually a GraphQL response represented as an instance of <see cref="ExecutionResult"/>) as JSON to the HTTP response stream.
     /// </summary>
     protected virtual Task WriteJsonResponseAsync<TResult>(HttpContext context, HttpStatusCode httpStatusCode, TResult result)
     {
-        context.Response.ContentType = MEDIATYPE_JSON;
+        context.Response.ContentType = SelectResponseContentType(context);
         context.Response.StatusCode = (int)httpStatusCode;
 
         return _serializer.WriteAsync(context.Response.Body, result, context.RequestAborted);
