@@ -18,7 +18,7 @@ public class UserContextBuilder<TUserContext> : IUserContextBuilder
         if (func == null)
             throw new ArgumentNullException(nameof(func));
 
-        _func = async (context, payload) => await func(context);
+        _func = async (context, _) => await func(context);
     }
 
     /// <inheritdoc cref="UserContextBuilder(Func{HttpContext, ValueTask{TUserContext}})"/>
