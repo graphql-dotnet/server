@@ -1,6 +1,6 @@
 using System.Text;
 using GraphQL.Execution;
-using GraphQL.Server.Authorization.AspNetCore;
+using GraphQL.Server.Transports.AspNetCore.Errors;
 using Microsoft.AspNetCore.Authorization;
 
 namespace GraphQL.Samples.Server;
@@ -11,30 +11,22 @@ namespace GraphQL.Samples.Server;
 /// </summary>
 public class CustomErrorInfoProvider : ErrorInfoProvider
 {
-    private readonly IAuthorizationErrorMessageBuilder _messageBuilder;
-
-    public CustomErrorInfoProvider(IAuthorizationErrorMessageBuilder messageBuilder)
-    {
-        _messageBuilder = messageBuilder;
-    }
-
     public override ErrorInfo GetInfo(ExecutionError executionError)
     {
         var info = base.GetInfo(executionError);
-        info.Message = executionError switch
-        {
-            AuthorizationError authorizationError => GetAuthorizationErrorMessage(authorizationError),
-            _ => info.Message,
-        };
+
+        if (executionError is AccessDeniedError accessDeniedError)
+            info.Message = GetAuthorizationErrorMessage(accessDeniedError);
+
         return info;
     }
 
-    private string GetAuthorizationErrorMessage(AuthorizationError error)
+    private string GetAuthorizationErrorMessage(AccessDeniedError error)
     {
         var errorMessage = new StringBuilder();
-        _messageBuilder.AppendFailureHeader(errorMessage, error.OperationType);
+        errorMessage.Append(error.Message);
 
-        foreach (var failedRequirement in error.AuthorizationResult.Failure.FailedRequirements)
+        foreach (var failedRequirement in error.PolicyAuthorizationResult.Failure.FailedRequirements)
         {
             switch (failedRequirement)
             {
@@ -43,9 +35,6 @@ public class CustomErrorInfoProvider : ErrorInfoProvider
                     errorMessage.Append("The current user must be at least ");
                     errorMessage.Append(minimumAgeRequirement.MinimumAge);
                     errorMessage.Append(" years old.");
-                    break;
-                default:
-                    _messageBuilder.AppendFailureLine(errorMessage, failedRequirement);
                     break;
             }
         }

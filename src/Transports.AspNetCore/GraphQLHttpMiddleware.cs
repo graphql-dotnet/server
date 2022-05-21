@@ -15,7 +15,7 @@ namespace GraphQL.Server.Transports.AspNetCore;
 /// Type of GraphQL schema that is used to validate and process requests.
 /// This may be a typed schema as well as <see cref="ISchema"/>.  In both cases registered schemas will be pulled from
 /// the dependency injection framework.  Note that when specifying <see cref="ISchema"/> the first schema registered via
-/// <see cref="GraphQLBuilderExtensions.AddSchema{TSchema}(DI.IGraphQLBuilder, DI.ServiceLifetime)">AddSchema</see>
+/// <see cref="GraphQL.GraphQLBuilderExtensions.AddSchema{TSchema}(DI.IGraphQLBuilder, DI.ServiceLifetime)">AddSchema</see>
 /// will be pulled (the "default" schema).
 /// </typeparam>
 public class GraphQLHttpMiddleware<TSchema> : GraphQLHttpMiddleware
@@ -473,7 +473,7 @@ public abstract class GraphQLHttpMiddleware
     /// <see cref="HttpContext"/>.
     /// <br/><br/>
     /// To tailor the user context individually for each request, call
-    /// <see cref="GraphQLBuilderExtensions.ConfigureExecutionOptions(DI.IGraphQLBuilder, Action{ExecutionOptions})"/>
+    /// <see cref="GraphQL.GraphQLBuilderExtensions.ConfigureExecutionOptions(DI.IGraphQLBuilder, Action{ExecutionOptions})"/>
     /// to set or modify the user context, pulling the HTTP context from
     /// <see cref="IHttpContextAccessor"/> via <see cref="ExecutionOptions.RequestServices"/>
     /// if needed.

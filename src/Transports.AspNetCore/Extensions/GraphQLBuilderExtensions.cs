@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace GraphQL.Server;
 
-public static class GraphQLBuilderUserContextExtensions
+public static class GraphQLBuilderExtensions
 {
     /// <summary>
     /// Adds an <see cref="IUserContextBuilder"/> as a singleton.
@@ -90,6 +90,17 @@ public static class GraphQLBuilderUserContextExtensions
     {
         builder.Services.TryRegister<MatcherPolicy, GraphQLDefaultEndpointSelectorPolicy>(DI.ServiceLifetime.Singleton, RegistrationCompareMode.ServiceTypeAndImplementationType);
 
+        return builder;
+    }
+
+    /// <summary>
+    /// Registers <see cref="AuthorizationValidationRule"/> with the dependency injection framework
+    /// and configures it to be used when executing a request.
+    /// </summary>
+    public static IGraphQLBuilder AddAuthorization(this IGraphQLBuilder builder)
+    {
+        builder.AddValidationRule<AuthorizationValidationRule>(true);
+        builder.Services.TryRegister<IHttpContextAccessor, HttpContextAccessor>(DI.ServiceLifetime.Singleton);
         return builder;
     }
 }
