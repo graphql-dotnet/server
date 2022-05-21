@@ -1,7 +1,6 @@
 using GraphQL.Types;
 using GraphQL.Validation;
 using GraphQLParser.AST;
-using Microsoft.AspNetCore.Authorization;
 
 namespace GraphQL.Server.Transports.AspNetCore;
 
