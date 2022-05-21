@@ -1,5 +1,3 @@
-#nullable enable
-
 using System.Security.Claims;
 using System.Security.Principal;
 using Microsoft.AspNetCore.Authorization;
