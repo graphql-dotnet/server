@@ -49,7 +49,6 @@ public static class GraphQLBuilderUserContextExtensions
         return builder;
     }
 
-
     /// <inheritdoc cref="AddUserContextBuilder{TUserContext}(IGraphQLBuilder, Func{HttpContext, TUserContext})"/>
     public static IGraphQLBuilder AddUserContextBuilder<TUserContext>(this IGraphQLBuilder builder, Func<HttpContext, object?, TUserContext> creator)
         where TUserContext : class, IDictionary<string, object?>
