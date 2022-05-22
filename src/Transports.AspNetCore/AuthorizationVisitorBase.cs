@@ -16,11 +16,11 @@ public abstract partial class AuthorizationVisitorBase : INodeVisitor
     }
 
     private bool _checkTree; // used to skip processing fragments or operations that do not apply
-    private ASTNode? _checkUntil;
+    private ASTNode? _checkUntil; // used to resume processing after a skipped field (skipped by a directive)
     private readonly List<GraphQLFragmentDefinition>? _fragmentDefinitionsToCheck; // contains a list of fragments to process, or null if none
     private readonly Stack<TypeInfo> _onlyAnonymousSelected = new();
     private Dictionary<string, TypeInfo>? _fragments;
-    private List<TodoInfo>? _todo;
+    private List<TodoInfo>? _todos;
 
     /// <inheritdoc/>
     public virtual void Enter(ASTNode node, ValidationContext context)
@@ -63,11 +63,12 @@ public abstract partial class AuthorizationVisitorBase : INodeVisitor
                         // Also, __type and __schema are implicitly marked as AllowAnonymous; the schema can be marked
                         // with authorization requirements if introspection queries are to be disallowed.
                         var fieldAnonymousAllowed = field.IsAnonymousAllowed() || field == context.Schema.TypeMetaFieldType || field == context.Schema.SchemaMetaFieldType;
-                        var ti = _onlyAnonymousSelected.Peek();
+                        var ti = _onlyAnonymousSelected.Pop();
                         if (fieldAnonymousAllowed)
                             ti.AnyAnonymous = true;
                         else
                             ti.AnyAuthenticated = true;
+                        _onlyAnonymousSelected.Push(ti);
 
                         // Fields, unlike types, are validated immediately.
                         if (!fieldAnonymousAllowed)
@@ -82,7 +83,7 @@ public abstract partial class AuthorizationVisitorBase : INodeVisitor
             }
             else if (node is GraphQLFragmentSpread fragmentSpread)
             {
-                var ti = _onlyAnonymousSelected.Peek();
+                var ti = _onlyAnonymousSelected.Pop();
                 // if the type already requires authentication, it doesn't matter if the fragment fields
                 // are marked as anonymous or not. (note that fragment fields will still get authenticated)
                 if (!ti.AnyAuthenticated)
@@ -107,6 +108,7 @@ public abstract partial class AuthorizationVisitorBase : INodeVisitor
                         ti.WaitingOnFragments.Add(fragmentName);
                     }
                 }
+                _onlyAnonymousSelected.Push(ti);
             }
             else if (node is GraphQLArgument)
             {
@@ -174,8 +176,8 @@ public abstract partial class AuthorizationVisitorBase : INodeVisitor
             }
             else if (info.WaitingOnFragments?.Count > 0)
             {
-                _todo ??= new();
-                _todo.Add(new(BuildValidationInfo(type, node, context), info));
+                _todos ??= new();
+                _todos.Add(new(BuildValidationInfo(type, node, context), info));
             }
         }
     }
@@ -251,6 +253,7 @@ public abstract partial class AuthorizationVisitorBase : INodeVisitor
                 {
                     ti2.AnyAuthenticated |= ti.AnyAuthenticated;
                     ti2.AnyAnonymous |= ti.AnyAnonymous;
+                    _fragments[fragment.Key] = ti2;
                     RecursiveResolve(fragment.Key, ti2, context);
                 }
             }
@@ -258,19 +261,19 @@ public abstract partial class AuthorizationVisitorBase : INodeVisitor
         // then, if this fragment is fully resolved, check to see if any nodes are waiting for this fragment
         if ((ti.WaitingOnFragments?.Count ?? 0) == 0)
         {
-            if (_todo != null)
+            if (_todos != null)
             {
-                var count = _todo.Count;
+                var count = _todos.Count;
                 for (var i = 0; i < count; i++)
                 {
-                    var todo = _todo[i];
+                    var todo = _todos[i];
                     if (todo.WaitingOnFragments.Remove(fragmentName))
                     {
                         todo.AnyAuthenticated |= ti.AnyAuthenticated;
                         todo.AnyAnonymous |= ti.AnyAnonymous;
                         if (todo.WaitingOnFragments.Count == 0)
                         {
-                            _todo.RemoveAt(i);
+                            _todos.RemoveAt(i);
                             count--;
                             if (todo.AnyAuthenticated || !todo.AnyAnonymous)
                             {
@@ -283,23 +286,19 @@ public abstract partial class AuthorizationVisitorBase : INodeVisitor
         }
     }
 
-    // note: having TypeInfo a class causes a heap allocation for each node; struct is possible
-    // but requires a lot of changes to the code; todo in separate PR
-    private class TypeInfo
+    private struct TypeInfo
     {
         public bool AnyAuthenticated;
         public bool AnyAnonymous;
         public List<string>? WaitingOnFragments;
     }
 
-    // an allocation for TodoInfo only occurs when a field references a fragment that has not
-    // yet been encountered
     private class TodoInfo
     {
-        public ValidationInfo ValidationInfo { get; }
+        public readonly ValidationInfo ValidationInfo;
         public bool AnyAuthenticated;
         public bool AnyAnonymous;
-        public List<string> WaitingOnFragments;
+        public readonly List<string> WaitingOnFragments;
 
         public TodoInfo(ValidationInfo vi, TypeInfo ti)
         {
