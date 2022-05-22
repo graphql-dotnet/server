@@ -64,14 +64,14 @@ internal class AsyncMessagePump<T>
 
         if (attach)
         {
-            CompleteAsync();
+            _ = CompleteAsync();
         }
     }
 
     /// <summary>
     /// Processes message in the queue until it is empty.
     /// </summary>
-    private async void CompleteAsync()
+    private async Task CompleteAsync()
     {
         // grab the message at the start of the queue, but don't remove it from the queue
         ValueTask<T> messageTask;
