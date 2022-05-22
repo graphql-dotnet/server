@@ -137,6 +137,24 @@ namespace GraphQL.Server.Transports.AspNetCore.Errors
         public WebSocketSubProtocolNotSupportedError(System.Collections.Generic.IEnumerable<string> requestedSubProtocols) { }
     }
 }
+namespace GraphQL.Server.Transports.AspNetCore.WebSockets
+{
+    public interface IOperationMessageProcessor : System.IDisposable
+    {
+        System.Threading.Tasks.Task InitializeConnectionAsync();
+        System.Threading.Tasks.Task OnMessageReceivedAsync(GraphQL.Transport.OperationMessage message);
+    }
+    public interface IWebSocketConnection
+    {
+        Microsoft.AspNetCore.Http.HttpContext HttpContext { get; }
+        System.DateTime LastMessageSentAt { get; }
+        System.Threading.CancellationToken RequestAborted { get; }
+        System.Threading.Tasks.Task CloseConnectionAsync();
+        System.Threading.Tasks.Task CloseConnectionAsync(int eventId, string? description);
+        System.Threading.Tasks.Task ExecuteAsync(GraphQL.Server.Transports.AspNetCore.WebSockets.IOperationMessageProcessor operationMessageProcessor);
+        System.Threading.Tasks.Task SendMessageAsync(GraphQL.Transport.OperationMessage message);
+    }
+}
 namespace Microsoft.AspNetCore.Builder
 {
     public class GraphQLEndpointConventionBuilder : Microsoft.AspNetCore.Builder.IEndpointConventionBuilder
