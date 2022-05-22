@@ -167,13 +167,16 @@ public abstract class GraphQLHttpMiddleware
     private readonly IGraphQLTextSerializer _serializer;
     //private readonly IEnumerable<IWebSocketHandler>? _webSocketHandlers;
     private readonly RequestDelegate _next;
+    //private readonly IUserContextBuilder _userContextBuilderForWebSockets;
 
     private const string QUERY_KEY = "query";
     private const string VARIABLES_KEY = "variables";
     private const string EXTENSIONS_KEY = "extensions";
     private const string OPERATION_NAME_KEY = "operationName";
+    private const string MEDIATYPE_GRAPHQLJSON = "application/graphql+json";
     private const string MEDIATYPE_JSON = "application/json";
     private const string MEDIATYPE_GRAPHQL = "application/graphql";
+    private const string CONTENTTYPE_GRAPHQLJSON = "application/graphql+json; charset=utf-8";
 
     /// <summary>
     /// Gets the options configured for this instance.
@@ -193,6 +196,7 @@ public abstract class GraphQLHttpMiddleware
         _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
         Options = options ?? throw new ArgumentNullException(nameof(options));
         //_webSocketHandlers = webSocketHandlers;
+        //_userContextBuilderForWebSockets = new UserContextBuilder<IDictionary<string, object?>>(BuildUserContextAsync);
     }
 
     /// <inheritdoc/>
@@ -246,8 +250,9 @@ public abstract class GraphQLHttpMiddleware
                 return;
             }
 
-            switch (mediaTypeHeader.MediaType)
+            switch (mediaTypeHeader.MediaType?.ToLowerInvariant())
             {
+                case MEDIATYPE_GRAPHQLJSON:
                 case MEDIATYPE_JSON:
                     IList<GraphQLRequest?>? deserializationResult;
                     try
@@ -390,7 +395,7 @@ public abstract class GraphQLHttpMiddleware
         GraphQLRequest gqlRequest)
     {
         // Normal execution with single graphql request
-        var userContext = await BuildUserContextAsync(context);
+        var userContext = await BuildUserContextAsync(context, null);
         var result = await ExecuteRequestAsync(context, gqlRequest, context.RequestServices, userContext);
         var statusCode = Options.ValidationErrorsReturnBadRequest && !result.Executed
             ? HttpStatusCode.BadRequest
@@ -406,7 +411,7 @@ public abstract class GraphQLHttpMiddleware
         RequestDelegate next,
         IList<GraphQLRequest?> gqlRequests)
     {
-        var userContext = await BuildUserContextAsync(context);
+        var userContext = await BuildUserContextAsync(context, null);
         var results = new ExecutionResult[gqlRequests.Count];
         if (gqlRequests.Count == 1)
         {
@@ -483,21 +488,33 @@ public abstract class GraphQLHttpMiddleware
     /// In this manner, both scoped and singleton <see cref="IUserContextBuilder"/>
     /// instances are supported, although singleton instances are recommended.
     /// </summary>
-    protected virtual async ValueTask<IDictionary<string, object?>> BuildUserContextAsync(HttpContext context)
+    protected virtual async ValueTask<IDictionary<string, object?>> BuildUserContextAsync(HttpContext context, object? payload)
     {
         var userContextBuilder = context.RequestServices.GetService<IUserContextBuilder>();
         var userContext = userContextBuilder == null
             ? new Dictionary<string, object?>()
-            : await userContextBuilder.BuildUserContextAsync(context);
+            : await userContextBuilder.BuildUserContextAsync(context, payload);
         return userContext;
     }
+
+    /// <summary>
+    /// Selects a response content type string based on the <see cref="HttpContext"/>.
+    /// Defaults to <see cref="CONTENTTYPE_GRAPHQLJSON"/>.  Override this value for compatibility
+    /// with non-conforming GraphQL clients.
+    /// <br/><br/>
+    /// Note that by default, the response will be written as UTF-8 encoded JSON, regardless
+    /// of the content-type value here.  For more complex behavior patterns, override
+    /// <see cref="WriteJsonResponseAsync{TResult}(HttpContext, HttpStatusCode, TResult)"/>.
+    /// </summary>
+    protected virtual string SelectResponseContentType(HttpContext context)
+        => CONTENTTYPE_GRAPHQLJSON;
 
     /// <summary>
     /// Writes the specified object (usually a GraphQL response represented as an instance of <see cref="ExecutionResult"/>) as JSON to the HTTP response stream.
     /// </summary>
     protected virtual Task WriteJsonResponseAsync<TResult>(HttpContext context, HttpStatusCode httpStatusCode, TResult result)
     {
-        context.Response.ContentType = MEDIATYPE_JSON;
+        context.Response.ContentType = SelectResponseContentType(context);
         context.Response.StatusCode = (int)httpStatusCode;
 
         return _serializer.WriteAsync(context.Response.Body, result, context.RequestAborted);
@@ -547,10 +564,8 @@ public abstract class GraphQLHttpMiddleware
             return;
         }
 
-        // Prepare user context
-        var userContext = await BuildUserContextAsync(context);
         // Connect, then wait until the websocket has disconnected (and all subscriptions ended)
-        await selectedHandler.ExecuteAsync(context, socket, selectedProtocol, userContext);
+        await selectedHandler.ExecuteAsync(context, socket, selectedProtocol, _userContextBuilderForWebSockets);
     }
 
     *****************************/
