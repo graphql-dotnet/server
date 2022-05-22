@@ -77,9 +77,6 @@ public abstract partial class AuthorizationVisitorBase : INodeVisitor
                     }
 
                     // prep for descendants, if any
-                    // note: this causes a heap allocation for each node; struct is possible but changes
-                    // to the struct (which occur for each field) will require a pop and push; there are a
-                    // number of other ideas that could be implemented here to reduce allocations
                     _onlyAnonymousSelected.Push(new());
                 }
             }
@@ -286,6 +283,8 @@ public abstract partial class AuthorizationVisitorBase : INodeVisitor
         }
     }
 
+    // note: having TypeInfo a class causes a heap allocation for each node; struct is possible
+    // but requires a lot of changes to the code; todo in separate PR
     private class TypeInfo
     {
         public bool AnyAuthenticated;
@@ -293,6 +292,8 @@ public abstract partial class AuthorizationVisitorBase : INodeVisitor
         public List<string>? WaitingOnFragments;
     }
 
+    // an allocation for TodoInfo only occurs when a field references a fragment that has not
+    // yet been encountered
     private class TodoInfo
     {
         public ValidationInfo ValidationInfo { get; }
