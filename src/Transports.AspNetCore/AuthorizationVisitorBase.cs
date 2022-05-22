@@ -246,6 +246,7 @@ public abstract partial class AuthorizationVisitorBase : INodeVisitor
         // first see if any other fragments are waiting on this fragment
         if (_fragments != null)
         {
+        Retry:
             foreach (var fragment in _fragments)
             {
                 var ti2 = fragment.Value;
@@ -255,6 +256,7 @@ public abstract partial class AuthorizationVisitorBase : INodeVisitor
                     ti2.AnyAnonymous |= ti.AnyAnonymous;
                     _fragments[fragment.Key] = ti2;
                     RecursiveResolve(fragment.Key, ti2, context);
+                    goto Retry; // modifying a collection at runtime is not supported
                 }
             }
         }
