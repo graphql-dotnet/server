@@ -9,6 +9,10 @@ namespace GraphQL.Server
             where TUserContext :  class, System.Collections.Generic.IDictionary<string, object?> { }
         public static GraphQL.DI.IGraphQLBuilder AddUserContextBuilder<TUserContext>(this GraphQL.DI.IGraphQLBuilder builder, System.Func<Microsoft.AspNetCore.Http.HttpContext, TUserContext> creator)
             where TUserContext :  class, System.Collections.Generic.IDictionary<string, object?> { }
+        public static GraphQL.DI.IGraphQLBuilder AddUserContextBuilder<TUserContext>(this GraphQL.DI.IGraphQLBuilder builder, System.Func<Microsoft.AspNetCore.Http.HttpContext, object?, System.Threading.Tasks.Task<TUserContext>> creator)
+            where TUserContext :  class, System.Collections.Generic.IDictionary<string, object?> { }
+        public static GraphQL.DI.IGraphQLBuilder AddUserContextBuilder<TUserContext>(this GraphQL.DI.IGraphQLBuilder builder, System.Func<Microsoft.AspNetCore.Http.HttpContext, object?, TUserContext> creator)
+            where TUserContext :  class, System.Collections.Generic.IDictionary<string, object?> { }
     }
 }
 namespace GraphQL.Server.Transports.AspNetCore
@@ -32,7 +36,7 @@ namespace GraphQL.Server.Transports.AspNetCore
     {
         public GraphQLHttpMiddleware(Microsoft.AspNetCore.Http.RequestDelegate next, GraphQL.IGraphQLTextSerializer serializer, GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions options) { }
         protected GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions Options { get; }
-        protected virtual System.Threading.Tasks.ValueTask<System.Collections.Generic.IDictionary<string, object?>> BuildUserContextAsync(Microsoft.AspNetCore.Http.HttpContext context) { }
+        protected virtual System.Threading.Tasks.ValueTask<System.Collections.Generic.IDictionary<string, object?>> BuildUserContextAsync(Microsoft.AspNetCore.Http.HttpContext context, object? payload) { }
         protected abstract System.Threading.Tasks.Task<GraphQL.ExecutionResult> ExecuteRequestAsync(Microsoft.AspNetCore.Http.HttpContext context, GraphQL.Transport.GraphQLRequest? request, System.IServiceProvider serviceProvider, System.Collections.Generic.IDictionary<string, object?> userContext);
         protected abstract System.Threading.Tasks.Task<GraphQL.ExecutionResult> ExecuteScopedRequestAsync(Microsoft.AspNetCore.Http.HttpContext context, GraphQL.Transport.GraphQLRequest? request, System.Collections.Generic.IDictionary<string, object?> userContext);
         protected virtual System.Threading.Tasks.ValueTask<bool> HandleAuthorizeAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next) { }
@@ -88,14 +92,16 @@ namespace GraphQL.Server.Transports.AspNetCore
     }
     public interface IUserContextBuilder
     {
-        System.Threading.Tasks.ValueTask<System.Collections.Generic.IDictionary<string, object?>> BuildUserContextAsync(Microsoft.AspNetCore.Http.HttpContext context);
+        System.Threading.Tasks.ValueTask<System.Collections.Generic.IDictionary<string, object?>> BuildUserContextAsync(Microsoft.AspNetCore.Http.HttpContext context, object? payload);
     }
     public class UserContextBuilder<TUserContext> : GraphQL.Server.Transports.AspNetCore.IUserContextBuilder
         where TUserContext : System.Collections.Generic.IDictionary<string, object?>
     {
         public UserContextBuilder(System.Func<Microsoft.AspNetCore.Http.HttpContext, System.Threading.Tasks.ValueTask<TUserContext>> func) { }
         public UserContextBuilder(System.Func<Microsoft.AspNetCore.Http.HttpContext, TUserContext> func) { }
-        public System.Threading.Tasks.ValueTask<System.Collections.Generic.IDictionary<string, object?>> BuildUserContextAsync(Microsoft.AspNetCore.Http.HttpContext context) { }
+        public UserContextBuilder(System.Func<Microsoft.AspNetCore.Http.HttpContext, object?, System.Threading.Tasks.ValueTask<TUserContext>> func) { }
+        public UserContextBuilder(System.Func<Microsoft.AspNetCore.Http.HttpContext, object?, TUserContext> func) { }
+        public System.Threading.Tasks.ValueTask<System.Collections.Generic.IDictionary<string, object?>> BuildUserContextAsync(Microsoft.AspNetCore.Http.HttpContext context, object? payload) { }
     }
 }
 namespace GraphQL.Server.Transports.AspNetCore.Errors

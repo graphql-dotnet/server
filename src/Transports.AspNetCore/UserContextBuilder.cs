@@ -8,28 +8,54 @@ namespace GraphQL.Server.Transports.AspNetCore;
 public class UserContextBuilder<TUserContext> : IUserContextBuilder
     where TUserContext : IDictionary<string, object?>
 {
-    private readonly Func<HttpContext, ValueTask<TUserContext>> _func;
+    private readonly Func<HttpContext, object?, ValueTask<IDictionary<string, object?>>> _func;
 
     /// <summary>
     /// Initializes a new instance with the specified delegate.
     /// </summary>
     public UserContextBuilder(Func<HttpContext, ValueTask<TUserContext>> func)
     {
-        _func = func ?? throw new ArgumentNullException(nameof(func));
+        if (func == null)
+            throw new ArgumentNullException(nameof(func));
+
+        _func = async (context, _) => await func(context);
     }
 
-    /// <summary>
-    /// Initializes a new instance with the specified delegate.
-    /// </summary>
+    /// <inheritdoc cref="UserContextBuilder(Func{HttpContext, ValueTask{TUserContext}})"/>
     public UserContextBuilder(Func<HttpContext, TUserContext> func)
     {
         if (func == null)
             throw new ArgumentNullException(nameof(func));
 
-        _func = x => new(func(x));
+        _func = (context, _) => new(func(context));
+    }
+
+    /// <inheritdoc cref="UserContextBuilder(Func{HttpContext, ValueTask{TUserContext}})"/>
+    public UserContextBuilder(Func<HttpContext, object?, ValueTask<TUserContext>> func)
+    {
+        if (func == null)
+            throw new ArgumentNullException(nameof(func));
+
+        if (func is Func<HttpContext, object?, ValueTask<IDictionary<string, object?>>> func2)
+        {
+            _func = func2;
+        }
+        else
+        {
+            _func = async (context, payload) => await func(context, payload);
+        }
+    }
+
+    /// <inheritdoc cref="UserContextBuilder(Func{HttpContext, ValueTask{TUserContext}})"/>
+    public UserContextBuilder(Func<HttpContext, object?, TUserContext> func)
+    {
+        if (func == null)
+            throw new ArgumentNullException(nameof(func));
+
+        _func = (context, payload) => new(func(context, payload));
     }
 
     /// <inheritdoc/>
-    public async ValueTask<IDictionary<string, object?>> BuildUserContextAsync(HttpContext context)
-        => await _func(context);
+    public ValueTask<IDictionary<string, object?>> BuildUserContextAsync(HttpContext context, object? payload)
+        => _func(context, payload);
 }
