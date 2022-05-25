@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Headers;
+using System.Net.WebSockets;
 using GraphQL.Server.Transports.AspNetCore.Errors;
 using GraphQL.Transport;
 using GraphQL.Types;
@@ -39,7 +40,7 @@ public class GraphQLHttpMiddleware<TSchema> : GraphQLHttpMiddleware
         IDocumentExecuter<TSchema> documentExecuter,
         IServiceScopeFactory serviceScopeFactory,
         GraphQLHttpMiddlewareOptions options)
-        : base(next, serializer, options)
+        : base(next, serializer, options, Array.Empty<IWebSocketHandler>())
     {
         _documentExecuter = documentExecuter ?? throw new ArgumentNullException(nameof(documentExecuter));
         _serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
@@ -165,9 +166,9 @@ public class GraphQLHttpMiddleware<TSchema> : GraphQLHttpMiddleware
 public abstract class GraphQLHttpMiddleware
 {
     private readonly IGraphQLTextSerializer _serializer;
-    //private readonly IEnumerable<IWebSocketHandler>? _webSocketHandlers;
+    private readonly IEnumerable<IWebSocketHandler>? _webSocketHandlers;
     private readonly RequestDelegate _next;
-    //private readonly IUserContextBuilder _userContextBuilderForWebSockets;
+    private readonly IUserContextBuilder _userContextBuilderForWebSockets;
 
     private const string QUERY_KEY = "query";
     private const string VARIABLES_KEY = "variables";
@@ -189,14 +190,14 @@ public abstract class GraphQLHttpMiddleware
     public GraphQLHttpMiddleware(
         RequestDelegate next,
         IGraphQLTextSerializer serializer,
-        GraphQLHttpMiddlewareOptions options /*,
-        IEnumerable<IWebSocketHandler>? webSocketHandlers = null */)
+        GraphQLHttpMiddlewareOptions options,
+        IEnumerable<IWebSocketHandler>? webSocketHandlers = null)
     {
         _next = next ?? throw new ArgumentNullException(nameof(next));
         _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
         Options = options ?? throw new ArgumentNullException(nameof(options));
-        //_webSocketHandlers = webSocketHandlers;
-        //_userContextBuilderForWebSockets = new UserContextBuilder<IDictionary<string, object?>>(BuildUserContextAsync);
+        _webSocketHandlers = webSocketHandlers;
+        _userContextBuilderForWebSockets = new UserContextBuilder<IDictionary<string, object?>>(BuildUserContextAsync);
     }
 
     /// <inheritdoc/>
@@ -204,20 +205,17 @@ public abstract class GraphQLHttpMiddleware
     {
         if (context.WebSockets.IsWebSocketRequest)
         {
-            /************* WebSocket support ************
             if (Options.HandleWebSockets)
             {
                 if (await HandleAuthorizeWebSocketConnectionAsync(context, _next))
                     return;
-                // Process WebSocket request
+
                 await HandleWebSocketAsync(context, _next);
             }
             else
             {
                 await HandleInvalidHttpMethodErrorAsync(context, _next);
             }
-            ************************/
-            await HandleInvalidHttpMethodErrorAsync(context, _next);
             return;
         }
 
@@ -520,8 +518,6 @@ public abstract class GraphQLHttpMiddleware
         return _serializer.WriteAsync(context.Response.Body, result, context.RequestAborted);
     }
 
-    /****** WebSocket support *********
-     
     /// <summary>
     /// Handles a WebSocket connection request.
     /// </summary>
@@ -567,8 +563,6 @@ public abstract class GraphQLHttpMiddleware
         // Connect, then wait until the websocket has disconnected (and all subscriptions ended)
         await selectedHandler.ExecuteAsync(context, socket, selectedProtocol, _userContextBuilderForWebSockets);
     }
-
-    *****************************/
 
     /// <summary>
     /// Writes a '401 Access denied.' message to the output when the user is not authenticated.
