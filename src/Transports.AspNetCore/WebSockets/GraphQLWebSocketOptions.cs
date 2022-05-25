@@ -30,7 +30,7 @@ public class GraphQLWebSocketOptions
 
     /// <summary>
     /// Disconnects a subscription from the client if the subscription source dispatches an
-    /// <see cref="IObserver{T}.OnError(Exception)"/> event.
+    /// <see cref="IObserver{T}.OnError(Exception)"/> event.  The default value is <see langword="true"/>.
     /// </summary>
     public bool DisconnectAfterErrorEvent { get; set; } = true;
 
