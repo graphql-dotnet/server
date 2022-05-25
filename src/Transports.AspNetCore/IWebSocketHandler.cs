@@ -21,7 +21,7 @@ public interface IWebSocketHandler
     Task ExecuteAsync(HttpContext httpContext, WebSocket webSocket, string subProtocol, IUserContextBuilder userContextBuilder);
 
     /// <summary>
-    /// Gets a list of supported WebSocket sub-protocols.
+    /// Gets a list of WebSocket sub-protocols supported by this handler.
     /// </summary>
     IEnumerable<string> SupportedSubProtocols { get; }
 }
