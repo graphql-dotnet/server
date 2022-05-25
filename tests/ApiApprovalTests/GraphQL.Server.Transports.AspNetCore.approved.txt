@@ -34,7 +34,7 @@ namespace GraphQL.Server.Transports.AspNetCore
     }
     public abstract class GraphQLHttpMiddleware
     {
-        public GraphQLHttpMiddleware(Microsoft.AspNetCore.Http.RequestDelegate next, GraphQL.IGraphQLTextSerializer serializer, GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions options) { }
+        public GraphQLHttpMiddleware(Microsoft.AspNetCore.Http.RequestDelegate next, GraphQL.IGraphQLTextSerializer serializer, GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions options, System.Collections.Generic.IEnumerable<GraphQL.Server.Transports.AspNetCore.IWebSocketHandler>? webSocketHandlers = null) { }
         protected GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions Options { get; }
         protected virtual System.Threading.Tasks.ValueTask<System.Collections.Generic.IDictionary<string, object?>> BuildUserContextAsync(Microsoft.AspNetCore.Http.HttpContext context, object? payload) { }
         protected abstract System.Threading.Tasks.Task<GraphQL.ExecutionResult> ExecuteRequestAsync(Microsoft.AspNetCore.Http.HttpContext context, GraphQL.Transport.GraphQLRequest? request, System.IServiceProvider serviceProvider, System.Collections.Generic.IDictionary<string, object?> userContext);
@@ -51,6 +51,7 @@ namespace GraphQL.Server.Transports.AspNetCore
         protected virtual System.Threading.Tasks.Task HandleNotAuthorizedPolicyAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next, Microsoft.AspNetCore.Authorization.AuthorizationResult authorizationResult) { }
         protected virtual System.Threading.Tasks.Task HandleNotAuthorizedRoleAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next) { }
         protected virtual System.Threading.Tasks.Task HandleRequestAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next, GraphQL.Transport.GraphQLRequest gqlRequest) { }
+        protected virtual System.Threading.Tasks.Task HandleWebSocketAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next) { }
         protected virtual System.Threading.Tasks.Task HandleWebSocketSubProtocolNotSupportedAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next) { }
         public virtual System.Threading.Tasks.Task InvokeAsync(Microsoft.AspNetCore.Http.HttpContext context) { }
         protected virtual string SelectResponseContentType(Microsoft.AspNetCore.Http.HttpContext context) { }
@@ -68,10 +69,12 @@ namespace GraphQL.Server.Transports.AspNetCore
         public bool ExecuteBatchedRequestsInParallel { get; set; }
         public bool HandleGet { get; set; }
         public bool HandlePost { get; set; }
+        public bool HandleWebSockets { get; set; }
         public bool ReadExtensionsFromQueryString { get; set; }
         public bool ReadQueryStringOnPost { get; set; }
         public bool ReadVariablesFromQueryString { get; set; }
         public bool ValidationErrorsReturnBadRequest { get; set; }
+        public GraphQL.Server.Transports.AspNetCore.WebSockets.GraphQLWebSocketOptions WebSockets { get; set; }
     }
     public class GraphQLHttpMiddleware<TSchema> : GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddleware
         where TSchema : GraphQL.Types.ISchema
@@ -94,6 +97,13 @@ namespace GraphQL.Server.Transports.AspNetCore
     {
         System.Threading.Tasks.ValueTask<System.Collections.Generic.IDictionary<string, object?>> BuildUserContextAsync(Microsoft.AspNetCore.Http.HttpContext context, object? payload);
     }
+    public interface IWebSocketHandler
+    {
+        System.Collections.Generic.IEnumerable<string> SupportedSubProtocols { get; }
+        System.Threading.Tasks.Task ExecuteAsync(Microsoft.AspNetCore.Http.HttpContext httpContext, System.Net.WebSockets.WebSocket webSocket, string subProtocol, GraphQL.Server.Transports.AspNetCore.IUserContextBuilder userContextBuilder);
+    }
+    public interface IWebSocketHandler<TSchema> : GraphQL.Server.Transports.AspNetCore.IWebSocketHandler
+        where TSchema : GraphQL.Types.ISchema { }
     public class UserContextBuilder<TUserContext> : GraphQL.Server.Transports.AspNetCore.IUserContextBuilder
         where TUserContext : System.Collections.Generic.IDictionary<string, object?>
     {
@@ -135,6 +145,18 @@ namespace GraphQL.Server.Transports.AspNetCore.Errors
     public class WebSocketSubProtocolNotSupportedError : GraphQL.Execution.RequestError
     {
         public WebSocketSubProtocolNotSupportedError(System.Collections.Generic.IEnumerable<string> requestedSubProtocols) { }
+    }
+}
+namespace GraphQL.Server.Transports.AspNetCore.WebSockets
+{
+    public class GraphQLWebSocketOptions
+    {
+        public GraphQLWebSocketOptions() { }
+        public System.TimeSpan? ConnectionInitWaitTimeout { get; set; }
+        public bool DisconnectAfterAnyError { get; set; }
+        public bool DisconnectAfterErrorEvent { get; set; }
+        public System.TimeSpan? DisconnectionTimeout { get; set; }
+        public System.TimeSpan? KeepAliveTimeout { get; set; }
     }
 }
 namespace Microsoft.AspNetCore.Builder

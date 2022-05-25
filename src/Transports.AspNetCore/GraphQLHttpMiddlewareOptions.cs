@@ -1,6 +1,8 @@
 using System.Security.Claims;
 using System.Security.Principal;
+using GraphQL.Server.Transports.AspNetCore.WebSockets;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 
 namespace GraphQL.Server.Transports.AspNetCore;
@@ -27,8 +29,6 @@ public class GraphQLHttpMiddlewareOptions
     /// </summary>
     public bool HandlePost { get; set; } = true;
 
-    /********** WebSockets support ********
-    
     /// <summary>
     /// Enables handling of WebSockets requests.
     /// <br/><br/>
@@ -36,8 +36,6 @@ public class GraphQLHttpMiddlewareOptions
     /// to initialize the WebSocket pipeline within the ASP.NET Core framework.
     /// </summary>
     public bool HandleWebSockets { get; set; } = true;
-
-    ******************/
 
     /// <summary>
     /// Enables handling of batched GraphQL requests for POST requests when formatted as JSON.
@@ -103,12 +101,8 @@ public class GraphQLHttpMiddlewareOptions
     /// </summary>
     public string? AuthorizedPolicy { get; set; }
 
-    /************ WebSockets support **********
-    
     /// <summary>
     /// Returns an options class for WebSocket connections.
     /// </summary>
     public GraphQLWebSocketOptions WebSockets { get; set; } = new();
-
-    ****************************/
 }
