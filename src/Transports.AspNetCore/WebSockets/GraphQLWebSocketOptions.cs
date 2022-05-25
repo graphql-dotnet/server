@@ -7,7 +7,7 @@ public class GraphQLWebSocketOptions
 {
     /// <summary>
     /// The amount of time to wait for a GraphQL initialization packet before the connection is closed.
-    /// The default is 10 seconds.
+    /// The default is typically 10 seconds.
     /// </summary>
     public TimeSpan? ConnectionInitWaitTimeout { get; set; }
 
