@@ -13,7 +13,7 @@ public class GraphQLWebSocketOptions
 
     /// <summary>
     /// The amount of time to wait between sending keep-alive packets.
-    /// The default is disabled.
+    /// The default is <see langword="null"/> which means that keep-alive packets are disabled.
     /// <br/><br/>
     /// Keep in mind that the 'subscription-transport-ws' implementation typically
     /// disconnects clients if a keep-alive packet has not been received for 20 seconds,
