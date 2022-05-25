@@ -24,7 +24,7 @@ public class GraphQLWebSocketOptions
 
     /// <summary>
     /// The amount of time to wait to attempt a graceful teardown of the WebSockets protocol.
-    /// The default is 10 seconds.
+    /// The default is typically 10 seconds.
     /// </summary>
     public TimeSpan? DisconnectionTimeout { get; set; }
 
