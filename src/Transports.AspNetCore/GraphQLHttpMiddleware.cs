@@ -209,7 +209,7 @@ public abstract class GraphQLHttpMiddleware
             {
                 if (await HandleAuthorizeWebSocketConnectionAsync(context, _next))
                     return;
-                // Process WebSocket request
+
                 await HandleWebSocketAsync(context, _next);
             }
             else
