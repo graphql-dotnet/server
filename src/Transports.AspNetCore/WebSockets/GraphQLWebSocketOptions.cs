@@ -35,7 +35,7 @@ public class GraphQLWebSocketOptions
     public bool DisconnectAfterErrorEvent { get; set; } = true;
 
     /// <summary>
-    /// Disconnects a subscription from the client there are any GraphQL errors during a subscription.
+    /// Disconnects a subscription from the client in the event of any GraphQL errors during a subscription.  The default value is <see langword="false"/>.
     /// </summary>
     public bool DisconnectAfterAnyError { get; set; }
 }
