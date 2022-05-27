@@ -125,7 +125,7 @@ public void ConfigureServices(IServiceCollection services)
 
     // Add GraphQL services and configure options
     services.AddGraphQL(builder => builder
-        .AddServer(true)
+        .AddServer(true) // Omit for .NET Core 3+
         .AddHttpMiddleware<ChatSchema>()
         .AddWebSocketsHttpMiddleware<ChatSchema>()
         // For subscriptions support
