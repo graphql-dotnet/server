@@ -171,7 +171,7 @@ namespace GraphQL.Server.Transports.AspNetCore.WebSockets
     {
         System.Threading.Tasks.Task AuthenticateAsync(GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketConnection connection, string subProtocol, GraphQL.Transport.OperationMessage operationMessage);
     }
-    public interface IWebSocketConnection
+    public interface IWebSocketConnection : System.IDisposable
     {
         Microsoft.AspNetCore.Http.HttpContext HttpContext { get; }
         System.DateTime LastMessageSentAt { get; }

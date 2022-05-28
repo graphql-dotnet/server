@@ -11,7 +11,7 @@ namespace GraphQL.Server.Transports.AspNetCore.WebSockets;
 /// <see cref="ExecuteAsync(IOperationMessageProcessor)"/> may be only called once.
 /// All members must be thread-safe.
 /// </summary>
-public interface IWebSocketConnection
+public interface IWebSocketConnection : IDisposable
 {
     /// <summary>
     /// Listens to incoming messages over the WebSocket connection,
@@ -21,17 +21,17 @@ public interface IWebSocketConnection
     Task ExecuteAsync(IOperationMessageProcessor operationMessageProcessor);
 
     /// <summary>
-    /// Sends a message.
+    /// Sends a message to the client.
     /// </summary>
     Task SendMessageAsync(OperationMessage message);
 
     /// <summary>
-    /// Closes the WebSocket connection.
+    /// Performs a graceful shutdown of the WebSocket connection with event ID 1000.
     /// </summary>
     Task CloseConnectionAsync();
 
     /// <summary>
-    /// Closes the WebSocket connection with the specified error information.
+    /// Performs a graceful shutdown of the WebSocket connection with the specified error information.
     /// </summary>
     Task CloseConnectionAsync(int eventId, string? description);
 
