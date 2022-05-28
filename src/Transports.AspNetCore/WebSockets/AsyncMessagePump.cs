@@ -31,7 +31,7 @@ internal class AsyncMessagePump<T>
     }
 
     /// <summary>
-    /// Initializes a new instances with the specified synchronous callback delegate.
+    /// Initializes a new instance with the specified synchronous callback delegate.
     /// </summary>
     public AsyncMessagePump(Action<T> callback)
     {
