@@ -99,7 +99,7 @@ public class WebSocketHandler : IWebSocketHandler
             return;
         try
         {
-            var webSocketConnection = CreateWebSocketConnection(httpContext, webSocket, cts.Token);
+            using var webSocketConnection = CreateWebSocketConnection(httpContext, webSocket, cts.Token);
             using var operationMessageReceiveStream = CreateReceiveStream(webSocketConnection, subProtocol, userContextBuilder);
             await webSocketConnection.ExecuteAsync(operationMessageReceiveStream);
         }
