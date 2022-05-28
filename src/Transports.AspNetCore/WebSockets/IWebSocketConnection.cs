@@ -28,7 +28,7 @@ public interface IWebSocketConnection : IDisposable
     /// <summary>
     /// Performs a graceful shutdown of the WebSocket connection with event ID 1000.
     /// </summary>
-    Task CloseConnectionAsync();
+    Task CloseAsync();
 
     /// <summary>
     /// Performs a graceful shutdown of the WebSocket connection with the specified error information.
