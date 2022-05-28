@@ -133,55 +133,55 @@ public abstract partial class BaseSubscriptionServer : IOperationMessageProcesso
     /// Executes upon a request to close the connection from the client.
     /// </summary>
     protected virtual Task OnCloseConnectionAsync()
-        => Client.CloseConnectionAsync();
+        => Client.CloseAsync();
 
     /// <summary>
     /// Executes upon a request that has failed authorization.
     /// </summary>
     protected virtual Task ErrorAccessDeniedAsync()
-        => Client.CloseConnectionAsync(4401, "Access denied");
+        => Client.CloseAsync(4401, "Access denied");
 
     /// <summary>
     /// Sends a fatal error message indicating that the initialization timeout has expired
     /// without the connection being initialized.
     /// </summary>
     protected virtual Task ErrorConnectionInitializationTimeoutAsync()
-        => Client.CloseConnectionAsync(4408, "Connection initialization timeout");
+        => Client.CloseAsync(4408, "Connection initialization timeout");
 
     /// <summary>
     /// Sends a fatal error message indicating that the client attempted to initialize
     /// the connection more than one time.
     /// </summary>
     protected virtual Task ErrorTooManyInitializationRequestsAsync(OperationMessage message)
-        => Client.CloseConnectionAsync(4429, "Too many initialization requests");
+        => Client.CloseAsync(4429, "Too many initialization requests");
 
     /// <summary>
     /// Sends a fatal error message indicating that the client attempted to subscribe
     /// to an event stream before initialization was complete.
     /// </summary>
     protected virtual Task ErrorNotInitializedAsync(OperationMessage message)
-        => Client.CloseConnectionAsync(4401, "Unauthorized");
+        => Client.CloseAsync(4401, "Unauthorized");
 
     /// <summary>
     /// Sends a fatal error message indicating that the client attempted to use an
     /// unrecognized message type.
     /// </summary>
     protected virtual Task ErrorUnrecognizedMessageAsync(OperationMessage message)
-        => Client.CloseConnectionAsync(4400, "Unrecognized message");
+        => Client.CloseAsync(4400, "Unrecognized message");
 
     /// <summary>
     /// Sends a fatal error message indicating that the client attempted to subscribe
     /// to an event stream with an empty id.
     /// </summary>
     protected virtual Task ErrorIdCannotBeBlankAsync(OperationMessage message)
-        => Client.CloseConnectionAsync(4400, "Id cannot be blank");
+        => Client.CloseAsync(4400, "Id cannot be blank");
 
     /// <summary>
     /// Sends a fatal error message indicating that the client attempted to subscribe
     /// to an event stream with an id that was already in use.
     /// </summary>
     protected virtual Task ErrorIdAlreadyExistsAsync(OperationMessage message)
-        => Client.CloseConnectionAsync(4409, $"Subscriber for {message.Id} already exists");
+        => Client.CloseAsync(4409, $"Subscriber for {message.Id} already exists");
 
     /// <summary>
     /// Authorizes an incoming GraphQL over WebSockets request with the connection initialization message.
