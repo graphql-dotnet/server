@@ -79,9 +79,7 @@ internal class AsyncMessagePump<T>
         lock (_queue)
         {
             // should always successfully peek from the queue here
-#pragma warning disable CA2012 // Use ValueTasks correctly
             moreEvents = _queue.TryPeek(out messageTask);
-#pragma warning restore CA2012 // Use ValueTasks correctly
         }
         while (moreEvents)
         {
