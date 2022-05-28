@@ -64,14 +64,14 @@ internal class AsyncMessagePump<T>
 
         if (attach)
         {
-            _ = CompleteAsync();
+            _ = ProcessAllMessagesInQueueAsync();
         }
     }
 
     /// <summary>
-    /// Processes message in the queue until it is empty.
+    /// Processes messages from the queue in order; executes until the queue is empty.
     /// </summary>
-    private async Task CompleteAsync()
+    private async Task ProcessAllMessagesInQueueAsync()
     {
         // grab the message at the start of the queue, but don't remove it from the queue
         ValueTask<T> messageTask;
@@ -96,7 +96,12 @@ internal class AsyncMessagePump<T>
                 {
                     await HandleErrorAsync(ex);
                 }
-                catch { }
+                catch
+                {
+                    // if an error is unhandled, execution of this method will terminate, and
+                    // no further events in the queue will be processed, and Queue will not
+                    // start another ProcessAllEventsInQueueAsync because the queue is not empty
+                 }
             }
 
             // once the message has been passed along, dequeue it
@@ -106,7 +111,7 @@ internal class AsyncMessagePump<T>
                 _ = _queue.Dequeue();
 #pragma warning restore CA2012 // Use ValueTasks correctly
                 // if the queue is empty, immedately quit the loop, as any new
-                // events queued will start CompleteAsync
+                // messages queued will start ProcessAllMessagesInQueueAsync
                 if (!_queue.TryPeek(out messageTask!))
                     return;
             }
@@ -114,7 +119,8 @@ internal class AsyncMessagePump<T>
     }
 
     /// <summary>
-    /// Handles exceptions that occur within the asynchronous message delegate or the callback.
+    /// Handles exceptions that occur within the asynchronous or synchronous message delegate.
+    /// By default does nothing.
     /// </summary>
     protected virtual Task HandleErrorAsync(Exception exception)
         => Task.CompletedTask;
