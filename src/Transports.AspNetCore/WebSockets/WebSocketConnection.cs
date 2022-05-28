@@ -15,7 +15,7 @@ namespace GraphQL.Server.Transports.AspNetCore.WebSockets;
 /// Calls to <see cref="IOperationMessageProcessor.OnMessageReceivedAsync(OperationMessage)"/> be awaited
 /// before dispatching subsequent messages.
 /// <br/><br/>
-/// Calls to <see cref="CloseConnectionAsync()"/> and <see cref="SendMessageAsync(OperationMessage)"/> may be
+/// Calls to <see cref="CloseAsync()"/> and <see cref="SendMessageAsync(OperationMessage)"/> may be
 /// called on multiple threads simultaneously. They are queued for delivery and sent in the order posted.
 /// Messages posted after requesting the connection be closed will be discarded.
 /// </summary>
@@ -105,7 +105,7 @@ public class WebSocketConnection : IWebSocketConnection
                     if (!_outputClosed.Task.IsCompleted)
                     {
                         // queue the closure
-                        _ = CloseConnectionAsync();
+                        _ = CloseAsync();
                         // wait until the close has been sent
                         var completedTask = Task.WhenAny(
                             _outputClosed.Task,
@@ -166,11 +166,11 @@ public class WebSocketConnection : IWebSocketConnection
     }
 
     /// <inheritdoc/>
-    public Task CloseConnectionAsync()
-        => CloseConnectionAsync(1000, null);
+    public Task CloseAsync()
+        => CloseAsync(1000, null);
 
     /// <inheritdoc/>
-    public Task CloseConnectionAsync(int eventId, string? description)
+    public Task CloseAsync(int eventId, string? description)
     {
         _pump.Post(new Message { CloseStatus = (WebSocketCloseStatus)eventId, CloseDescription = description });
         return Task.CompletedTask;
@@ -188,8 +188,8 @@ public class WebSocketConnection : IWebSocketConnection
     /// or <see cref="WebSocketCloseStatus"/> with description, passing to either
     /// <see cref="OnSendMessageAsync(OperationMessage)"/> or <see cref="OnCloseOutputAsync(WebSocketCloseStatus, string?)"/>.
     /// <br/><br/>
-    /// The methods <see cref="SendMessageAsync(OperationMessage)"/>, <see cref="CloseConnectionAsync()"/>
-    /// and <see cref="CloseConnectionAsync(int, string?)"/> add <see cref="Message"/> instances to the queue.
+    /// The methods <see cref="SendMessageAsync(OperationMessage)"/>, <see cref="CloseAsync()"/>
+    /// and <see cref="CloseAsync(int, string?)"/> add <see cref="Message"/> instances to the queue.
     /// </summary>
     private async Task HandleMessageAsync(Message message)
     {
