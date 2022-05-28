@@ -23,7 +23,7 @@ internal class AsyncMessagePump<T>
     private readonly Queue<ValueTask<T>> _queue = new();
 
     /// <summary>
-    /// Initializes a new instances with the specified asynchronous callback delegate.
+    /// Initializes a new instance with the specified asynchronous callback delegate.
     /// </summary>
     public AsyncMessagePump(Func<T, Task> callback)
     {
