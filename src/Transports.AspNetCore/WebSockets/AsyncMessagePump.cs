@@ -75,14 +75,15 @@ internal class AsyncMessagePump<T>
     {
         // grab the message at the start of the queue, but don't remove it from the queue
         ValueTask<T> messageTask;
+        bool moreEvents;
         lock (_queue)
         {
             // should always successfully peek from the queue here
 #pragma warning disable CA2012 // Use ValueTasks correctly
-            messageTask = _queue.Peek();
+            moreEvents = _queue.TryPeek(out messageTask);
 #pragma warning restore CA2012 // Use ValueTasks correctly
         }
-        while (true)
+        while (moreEvents)
         {
             // process the message
             try
@@ -101,7 +102,7 @@ internal class AsyncMessagePump<T>
                     // if an error is unhandled, execution of this method will terminate, and
                     // no further events in the queue will be processed, and Queue will not
                     // start another ProcessAllEventsInQueueAsync because the queue is not empty
-                 }
+                }
             }
 
             // once the message has been passed along, dequeue it
@@ -112,8 +113,7 @@ internal class AsyncMessagePump<T>
 #pragma warning restore CA2012 // Use ValueTasks correctly
                 // if the queue is empty, immedately quit the loop, as any new
                 // messages queued will start ProcessAllMessagesInQueueAsync
-                if (!_queue.TryPeek(out messageTask!))
-                    return;
+                moreEvents = _queue.TryPeek(out messageTask);
             }
         }
     }
