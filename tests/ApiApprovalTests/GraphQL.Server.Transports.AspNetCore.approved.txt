@@ -176,8 +176,8 @@ namespace GraphQL.Server.Transports.AspNetCore.WebSockets
         Microsoft.AspNetCore.Http.HttpContext HttpContext { get; }
         System.DateTime LastMessageSentAt { get; }
         System.Threading.CancellationToken RequestAborted { get; }
-        System.Threading.Tasks.Task CloseConnectionAsync();
-        System.Threading.Tasks.Task CloseConnectionAsync(int eventId, string? description);
+        System.Threading.Tasks.Task CloseAsync();
+        System.Threading.Tasks.Task CloseAsync(int eventId, string? description);
         System.Threading.Tasks.Task ExecuteAsync(GraphQL.Server.Transports.AspNetCore.WebSockets.IOperationMessageProcessor operationMessageProcessor);
         System.Threading.Tasks.Task SendMessageAsync(GraphQL.Transport.OperationMessage message);
     }
