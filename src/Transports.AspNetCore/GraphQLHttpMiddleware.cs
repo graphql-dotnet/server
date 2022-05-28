@@ -2,12 +2,14 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.WebSockets;
 using GraphQL.Server.Transports.AspNetCore.Errors;
+using GraphQL.Server.Transports.AspNetCore.WebSockets;
 using GraphQL.Transport;
 using GraphQL.Types;
 using GraphQL.Validation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace GraphQL.Server.Transports.AspNetCore;
 
@@ -30,29 +32,6 @@ public class GraphQLHttpMiddleware<TSchema> : GraphQLHttpMiddleware
     private readonly IEnumerable<IValidationRule> _postCachedDocumentValidationRules;
 
     // important: when using convention-based ASP.NET Core middleware, the first constructor is always used
-
-    /// <summary>
-    /// Initializes a new instance.
-    /// </summary>
-    public GraphQLHttpMiddleware(
-        RequestDelegate next,
-        IGraphQLTextSerializer serializer,
-        IDocumentExecuter<TSchema> documentExecuter,
-        IServiceScopeFactory serviceScopeFactory,
-        GraphQLHttpMiddlewareOptions options)
-        : base(next, serializer, options, Array.Empty<IWebSocketHandler>())
-    {
-        _documentExecuter = documentExecuter ?? throw new ArgumentNullException(nameof(documentExecuter));
-        _serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
-        var getRule = new HttpGetValidationRule();
-        _getValidationRules = DocumentValidator.CoreRules.Append(getRule).ToArray();
-        _getCachedDocumentValidationRules = new[] { getRule };
-        var postRule = new HttpPostValidationRule();
-        _postValidationRules = DocumentValidator.CoreRules.Append(postRule).ToArray();
-        _postCachedDocumentValidationRules = new[] { postRule };
-    }
-
-    /************* WebSocket support ***********
 
     /// <summary>
     /// Initializes a new instance.
@@ -110,8 +89,6 @@ public class GraphQLHttpMiddleware<TSchema> : GraphQLHttpMiddleware
                 hostApplicationLifetime, provider.GetService<IWebSocketAuthenticationService>()),
         };
     }
-
-    ******************************/
 
     /// <inheritdoc/>
     protected override async Task<ExecutionResult> ExecuteScopedRequestAsync(HttpContext context, GraphQLRequest? request, IDictionary<string, object?> userContext)
