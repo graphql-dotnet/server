@@ -2,7 +2,7 @@ namespace GraphQL.Server.Transports.AspNetCore.WebSockets;
 
 /// <summary>
 /// <para>
-/// An asynchronous message pump, where messages can be posted
+/// An asynchronous message pump, where messages intended for the client can be posted
 /// on multiple threads and executed sequentially.
 /// </para>
 /// <para>
