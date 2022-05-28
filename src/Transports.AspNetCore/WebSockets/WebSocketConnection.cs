@@ -244,4 +244,9 @@ public class WebSocketConnection : IWebSocketConnection
     /// <param name="CloseStatus">The close status.</param>
     /// <param name="CloseDescription">The close description.</param>
     private record struct Message(OperationMessage? OperationMessage, WebSocketCloseStatus CloseStatus, string? CloseDescription);
+
+    /// <inheritdoc/>
+    public virtual void Dispose()
+    {
+    }
 }
