@@ -350,9 +350,9 @@ public abstract class GraphQLHttpMiddleware
             default:
                 if (httpRequest.HasFormContentType)
                 {
-                    var formCollection = await httpRequest.ReadFormAsync(context.RequestAborted);
                     try
                     {
+                        var formCollection = await httpRequest.ReadFormAsync(context.RequestAborted);
                         return (DeserializeFromFormBody(formCollection), null);
                     }
                     catch (Exception ex)
