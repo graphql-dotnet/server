@@ -32,7 +32,7 @@ public abstract partial class BaseSubscriptionServer : IOperationMessageProcesso
     /// <summary>
     /// Returns a synchronized list of subscriptions.
     /// </summary>
-    protected SubscriptionList Subscriptions { get; }
+    protected SubscriptionList Subscriptions { get; } = new();
 
     /// <summary>
     /// Returns the default keep-alive timeout.
@@ -71,7 +71,6 @@ public abstract partial class BaseSubscriptionServer : IOperationMessageProcesso
         Client = sendStream ?? throw new ArgumentNullException(nameof(sendStream));
         _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(sendStream.RequestAborted);
         CancellationToken = _cancellationTokenSource.Token;
-        Subscriptions = new(CancellationToken);
     }
 
     /// <inheritdoc/>
@@ -361,6 +360,7 @@ public abstract partial class BaseSubscriptionServer : IOperationMessageProcesso
             }
 
             var result = await ExecuteRequestAsync(message);
+            CancellationToken.ThrowIfCancellationRequested();
             if (!Subscriptions.Contains(messageId, dummyDisposer))
                 return;
             if (result.Streams?.Count == 1)
