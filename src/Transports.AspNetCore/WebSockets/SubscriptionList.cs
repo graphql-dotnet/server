@@ -12,6 +12,7 @@ namespace GraphQL.Server.Transports.AspNetCore.WebSockets;
 /// </summary>
 public sealed class SubscriptionList : IDisposable
 {
+    private CancellationTokenSource? _cancellationTokenSource;
     private readonly CancellationToken _cancellationToken;
     private readonly Dictionary<string, IDisposable> _subscriptions = new();
     private readonly object _lock = new();
@@ -21,7 +22,8 @@ public sealed class SubscriptionList : IDisposable
     /// </summary>
     public SubscriptionList(CancellationToken cancellationToken)
     {
-        _cancellationToken = cancellationToken;
+        _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        _cancellationToken = _cancellationTokenSource.Token;
     }
 
     /// <summary>
@@ -29,6 +31,11 @@ public sealed class SubscriptionList : IDisposable
     /// </summary>
     public void Dispose()
     {
+        var cts = Interlocked.Exchange(ref _cancellationTokenSource, null);
+        if (cts == null)
+            return;
+        cts.Cancel();
+        cts.Dispose();
         List<IDisposable> subscriptionsToDispose;
         lock (_lock)
         {
