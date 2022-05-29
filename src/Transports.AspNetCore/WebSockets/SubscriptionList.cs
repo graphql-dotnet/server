@@ -112,7 +112,7 @@ public sealed class SubscriptionList : IDisposable
     }
 
     /// <summary>
-    /// Validates that the specified subscription is still active.
+    /// Validates that the specified subscription is still in the list.
     /// </summary>
     /// <exception cref="ArgumentNullException"/>
     /// <exception cref="OperationCanceledException"/>
