@@ -183,7 +183,7 @@ namespace GraphQL.Server.Transports.AspNetCore.WebSockets
     }
     public sealed class SubscriptionList : System.IDisposable
     {
-        public SubscriptionList(System.Threading.CancellationToken cancellationToken) { }
+        public SubscriptionList() { }
         public System.IDisposable this[string id] { set; }
         public bool CompareExchange(string id, System.IDisposable oldSubscription, System.IDisposable newSubscription) { }
         public bool Contains(string id) { }

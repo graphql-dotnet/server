@@ -12,17 +12,8 @@ namespace GraphQL.Server.Transports.AspNetCore.WebSockets;
 /// </summary>
 public sealed class SubscriptionList : IDisposable
 {
-    private readonly CancellationToken _cancellationToken;
     private Dictionary<string, IDisposable>? _subscriptions = new();
     private readonly object _lock = new();
-
-    /// <summary>
-    /// Initializes a new instance.
-    /// </summary>
-    public SubscriptionList(CancellationToken cancellationToken)
-    {
-        _cancellationToken = cancellationToken;
-    }
 
     /// <summary>
     /// Disposes all subscriptions in the list.
@@ -63,7 +54,6 @@ public sealed class SubscriptionList : IDisposable
         {
             if (_subscriptions == null)
                 throw new ObjectDisposedException(nameof(SubscriptionList));
-            _cancellationToken.ThrowIfCancellationRequested();
             return _subscriptions.TryAdd(id, subscription);
         }
     }
@@ -90,7 +80,6 @@ public sealed class SubscriptionList : IDisposable
                 {
                     if (_subscriptions == null)
                         throw new ObjectDisposedException(nameof(SubscriptionList));
-                    _cancellationToken.ThrowIfCancellationRequested();
                     _subscriptions.TryGetValue(id, out oldDisposable);
                     _subscriptions[id] = value;
                 }
@@ -118,7 +107,6 @@ public sealed class SubscriptionList : IDisposable
         {
             if (_subscriptions == null)
                 throw new ObjectDisposedException(nameof(SubscriptionList));
-            _cancellationToken.ThrowIfCancellationRequested();
             return _subscriptions.TryGetValue(id, out var value) && value == subscription;
         }
     }
@@ -137,7 +125,6 @@ public sealed class SubscriptionList : IDisposable
         {
             if (_subscriptions == null)
                 throw new ObjectDisposedException(nameof(SubscriptionList));
-            _cancellationToken.ThrowIfCancellationRequested();
             return _subscriptions.ContainsKey(id);
         }
     }
@@ -165,7 +152,6 @@ public sealed class SubscriptionList : IDisposable
             {
                 if (_subscriptions == null)
                     throw new ObjectDisposedException(nameof(SubscriptionList));
-                _cancellationToken.ThrowIfCancellationRequested();
                 if (!_subscriptions.TryGetValue(id, out var value) || value != oldSubscription)
                     return false;
                 _subscriptions[id] = newSubscription;
@@ -197,7 +183,6 @@ public sealed class SubscriptionList : IDisposable
             {
                 if (_subscriptions == null)
                     throw new ObjectDisposedException(nameof(SubscriptionList));
-                _cancellationToken.ThrowIfCancellationRequested();
                 if (_subscriptions.TryGetValue(id, out subscription))
                 {
                     _subscriptions.Remove(id);
@@ -231,7 +216,6 @@ public sealed class SubscriptionList : IDisposable
             {
                 if (_subscriptions == null)
                     throw new ObjectDisposedException(nameof(SubscriptionList));
-                _cancellationToken.ThrowIfCancellationRequested();
                 if (!_subscriptions.TryGetValue(id, out var value) || value != oldSubscription)
                     return false;
                 _subscriptions.Remove(id);
