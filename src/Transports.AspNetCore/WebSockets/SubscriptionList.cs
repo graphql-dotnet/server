@@ -44,7 +44,11 @@ public sealed class SubscriptionList : IDisposable
         }
         foreach (var disposer in subscriptionsToDispose)
         {
-            disposer.Dispose();
+            try
+            {
+                disposer.Dispose();
+            }
+            catch { }
         }
     }
 
