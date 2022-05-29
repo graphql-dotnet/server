@@ -13,6 +13,10 @@ namespace GraphQL.Server
             where TUserContext :  class, System.Collections.Generic.IDictionary<string, object?> { }
         public static GraphQL.DI.IGraphQLBuilder AddUserContextBuilder<TUserContext>(this GraphQL.DI.IGraphQLBuilder builder, System.Func<Microsoft.AspNetCore.Http.HttpContext, object?, TUserContext> creator)
             where TUserContext :  class, System.Collections.Generic.IDictionary<string, object?> { }
+        public static GraphQL.DI.IGraphQLBuilder AddWebSocketAuthentication(this GraphQL.DI.IGraphQLBuilder builder, GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketAuthenticationService webSocketAuthenticationService) { }
+        public static GraphQL.DI.IGraphQLBuilder AddWebSocketAuthentication(this GraphQL.DI.IGraphQLBuilder builder, System.Func<System.IServiceProvider, GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketAuthenticationService> factory) { }
+        public static GraphQL.DI.IGraphQLBuilder AddWebSocketAuthentication<TWebSocketAuthenticationService>(this GraphQL.DI.IGraphQLBuilder builder)
+            where TWebSocketAuthenticationService :  class, GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketAuthenticationService { }
     }
 }
 namespace GraphQL.Server.Transports.AspNetCore
@@ -157,6 +161,25 @@ namespace GraphQL.Server.Transports.AspNetCore.WebSockets
         public bool DisconnectAfterErrorEvent { get; set; }
         public System.TimeSpan? DisconnectionTimeout { get; set; }
         public System.TimeSpan? KeepAliveTimeout { get; set; }
+    }
+    public interface IOperationMessageProcessor : System.IDisposable
+    {
+        System.Threading.Tasks.Task InitializeConnectionAsync();
+        System.Threading.Tasks.Task OnMessageReceivedAsync(GraphQL.Transport.OperationMessage message);
+    }
+    public interface IWebSocketAuthenticationService
+    {
+        System.Threading.Tasks.Task AuthenticateAsync(GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketConnection connection, string subProtocol, GraphQL.Transport.OperationMessage operationMessage);
+    }
+    public interface IWebSocketConnection : System.IDisposable
+    {
+        Microsoft.AspNetCore.Http.HttpContext HttpContext { get; }
+        System.DateTime LastMessageSentAt { get; }
+        System.Threading.CancellationToken RequestAborted { get; }
+        System.Threading.Tasks.Task CloseAsync();
+        System.Threading.Tasks.Task CloseAsync(int eventId, string? description);
+        System.Threading.Tasks.Task ExecuteAsync(GraphQL.Server.Transports.AspNetCore.WebSockets.IOperationMessageProcessor operationMessageProcessor);
+        System.Threading.Tasks.Task SendMessageAsync(GraphQL.Transport.OperationMessage message);
     }
 }
 namespace Microsoft.AspNetCore.Builder
