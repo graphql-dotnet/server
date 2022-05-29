@@ -27,7 +27,7 @@ public sealed class SubscriptionList : IDisposable
     }
 
     /// <summary>
-    /// Disposes of all active subscriptions.
+    /// Disposes all subscriptions in the list.
     /// </summary>
     public void Dispose()
     {
@@ -100,7 +100,7 @@ public sealed class SubscriptionList : IDisposable
     }
 
     /// <summary>
-    /// Validates that the specified subscription is still active.
+    /// Validates that the specified subscription is still in the list.
     /// </summary>
     /// <exception cref="ArgumentNullException"/>
     /// <exception cref="OperationCanceledException"/>
@@ -119,7 +119,7 @@ public sealed class SubscriptionList : IDisposable
     }
 
     /// <summary>
-    /// Validates that the specified subscription is still active.
+    /// Validates that the specified subscription is still in the list.
     /// </summary>
     /// <exception cref="ArgumentNullException"/>
     /// <exception cref="OperationCanceledException"/>
