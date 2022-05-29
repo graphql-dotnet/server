@@ -36,7 +36,8 @@ public interface IWebSocketConnection : IDisposable
     Task CloseAsync(int eventId, string? description);
 
     /// <summary>
-    /// Returns the last UTC time that a message was sent to the client. This property is needed to implement the idle timeout to only send a keep-alive message after ## seconds of "no traffic". 
+    /// Returns the last UTC time that a message was sent to the client.
+    /// This property is needed to implement the idle timeout to only send a keep-alive message after ## seconds of "no traffic". 
     /// </summary>
     DateTime LastMessageSentAt { get; }
 
