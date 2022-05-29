@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.Security.Principal;
 using GraphQL.Execution;
 using GraphQL.Transport;
 using Microsoft.AspNetCore.Authorization;
@@ -78,7 +79,8 @@ public abstract partial class BaseSubscriptionServer : IOperationMessageProcesso
         var connectInitWaitTimeout = _options.WebSockets.ConnectionInitWaitTimeout ?? DefaultConnectionTimeout;
         if (connectInitWaitTimeout != Timeout.InfiniteTimeSpan)
         {
-            _ = Task.Run(async () => {
+            _ = Task.Run(async () =>
+            {
                 await Task.Delay(connectInitWaitTimeout, CancellationToken); // CancellationToken is set when this class is disposed
                 if (_initialized == 0)
                     await OnConnectionInitWaitTimeoutAsync();
