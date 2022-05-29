@@ -24,7 +24,8 @@ public abstract partial class BaseSubscriptionServer : IOperationMessageProcesso
 
     /// <summary>
     /// Returns a <see cref="System.Threading.CancellationToken"/> that is signaled
-    /// when the WebSockets connection is closed.
+    /// when this class is disposed or when the WebSockets connection is closed.
+    /// Intended to stop background timers.
     /// </summary>
     protected CancellationToken CancellationToken { get; }
 
@@ -68,7 +69,7 @@ public abstract partial class BaseSubscriptionServer : IOperationMessageProcesso
 #pragma warning restore CA2208 // Instantiate argument exceptions correctly
         }
         Client = sendStream ?? throw new ArgumentNullException(nameof(sendStream));
-        _cancellationTokenSource = new();
+        _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(sendStream.RequestAborted);
         CancellationToken = _cancellationTokenSource.Token;
         Subscriptions = new(CancellationToken);
     }
@@ -91,6 +92,7 @@ public abstract partial class BaseSubscriptionServer : IOperationMessageProcesso
 
     /// <summary>
     /// Executes once the initialization timeout has expired without being initialized.
+    /// This method may execute concurrently with other code in this class.
     /// </summary>
     protected virtual Task OnConnectionInitWaitTimeoutAsync()
         => ErrorConnectionInitializationTimeoutAsync();
@@ -319,6 +321,7 @@ public abstract partial class BaseSubscriptionServer : IOperationMessageProcesso
 
     /// <summary>
     /// Executes when a keep-alive message needs to be sent.
+    /// This method may execute concurrently with other code in this class.
     /// </summary>
     protected abstract Task OnSendKeepAliveAsync();
 
