@@ -25,7 +25,7 @@ public sealed class SubscriptionList : IDisposable
     }
 
     /// <summary>
-    /// Disposes of all active subscriptions.
+    /// Disposes all subscriptions in the list.
     /// </summary>
     public void Dispose()
     {
