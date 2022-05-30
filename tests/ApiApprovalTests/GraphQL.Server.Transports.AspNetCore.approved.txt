@@ -181,6 +181,18 @@ namespace GraphQL.Server.Transports.AspNetCore.WebSockets
         System.Threading.Tasks.Task ExecuteAsync(GraphQL.Server.Transports.AspNetCore.WebSockets.IOperationMessageProcessor operationMessageProcessor);
         System.Threading.Tasks.Task SendMessageAsync(GraphQL.Transport.OperationMessage message);
     }
+    public sealed class SubscriptionList : System.IDisposable
+    {
+        public SubscriptionList() { }
+        public System.IDisposable this[string id] { set; }
+        public bool CompareExchange(string id, System.IDisposable oldSubscription, System.IDisposable newSubscription) { }
+        public bool Contains(string id) { }
+        public bool Contains(string id, System.IDisposable subscription) { }
+        public void Dispose() { }
+        public bool TryAdd(string id, System.IDisposable subscription) { }
+        public bool TryRemove(string id) { }
+        public bool TryRemove(string id, System.IDisposable oldSubscription) { }
+    }
 }
 namespace Microsoft.AspNetCore.Builder
 {
