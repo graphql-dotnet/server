@@ -3,12 +3,6 @@ namespace GraphQL.Server.Transports.AspNetCore.WebSockets;
 /// <summary>
 /// A list of subscriptions represented by a dictonary of string keys and <see cref="IDisposable"/> values.
 /// All members are thread-safe.
-/// <br/><br/>
-/// Upon signalling the cancellation token, all future calls to any method except
-/// <see cref="Dispose"/> will throw an <see cref="OperationCanceledException"/>.
-/// <br/><br/>
-/// It is recommended to call <see cref="Dispose"/> immediately after signalling
-/// the cancellation token.
 /// </summary>
 public sealed class SubscriptionList : IDisposable
 {
@@ -28,14 +22,20 @@ public sealed class SubscriptionList : IDisposable
             subscriptionsToDispose = _subscriptions.Values.ToList();
             _subscriptions = null;
         }
+        List<Exception>? exceptions = null;
         foreach (var disposer in subscriptionsToDispose)
         {
             try
             {
                 disposer.Dispose();
             }
-            catch { }
+            catch (Exception ex)
+            {
+                (exceptions ??= new()).Add(ex);
+            }
         }
+        if (exceptions != null)
+            throw new AggregateException(exceptions);
     }
 
     /// <summary>
