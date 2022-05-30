@@ -1,7 +1,7 @@
 namespace GraphQL.Server.Transports.AspNetCore.WebSockets;
 
 /// <summary>
-/// A list of subscriptions represented by a dictonary of string keys and <see cref="IDisposable"/> values.
+/// A list of subscriptions represented by a dictionary of string keys (subscription ids) and <see cref="IDisposable"/> values.
 /// All members are thread-safe.
 /// </summary>
 public sealed class SubscriptionList : IDisposable
