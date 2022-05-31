@@ -12,11 +12,11 @@ namespace GraphQL.Server.Transports.AspNetCore.WebSockets;
 /// instance. Awaiting the result will return once the WebSocket connection has been properly closed from both
 /// ends, after all messages have been sent.
 /// <br/><br/>
-/// Calls to <see cref="IOperationMessageProcessor.OnMessageReceivedAsync(OperationMessage)"/> be awaited
+/// Calls to <see cref="IOperationMessageProcessor.OnMessageReceivedAsync(OperationMessage)"/> will be awaited
 /// before dispatching subsequent messages.
 /// <br/><br/>
 /// Calls to <see cref="CloseAsync()"/> and <see cref="SendMessageAsync(OperationMessage)"/> may be
-/// called on multiple threads simultaneously. They are queued for delivery and sent in the order posted.
+/// called on multiple threads simultaneously.  They are queued for delivery and sent in the order posted.
 /// Messages posted after requesting the connection be closed will be discarded.
 /// </summary>
 public class WebSocketConnection : IWebSocketConnection
