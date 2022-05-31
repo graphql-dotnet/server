@@ -14,7 +14,7 @@ public class GraphQLWebSocketOptions
 
     /// <summary>
     /// The amount of time to wait between sending keep-alive packets.
-    /// The default is <see cref="Timeout.InfiniteTimeSpan"/> which means that keep-alive packets are disabled.
+    /// The default is typically <see cref="Timeout.InfiniteTimeSpan"/> which means that keep-alive packets are disabled.
     /// If not provided, <see cref="IOperationMessageProcessor"/> implementations may choose any
     /// appropriate timeout value.
     /// <br/><br/>
