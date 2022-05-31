@@ -26,7 +26,7 @@ public class WebSocketConnection : IWebSocketConnection
     private readonly IGraphQLSerializer _serializer;
     private readonly WebSocketWriterStream _stream;
     private readonly TaskCompletionSource<bool> _outputClosed = new();
-    private readonly int _closeTimeoutMs;
+    private readonly TimeSpan _closeTimeout;
     private int _executed;
 
     /// <inheritdoc/>
@@ -47,7 +47,7 @@ public class WebSocketConnection : IWebSocketConnection
     /// <summary>
     /// Initializes an instance with the specified parameters.
     /// </summary>
-    public WebSocketConnection(HttpContext httpContext, WebSocket webSocket, IGraphQLSerializer serializer, GraphQLHttpMiddlewareOptions options, CancellationToken cancellationToken)
+    public WebSocketConnection(HttpContext httpContext, WebSocket webSocket, IGraphQLSerializer serializer, GraphQLHttpMiddlewareOptions options, CancellationToken requestAborted)
     {
         HttpContext = httpContext ?? throw new ArgumentNullException(nameof(httpContext));
         if (options == null)
@@ -59,12 +59,12 @@ public class WebSocketConnection : IWebSocketConnection
                 throw new ArgumentOutOfRangeException(nameof(options) + "." + nameof(GraphQLWebSocketOptions.DisconnectionTimeout));
 #pragma warning restore CA2208 // Instantiate argument exceptions correctly
         }
-        _closeTimeoutMs = (int)(options.WebSockets.DisconnectionTimeout ?? DefaultDisconnectionTimeout).TotalMilliseconds;
+        _closeTimeout = options.WebSockets.DisconnectionTimeout ?? DefaultDisconnectionTimeout;
         _webSocket = webSocket ?? throw new ArgumentNullException(nameof(webSocket));
         _stream = new(webSocket);
         _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
-        _pump = new(HandleMessageAsync);
-        RequestAborted = cancellationToken;
+        _pump = new(HandleOutgoingMessageAsync);
+        RequestAborted = requestAborted;
     }
 
     /// <summary>
@@ -101,17 +101,17 @@ public class WebSocketConnection : IWebSocketConnection
                 {
                     // prevent any more messages from being queued
                     operationMessageProcessor.Dispose();
-                    // send a close request if none was sent yet
-                    if (!_outputClosed.Task.IsCompleted)
+                    // send a close request if none was sent yet and the socket has not yet been closed
+                    if (!_outputClosed.Task.IsCompleted && !RequestAborted.IsCancellationRequested)
                     {
                         // queue the closure
                         _ = CloseAsync();
                         // wait until the close has been sent
-                        var completedTask = Task.WhenAny(
+                        await Task.WhenAny(
                             _outputClosed.Task,
-                            Task.Delay(_closeTimeoutMs, RequestAborted));
+                            Task.Delay(_closeTimeout, RequestAborted));
                     }
-                    // quit
+                    // quit after the close request was fulfilled
                     return;
                 }
                 // if this is the last block terminating a message
@@ -153,7 +153,7 @@ public class WebSocketConnection : IWebSocketConnection
                 }
             }
         }
-        catch (WebSocketException)
+        catch (WebSocketException) when (RequestAborted.IsCancellationRequested)
         {
         }
         finally
@@ -167,10 +167,16 @@ public class WebSocketConnection : IWebSocketConnection
     }
 
     /// <inheritdoc/>
+    /// <remarks>
+    /// The close message is posted to a queue and execution returns immediately.
+    /// </remarks>
     public Task CloseAsync()
         => CloseAsync(1000, null);
 
     /// <inheritdoc/>
+    /// <remarks>
+    /// The close message is posted to a queue and execution returns immediately.
+    /// </remarks>
     public Task CloseAsync(int eventId, string? description)
     {
         _pump.Post(new Message { CloseStatus = (WebSocketCloseStatus)eventId, CloseDescription = description });
@@ -178,6 +184,9 @@ public class WebSocketConnection : IWebSocketConnection
     }
 
     /// <inheritdoc/>
+    /// <remarks>
+    /// The message is posted to a queue and execution returns immediately.
+    /// </remarks>
     public Task SendMessageAsync(OperationMessage message)
     {
         _pump.Post(new Message { OperationMessage = message });
@@ -192,8 +201,9 @@ public class WebSocketConnection : IWebSocketConnection
     /// The methods <see cref="SendMessageAsync(OperationMessage)"/>, <see cref="CloseAsync()"/>
     /// and <see cref="CloseAsync(int, string?)"/> add <see cref="Message"/> instances to the queue.
     /// </summary>
-    private async Task HandleMessageAsync(Message message)
+    private async Task HandleOutgoingMessageAsync(Message message)
     {
+        // Messages posted after requesting the connection be closed will be discarded.
         if (_outputClosed.Task.IsCompleted)
             return;
         LastMessageSentAt = DateTime.UtcNow;
@@ -203,8 +213,8 @@ public class WebSocketConnection : IWebSocketConnection
         }
         else
         {
-            _outputClosed.TrySetResult(true);
             await OnCloseOutputAsync(message.CloseStatus, message.CloseDescription);
+            _outputClosed.TrySetResult(true);
         }
     }
 
@@ -239,9 +249,9 @@ public class WebSocketConnection : IWebSocketConnection
         => _webSocket.CloseOutputAsync(closeStatus, closeDescription, RequestAborted);
 
     /// <summary>
-    /// A queue entry; see <see cref="HandleMessageAsync(Message)"/>.
+    /// A queue entry; see <see cref="HandleOutgoingMessageAsync(Message)"/>.
     /// </summary>
-    /// <param name="OperationMessage">The message to send, if set; if it is null then this is a closure message.</param>
+    /// <param name="OperationMessage">The message to send, if set; if it is <see langword="null"/> then this is a closure message.</param>
     /// <param name="CloseStatus">The close status.</param>
     /// <param name="CloseDescription">The close description.</param>
     private record struct Message(OperationMessage? OperationMessage, WebSocketCloseStatus CloseStatus, string? CloseDescription);

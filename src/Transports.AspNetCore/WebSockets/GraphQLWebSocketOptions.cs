@@ -7,13 +7,16 @@ public class GraphQLWebSocketOptions
 {
     /// <summary>
     /// The amount of time to wait for a GraphQL initialization packet before the connection is closed.
-    /// The default is typically 10 seconds.
+    /// The default is typically 10 seconds.  If not provided, <see cref="IOperationMessageProcessor"/>
+    /// implementations may choose any appropriate timeout value.
     /// </summary>
     public TimeSpan? ConnectionInitWaitTimeout { get; set; }
 
     /// <summary>
     /// The amount of time to wait between sending keep-alive packets.
-    /// The default is <see langword="null"/> which means that keep-alive packets are disabled.
+    /// The default is <see cref="Timeout.InfiniteTimeSpan"/> which means that keep-alive packets are disabled.
+    /// If not provided, <see cref="IOperationMessageProcessor"/> implementations may choose any
+    /// appropriate timeout value.
     /// <br/><br/>
     /// Keep in mind that the 'subscription-transport-ws' implementation typically
     /// disconnects clients if a keep-alive packet has not been received for 20 seconds,
@@ -24,7 +27,8 @@ public class GraphQLWebSocketOptions
 
     /// <summary>
     /// The amount of time to wait to attempt a graceful teardown of the WebSockets protocol.
-    /// The default is typically 10 seconds.
+    /// The default is typically 10 seconds.  If not provided, <see cref="IWebSocketConnection"/>
+    /// implementations may choose any appropriate timeout value.
     /// </summary>
     public TimeSpan? DisconnectionTimeout { get; set; }
 
