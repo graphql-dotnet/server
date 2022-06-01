@@ -173,7 +173,7 @@ public class SubscriptionServer : BaseSubscriptionServer
     protected override async Task<ExecutionResult> ExecuteRequestAsync(OperationMessage message)
     {
         var request = Serializer.ReadNode<GraphQLRequest>(message.Payload)!;
-        using var scope = ServiceScopeFactory.CreateScope();
+        var scope = ServiceScopeFactory.CreateScope();
         try
         {
             var options = new ExecutionOptions
@@ -193,6 +193,8 @@ public class SubscriptionServer : BaseSubscriptionServer
         {
             if (scope is IAsyncDisposable ad)
                 await ad.DisposeAsync();
+            else
+                scope.Dispose();
         }
     }
 
