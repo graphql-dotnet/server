@@ -193,6 +193,23 @@ namespace GraphQL.Server.Transports.AspNetCore.WebSockets
         public bool TryRemove(string id) { }
         public bool TryRemove(string id, System.IDisposable oldSubscription) { }
     }
+    public class WebSocketConnection : GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketConnection, System.IDisposable
+    {
+        public WebSocketConnection(Microsoft.AspNetCore.Http.HttpContext httpContext, System.Net.WebSockets.WebSocket webSocket, GraphQL.IGraphQLSerializer serializer, GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions options, System.Threading.CancellationToken requestAborted) { }
+        protected virtual System.TimeSpan DefaultDisconnectionTimeout { get; }
+        public Microsoft.AspNetCore.Http.HttpContext HttpContext { get; }
+        public System.DateTime LastMessageSentAt { get; }
+        public System.Threading.CancellationToken RequestAborted { get; }
+        public System.Threading.Tasks.Task CloseAsync() { }
+        public System.Threading.Tasks.Task CloseAsync(int eventId, string? description) { }
+        public virtual void Dispose() { }
+        public virtual System.Threading.Tasks.Task ExecuteAsync(GraphQL.Server.Transports.AspNetCore.WebSockets.IOperationMessageProcessor operationMessageProcessor) { }
+        protected virtual System.Threading.Tasks.Task OnCloseOutputAsync(System.Net.WebSockets.WebSocketCloseStatus closeStatus, string? closeDescription) { }
+        protected virtual System.Threading.Tasks.Task OnDispatchMessageAsync(GraphQL.Server.Transports.AspNetCore.WebSockets.IOperationMessageProcessor operationMessageProcessor, GraphQL.Transport.OperationMessage message) { }
+        protected virtual System.Threading.Tasks.Task OnNonGracefulShutdownAsync(bool receivedCloseMessage, bool sentCloseMessage) { }
+        protected virtual System.Threading.Tasks.Task OnSendMessageAsync(GraphQL.Transport.OperationMessage message) { }
+        public System.Threading.Tasks.Task SendMessageAsync(GraphQL.Transport.OperationMessage message) { }
+    }
 }
 namespace Microsoft.AspNetCore.Builder
 {
