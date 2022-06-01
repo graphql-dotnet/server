@@ -16,7 +16,7 @@ public class GraphQLWebSocketOptions
     /// The amount of time to wait between sending keep-alive packets.
     /// A value of <see cref="Timeout.InfiniteTimeSpan"/> means that keep-alive packets are disabled.
     /// A value of <see langword="null"/> indicates the default value defined by the implementation.
-    /// The included implementations in this library have keep-alive packets disabled.
+    /// The included implementations in this library default to having keep-alive packets disabled.
     /// <br/><br/>
     /// Keep in mind that the 'subscription-transport-ws' implementation typically
     /// disconnects clients if a keep-alive packet has not been received for 20 seconds,
