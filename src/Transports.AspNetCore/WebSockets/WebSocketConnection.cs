@@ -78,6 +78,7 @@ public class WebSocketConnection : IWebSocketConnection
             throw new ArgumentNullException(nameof(operationMessageProcessor));
         if (Interlocked.Exchange(ref _executed, 1) == 1)
             throw new InvalidOperationException($"{nameof(ExecuteAsync)} may only be called once per instance.");
+        bool receivedCloseMessage = false;
         try
         {
             await operationMessageProcessor.InitializeConnectionAsync();
@@ -99,6 +100,7 @@ public class WebSocketConnection : IWebSocketConnection
                 var result = await _webSocket.ReceiveAsync(bufferMemory, RequestAborted);
                 if (result.MessageType == WebSocketMessageType.Close)
                 {
+                    receivedCloseMessage = true;
                     // prevent any more messages from being queued
                     operationMessageProcessor.Dispose();
                     // send a close request if none was sent yet and the socket has not yet been closed
@@ -158,11 +160,14 @@ public class WebSocketConnection : IWebSocketConnection
         }
         finally
         {
+            var sentCloseMessage = _outputClosed.Task.IsCompleted;
             // prevent any more messages from being sent
             _outputClosed.TrySetResult(false);
             // prevent any more messages from attempting to send
             // note: this statement should be redundant, as WebSocketHandler should dispose operationMessageProcessor
             operationMessageProcessor.Dispose();
+            if (!receivedCloseMessage || !sentCloseMessage)
+                await OnNonGracefulShutdownAsync(receivedCloseMessage, sentCloseMessage);
         }
     }
 
@@ -255,6 +260,13 @@ public class WebSocketConnection : IWebSocketConnection
     /// <param name="CloseStatus">The close status.</param>
     /// <param name="CloseDescription">The close description.</param>
     private record struct Message(OperationMessage? OperationMessage, WebSocketCloseStatus CloseStatus, string? CloseDescription);
+
+    /// <summary>
+    /// Occurs when a WebSocket connection is terminated before both the input and output were closed.
+    /// Override if logging is desired.
+    /// </summary>
+    protected virtual Task OnNonGracefulShutdownAsync(bool receivedCloseMessage, bool sentCloseMessage)
+        => Task.CompletedTask;
 
     /// <inheritdoc/>
     public virtual void Dispose()

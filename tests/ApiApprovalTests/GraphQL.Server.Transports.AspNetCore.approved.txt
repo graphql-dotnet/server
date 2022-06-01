@@ -206,6 +206,7 @@ namespace GraphQL.Server.Transports.AspNetCore.WebSockets
         public virtual System.Threading.Tasks.Task ExecuteAsync(GraphQL.Server.Transports.AspNetCore.WebSockets.IOperationMessageProcessor operationMessageProcessor) { }
         protected virtual System.Threading.Tasks.Task OnCloseOutputAsync(System.Net.WebSockets.WebSocketCloseStatus closeStatus, string? closeDescription) { }
         protected virtual System.Threading.Tasks.Task OnDispatchMessageAsync(GraphQL.Server.Transports.AspNetCore.WebSockets.IOperationMessageProcessor operationMessageProcessor, GraphQL.Transport.OperationMessage message) { }
+        protected virtual System.Threading.Tasks.Task OnNonGracefulShutdownAsync(bool receivedCloseMessage, bool sentCloseMessage) { }
         protected virtual System.Threading.Tasks.Task OnSendMessageAsync(GraphQL.Transport.OperationMessage message) { }
         public System.Threading.Tasks.Task SendMessageAsync(GraphQL.Transport.OperationMessage message) { }
     }
