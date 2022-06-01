@@ -160,12 +160,12 @@ public class WebSocketConnection : IWebSocketConnection
         }
         finally
         {
-            var sentCloseMessage = _outputClosed.Task.IsCompleted;
             // prevent any more messages from being sent
             _outputClosed.TrySetResult(false);
             // prevent any more messages from attempting to send
             // note: this statement should be redundant, as WebSocketHandler should dispose operationMessageProcessor
             operationMessageProcessor.Dispose();
+            var sentCloseMessage = _outputClosed.Task.Result;
             if (!receivedCloseMessage || !sentCloseMessage)
                 await OnNonGracefulShutdownAsync(receivedCloseMessage, sentCloseMessage);
         }
