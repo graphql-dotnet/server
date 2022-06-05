@@ -303,7 +303,10 @@ public abstract class GraphQLHttpMiddleware
 
     /// <summary>
     /// Parses a request into a single or batch <see cref="GraphQLRequest"/> instance.
-    /// In case of an error, write the response and return <see langword="null"/>.
+    /// <br/><br/>
+    /// In case of an error, this method will handle the request (e.g. by callling
+    /// <see cref="WriteErrorResponseAsync(HttpContext, HttpStatusCode, ExecutionError)">WriteErrorResponseAsync</see>)
+    /// and return <see langword="null"/>.
     /// </summary>
     protected virtual async Task<(GraphQLRequest? SingleRequest, IList<GraphQLRequest?>? BatchRequest)?> ReadFormContentAsync(
         HttpContext context, RequestDelegate next, string? mediaType, System.Text.Encoding? sourceEncoding)
