@@ -26,12 +26,14 @@ public interface IWebSocketConnection : IDisposable
     Task SendMessageAsync(OperationMessage message);
 
     /// <summary>
-    /// Performs a graceful shutdown of the WebSocket connection with event ID 1000.
+    /// Performs a graceful shutdown of the WebSocket connection with event ID 1000, and
+    /// prevents further incoming messages from being dispatched through <see cref="IOperationMessageProcessor"/>.
     /// </summary>
     Task CloseAsync();
 
     /// <summary>
-    /// Performs a graceful shutdown of the WebSocket connection with the specified error information.
+    /// Performs a graceful shutdown of the WebSocket connection with the specified error information, and
+    /// prevents further incoming messages from being dispatched through <see cref="IOperationMessageProcessor"/>.
     /// </summary>
     Task CloseAsync(int eventId, string? description);
 
