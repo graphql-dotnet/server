@@ -26,6 +26,7 @@ public class WebSocketConnection : IWebSocketConnection
     private readonly IGraphQLSerializer _serializer;
     private readonly WebSocketWriterStream _stream;
     private readonly TaskCompletionSource<bool> _outputClosed = new();
+    private volatile bool _closeRequested;
     private readonly TimeSpan _closeTimeout;
     private int _executed;
 
@@ -116,6 +117,9 @@ public class WebSocketConnection : IWebSocketConnection
                     // quit after the close request was fulfilled
                     return;
                 }
+                // if close has been requested, ignore incoming messages
+                if (_closeRequested)
+                    continue;
                 // if this is the last block terminating a message
                 if (result.EndOfMessage)
                 {
@@ -185,6 +189,7 @@ public class WebSocketConnection : IWebSocketConnection
     public Task CloseAsync(int eventId, string? description)
     {
         _pump.Post(new Message { CloseStatus = (WebSocketCloseStatus)eventId, CloseDescription = description });
+        _closeRequested = true;
         return Task.CompletedTask;
     }
 
