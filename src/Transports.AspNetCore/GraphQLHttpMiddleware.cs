@@ -254,7 +254,7 @@ public abstract class GraphQLHttpMiddleware
                 return;
             }
 
-            var singleOrBatchRequest = await ReadFormContentAsync(context, _next, mediaTypeHeader.MediaType, sourceEncoding);
+            var singleOrBatchRequest = await ReadPostContentAsync(context, _next, mediaTypeHeader.MediaType, sourceEncoding);
             if (singleOrBatchRequest.HasValue)
                 (bodyGQLRequest, bodyGQLBatchRequest) = singleOrBatchRequest.Value;
             else
@@ -308,7 +308,7 @@ public abstract class GraphQLHttpMiddleware
     /// <see cref="WriteErrorResponseAsync(HttpContext, HttpStatusCode, ExecutionError)">WriteErrorResponseAsync</see>)
     /// and return <see langword="null"/>.
     /// </summary>
-    protected virtual async Task<(GraphQLRequest? SingleRequest, IList<GraphQLRequest?>? BatchRequest)?> ReadFormContentAsync(
+    protected virtual async Task<(GraphQLRequest? SingleRequest, IList<GraphQLRequest?>? BatchRequest)?> ReadPostContentAsync(
         HttpContext context, RequestDelegate next, string? mediaType, System.Text.Encoding? sourceEncoding)
     {
         var httpRequest = context.Request;
@@ -689,7 +689,7 @@ public abstract class GraphQLHttpMiddleware
     private static async Task<GraphQLRequest> DeserializeFromGraphBodyAsync(Stream bodyStream, System.Text.Encoding? encoding)
     {
         // do not close underlying HTTP connection
-        using var streamReader = new StreamReader(bodyStream, encoding, leaveOpen: true);
+        using var streamReader = new StreamReader(bodyStream, encoding ?? System.Text.Encoding.UTF8, true, 1024, leaveOpen: true);
 
         // read query text
         string query = await streamReader.ReadToEndAsync();
