@@ -188,8 +188,8 @@ public class WebSocketConnection : IWebSocketConnection
     /// </remarks>
     public Task CloseAsync(int eventId, string? description)
     {
-        _pump.Post(new Message { CloseStatus = (WebSocketCloseStatus)eventId, CloseDescription = description });
         _closeRequested = true;
+        _pump.Post(new Message { CloseStatus = (WebSocketCloseStatus)eventId, CloseDescription = description });
         return Task.CompletedTask;
     }
 
