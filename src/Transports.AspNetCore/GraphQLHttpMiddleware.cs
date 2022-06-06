@@ -304,7 +304,7 @@ public abstract class GraphQLHttpMiddleware
     /// <summary>
     /// Parses a request into a single or batch <see cref="GraphQLRequest"/> instance.
     /// <br/><br/>
-    /// In case of an error, this method will handle the request (e.g. by callling
+    /// In case of an error, this method will handle the request (e.g. by calling
     /// <see cref="WriteErrorResponseAsync(HttpContext, HttpStatusCode, ExecutionError)">WriteErrorResponseAsync</see>)
     /// and return <see langword="null"/>.
     /// </summary>
