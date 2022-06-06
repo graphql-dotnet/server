@@ -222,7 +222,6 @@ public abstract class GraphQLHttpMiddleware
         // Handle requests as per recommendation at http://graphql.org/learn/serving-over-http/
         // Inspiration: https://github.com/graphql/express-graphql/blob/master/src/index.js
         var httpRequest = context.Request;
-        var httpResponse = context.Response;
 
         // GraphQL HTTP only supports GET and POST methods
         bool isGet = HttpMethods.IsGet(httpRequest.Method);
