@@ -121,7 +121,7 @@ public class SubscriptionServer : BaseSubscriptionServer
     /// Executes when a ping message is received.
     /// </summary>
     protected virtual Task OnPingAsync(OperationMessage message)
-        => Client.SendMessageAsync(_pongMessage);
+        => Connection.SendMessageAsync(_pongMessage);
 
     /// <summary>
     /// Executes when a pong message is received.
@@ -131,12 +131,12 @@ public class SubscriptionServer : BaseSubscriptionServer
 
     /// <inheritdoc/>
     protected override Task OnSendKeepAliveAsync()
-        => Client.SendMessageAsync(_pongMessage);
+        => Connection.SendMessageAsync(_pongMessage);
 
     private static readonly OperationMessage _connectionAckMessage = new() { Type = MessageType.ConnectionAck };
     /// <inheritdoc/>
     protected override Task OnConnectionAcknowledgeAsync(OperationMessage message)
-        => Client.SendMessageAsync(_connectionAckMessage);
+        => Connection.SendMessageAsync(_connectionAckMessage);
 
     /// <summary>
     /// Executes when a request is received to start a subscription.
@@ -155,7 +155,7 @@ public class SubscriptionServer : BaseSubscriptionServer
     {
         if (Subscriptions.TryRemove(id))
         {
-            await Client.SendMessageAsync(new OperationMessage
+            await Connection.SendMessageAsync(new OperationMessage
             {
                 Id = id,
                 Type = MessageType.Error,
@@ -169,7 +169,7 @@ public class SubscriptionServer : BaseSubscriptionServer
     {
         if (Subscriptions.Contains(id))
         {
-            await Client.SendMessageAsync(new OperationMessage
+            await Connection.SendMessageAsync(new OperationMessage
             {
                 Id = id,
                 Type = MessageType.Next,
@@ -183,7 +183,7 @@ public class SubscriptionServer : BaseSubscriptionServer
     {
         if (Subscriptions.TryRemove(id))
         {
-            await Client.SendMessageAsync(new OperationMessage
+            await Connection.SendMessageAsync(new OperationMessage
             {
                 Id = id,
                 Type = MessageType.Complete,
@@ -240,13 +240,13 @@ public class SubscriptionServer : BaseSubscriptionServer
     protected override async ValueTask<bool> AuthorizeAsync(OperationMessage message)
     {
         if (_authenticationService != null)
-            await _authenticationService.AuthenticateAsync(Client, SubProtocol, message);
+            await _authenticationService.AuthenticateAsync(Connection, SubProtocol, message);
 
         var success = await base.AuthorizeAsync(message);
 
         if (success)
         {
-            UserContext = await UserContextBuilder.BuildUserContextAsync(Client.HttpContext, message.Payload);
+            UserContext = await UserContextBuilder.BuildUserContextAsync(Connection.HttpContext, message.Payload);
         }
 
         return success;

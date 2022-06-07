@@ -14,7 +14,7 @@ public static class MessageType
     ///     to this message.
     ///     payload: Object : optional parameters that the client specifies in connectionParams
     /// </summary>
-    public const string GQL_CONNECTION_INIT = "connection_init";
+    public const string GQL_CONNECTION_INIT = "connection_init"; // Client -> Server
 
     /// <summary>
     ///     The server may responses with this message to the GQL_CONNECTION_INIT from client, indicates the server accepted
@@ -55,7 +55,7 @@ public static class MessageType
     ///     variables?: Object : Object with GraphQL variables
     ///     operationName?: string : GraphQL operation name
     /// </summary>
-    public const string GQL_START = "start";
+    public const string GQL_START = "start"; // Client -> Server
 
     /// <summary>
     ///     The server sends this message to transfer the GraphQL execution result from the server to the client, this message

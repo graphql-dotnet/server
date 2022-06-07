@@ -141,7 +141,7 @@ public static class MessageType
 
     /// <summary>
     /// <para>
-    /// The response to the <see cref="Ping"/> message. Must be sent as soon as the Ping message is received.
+    /// The response to the <see cref="Ping"/> message. Must be sent as soon as the <see cref="Ping"/> message is received.
     /// </para>
     /// <para>
     /// The <see cref="Pong"/> message can be sent at any time within the established socket.
