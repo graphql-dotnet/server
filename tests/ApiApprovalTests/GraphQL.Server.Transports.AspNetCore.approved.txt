@@ -161,7 +161,7 @@ namespace GraphQL.Server.Transports.AspNetCore.WebSockets
     {
         public BaseSubscriptionServer(GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketConnection sendStream, GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions options) { }
         protected System.Threading.CancellationToken CancellationToken { get; }
-        protected GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketConnection Client { get; }
+        protected GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketConnection Connection { get; }
         protected virtual System.TimeSpan DefaultConnectionTimeout { get; }
         protected virtual System.TimeSpan DefaultKeepAliveTimeout { get; }
         protected bool Initialized { get; }
