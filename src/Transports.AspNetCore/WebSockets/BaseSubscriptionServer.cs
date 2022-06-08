@@ -438,19 +438,28 @@ public abstract partial class BaseSubscriptionServer : IOperationMessageProcesso
 
     /// <summary>
     /// Sends an execution error to the client during set-up of a GraphQL request (typically subscription).
+    /// The default implementation calls <see cref="SendErrorResultAsync(string, ExecutionError)"/>.
     /// </summary>
     protected virtual Task SendErrorResultAsync(OperationMessage message, ExecutionError executionError)
         => SendErrorResultAsync(message.Id!, executionError);
 
-    /// <inheritdoc cref="SendErrorResultAsync(OperationMessage, ExecutionError)"/>
+    /// <summary>
+    /// Sends an execution error to the client during set-up of a GraphQL request (typically subscription).
+    /// The default implementation calls <see cref="SendErrorResultAsync(string, ExecutionResult)"/>.
+    /// </summary>
     protected virtual Task SendErrorResultAsync(string id, ExecutionError executionError)
         => SendErrorResultAsync(id, new ExecutionResult { Errors = new ExecutionErrors { executionError } });
 
-    /// <inheritdoc cref="SendErrorResultAsync(OperationMessage, ExecutionError)"/>
+    /// <summary>
+    /// Sends an execution error to the client during set-up of a GraphQL request (typically subscription).
+    /// The default implementation calls <see cref="SendErrorResultAsync(string, ExecutionResult)"/>.
+    /// </summary>
     protected virtual Task SendErrorResultAsync(OperationMessage message, ExecutionResult result)
         => SendErrorResultAsync(message.Id!, result);
 
-    /// <inheritdoc cref="SendErrorResultAsync(OperationMessage, ExecutionError)"/>
+    /// <summary>
+    /// Sends an execution error to the client during set-up of a GraphQL request (typically subscription).
+    /// </summary>
     protected abstract Task SendErrorResultAsync(string id, ExecutionResult result);
 
     /// <summary>
