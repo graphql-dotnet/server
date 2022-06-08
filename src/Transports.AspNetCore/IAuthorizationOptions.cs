@@ -15,7 +15,7 @@ public interface IAuthorizationOptions
     /// for the user within <see cref="HttpContext.User"/>
     /// prior to executing the GraphQL request or accepting the WebSocket connection.
     /// Technically this property should be named as AuthenticationRequired but for
-    /// ASP.NET Core / GraphQL.NET naming and design decisions it was called so. 
+    /// ASP.NET Core / GraphQL.NET naming and design decisions it was called so.
     /// </summary>
     bool AuthorizationRequired { get; }
 
