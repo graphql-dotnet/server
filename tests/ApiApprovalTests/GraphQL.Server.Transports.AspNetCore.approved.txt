@@ -159,7 +159,7 @@ namespace GraphQL.Server.Transports.AspNetCore.WebSockets
 {
     public abstract class BaseSubscriptionServer : GraphQL.Server.Transports.AspNetCore.WebSockets.IOperationMessageProcessor, System.IDisposable
     {
-        public BaseSubscriptionServer(GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketConnection sendStream, GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions options) { }
+        protected BaseSubscriptionServer(GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketConnection connection, GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions options) { }
         protected System.Threading.CancellationToken CancellationToken { get; }
         protected GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketConnection Connection { get; }
         protected virtual System.TimeSpan DefaultConnectionTimeout { get; }
