@@ -45,6 +45,7 @@ public class SubscriptionServer : BaseSubscriptionServer
     /// </summary>
     /// <param name="sendStream">The WebSockets stream used to send data packets or close the connection.</param>
     /// <param name="options">Configuration options for this instance.</param>
+    /// <param name="authorizationOptions">Authorization options for this instance.</param>
     /// <param name="executer">The <see cref="IDocumentExecuter"/> to use to execute GraphQL requests.</param>
     /// <param name="serializer">The <see cref="IGraphQLSerializer"/> to use to deserialize payloads stored within <see cref="OperationMessage.Payload"/>.</param>
     /// <param name="serviceScopeFactory">A <see cref="IServiceScopeFactory"/> to create service scopes for execution of GraphQL requests.</param>
@@ -52,13 +53,14 @@ public class SubscriptionServer : BaseSubscriptionServer
     /// <param name="authenticationService">An optional service to authenticate connections.</param>
     public SubscriptionServer(
         IWebSocketConnection sendStream,
-        GraphQLHttpMiddlewareOptions options,
+        GraphQLWebSocketOptions options,
+        IAuthorizationOptions authorizationOptions,
         IDocumentExecuter executer,
         IGraphQLSerializer serializer,
         IServiceScopeFactory serviceScopeFactory,
         IUserContextBuilder userContextBuilder,
         IWebSocketAuthenticationService? authenticationService = null)
-        : base(sendStream, options)
+        : base(sendStream, options, authorizationOptions)
     {
         DocumentExecuter = executer ?? throw new ArgumentNullException(nameof(executer));
         ServiceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
