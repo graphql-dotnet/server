@@ -363,6 +363,13 @@ public abstract partial class BaseSubscriptionServer : IOperationMessageProcesso
             CancellationToken.ThrowIfCancellationRequested();
             if (!Subscriptions.Contains(messageId, dummyDisposer))
                 return;
+            // There is no support within the GraphQL spec for multiple streams to be returned.
+            // GraphQL.NET has validation rules to prevent this, but technically the execution
+            // strategy still allows for it (if the validation rule were not used).  Regardless, the
+            // protocol does not support such a scenario as there would need to be separate
+            // IDs for each stream.  So, if there were to be more than one stream returned,
+            // execution would fall through to SendErrorResultAsync -- but so long as the
+            // validation rules are in place, that should not be possible.
             if (result.Streams?.Count == 1)
             {
                 // do not return a result, but set up a subscription
