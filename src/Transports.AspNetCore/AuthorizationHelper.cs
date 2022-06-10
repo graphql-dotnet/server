@@ -27,7 +27,7 @@ public static class AuthorizationHelper
             }
         }
 
-        if (options.AuthorizedRoles?.Count > 0)
+        if (options.AuthorizedRoles?.Any() == true)
         {
             var user = options.HttpContext.User ?? NoUser();
             foreach (var role in options.AuthorizedRoles)
