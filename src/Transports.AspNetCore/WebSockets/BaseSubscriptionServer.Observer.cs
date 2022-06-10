@@ -40,6 +40,8 @@ public abstract partial class BaseSubscriptionServer
                 return;
             try
             {
+                // although error should never be null, if the event source does call OnError(null!),
+                // skip sending an error packet/message (allowed by spec)
                 if (error != null)
                 {
                     var executionError = error is ExecutionError ee ? ee : await _server.HandleErrorFromSourceAsync(error);
