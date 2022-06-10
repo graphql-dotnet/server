@@ -18,7 +18,7 @@ public class SubscriptionServer : BaseSubscriptionServer
     /// <see href="https://github.com/apollographql/subscriptions-transport-ws">subscriptions-transport-ws</see>
     /// protocol is <c>graphql-ws</c> as is defined here.
     /// </remarks>
-    public const string SubProtocol = "graphql-ws";
+    public static string SubProtocol => "graphql-ws";
 
     /// <summary>
     /// Returns the <see cref="IDocumentExecuter"/> used to execute requests.

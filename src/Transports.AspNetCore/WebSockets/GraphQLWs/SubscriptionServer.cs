@@ -18,7 +18,7 @@ public class SubscriptionServer : BaseSubscriptionServer
     /// <see href="https://github.com/enisdenjo/graphql-ws">graphql-ws</see>
     /// protocol is <c>graphql-transport-ws</c> as is defined here.
     /// </remarks>
-    public const string SubProtocol = "graphql-transport-ws";
+    public static string SubProtocol => "graphql-transport-ws";
 
     /// <summary>
     /// Returns the <see cref="IDocumentExecuter"/> used to execute requests.
