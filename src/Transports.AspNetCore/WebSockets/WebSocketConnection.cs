@@ -48,19 +48,19 @@ public class WebSocketConnection : IWebSocketConnection
     /// <summary>
     /// Initializes an instance with the specified parameters.
     /// </summary>
-    public WebSocketConnection(HttpContext httpContext, WebSocket webSocket, IGraphQLSerializer serializer, GraphQLHttpMiddlewareOptions options, CancellationToken requestAborted)
+    public WebSocketConnection(HttpContext httpContext, WebSocket webSocket, IGraphQLSerializer serializer, GraphQLWebSocketOptions options, CancellationToken requestAborted)
     {
         HttpContext = httpContext ?? throw new ArgumentNullException(nameof(httpContext));
         if (options == null)
             throw new ArgumentNullException(nameof(options));
-        if (options.WebSockets.DisconnectionTimeout.HasValue)
+        if (options.DisconnectionTimeout.HasValue)
         {
-            if ((options.WebSockets.DisconnectionTimeout.Value != Timeout.InfiniteTimeSpan && options.WebSockets.DisconnectionTimeout.Value.TotalMilliseconds < 0) || options.WebSockets.DisconnectionTimeout.Value.TotalMilliseconds > int.MaxValue)
+            if ((options.DisconnectionTimeout.Value != Timeout.InfiniteTimeSpan && options.DisconnectionTimeout.Value.TotalMilliseconds < 0) || options.DisconnectionTimeout.Value.TotalMilliseconds > int.MaxValue)
 #pragma warning disable CA2208 // Instantiate argument exceptions correctly
                 throw new ArgumentOutOfRangeException(nameof(options) + "." + nameof(GraphQLWebSocketOptions.DisconnectionTimeout));
 #pragma warning restore CA2208 // Instantiate argument exceptions correctly
         }
-        _closeTimeout = options.WebSockets.DisconnectionTimeout ?? DefaultDisconnectionTimeout;
+        _closeTimeout = options.DisconnectionTimeout ?? DefaultDisconnectionTimeout;
         _webSocket = webSocket ?? throw new ArgumentNullException(nameof(webSocket));
         _stream = new(webSocket);
         _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
