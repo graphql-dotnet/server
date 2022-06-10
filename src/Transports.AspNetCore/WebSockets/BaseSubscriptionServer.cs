@@ -439,10 +439,10 @@ public abstract partial class BaseSubscriptionServer : IOperationMessageProcesso
 
     /// <summary>
     /// Sends an execution error to the client during set-up of a GraphQL request (typically subscription).
-    /// The default implementation calls <see cref="SendErrorResultAsync(string, ExecutionError)"/>.
+    /// The default implementation calls <see cref="SendErrorResultAsync(string, ExecutionResult)"/>.
     /// </summary>
     protected virtual Task SendErrorResultAsync(OperationMessage message, ExecutionError executionError)
-        => SendErrorResultAsync(message.Id!, executionError);
+        => SendErrorResultAsync(message.Id!, new ExecutionResult { Errors = new ExecutionErrors { executionError } });
 
     /// <summary>
     /// Sends an execution error to the client during set-up of a GraphQL request (typically subscription).
