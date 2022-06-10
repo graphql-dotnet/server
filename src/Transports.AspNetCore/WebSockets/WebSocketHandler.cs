@@ -106,6 +106,10 @@ public class WebSocketHandler : IWebSocketHandler
         catch (OperationCanceledException) when (appStoppingToken.IsCancellationRequested)
         {
             // terminate all pending WebSockets connections when the application is in the process of stopping
+
+            // note: we are consuming OCE in this case because ASP.NET Core does not consider the task as canceled when
+            // an OCE occurs that is not due to httpContext.RequestAborted; so to prevent ASP.NET Core from considering
+            // this a "regular" exception, we consume it here
         }
     }
 
