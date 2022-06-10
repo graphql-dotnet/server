@@ -265,8 +265,9 @@ namespace GraphQL.Server.Transports.AspNetCore.WebSockets
     }
     public class WebSocketHandler : GraphQL.Server.Transports.AspNetCore.IWebSocketHandler
     {
-        public WebSocketHandler(GraphQL.IGraphQLSerializer serializer, GraphQL.IDocumentExecuter executer, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions options, Microsoft.Extensions.Hosting.IHostApplicationLifetime hostApplicationLifetime, GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketAuthenticationService? authorizationService = null) { }
-        protected GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions Options { get; }
+        public WebSocketHandler(GraphQL.IGraphQLSerializer serializer, GraphQL.IDocumentExecuter executer, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, GraphQL.Server.Transports.AspNetCore.WebSockets.GraphQLWebSocketOptions options, GraphQL.Server.Transports.AspNetCore.IAuthorizationOptions authorizationOptions, Microsoft.Extensions.Hosting.IHostApplicationLifetime hostApplicationLifetime, GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketAuthenticationService? authorizationService = null) { }
+        protected GraphQL.Server.Transports.AspNetCore.IAuthorizationOptions AuthorizationOptions { get; }
+        protected GraphQL.Server.Transports.AspNetCore.WebSockets.GraphQLWebSocketOptions Options { get; }
         public virtual System.Collections.Generic.IEnumerable<string> SupportedSubProtocols { get; }
         protected virtual GraphQL.Server.Transports.AspNetCore.WebSockets.IOperationMessageProcessor CreateReceiveStream(GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketConnection webSocketConnection, string subProtocol, GraphQL.Server.Transports.AspNetCore.IUserContextBuilder userContextBuilder) { }
         protected virtual GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketConnection CreateWebSocketConnection(Microsoft.AspNetCore.Http.HttpContext httpContext, System.Net.WebSockets.WebSocket webSocket, System.Threading.CancellationToken cancellationToken) { }
@@ -275,8 +276,8 @@ namespace GraphQL.Server.Transports.AspNetCore.WebSockets
     public class WebSocketHandler<TSchema> : GraphQL.Server.Transports.AspNetCore.WebSockets.WebSocketHandler, GraphQL.Server.Transports.AspNetCore.IWebSocketHandler, GraphQL.Server.Transports.AspNetCore.IWebSocketHandler<TSchema>
         where TSchema : GraphQL.Types.ISchema
     {
-        public WebSocketHandler(GraphQL.IGraphQLSerializer serializer, GraphQL.IDocumentExecuter<TSchema> executer, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions options, Microsoft.Extensions.Hosting.IHostApplicationLifetime hostApplicationLifetime) { }
-        public WebSocketHandler(GraphQL.IGraphQLSerializer serializer, GraphQL.IDocumentExecuter<TSchema> executer, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions options, Microsoft.Extensions.Hosting.IHostApplicationLifetime hostApplicationLifetime, GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketAuthenticationService? authorizationService) { }
+        public WebSocketHandler(GraphQL.IGraphQLSerializer serializer, GraphQL.IDocumentExecuter<TSchema> executer, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, GraphQL.Server.Transports.AspNetCore.WebSockets.GraphQLWebSocketOptions options, GraphQL.Server.Transports.AspNetCore.IAuthorizationOptions authorizationOptions, Microsoft.Extensions.Hosting.IHostApplicationLifetime hostApplicationLifetime) { }
+        public WebSocketHandler(GraphQL.IGraphQLSerializer serializer, GraphQL.IDocumentExecuter<TSchema> executer, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, GraphQL.Server.Transports.AspNetCore.WebSockets.GraphQLWebSocketOptions options, GraphQL.Server.Transports.AspNetCore.IAuthorizationOptions authorizationOptions, Microsoft.Extensions.Hosting.IHostApplicationLifetime hostApplicationLifetime, GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketAuthenticationService? authorizationService) { }
     }
 }
 namespace GraphQL.Server.Transports.AspNetCore.WebSockets.GraphQLWs

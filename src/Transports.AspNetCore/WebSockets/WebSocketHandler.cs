@@ -11,26 +11,28 @@ namespace GraphQL.Server.Transports.AspNetCore.WebSockets;
 public class WebSocketHandler<TSchema> : WebSocketHandler, IWebSocketHandler<TSchema>
     where TSchema : ISchema
 {
-    /// <inheritdoc cref="WebSocketHandler(IGraphQLSerializer, IDocumentExecuter, IServiceScopeFactory, GraphQLHttpMiddlewareOptions, IHostApplicationLifetime, IWebSocketAuthenticationService)"/>
+    /// <inheritdoc cref="WebSocketHandler(IGraphQLSerializer, IDocumentExecuter, IServiceScopeFactory, GraphQLWebSocketOptions, IAuthorizationOptions, IHostApplicationLifetime, IWebSocketAuthenticationService)"/>
     public WebSocketHandler(
         IGraphQLSerializer serializer,
         IDocumentExecuter<TSchema> executer,
         IServiceScopeFactory serviceScopeFactory,
-        GraphQLHttpMiddlewareOptions options,
+        GraphQLWebSocketOptions options,
+        IAuthorizationOptions authorizationOptions,
         IHostApplicationLifetime hostApplicationLifetime,
         IWebSocketAuthenticationService? authorizationService)
-        : base(serializer, executer, serviceScopeFactory, options, hostApplicationLifetime, authorizationService)
+        : base(serializer, executer, serviceScopeFactory, options, authorizationOptions, hostApplicationLifetime, authorizationService)
     {
     }
 
-    /// <inheritdoc cref="WebSocketHandler(IGraphQLSerializer, IDocumentExecuter, IServiceScopeFactory, GraphQLHttpMiddlewareOptions, IHostApplicationLifetime, IWebSocketAuthenticationService)"/>
+    /// <inheritdoc cref="WebSocketHandler(IGraphQLSerializer, IDocumentExecuter, IServiceScopeFactory, GraphQLWebSocketOptions, IAuthorizationOptions, IHostApplicationLifetime, IWebSocketAuthenticationService)"/>
     public WebSocketHandler(
         IGraphQLSerializer serializer,
         IDocumentExecuter<TSchema> executer,
         IServiceScopeFactory serviceScopeFactory,
-        GraphQLHttpMiddlewareOptions options,
+        GraphQLWebSocketOptions options,
+        IAuthorizationOptions authorizationOptions,
         IHostApplicationLifetime hostApplicationLifetime)
-        : base(serializer, executer, serviceScopeFactory, options, hostApplicationLifetime, null)
+        : base(serializer, executer, serviceScopeFactory, options, authorizationOptions, hostApplicationLifetime, null)
     {
     }
 }
@@ -47,7 +49,12 @@ public class WebSocketHandler : IWebSocketHandler
     /// <summary>
     /// Gets the configuration options for this instance.
     /// </summary>
-    protected GraphQLHttpMiddlewareOptions Options { get; }
+    protected GraphQLWebSocketOptions Options { get; }
+
+    /// <summary>
+    /// Gets the authorization options for this instance.
+    /// </summary>
+    protected IAuthorizationOptions AuthorizationOptions { get; }
 
     private static readonly IEnumerable<string> _supportedSubProtocols = new List<string>(new[] {
         GraphQLWs.SubscriptionServer.SubProtocol,
@@ -63,14 +70,16 @@ public class WebSocketHandler : IWebSocketHandler
     /// <param name="serializer">The <see cref="IGraphQLSerializer"/> instance used to serialize and deserialize <see cref="OperationMessage"/> messages.</param>
     /// <param name="executer">The <see cref="IDocumentExecuter"/> instance used to execute GraphQL requests.</param>
     /// <param name="serviceScopeFactory">The service scope factory used to create a dependency injection service scope for each request.</param>
-    /// <param name="options">Configuration options for the GraphQL HTTP middleware.</param>
+    /// <param name="options">Configuration options for this instance.</param>
+    /// <param name="authorizationOptions">Authorization options for this instance.</param>
     /// <param name="hostApplicationLifetime">The <see cref="IHostApplicationLifetime"/> instance that signals when the application is shutting down.</param>
     /// <param name="authorizationService">An optional service to authorize connections.</param>
     public WebSocketHandler(
         IGraphQLSerializer serializer,
         IDocumentExecuter executer,
         IServiceScopeFactory serviceScopeFactory,
-        GraphQLHttpMiddlewareOptions options,
+        GraphQLWebSocketOptions options,
+        IAuthorizationOptions authorizationOptions,
         IHostApplicationLifetime hostApplicationLifetime,
         IWebSocketAuthenticationService? authorizationService = null)
     {
@@ -78,6 +87,7 @@ public class WebSocketHandler : IWebSocketHandler
         _executer = executer ?? throw new ArgumentNullException(nameof(executer));
         _serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
         Options = options ?? throw new ArgumentNullException(nameof(options));
+        AuthorizationOptions = authorizationOptions ?? throw new ArgumentNullException(nameof(authorizationOptions));
         _hostApplicationLifetime = hostApplicationLifetime ?? throw new ArgumentNullException(nameof(hostApplicationLifetime));
         _authorizationService = authorizationService;
     }
@@ -128,8 +138,8 @@ public class WebSocketHandler : IWebSocketHandler
         {
             return new GraphQLWs.SubscriptionServer(
                 webSocketConnection,
-                Options.WebSockets,
                 Options,
+                AuthorizationOptions,
                 _executer,
                 _serializer,
                 _serviceScopeFactory,
@@ -140,8 +150,8 @@ public class WebSocketHandler : IWebSocketHandler
         {
             return new SubscriptionsTransportWs.SubscriptionServer(
                 webSocketConnection,
-                Options.WebSockets,
                 Options,
+                AuthorizationOptions,
                 _executer,
                 _serializer,
                 _serviceScopeFactory,
