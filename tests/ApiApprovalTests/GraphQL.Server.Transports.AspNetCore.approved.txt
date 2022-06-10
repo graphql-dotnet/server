@@ -279,7 +279,7 @@ namespace GraphQL.Server.Transports.AspNetCore.WebSockets.GraphQLWs
     public class SubscriptionServer : GraphQL.Server.Transports.AspNetCore.WebSockets.BaseSubscriptionServer
     {
         public const string SubProtocol = "graphql-transport-ws";
-        public SubscriptionServer(GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketConnection sendStream, GraphQL.Server.Transports.AspNetCore.WebSockets.GraphQLWebSocketOptions options, GraphQL.Server.Transports.AspNetCore.IAuthorizationOptions authorizationOptions, GraphQL.IDocumentExecuter executer, GraphQL.IGraphQLSerializer serializer, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, GraphQL.Server.Transports.AspNetCore.IUserContextBuilder userContextBuilder, GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketAuthenticationService? authenticationService = null) { }
+        public SubscriptionServer(GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketConnection connection, GraphQL.Server.Transports.AspNetCore.WebSockets.GraphQLWebSocketOptions options, GraphQL.Server.Transports.AspNetCore.IAuthorizationOptions authorizationOptions, GraphQL.IDocumentExecuter executer, GraphQL.IGraphQLSerializer serializer, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, GraphQL.Server.Transports.AspNetCore.IUserContextBuilder userContextBuilder, GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketAuthenticationService? authenticationService = null) { }
         protected GraphQL.IDocumentExecuter DocumentExecuter { get; }
         protected GraphQL.IGraphQLSerializer Serializer { get; }
         protected Microsoft.Extensions.DependencyInjection.IServiceScopeFactory ServiceScopeFactory { get; }
@@ -317,7 +317,7 @@ namespace GraphQL.Server.Transports.AspNetCore.WebSockets.SubscriptionsTransport
     public class SubscriptionServer : GraphQL.Server.Transports.AspNetCore.WebSockets.BaseSubscriptionServer
     {
         public const string SubProtocol = "graphql-ws";
-        public SubscriptionServer(GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketConnection sendStream, GraphQL.Server.Transports.AspNetCore.WebSockets.GraphQLWebSocketOptions options, GraphQL.Server.Transports.AspNetCore.IAuthorizationOptions authorizationOptions, GraphQL.IDocumentExecuter executer, GraphQL.IGraphQLSerializer serializer, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, GraphQL.Server.Transports.AspNetCore.IUserContextBuilder userContextBuilder, GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketAuthenticationService? authenticationService = null) { }
+        public SubscriptionServer(GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketConnection connection, GraphQL.Server.Transports.AspNetCore.WebSockets.GraphQLWebSocketOptions options, GraphQL.Server.Transports.AspNetCore.IAuthorizationOptions authorizationOptions, GraphQL.IDocumentExecuter executer, GraphQL.IGraphQLSerializer serializer, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, GraphQL.Server.Transports.AspNetCore.IUserContextBuilder userContextBuilder, GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketAuthenticationService? authenticationService = null) { }
         protected GraphQL.IDocumentExecuter DocumentExecuter { get; }
         protected GraphQL.IGraphQLSerializer Serializer { get; }
         protected Microsoft.Extensions.DependencyInjection.IServiceScopeFactory ServiceScopeFactory { get; }
