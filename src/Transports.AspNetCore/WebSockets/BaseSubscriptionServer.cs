@@ -12,7 +12,7 @@ namespace GraphQL.Server.Transports.AspNetCore.WebSockets;
 /// </summary>
 public abstract partial class BaseSubscriptionServer : IOperationMessageProcessor
 {
-    private volatile int _initialized;
+    private int _initialized;
     private CancellationTokenSource? _cancellationTokenSource;
     private readonly GraphQLWebSocketOptions _options;
     private readonly IAuthorizationOptions _authorizationOptions;
@@ -86,7 +86,7 @@ public abstract partial class BaseSubscriptionServer : IOperationMessageProcesso
             _ = Task.Run(async () =>
             {
                 await Task.Delay(connectInitWaitTimeout, CancellationToken); // CancellationToken is set when this class is disposed
-                if (_initialized == 0)
+                if (!Initialized)
                     await OnConnectionInitWaitTimeoutAsync();
             });
         }
@@ -121,7 +121,7 @@ public abstract partial class BaseSubscriptionServer : IOperationMessageProcesso
     /// Indicates if the connection has been already initialized.
     /// </summary>
     protected bool Initialized
-        => _initialized == 1;
+        => Thread.VolatileRead(ref _initialized) == 1;
 
     /// <summary>
     /// Sets the initialized flag if it has not already been set.
@@ -132,6 +132,7 @@ public abstract partial class BaseSubscriptionServer : IOperationMessageProcesso
 
     /// <summary>
     /// Executes when a message has been received from the client.
+    /// This method should essentially implement a state machine for the implemented protocol.
     /// </summary>
     /// <exception cref="OperationCanceledException"/>
     public abstract Task OnMessageReceivedAsync(OperationMessage message);
@@ -271,7 +272,8 @@ public abstract partial class BaseSubscriptionServer : IOperationMessageProcesso
             return;
         }
         await OnConnectionAcknowledgeAsync(message);
-        TryInitialize();
+        if (TryInitialize() == false)
+            return;
 
         var keepAliveTimeout = _options.KeepAliveTimeout ?? DefaultKeepAliveTimeout;
         if (keepAliveTimeout > TimeSpan.Zero)
@@ -324,7 +326,6 @@ public abstract partial class BaseSubscriptionServer : IOperationMessageProcesso
 
     /// <summary>
     /// Executes when a keep-alive message needs to be sent.
-    /// This method may execute concurrently with other code in this class.
     /// </summary>
     protected abstract Task OnSendKeepAliveAsync();
 
@@ -485,7 +486,7 @@ public abstract partial class BaseSubscriptionServer : IOperationMessageProcesso
     protected virtual Task UnsubscribeAsync(string? id)
     {
         if (id != null)
-            Subscriptions.TryRemove(id);
+            _ = Subscriptions.TryRemove(id);
         return Task.CompletedTask;
     }
 
