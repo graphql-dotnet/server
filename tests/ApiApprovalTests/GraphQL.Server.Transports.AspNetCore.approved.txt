@@ -247,7 +247,7 @@ namespace GraphQL.Server.Transports.AspNetCore.WebSockets
     }
     public class WebSocketConnection : GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketConnection, System.IDisposable
     {
-        public WebSocketConnection(Microsoft.AspNetCore.Http.HttpContext httpContext, System.Net.WebSockets.WebSocket webSocket, GraphQL.IGraphQLSerializer serializer, GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions options, System.Threading.CancellationToken requestAborted) { }
+        public WebSocketConnection(Microsoft.AspNetCore.Http.HttpContext httpContext, System.Net.WebSockets.WebSocket webSocket, GraphQL.IGraphQLSerializer serializer, GraphQL.Server.Transports.AspNetCore.WebSockets.GraphQLWebSocketOptions options, System.Threading.CancellationToken requestAborted) { }
         protected virtual System.TimeSpan DefaultDisconnectionTimeout { get; }
         public Microsoft.AspNetCore.Http.HttpContext HttpContext { get; }
         public System.DateTime LastMessageSentAt { get; }
