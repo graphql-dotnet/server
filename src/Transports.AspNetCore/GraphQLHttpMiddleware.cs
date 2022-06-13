@@ -146,7 +146,7 @@ public class GraphQLHttpMiddleware<TSchema> : GraphQLHttpMiddleware
 
 /// <summary>
 /// ASP.NET Core middleware for processing GraphQL requests. Handles both single and batch requests,
-/// and dispatches WebSocket requests to the registered <see cref="IWebSocketHandler"/>.
+/// as well as WebSocket requests.
 /// </summary>
 public abstract class GraphQLHttpMiddleware : IUserContextBuilder
 {
