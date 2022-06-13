@@ -267,9 +267,14 @@ namespace GraphQL.Server.Transports.AspNetCore.WebSockets
     {
         public WebSocketHandler(GraphQL.IGraphQLSerializer serializer, GraphQL.IDocumentExecuter executer, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, GraphQL.Server.Transports.AspNetCore.WebSockets.GraphQLWebSocketOptions options, GraphQL.Server.Transports.AspNetCore.IAuthorizationOptions authorizationOptions, Microsoft.Extensions.Hosting.IHostApplicationLifetime hostApplicationLifetime, GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketAuthenticationService? authorizationService = null) { }
         protected GraphQL.Server.Transports.AspNetCore.IAuthorizationOptions AuthorizationOptions { get; }
+        protected GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketAuthenticationService? AuthorizationService { get; }
+        protected GraphQL.IDocumentExecuter Executer { get; }
+        protected Microsoft.Extensions.Hosting.IHostApplicationLifetime HostApplicationLifetime { get; }
         protected GraphQL.Server.Transports.AspNetCore.WebSockets.GraphQLWebSocketOptions Options { get; }
+        protected GraphQL.IGraphQLSerializer Serializer { get; }
+        protected Microsoft.Extensions.DependencyInjection.IServiceScopeFactory ServiceScopeFactory { get; }
         public virtual System.Collections.Generic.IEnumerable<string> SupportedSubProtocols { get; }
-        protected virtual GraphQL.Server.Transports.AspNetCore.WebSockets.IOperationMessageProcessor CreateReceiveStream(GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketConnection webSocketConnection, string subProtocol, GraphQL.Server.Transports.AspNetCore.IUserContextBuilder userContextBuilder) { }
+        protected virtual GraphQL.Server.Transports.AspNetCore.WebSockets.IOperationMessageProcessor CreateMessageProcessor(GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketConnection webSocketConnection, string subProtocol, GraphQL.Server.Transports.AspNetCore.IUserContextBuilder userContextBuilder) { }
         protected virtual GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketConnection CreateWebSocketConnection(Microsoft.AspNetCore.Http.HttpContext httpContext, System.Net.WebSockets.WebSocket webSocket, System.Threading.CancellationToken cancellationToken) { }
         public virtual System.Threading.Tasks.Task ExecuteAsync(Microsoft.AspNetCore.Http.HttpContext httpContext, System.Net.WebSockets.WebSocket webSocket, string subProtocol, GraphQL.Server.Transports.AspNetCore.IUserContextBuilder userContextBuilder) { }
     }

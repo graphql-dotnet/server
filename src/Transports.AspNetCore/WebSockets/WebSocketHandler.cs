@@ -40,11 +40,31 @@ public class WebSocketHandler<TSchema> : WebSocketHandler, IWebSocketHandler<TSc
 /// <inheritdoc cref="IWebSocketHandler"/>
 public class WebSocketHandler : IWebSocketHandler
 {
-    private readonly IGraphQLSerializer _serializer;
-    private readonly IDocumentExecuter _executer;
-    private readonly IServiceScopeFactory _serviceScopeFactory;
-    private readonly IHostApplicationLifetime _hostApplicationLifetime;
-    private readonly IWebSocketAuthenticationService? _authorizationService;
+    /// <summary>
+    /// Gets the <see cref="IGraphQLSerializer"/> instance used to serialize and deserialize <see cref="OperationMessage"/> messages.
+    /// </summary>
+    protected IGraphQLSerializer Serializer { get; }
+
+    /// <summary>
+    /// Gets the <see cref="IDocumentExecuter"/> instance used to execute GraphQL requests.
+    /// </summary>
+    protected IDocumentExecuter Executer { get; }
+
+    /// <summary>
+    /// Gets the service scope factory used to create a dependency injection service scope for each request.
+    /// </summary>
+    protected IServiceScopeFactory ServiceScopeFactory { get; }
+
+    /// <summary>
+    /// Gets the <see cref="IHostApplicationLifetime"/> instance that signals when the application is shutting down.
+    /// </summary>
+    protected IHostApplicationLifetime HostApplicationLifetime { get; }
+
+    /// <summary>
+    /// Gets the <see cref="IWebSocketAuthenticationService"/> instance used to authenticate connections,
+    /// or <see langword="null"/> if none is configured.
+    /// </summary>
+    protected IWebSocketAuthenticationService? AuthorizationService { get; }
 
     /// <summary>
     /// Gets the configuration options for this instance.
@@ -83,13 +103,13 @@ public class WebSocketHandler : IWebSocketHandler
         IHostApplicationLifetime hostApplicationLifetime,
         IWebSocketAuthenticationService? authorizationService = null)
     {
-        _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
-        _executer = executer ?? throw new ArgumentNullException(nameof(executer));
-        _serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
+        Serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
+        Executer = executer ?? throw new ArgumentNullException(nameof(executer));
+        ServiceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
         Options = options ?? throw new ArgumentNullException(nameof(options));
         AuthorizationOptions = authorizationOptions ?? throw new ArgumentNullException(nameof(authorizationOptions));
-        _hostApplicationLifetime = hostApplicationLifetime ?? throw new ArgumentNullException(nameof(hostApplicationLifetime));
-        _authorizationService = authorizationService;
+        HostApplicationLifetime = hostApplicationLifetime ?? throw new ArgumentNullException(nameof(hostApplicationLifetime));
+        AuthorizationService = authorizationService;
     }
 
     /// <inheritdoc/>
@@ -103,15 +123,15 @@ public class WebSocketHandler : IWebSocketHandler
             throw new ArgumentNullException(nameof(subProtocol));
         if (userContextBuilder == null)
             throw new ArgumentNullException(nameof(userContextBuilder));
-        var appStoppingToken = _hostApplicationLifetime.ApplicationStopping;
+        var appStoppingToken = HostApplicationLifetime.ApplicationStopping;
         using var cts = CancellationTokenSource.CreateLinkedTokenSource(httpContext.RequestAborted, appStoppingToken);
         if (cts.Token.IsCancellationRequested)
             return;
         try
         {
             using var webSocketConnection = CreateWebSocketConnection(httpContext, webSocket, cts.Token);
-            using var operationMessageReceiveStream = CreateReceiveStream(webSocketConnection, subProtocol, userContextBuilder);
-            await webSocketConnection.ExecuteAsync(operationMessageReceiveStream);
+            using var messageProcessor = CreateMessageProcessor(webSocketConnection, subProtocol, userContextBuilder);
+            await webSocketConnection.ExecuteAsync(messageProcessor);
         }
         catch (OperationCanceledException) when (appStoppingToken.IsCancellationRequested)
         {
@@ -127,12 +147,12 @@ public class WebSocketHandler : IWebSocketHandler
     /// Creates an <see cref="IWebSocketConnection"/>, a WebSocket message pump.
     /// </summary>
     protected virtual IWebSocketConnection CreateWebSocketConnection(HttpContext httpContext, WebSocket webSocket, CancellationToken cancellationToken)
-        => new WebSocketConnection(httpContext, webSocket, _serializer, Options, cancellationToken);
+        => new WebSocketConnection(httpContext, webSocket, Serializer, Options, cancellationToken);
 
     /// <summary>
     /// Builds an <see cref="IOperationMessageProcessor"/> for the specified sub-protocol.
     /// </summary>
-    protected virtual IOperationMessageProcessor CreateReceiveStream(IWebSocketConnection webSocketConnection, string subProtocol, IUserContextBuilder userContextBuilder)
+    protected virtual IOperationMessageProcessor CreateMessageProcessor(IWebSocketConnection webSocketConnection, string subProtocol, IUserContextBuilder userContextBuilder)
     {
         if (subProtocol == GraphQLWs.SubscriptionServer.SubProtocol)
         {
@@ -140,11 +160,11 @@ public class WebSocketHandler : IWebSocketHandler
                 webSocketConnection,
                 Options,
                 AuthorizationOptions,
-                _executer,
-                _serializer,
-                _serviceScopeFactory,
+                Executer,
+                Serializer,
+                ServiceScopeFactory,
                 userContextBuilder,
-                _authorizationService);
+                AuthorizationService);
         }
         else if (subProtocol == SubscriptionsTransportWs.SubscriptionServer.SubProtocol)
         {
@@ -152,11 +172,11 @@ public class WebSocketHandler : IWebSocketHandler
                 webSocketConnection,
                 Options,
                 AuthorizationOptions,
-                _executer,
-                _serializer,
-                _serviceScopeFactory,
+                Executer,
+                Serializer,
+                ServiceScopeFactory,
                 userContextBuilder,
-                _authorizationService);
+                AuthorizationService);
         }
 
         throw new ArgumentOutOfRangeException(nameof(subProtocol));
