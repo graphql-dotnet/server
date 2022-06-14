@@ -46,14 +46,8 @@ public class WebSocketsConnectionFacts : IDisposable
     [Fact]
     public async Task Should_not_accept_websocket_with_wrong_protocol()
     {
-        /* Given */
-        /* When */
-        var socket = await ConnectAsync("do-not-accept");
-        var segment = new ArraySegment<byte>(new byte[1024]);
-        var received = await socket.ReceiveAsync(segment, CancellationToken.None);
-
-        /* Then */
-        received.CloseStatus.ShouldBe(WebSocketCloseStatus.ProtocolError);
+        (await Should.ThrowAsync<InvalidOperationException>(async () => await ConnectAsync("do-not-accept")))
+            .Message.ShouldBe("Incomplete handshake, status code: 400");
     }
 
     public void Dispose()

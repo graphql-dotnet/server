@@ -1,4 +1,5 @@
 using GraphQL.MicrosoftDI;
+using GraphQL.SystemTextJson;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -10,8 +11,7 @@ public class TestStartup
     public void ConfigureServices(IServiceCollection services)
     {
         services
-            .AddGraphQL(builder => builder.AddWebSockets().AddWebSocketsHttpMiddleware<TestSchema>())
-            .AddSingleton<TestSchema>()
+            .AddGraphQL(builder => builder.AddSchema<TestSchema>().AddSystemTextJson())
             .AddLogging(builder =>
             {
                 // prevent writing errors to Console.Error during tests (required for testing on ubuntu)
@@ -23,6 +23,6 @@ public class TestStartup
     public void Configure(IApplicationBuilder app)
     {
         app.UseWebSockets();
-        app.UseGraphQLWebSockets<TestSchema>("/graphql");
+        app.UseGraphQL<TestSchema>("/graphql");
     }
 }

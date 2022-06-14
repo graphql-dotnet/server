@@ -35,7 +35,6 @@ public class Startup
 
         services.AddGraphQL(builder => builder
             .AddApolloTracing()
-            .AddWebSocketsHttpMiddleware<ChatSchema>()
             .AddSchema<ChatSchema>()
             .ConfigureExecutionOptions(options =>
             {
@@ -49,8 +48,8 @@ public class Startup
             })
             .AddSystemTextJson()
             .AddErrorInfoProvider<CustomErrorInfoProvider>()
-            .AddWebSockets()
             .AddDataLoader()
+            .AddUserContextBuilder(context => new Dictionary<string, object> { { "user", context.User.Identity.IsAuthenticated ? context.User : null } })
             .AddGraphTypes(typeof(ChatSchema).Assembly));
     }
 
@@ -62,7 +61,6 @@ public class Startup
 
         app.UseWebSockets();
 
-        app.UseGraphQLWebSockets<ChatSchema>();
         app.UseGraphQL<GraphQLHttpMiddlewareWithLogs<ChatSchema>>("/graphql", new GraphQLHttpMiddlewareOptions());
 
         app.UseGraphQLPlayground(new PlaygroundOptions

@@ -1,7 +1,6 @@
 using System.Reactive.Linq;
 using System.Security.Claims;
 using GraphQL.Resolvers;
-using GraphQL.Server.Transports.Subscriptions.Abstractions;
 using GraphQL.Types;
 
 namespace GraphQL.Samples.Schemas.Chat;
@@ -35,8 +34,7 @@ public class ChatSubscriptions : ObjectGraphType<object>
 
     private IObservable<Message> SubscribeById(IResolveFieldContext context)
     {
-        var messageContext = (MessageHandlingContext)context.UserContext;
-        var user = messageContext.Get<ClaimsPrincipal>("user");
+        var user = (ClaimsPrincipal)context.UserContext["user"];
 
         string sub = "Anonymous";
         if (user != null)
@@ -57,8 +55,7 @@ public class ChatSubscriptions : ObjectGraphType<object>
 
     private IObservable<Message> Subscribe(IResolveFieldContext context)
     {
-        var messageContext = (MessageHandlingContext)context.UserContext;
-        var user = messageContext.Get<ClaimsPrincipal>("user");
+        var user = (ClaimsPrincipal)context.UserContext["user"];
 
         string sub = "Anonymous";
         if (user != null)
