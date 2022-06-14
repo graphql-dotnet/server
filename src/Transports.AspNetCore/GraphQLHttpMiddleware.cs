@@ -24,14 +24,6 @@ namespace GraphQL.Server.Transports.AspNetCore;
 public class GraphQLHttpMiddleware<TSchema> : GraphQLHttpMiddleware
     where TSchema : ISchema
 {
-    private readonly IDocumentExecuter _documentExecuter;
-    private readonly IServiceScopeFactory _serviceScopeFactory;
-    private readonly IEnumerable<IValidationRule> _getValidationRules;
-    private readonly IEnumerable<IValidationRule> _getCachedDocumentValidationRules;
-    private readonly IEnumerable<IValidationRule> _postValidationRules;
-    private readonly IEnumerable<IValidationRule> _postCachedDocumentValidationRules;
-    private readonly IGraphQLTextSerializer _serializer;
-
     // important: when using convention-based ASP.NET Core middleware, the first constructor is always used
 
     /// <summary>
@@ -44,103 +36,8 @@ public class GraphQLHttpMiddleware<TSchema> : GraphQLHttpMiddleware
         IServiceScopeFactory serviceScopeFactory,
         GraphQLHttpMiddlewareOptions options,
         IHostApplicationLifetime hostApplicationLifetime)
-        : base(next, serializer, options, hostApplicationLifetime)
+        : base(next, serializer, documentExecuter, serviceScopeFactory, options, hostApplicationLifetime)
     {
-        _documentExecuter = documentExecuter ?? throw new ArgumentNullException(nameof(documentExecuter));
-        _serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
-        var getRule = new HttpGetValidationRule();
-        _getValidationRules = DocumentValidator.CoreRules.Append(getRule).ToArray();
-        _getCachedDocumentValidationRules = new[] { getRule };
-        var postRule = new HttpPostValidationRule();
-        _postValidationRules = DocumentValidator.CoreRules.Append(postRule).ToArray();
-        _postCachedDocumentValidationRules = new[] { postRule };
-        _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
-    }
-
-    private static readonly IEnumerable<string> _supportedSubProtocols = new List<string>(new[] {
-        WebSockets.GraphQLWs.SubscriptionServer.SubProtocol,
-        WebSockets.SubscriptionsTransportWs.SubscriptionServer.SubProtocol,
-    }).AsReadOnly();
-
-    /// <inheritdoc/>
-    protected override IEnumerable<string> SupportedWebSocketSubProtocols => _supportedSubProtocols;
-
-    /// <inheritdoc/>
-    protected override async Task<ExecutionResult> ExecuteScopedRequestAsync(HttpContext context, GraphQLRequest? request, IDictionary<string, object?> userContext)
-    {
-        var scope = _serviceScopeFactory.CreateScope();
-        if (scope is IAsyncDisposable ad)
-        {
-            await using (ad.ConfigureAwait(false))
-                return await ExecuteRequestAsync(context, request, scope.ServiceProvider, userContext);
-        }
-        else
-        {
-            using (scope)
-                return await ExecuteRequestAsync(context, request, scope.ServiceProvider, userContext);
-        }
-    }
-
-    /// <inheritdoc/>
-    protected override async Task<ExecutionResult> ExecuteRequestAsync(HttpContext context, GraphQLRequest? request, IServiceProvider serviceProvider, IDictionary<string, object?> userContext)
-    {
-        var opts = new ExecutionOptions
-        {
-            Query = request?.Query,
-            Variables = request?.Variables,
-            Extensions = request?.Extensions,
-            CancellationToken = context.RequestAborted,
-            OperationName = request?.OperationName,
-            RequestServices = serviceProvider,
-            UserContext = userContext,
-        };
-        if (!context.WebSockets.IsWebSocketRequest)
-        {
-            if (HttpMethods.IsGet(context.Request.Method))
-            {
-                opts.ValidationRules = _getValidationRules;
-                opts.CachedDocumentValidationRules = _getCachedDocumentValidationRules;
-            }
-            else if (HttpMethods.IsPost(context.Request.Method))
-            {
-                opts.ValidationRules = _postValidationRules;
-                opts.CachedDocumentValidationRules = _postCachedDocumentValidationRules;
-            }
-        }
-        return await _documentExecuter.ExecuteAsync(opts);
-    }
-
-    /// <inheritdoc/>
-    protected override IOperationMessageProcessor CreateMessageProcessor(IWebSocketConnection webSocketConnection, string subProtocol)
-    {
-        var authService = webSocketConnection.HttpContext.RequestServices.GetService<IWebSocketAuthenticationService>();
-
-        if (subProtocol == WebSockets.GraphQLWs.SubscriptionServer.SubProtocol)
-        {
-            return new WebSockets.GraphQLWs.SubscriptionServer(
-                webSocketConnection,
-                Options.WebSockets,
-                Options,
-                _documentExecuter,
-                _serializer,
-                _serviceScopeFactory,
-                this,
-                authService);
-        }
-        else if (subProtocol == WebSockets.SubscriptionsTransportWs.SubscriptionServer.SubProtocol)
-        {
-            return new WebSockets.SubscriptionsTransportWs.SubscriptionServer(
-                webSocketConnection,
-                Options.WebSockets,
-                Options,
-                _documentExecuter,
-                _serializer,
-                _serviceScopeFactory,
-                this,
-                authService);
-        }
-
-        throw new ArgumentOutOfRangeException(nameof(subProtocol));
     }
 }
 
@@ -148,11 +45,18 @@ public class GraphQLHttpMiddleware<TSchema> : GraphQLHttpMiddleware
 /// ASP.NET Core middleware for processing GraphQL requests. Handles both single and batch requests,
 /// as well as WebSocket requests.
 /// </summary>
-public abstract class GraphQLHttpMiddleware : IUserContextBuilder
+public class GraphQLHttpMiddleware : IUserContextBuilder
 {
+    private readonly IDocumentExecuter _documentExecuter;
+    private readonly IServiceScopeFactory _serviceScopeFactory;
+    private readonly IEnumerable<IValidationRule> _getValidationRules;
+    private readonly IEnumerable<IValidationRule> _getCachedDocumentValidationRules;
+    private readonly IEnumerable<IValidationRule> _postValidationRules;
+    private readonly IEnumerable<IValidationRule> _postCachedDocumentValidationRules;
     private readonly IGraphQLTextSerializer _serializer;
     private readonly RequestDelegate _next;
     private readonly IHostApplicationLifetime _hostApplicationLifetime;
+    private readonly GraphQLHttpMiddlewareOptions _options;
 
     private const string QUERY_KEY = "query";
     private const string VARIABLES_KEY = "variables";
@@ -164,23 +68,28 @@ public abstract class GraphQLHttpMiddleware : IUserContextBuilder
     private const string CONTENTTYPE_GRAPHQLJSON = "application/graphql+json; charset=utf-8";
 
     /// <summary>
-    /// Gets the options configured for this instance.
-    /// </summary>
-    protected GraphQLHttpMiddlewareOptions Options { get; }
-
-    /// <summary>
     /// Initializes a new instance.
     /// </summary>
     public GraphQLHttpMiddleware(
         RequestDelegate next,
         IGraphQLTextSerializer serializer,
+        IDocumentExecuter documentExecuter,
+        IServiceScopeFactory serviceScopeFactory,
         GraphQLHttpMiddlewareOptions options,
         IHostApplicationLifetime hostApplicationLifetime)
     {
         _next = next ?? throw new ArgumentNullException(nameof(next));
         _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
-        Options = options ?? throw new ArgumentNullException(nameof(options));
+        _options = options ?? throw new ArgumentNullException(nameof(options));
         _hostApplicationLifetime = hostApplicationLifetime ?? throw new ArgumentNullException(nameof(hostApplicationLifetime));
+        _documentExecuter = documentExecuter ?? throw new ArgumentNullException(nameof(documentExecuter));
+        _serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
+        var getRule = new HttpGetValidationRule();
+        _getValidationRules = DocumentValidator.CoreRules.Append(getRule).ToArray();
+        _getCachedDocumentValidationRules = new[] { getRule };
+        var postRule = new HttpPostValidationRule();
+        _postValidationRules = DocumentValidator.CoreRules.Append(postRule).ToArray();
+        _postCachedDocumentValidationRules = new[] { postRule };
     }
 
     /// <inheritdoc/>
@@ -188,7 +97,7 @@ public abstract class GraphQLHttpMiddleware : IUserContextBuilder
     {
         if (context.WebSockets.IsWebSocketRequest)
         {
-            if (Options.HandleWebSockets)
+            if (_options.HandleWebSockets)
             {
                 if (await HandleAuthorizeWebSocketConnectionAsync(context, _next))
                     return;
@@ -209,7 +118,7 @@ public abstract class GraphQLHttpMiddleware : IUserContextBuilder
         // GraphQL HTTP only supports GET and POST methods
         bool isGet = HttpMethods.IsGet(httpRequest.Method);
         bool isPost = HttpMethods.IsPost(httpRequest.Method);
-        if (isGet && !Options.HandleGet || isPost && !Options.HandlePost || !isGet && !isPost)
+        if (isGet && !_options.HandleGet || isPost && !_options.HandlePost || !isGet && !isPost)
         {
             await HandleInvalidHttpMethodErrorAsync(context, _next);
             return;
@@ -249,7 +158,7 @@ public abstract class GraphQLHttpMiddleware : IUserContextBuilder
             // Query string params take priority.
             GraphQLRequest? gqlRequest = null;
             GraphQLRequest? urlGQLRequest = null;
-            if (isGet || Options.ReadQueryStringOnPost)
+            if (isGet || _options.ReadQueryStringOnPost)
             {
                 try
                 {
@@ -273,7 +182,7 @@ public abstract class GraphQLHttpMiddleware : IUserContextBuilder
 
             await HandleRequestAsync(context, _next, gqlRequest);
         }
-        else if (Options.EnableBatchedRequests)
+        else if (_options.EnableBatchedRequests)
         {
             await HandleBatchRequestAsync(context, _next, bodyGQLBatchRequest);
         }
@@ -362,7 +271,7 @@ public abstract class GraphQLHttpMiddleware : IUserContextBuilder
         var success = await AuthorizationHelper.AuthorizeAsync(
             new AuthorizationParameters<(GraphQLHttpMiddleware Middleware, HttpContext Context, RequestDelegate Next)>(
                 context,
-                Options,
+                _options,
                 static info => info.Middleware.HandleNotAuthenticatedAsync(info.Context, info.Next),
                 static info => info.Middleware.HandleNotAuthorizedRoleAsync(info.Context, info.Next),
                 static (info, result) => info.Middleware.HandleNotAuthorizedPolicyAsync(info.Context, info.Next, result)),
@@ -394,7 +303,7 @@ public abstract class GraphQLHttpMiddleware : IUserContextBuilder
         // Normal execution with single graphql request
         var userContext = await BuildUserContextAsync(context, null);
         var result = await ExecuteRequestAsync(context, gqlRequest, context.RequestServices, userContext);
-        var statusCode = Options.ValidationErrorsReturnBadRequest && !result.Executed
+        var statusCode = _options.ValidationErrorsReturnBadRequest && !result.Executed
             ? HttpStatusCode.BadRequest
             : HttpStatusCode.OK;
         await WriteJsonResponseAsync(context, statusCode, result);
@@ -417,7 +326,7 @@ public abstract class GraphQLHttpMiddleware : IUserContextBuilder
         else
         {
             // Batched execution with multiple graphql requests
-            if (Options.ExecuteBatchedRequestsInParallel)
+            if (_options.ExecuteBatchedRequestsInParallel)
             {
                 var resultTasks = new Task<ExecutionResult>[gqlRequests.Count];
                 for (int i = 0; i < gqlRequests.Count; i++)
@@ -448,7 +357,20 @@ public abstract class GraphQLHttpMiddleware : IUserContextBuilder
     /// <see cref="ExecuteRequestAsync(HttpContext, GraphQLRequest, IServiceProvider, IDictionary{string, object?})">ExecuteRequestAsync</see>,
     /// disposing of the scope when the asynchronous operation completes.
     /// </summary>
-    protected abstract Task<ExecutionResult> ExecuteScopedRequestAsync(HttpContext context, GraphQLRequest? request, IDictionary<string, object?> userContext);
+    protected virtual async Task<ExecutionResult> ExecuteScopedRequestAsync(HttpContext context, GraphQLRequest? request, IDictionary<string, object?> userContext)
+    {
+        var scope = _serviceScopeFactory.CreateScope();
+        if (scope is IAsyncDisposable ad)
+        {
+            await using (ad.ConfigureAwait(false))
+                return await ExecuteRequestAsync(context, request, scope.ServiceProvider, userContext);
+        }
+        else
+        {
+            using (scope)
+                return await ExecuteRequestAsync(context, request, scope.ServiceProvider, userContext);
+        }
+    }
 
     /// <summary>
     /// Executes a GraphQL request.
@@ -465,7 +387,33 @@ public abstract class GraphQLHttpMiddleware : IUserContextBuilder
     /// options.CachedDocumentValidationRules = new[] { rule };
     /// </code>
     /// </summary>
-    protected abstract Task<ExecutionResult> ExecuteRequestAsync(HttpContext context, GraphQLRequest? request, IServiceProvider serviceProvider, IDictionary<string, object?> userContext);
+    protected virtual async Task<ExecutionResult> ExecuteRequestAsync(HttpContext context, GraphQLRequest? request, IServiceProvider serviceProvider, IDictionary<string, object?> userContext)
+    {
+        var opts = new ExecutionOptions
+        {
+            Query = request?.Query,
+            Variables = request?.Variables,
+            Extensions = request?.Extensions,
+            CancellationToken = context.RequestAborted,
+            OperationName = request?.OperationName,
+            RequestServices = serviceProvider,
+            UserContext = userContext,
+        };
+        if (!context.WebSockets.IsWebSocketRequest)
+        {
+            if (HttpMethods.IsGet(context.Request.Method))
+            {
+                opts.ValidationRules = _getValidationRules;
+                opts.CachedDocumentValidationRules = _getCachedDocumentValidationRules;
+            }
+            else if (HttpMethods.IsPost(context.Request.Method))
+            {
+                opts.ValidationRules = _postValidationRules;
+                opts.CachedDocumentValidationRules = _postCachedDocumentValidationRules;
+            }
+        }
+        return await _documentExecuter.ExecuteAsync(opts);
+    }
 
     /// <summary>
     /// Builds the user context based on a <see cref="HttpContext"/>.
@@ -520,21 +468,56 @@ public abstract class GraphQLHttpMiddleware : IUserContextBuilder
         return _serializer.WriteAsync(context.Response.Body, result, context.RequestAborted);
     }
 
+    private static readonly IEnumerable<string> _supportedSubProtocols = new List<string>(new[] {
+        WebSockets.GraphQLWs.SubscriptionServer.SubProtocol,
+        WebSockets.SubscriptionsTransportWs.SubscriptionServer.SubProtocol,
+    }).AsReadOnly();
+
     /// <summary>
     /// Gets a list of WebSocket sub-protocols supported.
     /// </summary>
-    protected abstract IEnumerable<string> SupportedWebSocketSubProtocols { get; }
+    protected virtual IEnumerable<string> SupportedWebSocketSubProtocols => _supportedSubProtocols;
 
     /// <summary>
     /// Creates an <see cref="IWebSocketConnection"/>, a WebSocket message pump.
     /// </summary>
     protected virtual IWebSocketConnection CreateWebSocketConnection(HttpContext httpContext, WebSocket webSocket, CancellationToken cancellationToken)
-        => new WebSocketConnection(httpContext, webSocket, _serializer, Options.WebSockets, cancellationToken);
+        => new WebSocketConnection(httpContext, webSocket, _serializer, _options.WebSockets, cancellationToken);
 
     /// <summary>
     /// Builds an <see cref="IOperationMessageProcessor"/> for the specified sub-protocol.
     /// </summary>
-    protected abstract IOperationMessageProcessor CreateMessageProcessor(IWebSocketConnection webSocketConnection, string subProtocol);
+    protected virtual IOperationMessageProcessor CreateMessageProcessor(IWebSocketConnection webSocketConnection, string subProtocol)
+    {
+        var authService = webSocketConnection.HttpContext.RequestServices.GetService<IWebSocketAuthenticationService>();
+
+        if (subProtocol == WebSockets.GraphQLWs.SubscriptionServer.SubProtocol)
+        {
+            return new WebSockets.GraphQLWs.SubscriptionServer(
+                webSocketConnection,
+                _options.WebSockets,
+                _options,
+                _documentExecuter,
+                _serializer,
+                _serviceScopeFactory,
+                this,
+                authService);
+        }
+        else if (subProtocol == WebSockets.SubscriptionsTransportWs.SubscriptionServer.SubProtocol)
+        {
+            return new WebSockets.SubscriptionsTransportWs.SubscriptionServer(
+                webSocketConnection,
+                _options.WebSockets,
+                _options,
+                _documentExecuter,
+                _serializer,
+                _serviceScopeFactory,
+                this,
+                authService);
+        }
+
+        throw new ArgumentOutOfRangeException(nameof(subProtocol));
+    }
 
     /// <summary>
     /// Handles a WebSocket connection request.
@@ -600,13 +583,13 @@ public abstract class GraphQLHttpMiddleware : IUserContextBuilder
     /// Writes a '401 Access denied.' message to the output when the user fails the role checks.
     /// </summary>
     protected virtual Task HandleNotAuthorizedRoleAsync(HttpContext context, RequestDelegate next)
-        => WriteErrorResponseAsync(context, HttpStatusCode.Unauthorized, new AccessDeniedError("schema") { RolesRequired = Options.AuthorizedRoles });
+        => WriteErrorResponseAsync(context, HttpStatusCode.Unauthorized, new AccessDeniedError("schema") { RolesRequired = _options.AuthorizedRoles });
 
     /// <summary>
     /// Writes a '401 Access denied.' message to the output when the user fails the policy check.
     /// </summary>
     protected virtual Task HandleNotAuthorizedPolicyAsync(HttpContext context, RequestDelegate next, AuthorizationResult authorizationResult)
-        => WriteErrorResponseAsync(context, HttpStatusCode.Unauthorized, new AccessDeniedError("schema") { PolicyRequired = Options.AuthorizedPolicy, PolicyAuthorizationResult = authorizationResult });
+        => WriteErrorResponseAsync(context, HttpStatusCode.Unauthorized, new AccessDeniedError("schema") { PolicyRequired = _options.AuthorizedPolicy, PolicyAuthorizationResult = authorizationResult });
 
     /// <summary>
     /// Writes a '400 JSON body text could not be parsed.' message to the output.
@@ -679,8 +662,8 @@ public abstract class GraphQLHttpMiddleware : IUserContextBuilder
     private GraphQLRequest DeserializeFromQueryString(IQueryCollection queryCollection) => new()
     {
         Query = queryCollection.TryGetValue(QUERY_KEY, out var queryValues) ? queryValues[0] : null,
-        Variables = Options.ReadVariablesFromQueryString && queryCollection.TryGetValue(VARIABLES_KEY, out var variablesValues) ? _serializer.Deserialize<Inputs>(variablesValues[0]) : null,
-        Extensions = Options.ReadExtensionsFromQueryString && queryCollection.TryGetValue(EXTENSIONS_KEY, out var extensionsValues) ? _serializer.Deserialize<Inputs>(extensionsValues[0]) : null,
+        Variables = _options.ReadVariablesFromQueryString && queryCollection.TryGetValue(VARIABLES_KEY, out var variablesValues) ? _serializer.Deserialize<Inputs>(variablesValues[0]) : null,
+        Extensions = _options.ReadExtensionsFromQueryString && queryCollection.TryGetValue(EXTENSIONS_KEY, out var extensionsValues) ? _serializer.Deserialize<Inputs>(extensionsValues[0]) : null,
         OperationName = queryCollection.TryGetValue(OPERATION_NAME_KEY, out var operationNameValues) ? operationNameValues[0] : null,
     };
 
