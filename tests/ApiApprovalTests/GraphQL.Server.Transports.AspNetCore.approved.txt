@@ -39,7 +39,6 @@ namespace GraphQL.Server.Transports.AspNetCore
     public class GraphQLHttpMiddleware : GraphQL.Server.Transports.AspNetCore.IUserContextBuilder
     {
         public GraphQLHttpMiddleware(Microsoft.AspNetCore.Http.RequestDelegate next, GraphQL.IGraphQLTextSerializer serializer, GraphQL.IDocumentExecuter documentExecuter, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions options, Microsoft.Extensions.Hosting.IHostApplicationLifetime hostApplicationLifetime) { }
-        protected GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions Options { get; }
         protected virtual System.Collections.Generic.IEnumerable<string> SupportedWebSocketSubProtocols { get; }
         protected virtual System.Threading.Tasks.ValueTask<System.Collections.Generic.IDictionary<string, object?>> BuildUserContextAsync(Microsoft.AspNetCore.Http.HttpContext context, object? payload) { }
         protected virtual GraphQL.Server.Transports.AspNetCore.WebSockets.IOperationMessageProcessor CreateMessageProcessor(GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketConnection webSocketConnection, string subProtocol) { }
