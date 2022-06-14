@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net6;net5;netcoreapp3.1</TargetFrameworks>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>GraphQL.Samples.Schemas.Chat</AssemblyName>
     <RootNamespace>GraphQL.Samples.Schemas.Chat</RootNamespace>
     <IsPackable>false</IsPackable>
@@ -9,7 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="GraphQL" Version="$(GraphQLVersion)" />
     <PackageReference Include="System.Reactive" Version="5.0.0" />
   </ItemGroup>
