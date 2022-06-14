@@ -19,8 +19,9 @@ public class GraphQLHttpMiddlewareWithLogs<TSchema> : GraphQLHttpMiddleware<TSch
         IDocumentExecuter<TSchema> documentExecuter,
         IServiceScopeFactory serviceScopeFactory,
         GraphQLHttpMiddlewareOptions options,
+        IHostApplicationLifetime hostApplicationLifetime,
         ILogger<GraphQLHttpMiddleware<TSchema>> logger)
-        : base(next, serializer, documentExecuter, serviceScopeFactory, options)
+        : base(next, serializer, documentExecuter, serviceScopeFactory, options, hostApplicationLifetime)
     {
         _logger = logger;
     }

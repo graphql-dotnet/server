@@ -2,12 +2,14 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.WebSockets;
 using GraphQL.Server.Transports.AspNetCore.Errors;
+using GraphQL.Server.Transports.AspNetCore.WebSockets;
 using GraphQL.Transport;
 using GraphQL.Types;
 using GraphQL.Validation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace GraphQL.Server.Transports.AspNetCore;
 
@@ -28,6 +30,7 @@ public class GraphQLHttpMiddleware<TSchema> : GraphQLHttpMiddleware
     private readonly IEnumerable<IValidationRule> _getCachedDocumentValidationRules;
     private readonly IEnumerable<IValidationRule> _postValidationRules;
     private readonly IEnumerable<IValidationRule> _postCachedDocumentValidationRules;
+    private readonly IGraphQLTextSerializer _serializer;
 
     // important: when using convention-based ASP.NET Core middleware, the first constructor is always used
 
@@ -39,48 +42,9 @@ public class GraphQLHttpMiddleware<TSchema> : GraphQLHttpMiddleware
         IGraphQLTextSerializer serializer,
         IDocumentExecuter<TSchema> documentExecuter,
         IServiceScopeFactory serviceScopeFactory,
-        GraphQLHttpMiddlewareOptions options)
-        : base(next, serializer, options, Array.Empty<IWebSocketHandler>())
-    {
-        _documentExecuter = documentExecuter ?? throw new ArgumentNullException(nameof(documentExecuter));
-        _serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
-        var getRule = new HttpGetValidationRule();
-        _getValidationRules = DocumentValidator.CoreRules.Append(getRule).ToArray();
-        _getCachedDocumentValidationRules = new[] { getRule };
-        var postRule = new HttpPostValidationRule();
-        _postValidationRules = DocumentValidator.CoreRules.Append(postRule).ToArray();
-        _postCachedDocumentValidationRules = new[] { postRule };
-    }
-
-    /************* WebSocket support ***********
-
-    /// <summary>
-    /// Initializes a new instance.
-    /// </summary>
-    public GraphQLHttpMiddleware(
-        RequestDelegate next,
-        IGraphQLTextSerializer serializer,
-        IDocumentExecuter<TSchema> documentExecuter,
-        IServiceScopeFactory serviceScopeFactory,
         GraphQLHttpMiddlewareOptions options,
-        IServiceProvider provider,
         IHostApplicationLifetime hostApplicationLifetime)
-        : this(next, serializer, documentExecuter, serviceScopeFactory, options,
-              CreateWebSocketHandlers(serializer, documentExecuter, serviceScopeFactory, provider, hostApplicationLifetime, options))
-    {
-    }
-
-    /// <summary>
-    /// Initializes a new instance.
-    /// </summary>
-    protected GraphQLHttpMiddleware(
-        RequestDelegate next,
-        IGraphQLTextSerializer serializer,
-        IDocumentExecuter<TSchema> documentExecuter,
-        IServiceScopeFactory serviceScopeFactory,
-        GraphQLHttpMiddlewareOptions options,
-        IEnumerable<IWebSocketHandler<TSchema>>? webSocketHandlers = null)
-        : base(next, serializer, options, webSocketHandlers)
+        : base(next, serializer, options, hostApplicationLifetime)
     {
         _documentExecuter = documentExecuter ?? throw new ArgumentNullException(nameof(documentExecuter));
         _serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
@@ -90,28 +54,16 @@ public class GraphQLHttpMiddleware<TSchema> : GraphQLHttpMiddleware
         var postRule = new HttpPostValidationRule();
         _postValidationRules = DocumentValidator.CoreRules.Append(postRule).ToArray();
         _postCachedDocumentValidationRules = new[] { postRule };
+        _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
     }
 
-    private static IEnumerable<IWebSocketHandler<TSchema>> CreateWebSocketHandlers(
-        IGraphQLSerializer serializer,
-        IDocumentExecuter<TSchema> documentExecuter,
-        IServiceScopeFactory serviceScopeFactory,
-        IServiceProvider provider,
-        IHostApplicationLifetime hostApplicationLifetime,
-        GraphQLHttpMiddlewareOptions options)
-    {
-        if (hostApplicationLifetime == null)
-            throw new ArgumentNullException(nameof(hostApplicationLifetime));
-        if (provider == null)
-            throw new ArgumentNullException(nameof(provider));
+    private static readonly IEnumerable<string> _supportedSubProtocols = new List<string>(new[] {
+        WebSockets.GraphQLWs.SubscriptionServer.SubProtocol,
+        WebSockets.SubscriptionsTransportWs.SubscriptionServer.SubProtocol,
+    }).AsReadOnly();
 
-        return new IWebSocketHandler<TSchema>[] {
-            new WebSocketHandler<TSchema>(serializer, documentExecuter, serviceScopeFactory, options,
-                hostApplicationLifetime, provider.GetService<IWebSocketAuthenticationService>()),
-        };
-    }
-
-    ******************************/
+    /// <inheritdoc/>
+    protected override IEnumerable<string> SupportedWebSocketSubProtocols => _supportedSubProtocols;
 
     /// <inheritdoc/>
     protected override async Task<ExecutionResult> ExecuteScopedRequestAsync(HttpContext context, GraphQLRequest? request, IDictionary<string, object?> userContext)
@@ -157,18 +109,50 @@ public class GraphQLHttpMiddleware<TSchema> : GraphQLHttpMiddleware
         }
         return await _documentExecuter.ExecuteAsync(opts);
     }
+
+    /// <inheritdoc/>
+    protected override IOperationMessageProcessor CreateMessageProcessor(IWebSocketConnection webSocketConnection, string subProtocol)
+    {
+        var authService = webSocketConnection.HttpContext.RequestServices.GetService<IWebSocketAuthenticationService>();
+
+        if (subProtocol == WebSockets.GraphQLWs.SubscriptionServer.SubProtocol)
+        {
+            return new WebSockets.GraphQLWs.SubscriptionServer(
+                webSocketConnection,
+                Options.WebSockets,
+                Options,
+                _documentExecuter,
+                _serializer,
+                _serviceScopeFactory,
+                this,
+                authService);
+        }
+        else if (subProtocol == WebSockets.SubscriptionsTransportWs.SubscriptionServer.SubProtocol)
+        {
+            return new WebSockets.SubscriptionsTransportWs.SubscriptionServer(
+                webSocketConnection,
+                Options.WebSockets,
+                Options,
+                _documentExecuter,
+                _serializer,
+                _serviceScopeFactory,
+                this,
+                authService);
+        }
+
+        throw new ArgumentOutOfRangeException(nameof(subProtocol));
+    }
 }
 
 /// <summary>
 /// ASP.NET Core middleware for processing GraphQL requests. Handles both single and batch requests,
-/// and dispatches WebSocket requests to the registered <see cref="IWebSocketHandler"/>.
+/// as well as WebSocket requests.
 /// </summary>
-public abstract class GraphQLHttpMiddleware
+public abstract class GraphQLHttpMiddleware : IUserContextBuilder
 {
     private readonly IGraphQLTextSerializer _serializer;
-    private readonly IEnumerable<IWebSocketHandler>? _webSocketHandlers;
     private readonly RequestDelegate _next;
-    private readonly IUserContextBuilder _userContextBuilderForWebSockets;
+    private readonly IHostApplicationLifetime _hostApplicationLifetime;
 
     private const string QUERY_KEY = "query";
     private const string VARIABLES_KEY = "variables";
@@ -191,13 +175,12 @@ public abstract class GraphQLHttpMiddleware
         RequestDelegate next,
         IGraphQLTextSerializer serializer,
         GraphQLHttpMiddlewareOptions options,
-        IEnumerable<IWebSocketHandler>? webSocketHandlers = null)
+        IHostApplicationLifetime hostApplicationLifetime)
     {
         _next = next ?? throw new ArgumentNullException(nameof(next));
         _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
         Options = options ?? throw new ArgumentNullException(nameof(options));
-        _webSocketHandlers = webSocketHandlers;
-        _userContextBuilderForWebSockets = new UserContextBuilder<IDictionary<string, object?>>(BuildUserContextAsync);
+        _hostApplicationLifetime = hostApplicationLifetime ?? throw new ArgumentNullException(nameof(hostApplicationLifetime));
     }
 
     /// <inheritdoc/>
@@ -511,6 +494,9 @@ public abstract class GraphQLHttpMiddleware
         return userContext;
     }
 
+    ValueTask<IDictionary<string, object?>> IUserContextBuilder.BuildUserContextAsync(HttpContext context, object? payload)
+        => BuildUserContextAsync(context, payload);
+
     /// <summary>
     /// Selects a response content type string based on the <see cref="HttpContext"/>.
     /// Defaults to <see cref="CONTENTTYPE_GRAPHQLJSON"/>.  Override this value for compatibility
@@ -535,49 +521,73 @@ public abstract class GraphQLHttpMiddleware
     }
 
     /// <summary>
+    /// Gets a list of WebSocket sub-protocols supported.
+    /// </summary>
+    protected abstract IEnumerable<string> SupportedWebSocketSubProtocols { get; }
+
+    /// <summary>
+    /// Creates an <see cref="IWebSocketConnection"/>, a WebSocket message pump.
+    /// </summary>
+    protected virtual IWebSocketConnection CreateWebSocketConnection(HttpContext httpContext, WebSocket webSocket, CancellationToken cancellationToken)
+        => new WebSocketConnection(httpContext, webSocket, _serializer, Options.WebSockets, cancellationToken);
+
+    /// <summary>
+    /// Builds an <see cref="IOperationMessageProcessor"/> for the specified sub-protocol.
+    /// </summary>
+    protected abstract IOperationMessageProcessor CreateMessageProcessor(IWebSocketConnection webSocketConnection, string subProtocol);
+
+    /// <summary>
     /// Handles a WebSocket connection request.
     /// </summary>
     protected virtual async Task HandleWebSocketAsync(HttpContext context, RequestDelegate next)
     {
-        if (_webSocketHandlers == null || !_webSocketHandlers.Any())
-        {
-            await next(context);
-            return;
-        }
-
-        string selectedProtocol;
-        IWebSocketHandler selectedHandler;
+        string? subProtocol = null;
         // select a sub-protocol, preferring the first sub-protocol requested by the client
         foreach (var protocol in context.WebSockets.WebSocketRequestedProtocols)
         {
-            foreach (var handler in _webSocketHandlers)
+            if (SupportedWebSocketSubProtocols.Contains(protocol))
             {
-                if (handler.SupportedSubProtocols.Contains(protocol))
-                {
-                    selectedProtocol = protocol;
-                    selectedHandler = handler;
-                    goto MatchedHandler;
-                }
+                subProtocol = protocol;
+                break;
             }
         }
 
-        await HandleWebSocketSubProtocolNotSupportedAsync(context, next);
-        return;
-
-    MatchedHandler:
-        var socket = await context.WebSockets.AcceptWebSocketAsync(selectedProtocol);
-
-        if (socket.SubProtocol != selectedProtocol)
+        if (subProtocol == null)
         {
-            await socket.CloseAsync(
+            await HandleWebSocketSubProtocolNotSupportedAsync(context, next);
+            return;
+        }
+
+        var webSocket = await context.WebSockets.AcceptWebSocketAsync(subProtocol);
+
+        if (webSocket.SubProtocol != subProtocol)
+        {
+            await webSocket.CloseAsync(
                 WebSocketCloseStatus.ProtocolError,
-                $"Invalid sub-protocol; expected '{selectedProtocol}'",
+                $"Invalid sub-protocol; expected '{subProtocol}'",
                 context.RequestAborted);
             return;
         }
 
         // Connect, then wait until the websocket has disconnected (and all subscriptions ended)
-        await selectedHandler.ExecuteAsync(context, socket, selectedProtocol, _userContextBuilderForWebSockets);
+        var appStoppingToken = _hostApplicationLifetime.ApplicationStopping;
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(context.RequestAborted, appStoppingToken);
+        if (cts.Token.IsCancellationRequested)
+            return;
+        try
+        {
+            using var webSocketConnection = CreateWebSocketConnection(context, webSocket, cts.Token);
+            using var messageProcessor = CreateMessageProcessor(webSocketConnection, subProtocol);
+            await webSocketConnection.ExecuteAsync(messageProcessor);
+        }
+        catch (OperationCanceledException) when (appStoppingToken.IsCancellationRequested)
+        {
+            // terminate all pending WebSockets connections when the application is in the process of stopping
+
+            // note: we are consuming OCE in this case because ASP.NET Core does not consider the task as canceled when
+            // an OCE occurs that is not due to httpContext.RequestAborted; so to prevent ASP.NET Core from considering
+            // this a "regular" exception, we consume it here
+        }
     }
 
     /// <summary>
