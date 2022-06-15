@@ -23,7 +23,8 @@ public static class VoyagerApplicationBuilderExtensions
     public static IApplicationBuilder UseGraphQLVoyager(this IApplicationBuilder app, VoyagerOptions options, string path = "/ui/voyager")
     {
         return app.UseWhen(
-           context => HttpMethods.IsGet(context.Request.Method) && context.Request.Path.StartsWithSegments(path, out var remaining) && string.IsNullOrEmpty(remaining),
-           b => b.UseMiddleware<VoyagerMiddleware>(options ?? new VoyagerOptions()));
+            context => HttpMethods.IsGet(context.Request.Method) && !context.WebSockets.IsWebSocketRequest &&
+                context.Request.Path.StartsWithSegments(path, out var remaining) && string.IsNullOrEmpty(remaining),
+            b => b.UseMiddleware<VoyagerMiddleware>(options ?? new VoyagerOptions()));
     }
 }
