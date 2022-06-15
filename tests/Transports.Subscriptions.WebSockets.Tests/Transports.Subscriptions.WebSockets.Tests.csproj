@@ -7,10 +7,13 @@
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
-    <ProjectReference Include="..\..\src\Transports.Subscriptions.WebSockets\Transports.Subscriptions.WebSockets.csproj" />
     <PackageReference Include="Castle.Core" Version="5.0.0" />
-    <PackageReference Include="GraphQL.MicrosoftDI" Version="5.1.1" />
-    <PackageReference Include="GraphQL.NewtonsoftJson" Version="5.1.1" />
+    <PackageReference Include="GraphQL.MicrosoftDI" Version="$(GraphQLVersion)" />
+    <PackageReference Include="GraphQL.SystemTextJson" Version="$(GraphQLVersion)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Transports.AspNetCore\Transports.AspNetCore.csproj" />
   </ItemGroup>
 
 </Project>

@@ -9,7 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Transports.Subscriptions.Abstractions\Transports.Subscriptions.Abstractions.csproj" />
+    <PackageReference Include="GraphQL" Version="$(GraphQLVersion)" />
+    <PackageReference Include="System.Reactive" Version="5.0.0" />
   </ItemGroup>
 
 </Project>
