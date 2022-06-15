@@ -20,7 +20,6 @@ root = true
 
 # Editor default newlines with a newline ending every file
 [*]
-end_of_line = lf
 insert_final_newline = true
 charset = utf-8
 indent_style = space
