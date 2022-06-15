@@ -1,5 +1,8 @@
 namespace GraphQL.Server;
 
+/// <summary>
+/// Extension methods for <see cref="IGraphQLBuilder"/>.
+/// </summary>
 public static class GraphQLBuilderUserContextExtensions
 {
     /// <summary>
