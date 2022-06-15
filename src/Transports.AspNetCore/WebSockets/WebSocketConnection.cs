@@ -272,5 +272,6 @@ public class WebSocketConnection : IWebSocketConnection
     /// <inheritdoc/>
     public virtual void Dispose()
     {
+        GC.SuppressFinalize(this);
     }
 }

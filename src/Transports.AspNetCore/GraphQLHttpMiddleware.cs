@@ -1,3 +1,5 @@
+#pragma warning disable CA1716 // Identifiers should not match keywords
+
 namespace GraphQL.Server.Transports.AspNetCore;
 
 /// <inheritdoc/>

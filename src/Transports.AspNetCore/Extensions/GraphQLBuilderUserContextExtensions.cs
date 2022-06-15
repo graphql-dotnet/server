@@ -84,7 +84,7 @@ public static class GraphQLBuilderUserContextExtensions
             return next(options);
         }
 
-        private async Task<ExecutionResult> SetAndExecuteAsync(ExecutionOptions options, ExecutionDelegate next)
+        private static async Task<ExecutionResult> SetAndExecuteAsync(ExecutionOptions options, ExecutionDelegate next)
         {
             var requestServices = options.RequestServices ?? throw new MissingRequestServicesException();
             var httpContext = requestServices.GetRequiredService<IHttpContextAccessor>().HttpContext!;
