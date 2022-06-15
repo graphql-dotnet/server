@@ -5,8 +5,8 @@
     <LangVersion>latest</LangVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>logo.64x64.png</PackageIcon>
-    <Copyright>Pekka Heikura</Copyright>
-    <Authors>Pekka Heikura</Authors>
+    <Copyright>Copyright (c) 2022 Shane Krueger, Pekka Heikura, et al. All rights reserved.</Copyright>
+    <Authors>Shane Krueger, Pekka Heikura, et al.</Authors>
     <Product>graphql-dotnet server</Product>
     <Company>graphql-dotnet</Company>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>

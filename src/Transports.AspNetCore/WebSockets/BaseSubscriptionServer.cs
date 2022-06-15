@@ -1,10 +1,3 @@
-using System.Security.Claims;
-using System.Security.Principal;
-using GraphQL.Execution;
-using GraphQL.Transport;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-
 namespace GraphQL.Server.Transports.AspNetCore.WebSockets;
 
 /// <summary>

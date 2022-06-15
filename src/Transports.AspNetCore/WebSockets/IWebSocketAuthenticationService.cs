@@ -1,6 +1,3 @@
-using GraphQL.Transport;
-using Microsoft.AspNetCore.Http;
-
 namespace GraphQL.Server.Transports.AspNetCore.WebSockets;
 
 /// <summary>

@@ -1,16 +1,3 @@
-using System.Net;
-using System.Net.Http.Headers;
-using System.Net.WebSockets;
-using GraphQL.Server.Transports.AspNetCore.Errors;
-using GraphQL.Server.Transports.AspNetCore.WebSockets;
-using GraphQL.Transport;
-using GraphQL.Types;
-using GraphQL.Validation;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-
 namespace GraphQL.Server.Transports.AspNetCore;
 
 /// <inheritdoc/>
@@ -360,15 +347,16 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
     protected virtual async Task<ExecutionResult> ExecuteScopedRequestAsync(HttpContext context, GraphQLRequest? request, IDictionary<string, object?> userContext)
     {
         var scope = _serviceScopeFactory.CreateScope();
-        if (scope is IAsyncDisposable ad)
+        try
         {
-            await using (ad.ConfigureAwait(false))
-                return await ExecuteRequestAsync(context, request, scope.ServiceProvider, userContext);
+            return await ExecuteRequestAsync(context, request, scope.ServiceProvider, userContext);
         }
-        else
+        finally
         {
-            using (scope)
-                return await ExecuteRequestAsync(context, request, scope.ServiceProvider, userContext);
+            if (scope is IAsyncDisposable ad)
+                await ad.DisposeAsync().ConfigureAwait(false);
+            else
+                scope.Dispose();
         }
     }
 
@@ -700,9 +688,9 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
         try
         {
             // Remove at most a single set of quotes.
-            if (charset.Length > 2 && charset[0] == '\"' && charset[^1] == '\"')
+            if (charset!.Length > 2 && charset[0] == '\"' && charset[charset.Length - 1] == '\"')
             {
-                encoding = System.Text.Encoding.GetEncoding(charset[1..^1]);
+                encoding = System.Text.Encoding.GetEncoding(charset.Substring(1, charset.Length - 2));
             }
             else
             {

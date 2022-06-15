@@ -1,8 +1,3 @@
-using GraphQL.Transport;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
-
 namespace GraphQL.Server.Transports.AspNetCore.WebSockets.SubscriptionsTransportWs;
 
 /// <inheritdoc/>

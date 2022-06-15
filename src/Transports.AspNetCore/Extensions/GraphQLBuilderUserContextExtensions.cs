@@ -1,10 +1,3 @@
-using GraphQL.DI;
-using GraphQL.Server.Transports.AspNetCore;
-using GraphQL.Server.Transports.AspNetCore.WebSockets;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.DependencyInjection;
-
 namespace GraphQL.Server;
 
 public static class GraphQLBuilderUserContextExtensions
@@ -129,19 +122,6 @@ public static class GraphQLBuilderUserContextExtensions
     public static IGraphQLBuilder AddWebSocketAuthentication(this IGraphQLBuilder builder, IWebSocketAuthenticationService webSocketAuthenticationService)
     {
         builder.Services.Register(webSocketAuthenticationService);
-        return builder;
-    }
-
-    /// <summary>
-    /// Set up default policy for matching endpoints. It is required when both GraphQL HTTP and
-    /// GraphQL WebSockets middlewares are mapped to the same endpoint (by default 'graphql').
-    /// </summary>
-    /// <param name="builder">The GraphQL builder.</param>
-    /// <returns>The GraphQL builder.</returns>
-    public static IGraphQLBuilder AddDefaultEndpointSelectorPolicy(this IGraphQLBuilder builder)
-    {
-        builder.Services.TryRegister<MatcherPolicy, GraphQLDefaultEndpointSelectorPolicy>(DI.ServiceLifetime.Singleton, RegistrationCompareMode.ServiceTypeAndImplementationType);
-
         return builder;
     }
 }

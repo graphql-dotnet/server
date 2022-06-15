@@ -47,7 +47,6 @@ public class StartupWithRouting
                     return Task.CompletedTask;
                 };
             })
-            .AddDefaultEndpointSelectorPolicy()
             .AddSystemTextJson()
             .AddErrorInfoProvider<CustomErrorInfoProvider>()
             .AddDataLoader()

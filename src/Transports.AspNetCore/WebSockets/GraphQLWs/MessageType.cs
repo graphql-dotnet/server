@@ -1,7 +1,5 @@
 #pragma warning disable IDE1006 // Naming Styles
 
-using GraphQL.Transport;
-
 namespace GraphQL.Server.Transports.AspNetCore.WebSockets.GraphQLWs;
 
 /// <summary>
