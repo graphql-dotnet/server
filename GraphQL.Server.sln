@@ -73,6 +73,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "All", "src\All\All.csproj",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Transports.AspNetCore.Tests", "tests\Transports.AspNetCore.Tests\Transports.AspNetCore.Tests.csproj", "{1857A25B-C4A3-4332-9077-3F2516AC6059}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.Server.UI.SmartPlayground.Tests", "src\UI.SmartPlayground.Tests\GraphQL.Server.UI.SmartPlayground.Tests.csproj", "{2B093CBA-FF06-4D22-9AE2-DD0A34FBC2E0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ui.SmartPlayground", "src\Ui.SmartPlayground\Ui.SmartPlayground.csproj", "{E581A8EE-A3A8-4036-BEEB-6FFF3421CDD9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -151,6 +155,14 @@ Global
 		{1857A25B-C4A3-4332-9077-3F2516AC6059}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1857A25B-C4A3-4332-9077-3F2516AC6059}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1857A25B-C4A3-4332-9077-3F2516AC6059}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2B093CBA-FF06-4D22-9AE2-DD0A34FBC2E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B093CBA-FF06-4D22-9AE2-DD0A34FBC2E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B093CBA-FF06-4D22-9AE2-DD0A34FBC2E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B093CBA-FF06-4D22-9AE2-DD0A34FBC2E0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E581A8EE-A3A8-4036-BEEB-6FFF3421CDD9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E581A8EE-A3A8-4036-BEEB-6FFF3421CDD9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E581A8EE-A3A8-4036-BEEB-6FFF3421CDD9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E581A8EE-A3A8-4036-BEEB-6FFF3421CDD9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -170,6 +182,8 @@ Global
 		{17945A3F-4C80-43B3-BBD7-6FE0EA107799} = {592C7A03-4F0C-40C2-86F9-C7A4E03504A7}
 		{9F1A96BC-FF87-427F-8284-5A0670CA596C} = {BBD07745-C962-4D2D-B302-6DA1BCC2FF43}
 		{1857A25B-C4A3-4332-9077-3F2516AC6059} = {BBD07745-C962-4D2D-B302-6DA1BCC2FF43}
+		{2B093CBA-FF06-4D22-9AE2-DD0A34FBC2E0} = {BBD07745-C962-4D2D-B302-6DA1BCC2FF43}
+		{E581A8EE-A3A8-4036-BEEB-6FFF3421CDD9} = {EFEC04E1-42DD-4689-B808-5C630A9AA59D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3FC7FA59-E938-453C-8C4A-9D5635A9489A}
