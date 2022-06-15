@@ -3,7 +3,7 @@ namespace GraphQL.Server;
 /// <summary>
 /// Extension methods for <see cref="IGraphQLBuilder"/>.
 /// </summary>
-public static class GraphQLBuilderUserContextExtensions
+public static class GraphQLBuilderExtensions
 {
     /// <summary>
     /// Registers the specified <typeparamref name="TUserContextBuilder"/> as a singleton of

@@ -1,6 +1,6 @@
 namespace GraphQL.Server
 {
-    public static class GraphQLBuilderUserContextExtensions
+    public static class GraphQLBuilderExtensions
     {
         public static GraphQL.DI.IGraphQLBuilder AddUserContextBuilder<TUserContextBuilder>(this GraphQL.DI.IGraphQLBuilder builder)
             where TUserContextBuilder :  class, GraphQL.Server.Transports.AspNetCore.IUserContextBuilder { }
