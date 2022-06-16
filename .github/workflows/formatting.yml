@@ -13,18 +13,6 @@ on:
       - "*.props"
       - "*.targets"
       - "*.sln"
-  # Upload code coverage results when PRs are merged
-  push:
-    branches:
-      - master
-      - develop
-    paths:
-      - src/**
-      - tests/**
-      - samples/**
-      - .github/workflows/**
-      - "*.props"
-      - "*.targets"
 
 env:
   DOTNET_NOLOGO: true
