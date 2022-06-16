@@ -41,6 +41,7 @@ namespace GraphQL.Server
     {
         /// <summary>
         /// Registers <see cref="IHostApplicationLifetime"/> within the dependency injection framework.
+        /// "Native" IHostApplicationLifetime is not available for .NET Core 2.1 / .NET Framework 4.8
         /// </summary>
         public static void AddHostApplicationLifetime(this IServiceCollection services)
         {
