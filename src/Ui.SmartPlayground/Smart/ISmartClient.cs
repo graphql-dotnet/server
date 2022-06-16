@@ -1,4 +1,4 @@
-﻿namespace GraphQL.Server.Ui.SmartPlayground.Smart
+namespace GraphQL.Server.Ui.SmartPlayground.Smart
 {
     public interface ISmartClient
     {

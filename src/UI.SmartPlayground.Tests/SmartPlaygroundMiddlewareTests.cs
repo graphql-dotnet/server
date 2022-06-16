@@ -1,10 +1,10 @@
 using GraphQL.Server.Ui.SmartPlayground;
-using Microsoft.AspNetCore.Http;
-using Xunit;
-using Moq;
 using GraphQL.Server.Ui.SmartPlayground.Factories;
 using GraphQL.Server.Ui.SmartPlayground.Smart;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
+using Moq;
+using Xunit;
 
 namespace GraphQL.Server.UI.SmartPlayground.Tests
 {

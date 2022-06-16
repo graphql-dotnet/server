@@ -1,8 +1,8 @@
-using OAuth2Client = OAuth2.Client;
+using Microsoft.AspNetCore.Http;
 using OAuth2.Configuration;
 using OAuth2.Infrastructure;
 using OAuth2.Models;
-using Microsoft.AspNetCore.Http;
+using OAuth2Client = OAuth2.Client;
 
 namespace GraphQL.Server.Ui.SmartPlayground.Smart
 {

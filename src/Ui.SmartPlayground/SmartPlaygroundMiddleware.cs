@@ -1,6 +1,6 @@
-using GraphQL.Server.Ui.SmartPlayground.Internal;
 using System.Text;
 using GraphQL.Server.Ui.SmartPlayground.Factories;
+using GraphQL.Server.Ui.SmartPlayground.Internal;
 using Microsoft.AspNetCore.Http;
 
 namespace GraphQL.Server.Ui.SmartPlayground;
