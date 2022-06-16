@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net6</TargetFrameworks>
+    <Description>SMART GraphQL Playground integration for ASP.NET Core</Description>
+    <PackageTags>SMART;GraphQL;Playground</PackageTags>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>true</IsPackable>
+    <AssemblyVersion>1.0.0.2</AssemblyVersion>
+    <FileVersion>1.0.0.2</FileVersion>
+    <Version>1.0.0.3</Version>
+    <OutputType>Library</OutputType>
+    <IsPublishable>True</IsPublishable>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Authors>Thor Stenbæk</Authors>
+    <Company>thorstenbaek</Company>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Internal\smartplayground.chtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Internal\smartplayground.chtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Moq" Version="4.18.1" />
+    <PackageReference Include="OAuth2" Version="0.10.2" />
+  </ItemGroup>
+
+</Project>
