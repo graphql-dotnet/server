@@ -1,5 +1,3 @@
-using System.Net.WebSockets;
-
 namespace GraphQL.Server.Transports.AspNetCore.WebSockets;
 
 internal class WebSocketWriterStream : Stream

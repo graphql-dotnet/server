@@ -1,7 +1,3 @@
-using System.Net.WebSockets;
-using GraphQL.Transport;
-using Microsoft.AspNetCore.Http;
-
 namespace GraphQL.Server.Transports.AspNetCore.WebSockets;
 
 /// <summary>
@@ -276,5 +272,6 @@ public class WebSocketConnection : IWebSocketConnection
     /// <inheritdoc/>
     public virtual void Dispose()
     {
+        GC.SuppressFinalize(this);
     }
 }

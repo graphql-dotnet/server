@@ -4,6 +4,7 @@
     <CoverletOutputFormat>opencover</CoverletOutputFormat>
     <CoverletOutput>$(MSBuildThisFileDirectory).coverage/$(AssemblyName)/</CoverletOutput>
     <Exclude>[GraphQL.Samples.Schemas.Chat]*,[GraphQL.Samples.Server]*</Exclude>
+    <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
 
 </Project>

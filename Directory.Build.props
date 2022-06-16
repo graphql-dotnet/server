@@ -5,8 +5,8 @@
     <LangVersion>latest</LangVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>logo.64x64.png</PackageIcon>
-    <Copyright>Pekka Heikura</Copyright>
-    <Authors>Pekka Heikura</Authors>
+    <Copyright>Copyright (c) 2015-2022 Shane Krueger, Pekka Heikura, Ivan Maximov, et al. All rights reserved.</Copyright>
+    <Authors>Shane Krueger, Pekka Heikura, Ivan Maximov, et al.</Authors>
     <Product>graphql-dotnet server</Product>
     <Company>graphql-dotnet</Company>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -20,7 +20,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
-    <NoWarn>$(NoWarn);1591</NoWarn> <!--TODO: temporary solution-->
     <PackageReadmeFile Condition="'$(IsPackable)' == 'true'">README.md</PackageReadmeFile>
 
     <AssemblyName>GraphQL.Server.$(MSBuildProjectName)</AssemblyName>

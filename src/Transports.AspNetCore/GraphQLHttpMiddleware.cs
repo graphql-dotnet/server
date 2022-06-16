@@ -1,15 +1,4 @@
-using System.Net;
-using System.Net.Http.Headers;
-using System.Net.WebSockets;
-using GraphQL.Server.Transports.AspNetCore.Errors;
-using GraphQL.Server.Transports.AspNetCore.WebSockets;
-using GraphQL.Transport;
-using GraphQL.Types;
-using GraphQL.Validation;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+#pragma warning disable CA1716 // Identifiers should not match keywords
 
 namespace GraphQL.Server.Transports.AspNetCore;
 
@@ -18,7 +7,7 @@ namespace GraphQL.Server.Transports.AspNetCore;
 /// Type of GraphQL schema that is used to validate and process requests.
 /// This may be a typed schema as well as <see cref="ISchema"/>.  In both cases registered schemas will be pulled from
 /// the dependency injection framework.  Note that when specifying <see cref="ISchema"/> the first schema registered via
-/// <see cref="GraphQLBuilderExtensions.AddSchema{TSchema}(DI.IGraphQLBuilder, DI.ServiceLifetime)">AddSchema</see>
+/// <see cref="global::GraphQL.GraphQLBuilderExtensions.AddSchema{TSchema}(DI.IGraphQLBuilder, DI.ServiceLifetime)">AddSchema</see>
 /// will be pulled (the "default" schema).
 /// </typeparam>
 public class GraphQLHttpMiddleware<TSchema> : GraphQLHttpMiddleware
@@ -360,15 +349,16 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
     protected virtual async Task<ExecutionResult> ExecuteScopedRequestAsync(HttpContext context, GraphQLRequest? request, IDictionary<string, object?> userContext)
     {
         var scope = _serviceScopeFactory.CreateScope();
-        if (scope is IAsyncDisposable ad)
+        try
         {
-            await using (ad.ConfigureAwait(false))
-                return await ExecuteRequestAsync(context, request, scope.ServiceProvider, userContext);
+            return await ExecuteRequestAsync(context, request, scope.ServiceProvider, userContext);
         }
-        else
+        finally
         {
-            using (scope)
-                return await ExecuteRequestAsync(context, request, scope.ServiceProvider, userContext);
+            if (scope is IAsyncDisposable ad)
+                await ad.DisposeAsync().ConfigureAwait(false);
+            else
+                scope.Dispose();
         }
     }
 
@@ -423,7 +413,7 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
     /// <see cref="HttpContext"/>.
     /// <br/><br/>
     /// To tailor the user context individually for each request, call
-    /// <see cref="GraphQLBuilderExtensions.ConfigureExecutionOptions(DI.IGraphQLBuilder, Action{ExecutionOptions})"/>
+    /// <see cref="global::GraphQL.GraphQLBuilderExtensions.ConfigureExecutionOptions(DI.IGraphQLBuilder, Action{ExecutionOptions})"/>
     /// to set or modify the user context, pulling the HTTP context from
     /// <see cref="IHttpContextAccessor"/> via <see cref="ExecutionOptions.RequestServices"/>
     /// if needed.
@@ -700,9 +690,9 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
         try
         {
             // Remove at most a single set of quotes.
-            if (charset.Length > 2 && charset[0] == '\"' && charset[^1] == '\"')
+            if (charset!.Length > 2 && charset[0] == '\"' && charset[charset.Length - 1] == '\"')
             {
-                encoding = System.Text.Encoding.GetEncoding(charset[1..^1]);
+                encoding = System.Text.Encoding.GetEncoding(charset.Substring(1, charset.Length - 2));
             }
             else
             {

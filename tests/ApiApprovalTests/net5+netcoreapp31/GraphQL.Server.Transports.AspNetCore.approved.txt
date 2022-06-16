@@ -1,0 +1,358 @@
+namespace GraphQL.Server
+{
+    public static class GraphQLBuilderExtensions
+    {
+        public static GraphQL.DI.IGraphQLBuilder AddUserContextBuilder<TUserContextBuilder>(this GraphQL.DI.IGraphQLBuilder builder)
+            where TUserContextBuilder :  class, GraphQL.Server.Transports.AspNetCore.IUserContextBuilder { }
+        public static GraphQL.DI.IGraphQLBuilder AddUserContextBuilder<TUserContext>(this GraphQL.DI.IGraphQLBuilder builder, System.Func<Microsoft.AspNetCore.Http.HttpContext, System.Threading.Tasks.Task<TUserContext>> creator)
+            where TUserContext :  class, System.Collections.Generic.IDictionary<string, object?> { }
+        public static GraphQL.DI.IGraphQLBuilder AddUserContextBuilder<TUserContext>(this GraphQL.DI.IGraphQLBuilder builder, System.Func<Microsoft.AspNetCore.Http.HttpContext, TUserContext> creator)
+            where TUserContext :  class, System.Collections.Generic.IDictionary<string, object?> { }
+        public static GraphQL.DI.IGraphQLBuilder AddUserContextBuilder<TUserContext>(this GraphQL.DI.IGraphQLBuilder builder, System.Func<Microsoft.AspNetCore.Http.HttpContext, object?, System.Threading.Tasks.Task<TUserContext>> creator)
+            where TUserContext :  class, System.Collections.Generic.IDictionary<string, object?> { }
+        public static GraphQL.DI.IGraphQLBuilder AddUserContextBuilder<TUserContext>(this GraphQL.DI.IGraphQLBuilder builder, System.Func<Microsoft.AspNetCore.Http.HttpContext, object?, TUserContext> creator)
+            where TUserContext :  class, System.Collections.Generic.IDictionary<string, object?> { }
+        public static GraphQL.DI.IGraphQLBuilder AddWebSocketAuthentication(this GraphQL.DI.IGraphQLBuilder builder, GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketAuthenticationService webSocketAuthenticationService) { }
+        public static GraphQL.DI.IGraphQLBuilder AddWebSocketAuthentication(this GraphQL.DI.IGraphQLBuilder builder, System.Func<System.IServiceProvider, GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketAuthenticationService> factory) { }
+        public static GraphQL.DI.IGraphQLBuilder AddWebSocketAuthentication<TWebSocketAuthenticationService>(this GraphQL.DI.IGraphQLBuilder builder)
+            where TWebSocketAuthenticationService :  class, GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketAuthenticationService { }
+    }
+}
+namespace GraphQL.Server.Transports.AspNetCore
+{
+    public static class AuthorizationHelper
+    {
+        public static System.Threading.Tasks.ValueTask<bool> AuthorizeAsync<TState>(GraphQL.Server.Transports.AspNetCore.AuthorizationParameters<TState> options, TState state) { }
+    }
+    public readonly struct AuthorizationParameters<TState>
+    {
+        public AuthorizationParameters(Microsoft.AspNetCore.Http.HttpContext httpContext, GraphQL.Server.Transports.AspNetCore.IAuthorizationOptions authorizationOptions, System.Func<TState, System.Threading.Tasks.Task>? onNotAuthenticated, System.Func<TState, System.Threading.Tasks.Task>? onNotAuthorizedRole, System.Func<TState, Microsoft.AspNetCore.Authorization.AuthorizationResult, System.Threading.Tasks.Task>? onNotAuthorizedPolicy) { }
+        public bool AuthorizationRequired { get; }
+        public string? AuthorizedPolicy { get; }
+        public System.Collections.Generic.IEnumerable<string>? AuthorizedRoles { get; }
+        public Microsoft.AspNetCore.Http.HttpContext HttpContext { get; }
+        public System.Func<TState, System.Threading.Tasks.Task>? OnNotAuthenticated { get; }
+        public System.Func<TState, Microsoft.AspNetCore.Authorization.AuthorizationResult, System.Threading.Tasks.Task>? OnNotAuthorizedPolicy { get; }
+        public System.Func<TState, System.Threading.Tasks.Task>? OnNotAuthorizedRole { get; }
+    }
+    public class GraphQLHttpMiddleware : GraphQL.Server.Transports.AspNetCore.IUserContextBuilder
+    {
+        public GraphQLHttpMiddleware(Microsoft.AspNetCore.Http.RequestDelegate next, GraphQL.IGraphQLTextSerializer serializer, GraphQL.IDocumentExecuter documentExecuter, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions options, Microsoft.Extensions.Hosting.IHostApplicationLifetime hostApplicationLifetime) { }
+        protected virtual System.Collections.Generic.IEnumerable<string> SupportedWebSocketSubProtocols { get; }
+        protected virtual System.Threading.Tasks.ValueTask<System.Collections.Generic.IDictionary<string, object?>> BuildUserContextAsync(Microsoft.AspNetCore.Http.HttpContext context, object? payload) { }
+        protected virtual GraphQL.Server.Transports.AspNetCore.WebSockets.IOperationMessageProcessor CreateMessageProcessor(GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketConnection webSocketConnection, string subProtocol) { }
+        protected virtual GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketConnection CreateWebSocketConnection(Microsoft.AspNetCore.Http.HttpContext httpContext, System.Net.WebSockets.WebSocket webSocket, System.Threading.CancellationToken cancellationToken) { }
+        protected virtual System.Threading.Tasks.Task<GraphQL.ExecutionResult> ExecuteRequestAsync(Microsoft.AspNetCore.Http.HttpContext context, GraphQL.Transport.GraphQLRequest? request, System.IServiceProvider serviceProvider, System.Collections.Generic.IDictionary<string, object?> userContext) { }
+        protected virtual System.Threading.Tasks.Task<GraphQL.ExecutionResult> ExecuteScopedRequestAsync(Microsoft.AspNetCore.Http.HttpContext context, GraphQL.Transport.GraphQLRequest? request, System.Collections.Generic.IDictionary<string, object?> userContext) { }
+        protected virtual System.Threading.Tasks.ValueTask<bool> HandleAuthorizeAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next) { }
+        protected virtual System.Threading.Tasks.ValueTask<bool> HandleAuthorizeWebSocketConnectionAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next) { }
+        protected virtual System.Threading.Tasks.Task HandleBatchRequestAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next, System.Collections.Generic.IList<GraphQL.Transport.GraphQLRequest?> gqlRequests) { }
+        protected virtual System.Threading.Tasks.Task HandleBatchedRequestsNotSupportedAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next) { }
+        protected virtual System.Threading.Tasks.Task HandleContentTypeCouldNotBeParsedErrorAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next) { }
+        protected virtual System.Threading.Tasks.ValueTask<bool> HandleDeserializationErrorAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next, System.Exception exception) { }
+        protected virtual System.Threading.Tasks.Task HandleInvalidContentTypeErrorAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next) { }
+        protected virtual System.Threading.Tasks.Task HandleInvalidHttpMethodErrorAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next) { }
+        protected virtual System.Threading.Tasks.Task HandleNotAuthenticatedAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next) { }
+        protected virtual System.Threading.Tasks.Task HandleNotAuthorizedPolicyAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next, Microsoft.AspNetCore.Authorization.AuthorizationResult authorizationResult) { }
+        protected virtual System.Threading.Tasks.Task HandleNotAuthorizedRoleAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next) { }
+        protected virtual System.Threading.Tasks.Task HandleRequestAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next, GraphQL.Transport.GraphQLRequest gqlRequest) { }
+        protected virtual System.Threading.Tasks.Task HandleWebSocketAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next) { }
+        protected virtual System.Threading.Tasks.Task HandleWebSocketSubProtocolNotSupportedAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next) { }
+        public virtual System.Threading.Tasks.Task InvokeAsync(Microsoft.AspNetCore.Http.HttpContext context) { }
+        [return: System.Runtime.CompilerServices.TupleElementNames(new string[] {
+                "SingleRequest",
+                "BatchRequest"})]
+        protected virtual System.Threading.Tasks.Task<System.ValueTuple<GraphQL.Transport.GraphQLRequest?, System.Collections.Generic.IList<GraphQL.Transport.GraphQLRequest?>?>?> ReadPostContentAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next, string? mediaType, System.Text.Encoding? sourceEncoding) { }
+        protected virtual string SelectResponseContentType(Microsoft.AspNetCore.Http.HttpContext context) { }
+        protected virtual System.Threading.Tasks.Task WriteErrorResponseAsync(Microsoft.AspNetCore.Http.HttpContext context, System.Net.HttpStatusCode httpStatusCode, GraphQL.ExecutionError executionError) { }
+        protected virtual System.Threading.Tasks.Task WriteErrorResponseAsync(Microsoft.AspNetCore.Http.HttpContext context, System.Net.HttpStatusCode httpStatusCode, string errorMessage) { }
+        protected virtual System.Threading.Tasks.Task WriteJsonResponseAsync<TResult>(Microsoft.AspNetCore.Http.HttpContext context, System.Net.HttpStatusCode httpStatusCode, TResult result) { }
+    }
+    public class GraphQLHttpMiddlewareOptions : GraphQL.Server.Transports.AspNetCore.IAuthorizationOptions
+    {
+        public GraphQLHttpMiddlewareOptions() { }
+        public bool AuthorizationRequired { get; set; }
+        public string? AuthorizedPolicy { get; set; }
+        public System.Collections.Generic.List<string> AuthorizedRoles { get; set; }
+        public bool EnableBatchedRequests { get; set; }
+        public bool ExecuteBatchedRequestsInParallel { get; set; }
+        public bool HandleGet { get; set; }
+        public bool HandlePost { get; set; }
+        public bool HandleWebSockets { get; set; }
+        public bool ReadExtensionsFromQueryString { get; set; }
+        public bool ReadQueryStringOnPost { get; set; }
+        public bool ReadVariablesFromQueryString { get; set; }
+        public bool ValidationErrorsReturnBadRequest { get; set; }
+        public GraphQL.Server.Transports.AspNetCore.WebSockets.GraphQLWebSocketOptions WebSockets { get; set; }
+    }
+    public class GraphQLHttpMiddleware<TSchema> : GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddleware
+        where TSchema : GraphQL.Types.ISchema
+    {
+        public GraphQLHttpMiddleware(Microsoft.AspNetCore.Http.RequestDelegate next, GraphQL.IGraphQLTextSerializer serializer, GraphQL.IDocumentExecuter<TSchema> documentExecuter, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions options, Microsoft.Extensions.Hosting.IHostApplicationLifetime hostApplicationLifetime) { }
+    }
+    public sealed class HttpGetValidationRule : GraphQL.Validation.IValidationRule
+    {
+        public HttpGetValidationRule() { }
+        public System.Threading.Tasks.ValueTask<GraphQL.Validation.INodeVisitor?> ValidateAsync(GraphQL.Validation.ValidationContext context) { }
+    }
+    public sealed class HttpPostValidationRule : GraphQL.Validation.IValidationRule
+    {
+        public HttpPostValidationRule() { }
+        public System.Threading.Tasks.ValueTask<GraphQL.Validation.INodeVisitor?> ValidateAsync(GraphQL.Validation.ValidationContext context) { }
+    }
+    public interface IAuthorizationOptions
+    {
+        bool AuthorizationRequired { get; }
+        string? AuthorizedPolicy { get; }
+        System.Collections.Generic.IEnumerable<string> AuthorizedRoles { get; }
+    }
+    public interface IUserContextBuilder
+    {
+        System.Threading.Tasks.ValueTask<System.Collections.Generic.IDictionary<string, object?>> BuildUserContextAsync(Microsoft.AspNetCore.Http.HttpContext context, object? payload);
+    }
+    public class UserContextBuilder<TUserContext> : GraphQL.Server.Transports.AspNetCore.IUserContextBuilder
+        where TUserContext : System.Collections.Generic.IDictionary<string, object?>
+    {
+        public UserContextBuilder(System.Func<Microsoft.AspNetCore.Http.HttpContext, System.Threading.Tasks.ValueTask<TUserContext>> func) { }
+        public UserContextBuilder(System.Func<Microsoft.AspNetCore.Http.HttpContext, TUserContext> func) { }
+        public UserContextBuilder(System.Func<Microsoft.AspNetCore.Http.HttpContext, object?, System.Threading.Tasks.ValueTask<TUserContext>> func) { }
+        public UserContextBuilder(System.Func<Microsoft.AspNetCore.Http.HttpContext, object?, TUserContext> func) { }
+        public System.Threading.Tasks.ValueTask<System.Collections.Generic.IDictionary<string, object?>> BuildUserContextAsync(Microsoft.AspNetCore.Http.HttpContext context, object? payload) { }
+    }
+}
+namespace GraphQL.Server.Transports.AspNetCore.Errors
+{
+    public class AccessDeniedError : GraphQL.Validation.ValidationError
+    {
+        public AccessDeniedError(string resource) { }
+        public AccessDeniedError(string resource, GraphQLParser.ROM originalQuery, params GraphQLParser.AST.ASTNode[] nodes) { }
+        public Microsoft.AspNetCore.Authorization.AuthorizationResult? PolicyAuthorizationResult { get; set; }
+        public string? PolicyRequired { get; set; }
+        public System.Collections.Generic.List<string>? RolesRequired { get; set; }
+    }
+    public class BatchedRequestsNotSupportedError : GraphQL.Execution.RequestError
+    {
+        public BatchedRequestsNotSupportedError() { }
+    }
+    public class HttpMethodValidationError : GraphQL.Validation.ValidationError
+    {
+        public HttpMethodValidationError(GraphQLParser.ROM originalQuery, GraphQLParser.AST.ASTNode node, string message) { }
+    }
+    public class InvalidContentTypeError : GraphQL.Execution.RequestError
+    {
+        public InvalidContentTypeError() { }
+        public InvalidContentTypeError(string message) { }
+    }
+    public class JsonInvalidError : GraphQL.Execution.RequestError
+    {
+        public JsonInvalidError() { }
+        public JsonInvalidError(System.Exception innerException) { }
+    }
+    public class WebSocketSubProtocolNotSupportedError : GraphQL.Execution.RequestError
+    {
+        public WebSocketSubProtocolNotSupportedError(System.Collections.Generic.IEnumerable<string> requestedSubProtocols) { }
+    }
+}
+namespace GraphQL.Server.Transports.AspNetCore.WebSockets
+{
+    public abstract class BaseSubscriptionServer : GraphQL.Server.Transports.AspNetCore.WebSockets.IOperationMessageProcessor, System.IDisposable
+    {
+        protected BaseSubscriptionServer(GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketConnection connection, GraphQL.Server.Transports.AspNetCore.WebSockets.GraphQLWebSocketOptions options, GraphQL.Server.Transports.AspNetCore.IAuthorizationOptions authorizationOptions) { }
+        protected System.Threading.CancellationToken CancellationToken { get; }
+        protected GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketConnection Connection { get; }
+        protected virtual System.TimeSpan DefaultConnectionTimeout { get; }
+        protected virtual System.TimeSpan DefaultKeepAliveTimeout { get; }
+        protected bool Initialized { get; }
+        protected GraphQL.Server.Transports.AspNetCore.WebSockets.SubscriptionList Subscriptions { get; }
+        protected virtual System.Threading.Tasks.ValueTask<bool> AuthorizeAsync(GraphQL.Transport.OperationMessage message) { }
+        public virtual void Dispose() { }
+        protected virtual System.Threading.Tasks.Task ErrorAccessDeniedAsync() { }
+        protected virtual System.Threading.Tasks.Task ErrorConnectionInitializationTimeoutAsync() { }
+        protected virtual System.Threading.Tasks.Task ErrorIdAlreadyExistsAsync(GraphQL.Transport.OperationMessage message) { }
+        protected virtual System.Threading.Tasks.Task ErrorIdCannotBeBlankAsync(GraphQL.Transport.OperationMessage message) { }
+        protected virtual System.Threading.Tasks.Task ErrorNotInitializedAsync(GraphQL.Transport.OperationMessage message) { }
+        protected virtual System.Threading.Tasks.Task ErrorTooManyInitializationRequestsAsync(GraphQL.Transport.OperationMessage message) { }
+        protected virtual System.Threading.Tasks.Task ErrorUnrecognizedMessageAsync(GraphQL.Transport.OperationMessage message) { }
+        protected abstract System.Threading.Tasks.Task<GraphQL.ExecutionResult> ExecuteRequestAsync(GraphQL.Transport.OperationMessage message);
+        protected virtual System.Threading.Tasks.Task<GraphQL.ExecutionError> HandleErrorDuringSubscribeAsync(GraphQL.Transport.OperationMessage message, System.Exception ex) { }
+        protected virtual System.Threading.Tasks.Task<GraphQL.ExecutionError> HandleErrorFromSourceAsync(System.Exception exception) { }
+        public virtual System.Threading.Tasks.Task InitializeConnectionAsync() { }
+        protected virtual System.Threading.Tasks.Task OnCloseConnectionAsync() { }
+        protected abstract System.Threading.Tasks.Task OnConnectionAcknowledgeAsync(GraphQL.Transport.OperationMessage message);
+        protected virtual System.Threading.Tasks.Task OnConnectionInitAsync(GraphQL.Transport.OperationMessage message, bool smartKeepAlive) { }
+        protected virtual System.Threading.Tasks.Task OnConnectionInitWaitTimeoutAsync() { }
+        public abstract System.Threading.Tasks.Task OnMessageReceivedAsync(GraphQL.Transport.OperationMessage message);
+        protected virtual System.Threading.Tasks.Task OnNotAuthenticatedAsync(GraphQL.Transport.OperationMessage message) { }
+        protected virtual System.Threading.Tasks.Task OnNotAuthorizedPolicyAsync(GraphQL.Transport.OperationMessage message, Microsoft.AspNetCore.Authorization.AuthorizationResult result) { }
+        protected virtual System.Threading.Tasks.Task OnNotAuthorizedRoleAsync(GraphQL.Transport.OperationMessage message) { }
+        protected abstract System.Threading.Tasks.Task OnSendKeepAliveAsync();
+        protected abstract System.Threading.Tasks.Task SendCompletedAsync(string id);
+        protected abstract System.Threading.Tasks.Task SendDataAsync(string id, GraphQL.ExecutionResult result);
+        protected virtual System.Threading.Tasks.Task SendErrorResultAsync(GraphQL.Transport.OperationMessage message, GraphQL.ExecutionError executionError) { }
+        protected virtual System.Threading.Tasks.Task SendErrorResultAsync(GraphQL.Transport.OperationMessage message, GraphQL.ExecutionResult result) { }
+        protected virtual System.Threading.Tasks.Task SendErrorResultAsync(string id, GraphQL.ExecutionError executionError) { }
+        protected abstract System.Threading.Tasks.Task SendErrorResultAsync(string id, GraphQL.ExecutionResult result);
+        protected virtual System.Threading.Tasks.Task SendSingleResultAsync(GraphQL.Transport.OperationMessage message, GraphQL.ExecutionResult result) { }
+        protected virtual System.Threading.Tasks.Task SubscribeAsync(GraphQL.Transport.OperationMessage message, bool overwrite) { }
+        protected bool TryInitialize() { }
+        protected virtual System.Threading.Tasks.Task UnsubscribeAsync(string? id) { }
+    }
+    public class GraphQLWebSocketOptions
+    {
+        public GraphQLWebSocketOptions() { }
+        public System.TimeSpan? ConnectionInitWaitTimeout { get; set; }
+        public bool DisconnectAfterAnyError { get; set; }
+        public bool DisconnectAfterErrorEvent { get; set; }
+        public System.TimeSpan? DisconnectionTimeout { get; set; }
+        public System.TimeSpan? KeepAliveTimeout { get; set; }
+    }
+    public interface IOperationMessageProcessor : System.IDisposable
+    {
+        System.Threading.Tasks.Task InitializeConnectionAsync();
+        System.Threading.Tasks.Task OnMessageReceivedAsync(GraphQL.Transport.OperationMessage message);
+    }
+    public interface IWebSocketAuthenticationService
+    {
+        System.Threading.Tasks.Task AuthenticateAsync(GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketConnection connection, string subProtocol, GraphQL.Transport.OperationMessage operationMessage);
+    }
+    public interface IWebSocketConnection : System.IDisposable
+    {
+        Microsoft.AspNetCore.Http.HttpContext HttpContext { get; }
+        System.DateTime LastMessageSentAt { get; }
+        System.Threading.CancellationToken RequestAborted { get; }
+        System.Threading.Tasks.Task CloseAsync();
+        System.Threading.Tasks.Task CloseAsync(int eventId, string? description);
+        System.Threading.Tasks.Task ExecuteAsync(GraphQL.Server.Transports.AspNetCore.WebSockets.IOperationMessageProcessor operationMessageProcessor);
+        System.Threading.Tasks.Task SendMessageAsync(GraphQL.Transport.OperationMessage message);
+    }
+    public sealed class SubscriptionList : System.IDisposable
+    {
+        public SubscriptionList() { }
+        public System.IDisposable this[string id] { set; }
+        public bool CompareExchange(string id, System.IDisposable oldSubscription, System.IDisposable newSubscription) { }
+        public bool Contains(string id) { }
+        public bool Contains(string id, System.IDisposable subscription) { }
+        public void Dispose() { }
+        public bool TryAdd(string id, System.IDisposable subscription) { }
+        public bool TryRemove(string id) { }
+        public bool TryRemove(string id, System.IDisposable oldSubscription) { }
+    }
+    public class WebSocketConnection : GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketConnection, System.IDisposable
+    {
+        public WebSocketConnection(Microsoft.AspNetCore.Http.HttpContext httpContext, System.Net.WebSockets.WebSocket webSocket, GraphQL.IGraphQLSerializer serializer, GraphQL.Server.Transports.AspNetCore.WebSockets.GraphQLWebSocketOptions options, System.Threading.CancellationToken requestAborted) { }
+        protected virtual System.TimeSpan DefaultDisconnectionTimeout { get; }
+        public Microsoft.AspNetCore.Http.HttpContext HttpContext { get; }
+        public System.DateTime LastMessageSentAt { get; }
+        public System.Threading.CancellationToken RequestAborted { get; }
+        public System.Threading.Tasks.Task CloseAsync() { }
+        public System.Threading.Tasks.Task CloseAsync(int eventId, string? description) { }
+        public virtual void Dispose() { }
+        public virtual System.Threading.Tasks.Task ExecuteAsync(GraphQL.Server.Transports.AspNetCore.WebSockets.IOperationMessageProcessor operationMessageProcessor) { }
+        protected virtual System.Threading.Tasks.Task OnCloseOutputAsync(System.Net.WebSockets.WebSocketCloseStatus closeStatus, string? closeDescription) { }
+        protected virtual System.Threading.Tasks.Task OnDispatchMessageAsync(GraphQL.Server.Transports.AspNetCore.WebSockets.IOperationMessageProcessor operationMessageProcessor, GraphQL.Transport.OperationMessage message) { }
+        protected virtual System.Threading.Tasks.Task OnNonGracefulShutdownAsync(bool receivedCloseMessage, bool sentCloseMessage) { }
+        protected virtual System.Threading.Tasks.Task OnSendMessageAsync(GraphQL.Transport.OperationMessage message) { }
+        public System.Threading.Tasks.Task SendMessageAsync(GraphQL.Transport.OperationMessage message) { }
+    }
+}
+namespace GraphQL.Server.Transports.AspNetCore.WebSockets.GraphQLWs
+{
+    public static class MessageType
+    {
+        public const string Complete = "complete";
+        public const string ConnectionAck = "connection_ack";
+        public const string ConnectionInit = "connection_init";
+        public const string Error = "error";
+        public const string Next = "next";
+        public const string Ping = "ping";
+        public const string Pong = "pong";
+        public const string Subscribe = "subscribe";
+    }
+    public class SubscriptionServer : GraphQL.Server.Transports.AspNetCore.WebSockets.BaseSubscriptionServer
+    {
+        public SubscriptionServer(GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketConnection connection, GraphQL.Server.Transports.AspNetCore.WebSockets.GraphQLWebSocketOptions options, GraphQL.Server.Transports.AspNetCore.IAuthorizationOptions authorizationOptions, GraphQL.IDocumentExecuter executer, GraphQL.IGraphQLSerializer serializer, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, GraphQL.Server.Transports.AspNetCore.IUserContextBuilder userContextBuilder, GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketAuthenticationService? authenticationService = null) { }
+        protected GraphQL.IDocumentExecuter DocumentExecuter { get; }
+        protected GraphQL.IGraphQLSerializer Serializer { get; }
+        protected Microsoft.Extensions.DependencyInjection.IServiceScopeFactory ServiceScopeFactory { get; }
+        protected System.Collections.Generic.IDictionary<string, object?>? UserContext { get; set; }
+        protected GraphQL.Server.Transports.AspNetCore.IUserContextBuilder UserContextBuilder { get; }
+        public static string SubProtocol { get; }
+        protected override System.Threading.Tasks.ValueTask<bool> AuthorizeAsync(GraphQL.Transport.OperationMessage message) { }
+        protected override System.Threading.Tasks.Task<GraphQL.ExecutionResult> ExecuteRequestAsync(GraphQL.Transport.OperationMessage message) { }
+        protected virtual System.Threading.Tasks.Task OnCompleteAsync(GraphQL.Transport.OperationMessage message) { }
+        protected override System.Threading.Tasks.Task OnConnectionAcknowledgeAsync(GraphQL.Transport.OperationMessage message) { }
+        public override System.Threading.Tasks.Task OnMessageReceivedAsync(GraphQL.Transport.OperationMessage message) { }
+        protected virtual System.Threading.Tasks.Task OnPingAsync(GraphQL.Transport.OperationMessage message) { }
+        protected virtual System.Threading.Tasks.Task OnPongAsync(GraphQL.Transport.OperationMessage message) { }
+        protected override System.Threading.Tasks.Task OnSendKeepAliveAsync() { }
+        protected virtual System.Threading.Tasks.Task OnSubscribeAsync(GraphQL.Transport.OperationMessage message) { }
+        protected override System.Threading.Tasks.Task SendCompletedAsync(string id) { }
+        protected override System.Threading.Tasks.Task SendDataAsync(string id, GraphQL.ExecutionResult result) { }
+        protected override System.Threading.Tasks.Task SendErrorResultAsync(string id, GraphQL.ExecutionResult result) { }
+    }
+}
+namespace GraphQL.Server.Transports.AspNetCore.WebSockets.SubscriptionsTransportWs
+{
+    public static class MessageType
+    {
+        public const string GQL_COMPLETE = "complete";
+        public const string GQL_CONNECTION_ACK = "connection_ack";
+        public const string GQL_CONNECTION_ERROR = "connection_error";
+        public const string GQL_CONNECTION_INIT = "connection_init";
+        public const string GQL_CONNECTION_KEEP_ALIVE = "ka";
+        public const string GQL_CONNECTION_TERMINATE = "connection_terminate";
+        public const string GQL_DATA = "data";
+        public const string GQL_ERROR = "error";
+        public const string GQL_START = "start";
+        public const string GQL_STOP = "stop";
+    }
+    public class SubscriptionServer : GraphQL.Server.Transports.AspNetCore.WebSockets.BaseSubscriptionServer
+    {
+        public SubscriptionServer(GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketConnection connection, GraphQL.Server.Transports.AspNetCore.WebSockets.GraphQLWebSocketOptions options, GraphQL.Server.Transports.AspNetCore.IAuthorizationOptions authorizationOptions, GraphQL.IDocumentExecuter executer, GraphQL.IGraphQLSerializer serializer, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, GraphQL.Server.Transports.AspNetCore.IUserContextBuilder userContextBuilder, GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketAuthenticationService? authenticationService = null) { }
+        protected GraphQL.IDocumentExecuter DocumentExecuter { get; }
+        protected GraphQL.IGraphQLSerializer Serializer { get; }
+        protected Microsoft.Extensions.DependencyInjection.IServiceScopeFactory ServiceScopeFactory { get; }
+        protected System.Collections.Generic.IDictionary<string, object?>? UserContext { get; set; }
+        protected GraphQL.Server.Transports.AspNetCore.IUserContextBuilder UserContextBuilder { get; }
+        public static string SubProtocol { get; }
+        protected override System.Threading.Tasks.ValueTask<bool> AuthorizeAsync(GraphQL.Transport.OperationMessage message) { }
+        protected override System.Threading.Tasks.Task ErrorAccessDeniedAsync() { }
+        protected override System.Threading.Tasks.Task<GraphQL.ExecutionResult> ExecuteRequestAsync(GraphQL.Transport.OperationMessage message) { }
+        protected override System.Threading.Tasks.Task OnConnectionAcknowledgeAsync(GraphQL.Transport.OperationMessage message) { }
+        public override System.Threading.Tasks.Task OnMessageReceivedAsync(GraphQL.Transport.OperationMessage message) { }
+        protected override System.Threading.Tasks.Task OnSendKeepAliveAsync() { }
+        protected virtual System.Threading.Tasks.Task OnStartAsync(GraphQL.Transport.OperationMessage message) { }
+        protected virtual System.Threading.Tasks.Task OnStopAsync(GraphQL.Transport.OperationMessage message) { }
+        protected override System.Threading.Tasks.Task SendCompletedAsync(string id) { }
+        protected override System.Threading.Tasks.Task SendDataAsync(string id, GraphQL.ExecutionResult result) { }
+        protected override System.Threading.Tasks.Task SendErrorResultAsync(string id, GraphQL.ExecutionResult result) { }
+    }
+}
+namespace Microsoft.AspNetCore.Builder
+{
+    public class GraphQLEndpointConventionBuilder : Microsoft.AspNetCore.Builder.IEndpointConventionBuilder
+    {
+        public void Add(System.Action<Microsoft.AspNetCore.Builder.EndpointBuilder> convention) { }
+    }
+    public static class GraphQLHttpApplicationBuilderExtensions
+    {
+        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQL(this Microsoft.AspNetCore.Builder.IApplicationBuilder builder, Microsoft.AspNetCore.Http.PathString path, System.Action<GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions>? configureMiddleware = null) { }
+        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQL(this Microsoft.AspNetCore.Builder.IApplicationBuilder builder, string path = "/graphql", System.Action<GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions>? configureMiddleware = null) { }
+        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQL<TSchema>(this Microsoft.AspNetCore.Builder.IApplicationBuilder builder, Microsoft.AspNetCore.Http.PathString path, System.Action<GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions>? configureMiddleware = null)
+            where TSchema : GraphQL.Types.ISchema { }
+        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQL<TMiddleware>(this Microsoft.AspNetCore.Builder.IApplicationBuilder builder, Microsoft.AspNetCore.Http.PathString path, params object[] args)
+            where TMiddleware : GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddleware { }
+        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQL<TSchema>(this Microsoft.AspNetCore.Builder.IApplicationBuilder builder, string path = "/graphql", System.Action<GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions>? configureMiddleware = null)
+            where TSchema : GraphQL.Types.ISchema { }
+        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQL<TMiddleware>(this Microsoft.AspNetCore.Builder.IApplicationBuilder builder, string path = "/graphql", params object[] args)
+            where TMiddleware : GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddleware { }
+    }
+    public static class GraphQLHttpEndpointRouteBuilderExtensions
+    {
+        public static Microsoft.AspNetCore.Builder.GraphQLEndpointConventionBuilder MapGraphQL(this Microsoft.AspNetCore.Routing.IEndpointRouteBuilder endpoints, string pattern = "graphql", System.Action<GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions>? configureMiddleware = null) { }
+        public static Microsoft.AspNetCore.Builder.GraphQLEndpointConventionBuilder MapGraphQL<TSchema>(this Microsoft.AspNetCore.Routing.IEndpointRouteBuilder endpoints, string pattern = "graphql", System.Action<GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions>? configureMiddleware = null)
+            where TSchema : GraphQL.Types.ISchema { }
+        public static Microsoft.AspNetCore.Builder.GraphQLEndpointConventionBuilder MapGraphQL<TMiddleware>(this Microsoft.AspNetCore.Routing.IEndpointRouteBuilder endpoints, string pattern = "graphql", params object[] args)
+            where TMiddleware : GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddleware { }
+    }
+}

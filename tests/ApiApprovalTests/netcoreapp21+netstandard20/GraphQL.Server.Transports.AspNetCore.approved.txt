@@ -1,8 +1,7 @@
 namespace GraphQL.Server
 {
-    public static class GraphQLBuilderUserContextExtensions
+    public static class GraphQLBuilderExtensions
     {
-        public static GraphQL.DI.IGraphQLBuilder AddDefaultEndpointSelectorPolicy(this GraphQL.DI.IGraphQLBuilder builder) { }
         public static GraphQL.DI.IGraphQLBuilder AddUserContextBuilder<TUserContextBuilder>(this GraphQL.DI.IGraphQLBuilder builder)
             where TUserContextBuilder :  class, GraphQL.Server.Transports.AspNetCore.IUserContextBuilder { }
         public static GraphQL.DI.IGraphQLBuilder AddUserContextBuilder<TUserContext>(this GraphQL.DI.IGraphQLBuilder builder, System.Func<Microsoft.AspNetCore.Http.HttpContext, System.Threading.Tasks.Task<TUserContext>> creator)
@@ -17,6 +16,10 @@ namespace GraphQL.Server
         public static GraphQL.DI.IGraphQLBuilder AddWebSocketAuthentication(this GraphQL.DI.IGraphQLBuilder builder, System.Func<System.IServiceProvider, GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketAuthenticationService> factory) { }
         public static GraphQL.DI.IGraphQLBuilder AddWebSocketAuthentication<TWebSocketAuthenticationService>(this GraphQL.DI.IGraphQLBuilder builder)
             where TWebSocketAuthenticationService :  class, GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketAuthenticationService { }
+    }
+    public static class ServiceCollectionExtensions
+    {
+        public static void AddHostApplicationLifetime(this Microsoft.Extensions.DependencyInjection.IServiceCollection services) { }
     }
 }
 namespace GraphQL.Server.Transports.AspNetCore
@@ -38,7 +41,7 @@ namespace GraphQL.Server.Transports.AspNetCore
     }
     public class GraphQLHttpMiddleware : GraphQL.Server.Transports.AspNetCore.IUserContextBuilder
     {
-        public GraphQLHttpMiddleware(Microsoft.AspNetCore.Http.RequestDelegate next, GraphQL.IGraphQLTextSerializer serializer, GraphQL.IDocumentExecuter documentExecuter, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions options, Microsoft.Extensions.Hosting.IHostApplicationLifetime hostApplicationLifetime) { }
+        public GraphQLHttpMiddleware(Microsoft.AspNetCore.Http.RequestDelegate next, GraphQL.IGraphQLTextSerializer serializer, GraphQL.IDocumentExecuter documentExecuter, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions options, GraphQL.Server.Transports.AspNetCore.IHostApplicationLifetime hostApplicationLifetime) { }
         protected virtual System.Collections.Generic.IEnumerable<string> SupportedWebSocketSubProtocols { get; }
         protected virtual System.Threading.Tasks.ValueTask<System.Collections.Generic.IDictionary<string, object?>> BuildUserContextAsync(Microsoft.AspNetCore.Http.HttpContext context, object? payload) { }
         protected virtual GraphQL.Server.Transports.AspNetCore.WebSockets.IOperationMessageProcessor CreateMessageProcessor(GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketConnection webSocketConnection, string subProtocol) { }
@@ -89,7 +92,14 @@ namespace GraphQL.Server.Transports.AspNetCore
     public class GraphQLHttpMiddleware<TSchema> : GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddleware
         where TSchema : GraphQL.Types.ISchema
     {
-        public GraphQLHttpMiddleware(Microsoft.AspNetCore.Http.RequestDelegate next, GraphQL.IGraphQLTextSerializer serializer, GraphQL.IDocumentExecuter<TSchema> documentExecuter, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions options, Microsoft.Extensions.Hosting.IHostApplicationLifetime hostApplicationLifetime) { }
+        public GraphQLHttpMiddleware(Microsoft.AspNetCore.Http.RequestDelegate next, GraphQL.IGraphQLTextSerializer serializer, GraphQL.IDocumentExecuter<TSchema> documentExecuter, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions options, GraphQL.Server.Transports.AspNetCore.IHostApplicationLifetime hostApplicationLifetime) { }
+    }
+    public class HostApplicationLifetime : GraphQL.Server.Transports.AspNetCore.IHostApplicationLifetime, Microsoft.Extensions.Hosting.IHostedService
+    {
+        public HostApplicationLifetime() { }
+        public System.Threading.CancellationToken ApplicationStopping { get; }
+        public System.Threading.Tasks.Task StartAsync(System.Threading.CancellationToken cancellationToken) { }
+        public System.Threading.Tasks.Task StopAsync(System.Threading.CancellationToken cancellationToken) { }
     }
     public sealed class HttpGetValidationRule : GraphQL.Validation.IValidationRule
     {
@@ -106,6 +116,10 @@ namespace GraphQL.Server.Transports.AspNetCore
         bool AuthorizationRequired { get; }
         string? AuthorizedPolicy { get; }
         System.Collections.Generic.IEnumerable<string> AuthorizedRoles { get; }
+    }
+    public interface IHostApplicationLifetime
+    {
+        System.Threading.CancellationToken ApplicationStopping { get; }
     }
     public interface IUserContextBuilder
     {
@@ -331,10 +345,6 @@ namespace GraphQL.Server.Transports.AspNetCore.WebSockets.SubscriptionsTransport
 }
 namespace Microsoft.AspNetCore.Builder
 {
-    public class GraphQLEndpointConventionBuilder : Microsoft.AspNetCore.Builder.IEndpointConventionBuilder
-    {
-        public void Add(System.Action<Microsoft.AspNetCore.Builder.EndpointBuilder> convention) { }
-    }
     public static class GraphQLHttpApplicationBuilderExtensions
     {
         public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQL(this Microsoft.AspNetCore.Builder.IApplicationBuilder builder, Microsoft.AspNetCore.Http.PathString path, System.Action<GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions>? configureMiddleware = null) { }
@@ -346,14 +356,6 @@ namespace Microsoft.AspNetCore.Builder
         public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQL<TSchema>(this Microsoft.AspNetCore.Builder.IApplicationBuilder builder, string path = "/graphql", System.Action<GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions>? configureMiddleware = null)
             where TSchema : GraphQL.Types.ISchema { }
         public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQL<TMiddleware>(this Microsoft.AspNetCore.Builder.IApplicationBuilder builder, string path = "/graphql", params object[] args)
-            where TMiddleware : GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddleware { }
-    }
-    public static class GraphQLHttpEndpointRouteBuilderExtensions
-    {
-        public static Microsoft.AspNetCore.Builder.GraphQLEndpointConventionBuilder MapGraphQL(this Microsoft.AspNetCore.Routing.IEndpointRouteBuilder endpoints, string pattern = "graphql", System.Action<GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions>? configureMiddleware = null) { }
-        public static Microsoft.AspNetCore.Builder.GraphQLEndpointConventionBuilder MapGraphQL<TSchema>(this Microsoft.AspNetCore.Routing.IEndpointRouteBuilder endpoints, string pattern = "graphql", System.Action<GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions>? configureMiddleware = null)
-            where TSchema : GraphQL.Types.ISchema { }
-        public static Microsoft.AspNetCore.Builder.GraphQLEndpointConventionBuilder MapGraphQL<TMiddleware>(this Microsoft.AspNetCore.Routing.IEndpointRouteBuilder endpoints, string pattern = "graphql", params object[] args)
             where TMiddleware : GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddleware { }
     }
 }

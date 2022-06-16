@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Http;
-
 namespace GraphQL.Server.Transports.AspNetCore;
 
 /// <summary>

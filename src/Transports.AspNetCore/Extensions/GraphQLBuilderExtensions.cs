@@ -1,13 +1,9 @@
-using GraphQL.DI;
-using GraphQL.Server.Transports.AspNetCore;
-using GraphQL.Server.Transports.AspNetCore.WebSockets;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.DependencyInjection;
-
 namespace GraphQL.Server;
 
-public static class GraphQLBuilderUserContextExtensions
+/// <summary>
+/// Extension methods for <see cref="IGraphQLBuilder"/>.
+/// </summary>
+public static class GraphQLBuilderExtensions
 {
     /// <summary>
     /// Registers the specified <typeparamref name="TUserContextBuilder"/> as a singleton of
@@ -91,7 +87,7 @@ public static class GraphQLBuilderUserContextExtensions
             return next(options);
         }
 
-        private async Task<ExecutionResult> SetAndExecuteAsync(ExecutionOptions options, ExecutionDelegate next)
+        private static async Task<ExecutionResult> SetAndExecuteAsync(ExecutionOptions options, ExecutionDelegate next)
         {
             var requestServices = options.RequestServices ?? throw new MissingRequestServicesException();
             var httpContext = requestServices.GetRequiredService<IHttpContextAccessor>().HttpContext!;
@@ -129,19 +125,6 @@ public static class GraphQLBuilderUserContextExtensions
     public static IGraphQLBuilder AddWebSocketAuthentication(this IGraphQLBuilder builder, IWebSocketAuthenticationService webSocketAuthenticationService)
     {
         builder.Services.Register(webSocketAuthenticationService);
-        return builder;
-    }
-
-    /// <summary>
-    /// Set up default policy for matching endpoints. It is required when both GraphQL HTTP and
-    /// GraphQL WebSockets middlewares are mapped to the same endpoint (by default 'graphql').
-    /// </summary>
-    /// <param name="builder">The GraphQL builder.</param>
-    /// <returns>The GraphQL builder.</returns>
-    public static IGraphQLBuilder AddDefaultEndpointSelectorPolicy(this IGraphQLBuilder builder)
-    {
-        builder.Services.TryRegister<MatcherPolicy, GraphQLDefaultEndpointSelectorPolicy>(DI.ServiceLifetime.Singleton, RegistrationCompareMode.ServiceTypeAndImplementationType);
-
         return builder;
     }
 }

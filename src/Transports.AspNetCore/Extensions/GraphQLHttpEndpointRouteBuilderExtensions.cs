@@ -1,6 +1,4 @@
-using GraphQL.Server.Transports.AspNetCore;
-using GraphQL.Types;
-using Microsoft.AspNetCore.Routing;
+#if !NETSTANDARD2_0 && !NETCOREAPP2_1
 
 namespace Microsoft.AspNetCore.Builder;
 
@@ -73,3 +71,5 @@ public class GraphQLEndpointConventionBuilder : IEndpointConventionBuilder
     /// <inheritdoc />
     public void Add(Action<EndpointBuilder> convention) => _builder.Add(convention);
 }
+
+#endif
