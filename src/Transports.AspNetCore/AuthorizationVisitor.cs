@@ -1,7 +1,3 @@
-using System.Security.Claims;
-using GraphQL.Validation;
-using Microsoft.AspNetCore.Authorization;
-
 namespace GraphQL.Server.Transports.AspNetCore;
 
 /// <inheritdoc/>

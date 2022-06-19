@@ -1,11 +1,3 @@
-using System.Security.Claims;
-using System.Security.Principal;
-using GraphQL.Server.Transports.AspNetCore.Errors;
-using GraphQL.Types;
-using GraphQL.Validation;
-using GraphQLParser.AST;
-using Microsoft.AspNetCore.Authorization;
-
 namespace GraphQL.Server.Transports.AspNetCore;
 
 public partial class AuthorizationVisitorBase
