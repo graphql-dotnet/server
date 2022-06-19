@@ -44,20 +44,15 @@ jobs:
         uses: actions/setup-dotnet@v2
         with:
           dotnet-version: |
+            2.1.x
             3.1.x
             5.0.x
-            6.0.102
+            6.0.x
           source-url: https://nuget.pkg.github.com/graphql-dotnet/index.json
         env:
           NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - name: Install dependencies
         run: dotnet restore
-      - name: Check formatting
-        if: ${{ startsWith(matrix.os, 'ubuntu') }}
-        run: |
-          dotnet format --no-restore --verify-no-changes --severity warn whitespace || (echo "Run 'dotnet format' to fix whitespace issues" && exit 1)
-          dotnet format --no-restore --verify-no-changes --severity warn analyzers || (echo "Run 'dotnet format' to fix analyzers issues" && exit 1)
-          dotnet format --no-restore --verify-no-changes --severity warn style || (echo "Run 'dotnet format' to fix style issues" && exit 1)
       - name: Build solution [Release]
         run: dotnet build --no-restore -c Release
       - name: Build solution [Debug]

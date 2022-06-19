@@ -3,6 +3,7 @@ using GraphQL.Execution;
 using GraphQL.MicrosoftDI;
 using GraphQL.Samples.Schemas.Chat;
 using GraphQL.Server;
+using GraphQL.Server.Transports.AspNetCore;
 using GraphQL.Server.Ui.Altair;
 using GraphQL.Server.Ui.GraphiQL;
 using GraphQL.Server.Ui.Playground;
@@ -33,7 +34,6 @@ public class StartupWithRouting
 
         services.AddGraphQL(builder => builder
             .AddApolloTracing()
-            .AddWebSocketsHttpMiddleware<ChatSchema>()
             .AddSchema<ChatSchema>()
             .ConfigureExecutionOptions(options =>
             {
@@ -45,11 +45,10 @@ public class StartupWithRouting
                     return Task.CompletedTask;
                 };
             })
-            .AddDefaultEndpointSelectorPolicy()
             .AddSystemTextJson()
             .AddErrorInfoProvider<CustomErrorInfoProvider>()
-            .AddWebSockets()
             .AddDataLoader()
+            .AddUserContextBuilder(context => new Dictionary<string, object> { { "user", context.User.Identity.IsAuthenticated ? context.User : null } })
             .AddGraphTypes(typeof(ChatSchema).Assembly));
     }
 
@@ -65,8 +64,7 @@ public class StartupWithRouting
 
         app.UseEndpoints(endpoints =>
         {
-            endpoints.MapGraphQLWebSockets<ChatSchema>();
-            endpoints.MapGraphQL<GraphQLHttpMiddlewareWithLogs<ChatSchema>>();
+            endpoints.MapGraphQL<GraphQLHttpMiddlewareWithLogs<ChatSchema>>("/graphql", new GraphQLHttpMiddlewareOptions());
 
             endpoints.MapGraphQLPlayground(new PlaygroundOptions
             {

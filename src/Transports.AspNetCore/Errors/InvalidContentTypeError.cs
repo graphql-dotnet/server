@@ -1,5 +1,3 @@
-using GraphQL.Execution;
-
 namespace GraphQL.Server.Transports.AspNetCore.Errors;
 
 /// <summary>

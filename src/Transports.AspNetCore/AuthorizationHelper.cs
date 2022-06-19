@@ -1,8 +1,3 @@
-using System.Security.Claims;
-using System.Security.Principal;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.DependencyInjection;
-
 namespace GraphQL.Server.Transports.AspNetCore;
 
 /// <summary>
@@ -27,7 +22,7 @@ public static class AuthorizationHelper
             }
         }
 
-        if (options.AuthorizedRoles?.Count > 0)
+        if (options.AuthorizedRoles?.Any() == true)
         {
             var user = options.HttpContext.User ?? NoUser();
             foreach (var role in options.AuthorizedRoles)

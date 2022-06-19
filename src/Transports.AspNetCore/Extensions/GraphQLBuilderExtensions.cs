@@ -1,11 +1,8 @@
-using GraphQL.DI;
-using GraphQL.Server.Transports.AspNetCore;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.DependencyInjection;
-
 namespace GraphQL.Server;
 
+/// <summary>
+/// Extension methods for <see cref="IGraphQLBuilder"/>.
+/// </summary>
 public static class GraphQLBuilderExtensions
 {
     /// <summary>
@@ -90,7 +87,7 @@ public static class GraphQLBuilderExtensions
             return next(options);
         }
 
-        private async Task<ExecutionResult> SetAndExecuteAsync(ExecutionOptions options, ExecutionDelegate next)
+        private static async Task<ExecutionResult> SetAndExecuteAsync(ExecutionOptions options, ExecutionDelegate next)
         {
             var requestServices = options.RequestServices ?? throw new MissingRequestServicesException();
             var httpContext = requestServices.GetRequiredService<IHttpContextAccessor>().HttpContext!;
@@ -101,15 +98,33 @@ public static class GraphQLBuilderExtensions
     }
 
     /// <summary>
-    /// Set up default policy for matching endpoints. It is required when both GraphQL HTTP and
-    /// GraphQL WebSockets middlewares are mapped to the same endpoint (by default 'graphql').
+    /// Registers <typeparamref name="TWebSocketAuthenticationService"/> with the dependency injection framework
+    /// as a singleton of type <see cref="IWebSocketAuthenticationService"/>.
     /// </summary>
-    /// <param name="builder">The GraphQL builder.</param>
-    /// <returns>The GraphQL builder.</returns>
-    public static IGraphQLBuilder AddDefaultEndpointSelectorPolicy(this IGraphQLBuilder builder)
+    public static IGraphQLBuilder AddWebSocketAuthentication<TWebSocketAuthenticationService>(this IGraphQLBuilder builder)
+        where TWebSocketAuthenticationService : class, IWebSocketAuthenticationService
     {
-        builder.Services.TryRegister<MatcherPolicy, GraphQLDefaultEndpointSelectorPolicy>(DI.ServiceLifetime.Singleton, RegistrationCompareMode.ServiceTypeAndImplementationType);
+        builder.Services.Register<IWebSocketAuthenticationService, TWebSocketAuthenticationService>(DI.ServiceLifetime.Singleton);
+        return builder;
+    }
 
+    /// <summary>
+    /// Registers a service of type <see cref="IWebSocketAuthenticationService"/> with the specified factory delegate
+    /// with the dependency injection framework as a singleton.
+    /// </summary>
+    public static IGraphQLBuilder AddWebSocketAuthentication(this IGraphQLBuilder builder, Func<IServiceProvider, IWebSocketAuthenticationService> factory)
+    {
+        builder.Services.Register(factory, DI.ServiceLifetime.Singleton);
+        return builder;
+    }
+
+    /// <summary>
+    /// Registers a specified instance of type <see cref="IWebSocketAuthenticationService"/> with the
+    /// dependency injection framework.
+    /// </summary>
+    public static IGraphQLBuilder AddWebSocketAuthentication(this IGraphQLBuilder builder, IWebSocketAuthenticationService webSocketAuthenticationService)
+    {
+        builder.Services.Register(webSocketAuthenticationService);
         return builder;
     }
 

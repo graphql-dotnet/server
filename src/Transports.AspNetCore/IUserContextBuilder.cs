@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Http;
-
 namespace GraphQL.Server.Transports.AspNetCore;
 
 /// <summary>
@@ -15,7 +13,7 @@ public interface IUserContextBuilder
     /// <param name="payload">
     /// The payload of the WebSocket connection request, if applicable.  Typically this is either <see langword="null"/> or
     /// an object that has not fully been deserialized yet; when using the Newtonsoft.Json deserializer, this will be a JObject,
-    /// and when using System.Text.Json this will be a <see cref="System.Text.Json.JsonElement">JsonElement</see>.  You may call
+    /// and when using System.Text.Json this will be a JsonElement.  You may call
     /// <see cref="IGraphQLSerializer.ReadNode{T}(object?)"/> to deserialize the node into the expected type.  To deserialize
     /// into a nested set of <see cref="IDictionary{TKey, TValue}">IDictionary&lt;string, object?&gt;</see> maps, call
     /// <see cref="IGraphQLSerializer.ReadNode{T}(object?)"/> with <see cref="Inputs"/> as the generic type.
