@@ -144,8 +144,8 @@ public abstract partial class BaseSubscriptionServer : IOperationMessageProcesso
     /// <summary>
     /// Executes upon a request that has failed authorization.
     /// </summary>
-    protected virtual Task ErrorAccessDeniedAsync()
-        => Connection.CloseAsync(4401, "Access denied");
+    protected virtual Task ErrorAccessDeniedAsync(string message)
+        => Connection.CloseAsync(4401, message);
 
     /// <summary>
     /// Sends a fatal error message indicating that the initialization timeout has expired
@@ -227,7 +227,7 @@ public abstract partial class BaseSubscriptionServer : IOperationMessageProcesso
     /// error message via <see cref="ErrorAccessDeniedAsync"/>.
     /// </summary>
     protected virtual Task OnNotAuthenticatedAsync(OperationMessage message)
-        => ErrorAccessDeniedAsync();
+        => ErrorAccessDeniedAsync("Access denied");
 
     /// <summary>
     /// Executes if <see cref="GraphQLHttpMiddlewareOptions.AuthorizedRoles"/> is set but
@@ -237,7 +237,7 @@ public abstract partial class BaseSubscriptionServer : IOperationMessageProcesso
     /// error message via <see cref="ErrorAccessDeniedAsync"/>.
     /// </summary>
     protected virtual Task OnNotAuthorizedRoleAsync(OperationMessage message)
-        => ErrorAccessDeniedAsync();
+        => ErrorAccessDeniedAsync("Access denied");
 
     /// <summary>
     /// Executes if <see cref="GraphQLHttpMiddlewareOptions.AuthorizedPolicy"/> is set but
@@ -248,7 +248,7 @@ public abstract partial class BaseSubscriptionServer : IOperationMessageProcesso
     /// error message via <see cref="ErrorAccessDeniedAsync"/>.
     /// </summary>
     protected virtual Task OnNotAuthorizedPolicyAsync(OperationMessage message, AuthorizationResult result)
-        => ErrorAccessDeniedAsync();
+        => ErrorAccessDeniedAsync("Access denied");
 
     /// <summary>
     /// Executes when the client is attempting to initialize the connection.

@@ -205,14 +205,14 @@ public class SubscriptionServer : BaseSubscriptionServer
     }
 
     /// <inheritdoc/>
-    protected override async Task ErrorAccessDeniedAsync()
+    protected override async Task ErrorAccessDeniedAsync(string message)
     {
         await Connection.SendMessageAsync(new OperationMessage
         {
             Type = MessageType.GQL_CONNECTION_ERROR,
-            Payload = "Access denied",
+            Payload = message,
         });
-        await base.ErrorAccessDeniedAsync();
+        await base.ErrorAccessDeniedAsync(message);
     }
 
     /// <summary>

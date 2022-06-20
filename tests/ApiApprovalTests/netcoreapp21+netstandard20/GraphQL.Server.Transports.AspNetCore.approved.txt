@@ -211,7 +211,7 @@ namespace GraphQL.Server.Transports.AspNetCore.WebSockets
         protected GraphQL.Server.Transports.AspNetCore.WebSockets.SubscriptionList Subscriptions { get; }
         protected virtual System.Threading.Tasks.ValueTask<bool> AuthorizeAsync(GraphQL.Transport.OperationMessage message) { }
         public virtual void Dispose() { }
-        protected virtual System.Threading.Tasks.Task ErrorAccessDeniedAsync() { }
+        protected virtual System.Threading.Tasks.Task ErrorAccessDeniedAsync(string message) { }
         protected virtual System.Threading.Tasks.Task ErrorConnectionInitializationTimeoutAsync() { }
         protected virtual System.Threading.Tasks.Task ErrorIdAlreadyExistsAsync(GraphQL.Transport.OperationMessage message) { }
         protected virtual System.Threading.Tasks.Task ErrorIdCannotBeBlankAsync(GraphQL.Transport.OperationMessage message) { }
@@ -362,7 +362,7 @@ namespace GraphQL.Server.Transports.AspNetCore.WebSockets.SubscriptionsTransport
         protected GraphQL.Server.Transports.AspNetCore.IUserContextBuilder UserContextBuilder { get; }
         public static string SubProtocol { get; }
         protected override System.Threading.Tasks.ValueTask<bool> AuthorizeAsync(GraphQL.Transport.OperationMessage message) { }
-        protected override System.Threading.Tasks.Task ErrorAccessDeniedAsync() { }
+        protected override System.Threading.Tasks.Task ErrorAccessDeniedAsync(string message) { }
         protected override System.Threading.Tasks.Task<GraphQL.ExecutionResult> ExecuteRequestAsync(GraphQL.Transport.OperationMessage message) { }
         protected override System.Threading.Tasks.Task OnConnectionAcknowledgeAsync(GraphQL.Transport.OperationMessage message) { }
         public override System.Threading.Tasks.Task OnMessageReceivedAsync(GraphQL.Transport.OperationMessage message) { }
