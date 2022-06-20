@@ -18,7 +18,8 @@
 ![Size](https://img.shields.io/github/repo-size/graphql-dotnet/server)
 
 GraphQL ASP.NET Core server on top of [GraphQL.NET](https://github.com/graphql-dotnet/graphql-dotnet).
-Transport compatible with [Apollo](https://github.com/apollographql/subscriptions-transport-ws) subscription protocol.
+Transport compatible with both [subscriptions-transport-ws](https://github.com/apollographql/subscriptions-transport-ws) and
+[graphql-ws](https://github.com/enisdenjo/graphql-ws) subscription protocols.
 
 Provides the following packages:
 
@@ -26,8 +27,6 @@ Provides the following packages:
 |------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | GraphQL.Server.All                                   | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.All)](https://www.nuget.org/packages/GraphQL.Server.All)                                                                     | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.All)](https://www.nuget.org/packages/GraphQL.Server.All)                                                                     |
 | GraphQL.Server.Transports.AspNetCore                 | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Transports.AspNetCore)](https://www.nuget.org/packages/GraphQL.Server.Transports.AspNetCore)                                 | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.Transports.AspNetCore)](https://www.nuget.org/packages/GraphQL.Server.Transports.AspNetCore)                                 |
-| GraphQL.Server.Transports.Subscriptions.Abstractions | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Transports.Subscriptions.Abstractions)](https://www.nuget.org/packages/GraphQL.Server.Transports.Subscriptions.Abstractions) | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.Transports.Subscriptions.Abstractions)](https://www.nuget.org/packages/GraphQL.Server.Transports.Subscriptions.Abstractions) |
-| GraphQL.Server.Transports.Subscriptions.WebSockets <br/> *formerly  known as `GraphQL.Server.Transports.WebSockets`* | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Transports.Subscriptions.WebSockets)](https://www.nuget.org/packages/GraphQL.Server.Transports.Subscriptions.WebSockets)     | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.Transports.Subscriptions.WebSockets)](https://www.nuget.org/packages/GraphQL.Server.Transports.Subscriptions.WebSockets)     |
 | GraphQL.Server.Ui.Altair                             | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Ui.Altair)](https://www.nuget.org/packages/GraphQL.Server.Ui.Altair)                                                         | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.Ui.Altair)](https://www.nuget.org/packages/GraphQL.Server.Ui.Altair)                                                         |
 | GraphQL.Server.Ui.Playground                         | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Ui.Playground)](https://www.nuget.org/packages/GraphQL.Server.Ui.Playground)                                                 | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.Ui.Playground)](https://www.nuget.org/packages/GraphQL.Server.Ui.Playground)                                                 |
 | GraphQL.Server.Ui.GraphiQL                           | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Ui.GraphiQL)](https://www.nuget.org/packages/GraphQL.Server.Ui.GraphiQL)                                                     | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.Ui.GraphiQL)](https://www.nuget.org/packages/GraphQL.Server.Ui.GraphiQL)                                                     |
@@ -43,9 +42,9 @@ Note that GitHub requires authentication to consume the feed. See more informati
 > **TL;DR**
 > Install [GraphQL.Server.All](https://www.nuget.org/packages/GraphQL.Server.All) meta package with all the packages you need to get started.
 
-#### 1. HTTP middleware for GraphQL
+#### 1. HTTP/WebSockets middleware for GraphQL
 
-For just the HTTP middleware:
+For the HTTP/WebSockets middleware:
 
 ```
 > dotnet add package GraphQL.Server.Transports.AspNetCore
@@ -70,15 +69,7 @@ Or you can use your own `IGraphQLTextSerializer` implementation.
 For more information on how to migrate from `Newtonsoft.Json` to `System.Text.Json` see
 [this article](https://docs.microsoft.com/en-us/dotnet/standard/serialization/system-text-json-migrate-from-newtonsoft-how-to).
 
-#### 2. WebSockets transport for subscriptions
-
-For the WebSocket subscription protocol (depends on above) middleware:
-
-```
-> dotnet add package GraphQL.Server.Transports.Subscriptions.WebSockets
-```
-
-#### 3. Authorization
+#### 2. Authorization
 
 For integration of GraphQL.NET validation subsystem into ASP.NET Core:
 
@@ -86,7 +77,7 @@ For integration of GraphQL.NET validation subsystem into ASP.NET Core:
 > dotnet add package GraphQL.Server.Authorization.AspNetCore
 ```
 
-#### 4. UI integration
+#### 3. UI integration
 
 For the UI middlewares:
 
@@ -97,7 +88,7 @@ For the UI middlewares:
 > dotnet add package GraphQL.Server.Ui.Voyager
 ```
 
-```c#
+```csharp
 public void Configure(IApplicationBuilder app)
 {
     app.[Use|Map]GraphQLAltair();
@@ -116,7 +107,7 @@ More information about ASP.NET Core routing [here](https://docs.microsoft.com/en
 
 1. Without routing:
 
-```c#
+```csharp
 public void ConfigureServices(IServiceCollection services)
 {
     // Add your custom services
@@ -125,11 +116,6 @@ public void ConfigureServices(IServiceCollection services)
 
     // Add GraphQL services and configure options
     services.AddGraphQL(builder => builder
-        .AddServer(true)
-        .AddHttpMiddleware<ChatSchema>()
-        .AddWebSocketsHttpMiddleware<ChatSchema>()
-        // For subscriptions support
-        .AddDocumentExecuter<SubscriptionDocumentExecuter>()
         .AddSchema<ChatSchema>()
         .ConfigureExecutionOptions(options =>
         {
@@ -154,9 +140,6 @@ public void Configure(IApplicationBuilder app)
 {
     // this is required for websockets support
     app.UseWebSockets();
-
-    // use websocket middleware for ChatSchema at default path /graphql
-    app.UseGraphQLWebSockets<ChatSchema>();
 
     // use HTTP middleware for ChatSchema at default path /graphql
     app.UseGraphQL<ChatSchema>();
@@ -177,7 +160,7 @@ public void Configure(IApplicationBuilder app)
 
 2. With routing:
 
-```c#
+```csharp
 public void ConfigureServices(IServiceCollection services)
 {
     // Add your custom services
@@ -187,11 +170,6 @@ public void ConfigureServices(IServiceCollection services)
 
     // Add GraphQL services and configure options
     services.AddGraphQL(builder => builder
-        .AddServer(true)
-        .AddHttpMiddleware<ChatSchema>()
-        .AddWebSocketsHttpMiddleware<ChatSchema>()
-        // For subscriptions support
-        .AddDocumentExecuter<SubscriptionDocumentExecuter>()
         .AddSchema<ChatSchema>()
         .ConfigureExecutionOptions(options =>
         {
@@ -203,8 +181,6 @@ public void ConfigureServices(IServiceCollection services)
                 return Task.CompletedTask;
             };
         })
-        // It is required when both GraphQL HTTP and GraphQL WebSockets middlewares are mapped to the same endpoint (by default 'graphql').
-        .AddDefaultEndpointSelectorPolicy()
         // Add required services for GraphQL request/response de/serialization
         .AddSystemTextJson() // For .NET Core 3+
         .AddNewtonsoftJson() // For everything else
@@ -224,11 +200,8 @@ public void Configure(IApplicationBuilder app)
     
     app.UseEndpoints(endpoints =>
     {
-        // map websocket middleware for ChatSchema at default path /graphql
-        endpoints.MapGraphQLWebSockets<ChatSchema>();
-
         // map HTTP middleware for ChatSchema at default path /graphql
-        endpoints.MapGraphQL<ChatSchema, GraphQLHttpMiddlewareWithLogs<ChatSchema>>();
+        endpoints.MapGraphQL<ChatSchema>();
 
         // map GraphQL Playground middleware at default path /ui/playground with default options
         endpoints.MapGraphQLPlayground();
@@ -243,14 +216,6 @@ public void Configure(IApplicationBuilder app)
         endpoints.MapGraphQLVoyager();
 }
 ```
-
-### UserContext and resolvers
-
-`UserContext` of your resolver will be type of `MessageHandlingContext`. You can
-access the properties including your actual `UserContext` by using the
-`Get<YourContextType>("UserContext")` method. This will read the context from the properties of
-`MessageHandlingContext`. You can add any other properties as to the context in
-`IOperationMessageListeners`. See the sample for example of injecting `ClaimsPrincipal`.
 
 ## Sample
 
