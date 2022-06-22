@@ -42,7 +42,7 @@ public partial class AuthorizationVisitorBase
     /// <summary>Provides contextual information to the schema, graph, field, or query argument being validated.</summary>
     /// <param name="Obj">The schema, graph type, field type, or query argument being validated. May be an interface type if fragments are in use.</param>
     /// <param name="Node">Null for a schema validation; otherwise the <see cref="GraphQLOperationDefinition"/>, <see cref="GraphQLField"/>, or <see cref="GraphQLArgument"/> being validated.</param>
-    /// <param name="Context">The validaion context; but <see cref="ValidationContext.TypeInfo"/> may not be applicable for node being validated.</param>
+    /// <param name="Context">The validation context; but <see cref="ValidationContext.TypeInfo"/> may not be applicable for node being validated.</param>
     /// <param name="ParentFieldType">For graph types other than operations, the field where this type was referenced; for query arguments, the field to which this argument belongs.</param>
     /// <param name="ParentGraphType">For graph types, the graph type for the field where this type was referenced; for field types, the graph type to which this field belongs; for query arguments, the graph type for the field to which this argument belongs.</param>
     public readonly record struct ValidationInfo(
