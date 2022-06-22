@@ -94,7 +94,7 @@ public class ValidationTestBase : IDisposable
             Operation = document.Definitions.OfType<GraphQLOperationDefinition>().First(),
             Rules = config.Rules,
             Variables = config.Variables,
-            RequestServices = ServiceProvider,
+            RequestServices = ServiceProvider, // root provider here instead of scoped one, but since nothing registered is scoped, it makes a little difference so we just use root provider directly
         }).GetAwaiter().GetResult().validationResult;
     }
 
