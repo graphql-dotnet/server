@@ -13,7 +13,6 @@ public class ApiApprovalTests
     [InlineData(typeof(Server.Ui.GraphiQL.GraphiQLMiddleware))]
     [InlineData(typeof(Server.Ui.Playground.PlaygroundMiddleware))]
     [InlineData(typeof(Server.Ui.Voyager.VoyagerMiddleware))]
-    [InlineData(typeof(Server.Authorization.AspNetCore.AuthorizationValidationRule))]
     [InlineData(typeof(Server.Transports.AspNetCore.GraphQLHttpMiddleware<>))]
     public void public_api_should_not_change_unintentionally(Type type)
     {

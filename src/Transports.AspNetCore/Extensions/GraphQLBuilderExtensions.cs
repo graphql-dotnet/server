@@ -127,4 +127,15 @@ public static class GraphQLBuilderExtensions
         builder.Services.Register(webSocketAuthenticationService);
         return builder;
     }
+
+    /// <summary>
+    /// Registers <see cref="AuthorizationValidationRule"/> with the dependency injection framework
+    /// and configures it to be used when executing a request.
+    /// </summary>
+    public static IGraphQLBuilder AddAuthorization(this IGraphQLBuilder builder)
+    {
+        builder.AddValidationRule<AuthorizationValidationRule>(true);
+        builder.Services.TryRegister<IHttpContextAccessor, HttpContextAccessor>(DI.ServiceLifetime.Singleton);
+        return builder;
+    }
 }

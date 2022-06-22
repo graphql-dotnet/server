@@ -3,7 +3,6 @@ using GraphQL.Execution;
 using GraphQL.MicrosoftDI;
 using GraphQL.Samples.Schemas.Chat;
 using GraphQL.Server;
-using GraphQL.Server.Authorization.AspNetCore;
 using GraphQL.Server.Transports.AspNetCore;
 using GraphQL.Server.Ui.Altair;
 using GraphQL.Server.Ui.GraphiQL;
@@ -31,8 +30,7 @@ public class StartupWithRouting
         services
             .AddRouting()
             .AddSingleton<IChat, Chat>()
-            .Configure<ErrorInfoProviderOptions>(opt => opt.ExposeExceptionStackTrace = Environment.IsDevelopment())
-            .AddTransient<IAuthorizationErrorMessageBuilder, DefaultAuthorizationErrorMessageBuilder>(); // required by CustomErrorInfoProvider
+            .Configure<ErrorInfoProviderOptions>(opt => opt.ExposeExceptionStackTrace = Environment.IsDevelopment());
 
         services.AddGraphQL(builder => builder
             .AddApolloTracing()

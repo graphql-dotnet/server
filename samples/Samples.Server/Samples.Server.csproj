@@ -18,7 +18,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Transports.AspNetCore\Transports.AspNetCore.csproj" />
-    <ProjectReference Include="..\..\src\Authorization.AspNetCore\Authorization.AspNetCore.csproj" />
     <ProjectReference Include="..\..\src\Ui.GraphiQL\Ui.GraphiQL.csproj" />
     <ProjectReference Include="..\..\src\Ui.Playground\Ui.Playground.csproj" />
     <ProjectReference Include="..\..\src\Ui.Altair\Ui.Altair.csproj" />

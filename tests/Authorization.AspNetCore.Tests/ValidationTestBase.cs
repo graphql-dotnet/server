@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using GraphQL.Execution;
+using GraphQL.Server.Transports.AspNetCore;
 using GraphQL.Validation;
 using GraphQLParser.AST;
 using Microsoft.AspNetCore.Authorization;
@@ -20,7 +21,7 @@ public class ValidationTestBase : IDisposable
     {
         var (authorizationService, httpContextAccessor) = BuildServices(setupOptions);
         HttpContext = httpContextAccessor.HttpContext;
-        Rule = new AuthorizationValidationRule(authorizationService, new DefaultClaimsPrincipalAccessor(httpContextAccessor), new DefaultAuthorizationErrorMessageBuilder());
+        Rule = new AuthorizationValidationRule(httpContextAccessor);
     }
 
     protected void ShouldPassRule(Action<ValidationTestConfig> configure)
@@ -92,7 +93,8 @@ public class ValidationTestBase : IDisposable
             Document = document,
             Operation = document.Definitions.OfType<GraphQLOperationDefinition>().First(),
             Rules = config.Rules,
-            Variables = config.Variables
+            Variables = config.Variables,
+            RequestServices = ServiceProvider, // root provider here instead of scoped one, but since nothing registered is scoped, it makes a little difference so we just use root provider directly
         }).GetAwaiter().GetResult().validationResult;
     }
 
