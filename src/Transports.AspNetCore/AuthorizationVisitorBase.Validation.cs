@@ -118,7 +118,7 @@ public partial class AuthorizationVisitorBase
 
         if (requiresAuthorization)
         {
-            var authorized = _userIsAuthorized ??= IsAuthenticated();
+            var authorized = _userIsAuthorized ??= IsAuthenticated;
             if (!authorized)
             {
                 HandleNodeNotAuthorized(info);
@@ -130,7 +130,7 @@ public partial class AuthorizationVisitorBase
     }
 
     /// <inheritdoc cref="IIdentity.IsAuthenticated"/>
-    protected abstract bool IsAuthenticated();
+    protected abstract bool IsAuthenticated { get; }
 
     /// <inheritdoc cref="ClaimsPrincipal.IsInRole(string)"/>
     protected abstract bool IsInRole(string role);

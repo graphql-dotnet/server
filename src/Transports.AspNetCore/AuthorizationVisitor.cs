@@ -24,7 +24,7 @@ public class AuthorizationVisitor : AuthorizationVisitorBase
     protected IAuthorizationService AuthorizationService { get; }
 
     /// <inheritdoc/>
-    protected override bool IsAuthenticated()
+    protected override bool IsAuthenticated
         => ClaimsPrincipal.Identity?.IsAuthenticated ?? false;
 
     /// <inheritdoc/>
