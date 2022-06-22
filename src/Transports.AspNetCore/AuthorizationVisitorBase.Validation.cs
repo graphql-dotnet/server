@@ -13,9 +13,15 @@ public partial class AuthorizationVisitorBase
     /// Validate a node that is current within the context.
     /// </summary>
     private bool Validate(IProvideMetadata obj, ASTNode? node, ValidationContext context)
-        => Validate(BuildValidationInfo(obj, node, context));
+        => Validate(BuildValidationInfo(node, obj, context));
 
-    private static ValidationInfo BuildValidationInfo(IProvideMetadata obj, ASTNode? node, ValidationContext context)
+    /// <summary>
+    /// Initializes a new <see cref="ValidationInfo"/> instance for the specified node.
+    /// </summary>
+    /// <param name="node">The specified <see cref="ASTNode"/>.</param>
+    /// <param name="obj">The <see cref="IGraphType"/>, <see cref="IFieldType"/> or <see cref="QueryArgument"/> which has been matched to the node specified in <paramref name="node"/>.</param>
+    /// <param name="context">The validation context.</param>
+    private static ValidationInfo BuildValidationInfo(ASTNode? node, IProvideMetadata obj, ValidationContext context)
     {
         IFieldType? parentFieldType = null;
         IGraphType? parentGraphType = null;
@@ -159,8 +165,8 @@ public partial class AuthorizationVisitorBase
     }
 
     /// <summary>
-    /// Adds a error to the validation context indicating that the user is not a member of any of
-    /// the roles required by this graph, field or query argument.
+    /// Adds a error to the validation context indicating that the user does not meet the
+    /// authorization policy required by this graph, field or query argument.
     /// </summary>
     /// <param name="info">Information about the node being validated.</param>
     /// <param name="policy">The policy which these nodes are being authenticated against.</param>

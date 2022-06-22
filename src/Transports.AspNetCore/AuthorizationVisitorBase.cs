@@ -173,7 +173,7 @@ public abstract partial class AuthorizationVisitorBase : INodeVisitor
             else if (info.WaitingOnFragments?.Count > 0)
             {
                 _todos ??= new();
-                _todos.Add(new(BuildValidationInfo(type, node, context), info));
+                _todos.Add(new(BuildValidationInfo(node, type, context), info));
             }
         }
     }
@@ -235,8 +235,10 @@ public abstract partial class AuthorizationVisitorBase : INodeVisitor
         }
     }
 
-    // runs when a fragment is added or updated; the fragment might not be waiting on any
-    // other fragments, or it still might be
+    /// <summary>
+    /// Runs when a fragment is added or updated; the fragment might not be waiting on any
+    /// other fragments, or it still might be.
+    /// </summary>
     private void RecursiveResolve(string fragmentName, TypeInfo ti, ValidationContext context)
     {
         // first see if any other fragments are waiting on this fragment
@@ -284,18 +286,56 @@ public abstract partial class AuthorizationVisitorBase : INodeVisitor
         }
     }
 
+    /// <summary>
+    /// Stores information about the current graph type being examined
+    /// to know if all selected fields have been marked with
+    /// <see cref="GraphQL.AuthorizationExtensions.AllowAnonymous{TMetadataProvider}(TMetadataProvider)">AllowAnonymous</see>,
+    /// in which case authentication checks are skipped for the current graph type.
+    /// </summary>
     private struct TypeInfo
     {
+        /// <summary>
+        /// Indicates if any fields have been selected for the graph type which require authentication.
+        /// This includes any fields which are not marked with
+        /// <see cref="GraphQL.AuthorizationExtensions.AllowAnonymous{TMetadataProvider}(TMetadataProvider)">AllowAnonymous</see>.
+        /// Does not include introspection fields.
+        /// </summary>
         public bool AnyAuthenticated;
+
+        /// <summary>
+        /// Indicates if any fields have been selected for the graph type which are marked with
+        /// <see cref="GraphQL.AuthorizationExtensions.AllowAnonymous{TMetadataProvider}(TMetadataProvider)">AllowAnonymous</see>.
+        /// Does not include introspection fields.
+        /// </summary>
         public bool AnyAnonymous;
+
+        /// <summary>
+        /// A list of fragments referenced in the selection set which have not yet been encountered while
+        /// walking the document nodes.
+        /// </summary>
         public List<string>? WaitingOnFragments;
     }
 
+    /// <summary>
+    /// Stores information about a graph type containing fragment(s) which have not yet
+    /// been encountered while walking the document nodes.
+    /// <br/><br/>
+    /// Once the fragments have all been encountered, authentication checks occur if necessary for the
+    /// graph type -- specifically, if any authenticated fields were selected, or if no anonymous fields
+    /// were selected.
+    /// </summary>
     private class TodoInfo
     {
+        /// <inheritdoc cref="ValidationInfo"/>
         public readonly ValidationInfo ValidationInfo;
+
+        /// <inheritdoc cref="TypeInfo.AnyAuthenticated"/>
         public bool AnyAuthenticated;
+
+        /// <inheritdoc cref="TypeInfo.AnyAnonymous"/>
         public bool AnyAnonymous;
+
+        /// <inheritdoc cref="TypeInfo.WaitingOnFragments"/>
         public readonly List<string> WaitingOnFragments;
 
         public TodoInfo(ValidationInfo vi, TypeInfo ti)
