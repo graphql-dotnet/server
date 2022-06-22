@@ -19,7 +19,7 @@ public class AuthorizationValidationRule : IValidationRule
         var httpContext = _contextAccessor.HttpContext
             ?? throw new InvalidOperationException("HttpContext could not be retrieved from IHttpContextAccessor.");
         var user = httpContext.User
-            ?? throw new InvalidOperationException("ClaimsPrincipal could not be retrieved from HttpContext.User.");
+            ?? throw new InvalidOperationException("ClaimsPrincipal could not be retrieved from HttpContext.");
         var provider = context.RequestServices
             ?? throw new MissingRequestServicesException();
         var authService = provider.GetService<IAuthorizationService>()
