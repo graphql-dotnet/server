@@ -85,7 +85,7 @@ public partial class AuthorizationVisitorBase
             {
                 if (!_policyResults.TryGetValue(policy, out var result))
                 {
-                    result = AuthorizePolicy(policy);
+                    result = Authorize(policy);
                     _policyResults.Add(policy, result);
                 }
                 if (!result.Succeeded)
@@ -105,7 +105,7 @@ public partial class AuthorizationVisitorBase
             {
                 if (!_roleResults.TryGetValue(role, out var result))
                 {
-                    result = AuthorizeRole(role);
+                    result = IsInRole(role);
                     _roleResults.Add(role, result);
                 }
                 if (result)
@@ -118,7 +118,7 @@ public partial class AuthorizationVisitorBase
 
         if (requiresAuthorization)
         {
-            var authorized = _userIsAuthorized ??= Authorize();
+            var authorized = _userIsAuthorized ??= IsAuthenticated();
             if (!authorized)
             {
                 HandleNodeNotAuthorized(info);
@@ -130,13 +130,13 @@ public partial class AuthorizationVisitorBase
     }
 
     /// <inheritdoc cref="IIdentity.IsAuthenticated"/>
-    protected abstract bool Authorize();
+    protected abstract bool IsAuthenticated();
 
     /// <inheritdoc cref="ClaimsPrincipal.IsInRole(string)"/>
-    protected abstract bool AuthorizeRole(string role);
+    protected abstract bool IsInRole(string role);
 
     /// <inheritdoc cref="IAuthorizationService.AuthorizeAsync(ClaimsPrincipal, object, string)"/>
-    protected abstract AuthorizationResult AuthorizePolicy(string policy);
+    protected abstract AuthorizationResult Authorize(string policy);
 
     /// <summary>
     /// Adds a error to the validation context indicating that the user is not authenticated

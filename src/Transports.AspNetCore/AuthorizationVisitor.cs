@@ -24,14 +24,14 @@ public class AuthorizationVisitor : AuthorizationVisitorBase
     protected IAuthorizationService AuthorizationService { get; }
 
     /// <inheritdoc/>
-    protected override bool Authorize()
+    protected override bool IsAuthenticated()
         => ClaimsPrincipal.Identity?.IsAuthenticated ?? false;
 
     /// <inheritdoc/>
-    protected override bool AuthorizeRole(string role)
+    protected override bool IsInRole(string role)
         => ClaimsPrincipal.IsInRole(role);
 
     /// <inheritdoc/>
-    protected override AuthorizationResult AuthorizePolicy(string policy)
+    protected override AuthorizationResult Authorize(string policy)
         => AuthorizationService.AuthorizeAsync(ClaimsPrincipal, policy).GetAwaiter().GetResult();
 }

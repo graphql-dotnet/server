@@ -50,21 +50,21 @@ namespace GraphQL.Server.Transports.AspNetCore
         public AuthorizationVisitor(GraphQL.Validation.ValidationContext context, System.Security.Claims.ClaimsPrincipal claimsPrincipal, Microsoft.AspNetCore.Authorization.IAuthorizationService authorizationService) { }
         protected Microsoft.AspNetCore.Authorization.IAuthorizationService AuthorizationService { get; }
         protected System.Security.Claims.ClaimsPrincipal ClaimsPrincipal { get; }
-        protected override bool Authorize() { }
-        protected override Microsoft.AspNetCore.Authorization.AuthorizationResult AuthorizePolicy(string policy) { }
-        protected override bool AuthorizeRole(string role) { }
+        protected override Microsoft.AspNetCore.Authorization.AuthorizationResult Authorize(string policy) { }
+        protected override bool IsAuthenticated() { }
+        protected override bool IsInRole(string role) { }
     }
     public abstract class AuthorizationVisitorBase : GraphQL.Validation.INodeVisitor
     {
         public AuthorizationVisitorBase(GraphQL.Validation.ValidationContext context) { }
-        protected abstract bool Authorize();
-        protected abstract Microsoft.AspNetCore.Authorization.AuthorizationResult AuthorizePolicy(string policy);
-        protected abstract bool AuthorizeRole(string role);
+        protected abstract Microsoft.AspNetCore.Authorization.AuthorizationResult Authorize(string policy);
         public virtual void Enter(GraphQLParser.AST.ASTNode node, GraphQL.Validation.ValidationContext context) { }
         protected virtual string GenerateResourceDescription(GraphQL.Server.Transports.AspNetCore.AuthorizationVisitorBase.ValidationInfo info) { }
         protected virtual void HandleNodeNotAuthorized(GraphQL.Server.Transports.AspNetCore.AuthorizationVisitorBase.ValidationInfo info) { }
         protected virtual void HandleNodeNotInPolicy(GraphQL.Server.Transports.AspNetCore.AuthorizationVisitorBase.ValidationInfo info, string policy, Microsoft.AspNetCore.Authorization.AuthorizationResult authorizationResult) { }
         protected virtual void HandleNodeNotInRoles(GraphQL.Server.Transports.AspNetCore.AuthorizationVisitorBase.ValidationInfo info, System.Collections.Generic.List<string> roles) { }
+        protected abstract bool IsAuthenticated();
+        protected abstract bool IsInRole(string role);
         public virtual void Leave(GraphQLParser.AST.ASTNode node, GraphQL.Validation.ValidationContext context) { }
         protected virtual bool SkipField(GraphQLParser.AST.GraphQLField node, GraphQL.Validation.ValidationContext context) { }
         protected virtual bool Validate(GraphQL.Server.Transports.AspNetCore.AuthorizationVisitorBase.ValidationInfo info) { }
