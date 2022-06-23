@@ -14,7 +14,7 @@ public class AuthorizationValidationRule : IValidationRule
     }
 
     /// <inheritdoc/>
-    public ValueTask<INodeVisitor?> ValidateAsync(ValidationContext context)
+    public virtual ValueTask<INodeVisitor?> ValidateAsync(ValidationContext context)
     {
         var httpContext = _contextAccessor.HttpContext
             ?? throw new InvalidOperationException("HttpContext could not be retrieved from IHttpContextAccessor.");
