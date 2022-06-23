@@ -43,7 +43,7 @@ public partial class AuthorizationVisitorBase
     {
         private GetRecursivelyReferencedFragmentsVisitor() { }
 
-        public static GetRecursivelyReferencedFragmentsVisitor Instance = new();
+        public static readonly GetRecursivelyReferencedFragmentsVisitor Instance = new();
 
         public override ValueTask VisitAsync(ASTNode? node, GetRecursivelyReferencedFragmentsVisitorContext context)
         {
