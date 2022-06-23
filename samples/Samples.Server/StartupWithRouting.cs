@@ -35,6 +35,7 @@ public class StartupWithRouting
         services.AddGraphQL(builder => builder
             .AddApolloTracing()
             .AddSchema<ChatSchema>()
+            .AddAutoClrMappings()
             .ConfigureExecutionOptions(options =>
             {
                 options.EnableMetrics = Environment.IsDevelopment();
