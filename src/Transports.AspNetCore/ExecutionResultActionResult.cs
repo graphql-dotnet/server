@@ -3,7 +3,7 @@ namespace GraphQL.Server.Transports.AspNetCore;
 /// <summary>
 /// An action result that formats the <see cref="ExecutionResult"/> as JSON.
 /// </summary>
-public class ExecutionResultActionResult : IActionResult
+public sealed class ExecutionResultActionResult : IActionResult
 {
     private readonly ExecutionResult _executionResult;
     private readonly HttpStatusCode _statusCode;
