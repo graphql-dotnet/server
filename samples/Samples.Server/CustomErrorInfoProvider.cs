@@ -26,7 +26,7 @@ public class CustomErrorInfoProvider : ErrorInfoProvider
         var errorMessage = new StringBuilder();
         errorMessage.Append(error.Message);
 
-        foreach (var failedRequirement in error.PolicyAuthorizationResult.Failure.FailedRequirements)
+        foreach (var failedRequirement in error.PolicyAuthorizationResult!.Failure!.FailedRequirements)
         {
             switch (failedRequirement)
             {

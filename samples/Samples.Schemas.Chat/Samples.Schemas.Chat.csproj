@@ -1,16 +1,16 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <AssemblyName>GraphQL.Samples.Schemas.Chat</AssemblyName>
-    <RootNamespace>GraphQL.Samples.Schemas.Chat</RootNamespace>
-    <IsPackable>false</IsPackable>
-    <NoWarn>$(NoWarn);1591</NoWarn>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <WarningsNotAsErrors>CS8618</WarningsNotAsErrors>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="GraphQL" Version="$(GraphQLVersion)" />
     <PackageReference Include="System.Reactive" Version="5.0.0" />
+    <Using Include="GraphQL"/>
+    <Using Include="GraphQL.Samples.Schemas.Chat" />
+    <Using Include="GraphQL.Types"/>
   </ItemGroup>
 
 </Project>

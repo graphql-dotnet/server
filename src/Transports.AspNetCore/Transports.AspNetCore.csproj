@@ -4,10 +4,6 @@
     <TargetFrameworks>netstandard2.0;netcoreapp2.1;netcoreapp3.1;net5</TargetFrameworks>
     <Description>HTTP middleware for GraphQL</Description>
     <PackageTags>GraphQL;middleware</PackageTags>
-    <Nullable>enable</Nullable>
-    <AnalysisMode>recommended</AnalysisMode>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <NoWarn>$(NoWarn);IDE0056;IDE0057</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

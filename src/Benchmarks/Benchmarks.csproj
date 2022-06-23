@@ -15,8 +15,4 @@
     <PackageReference Include="GraphQL.NewtonsoftJson" Version="5.1.1" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Include="..\..\tests\Samples.Server.Tests\Serializer.cs" Link="Shared\Serializer.cs" />
-  </ItemGroup>
-
 </Project>

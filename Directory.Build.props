@@ -19,8 +19,10 @@
     <DebugType>embedded</DebugType>
     <ImplicitUsings>enable</ImplicitUsings>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
-    <PackageReadmeFile Condition="'$(IsPackable)' == 'true'">README.md</PackageReadmeFile>
+    <Nullable>enable</Nullable>
+    <NoWarn>$(NoWarn);IDE0056;IDE0057</NoWarn>
 
     <AssemblyName>GraphQL.Server.$(MSBuildProjectName)</AssemblyName>
     <RootNamespace>GraphQL.Server.$(MSBuildProjectName)</RootNamespace>
