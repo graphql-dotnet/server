@@ -3,6 +3,7 @@
 
   <PropertyGroup>
     <SingleTestPlatform Condition="'$(SingleTestPlatform)' == ''">false</SingleTestPlatform>
+    <NoWarn>$(NoWarn);IDE0017</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
