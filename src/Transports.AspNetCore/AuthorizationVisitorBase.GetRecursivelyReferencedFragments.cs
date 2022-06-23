@@ -54,19 +54,13 @@ public partial class AuthorizationVisitorBase
         }
 
         protected override ValueTask VisitSelectionSetAsync(GraphQLSelectionSet selectionSet, GetRecursivelyReferencedFragmentsVisitorContext context)
-        {
-            return VisitAsync(selectionSet.Selections, context);
-        }
+            => VisitAsync(selectionSet.Selections, context);
 
         protected override ValueTask VisitFieldAsync(GraphQLField field, GetRecursivelyReferencedFragmentsVisitorContext context)
-        {
-            return VisitAsync(field.SelectionSet, context);
-        }
+            => VisitAsync(field.SelectionSet, context);
 
         protected override ValueTask VisitInlineFragmentAsync(GraphQLInlineFragment inlineFragment, GetRecursivelyReferencedFragmentsVisitorContext context)
-        {
-            return VisitAsync(inlineFragment.SelectionSet, context);
-        }
+            => VisitAsync(inlineFragment.SelectionSet, context);
 
         protected override async ValueTask VisitFragmentSpreadAsync(GraphQLFragmentSpread fragmentSpread, GetRecursivelyReferencedFragmentsVisitorContext context)
         {
