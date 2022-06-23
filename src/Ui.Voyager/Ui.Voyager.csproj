@@ -4,7 +4,6 @@
     <TargetFrameworks>net6;net5;netcoreapp3.1</TargetFrameworks>
     <Description>GraphQL Voyager integration for ASP.NET Core</Description>
     <PackageTags>GraphQL;Voyager</PackageTags>
-    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
