@@ -1,6 +1,3 @@
-using System.Net;
-using Microsoft.Extensions.Hosting;
-
 namespace Tests.Middleware;
 
 public class WebSocketTests : IDisposable

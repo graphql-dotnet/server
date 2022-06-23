@@ -1,5 +1,4 @@
 using GraphQLParser.AST;
-using Microsoft.Extensions.Hosting;
 
 namespace Tests.Middleware;
 

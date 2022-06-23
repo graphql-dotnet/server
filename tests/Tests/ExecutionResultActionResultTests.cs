@@ -24,7 +24,8 @@ public class ExecutionResultActionResultTests
         _hostBuilder.Configure(app =>
         {
 #if NETCOREAPP2_1 || NET48
-            app.UseMvc(routes => {
+            app.UseMvc(routes =>
+            {
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");

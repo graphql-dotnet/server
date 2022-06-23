@@ -37,12 +37,12 @@ public class WebSocketConnectionTests : IDisposable
         _webSocketResponses.Enqueue((data, result, sendWhen));
 #if NET48
         _mockWebSocket.Setup(x => x.ReceiveAsync(It.IsAny<ArraySegment<byte>>(), _token))
-            .Returns<ArraySegment<byte>, CancellationToken>(async (bytes, _) => {
+            .Returns<ArraySegment<byte>, CancellationToken>(async (bytes, _) =>
 #else
         _mockWebSocket.Setup(x => x.ReceiveAsync(It.IsAny<Memory<byte>>(), _token))
             .Returns<Memory<byte>, CancellationToken>(async (bytes, _) =>
-            {
 #endif
+            {
                 if (_webSocketResponses.Count == 0)
                     throw new InvalidOperationException("No more data");
                 var result = _webSocketResponses.Dequeue();

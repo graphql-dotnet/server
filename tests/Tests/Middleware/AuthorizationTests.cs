@@ -1,10 +1,9 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Security.Claims;
-using GraphQL.Server.Transports.AspNetCore.Errors;
 using GraphQL.Execution;
+using GraphQL.Server.Transports.AspNetCore.Errors;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Extensions.Hosting;
 
 namespace Tests.Middleware;
 
@@ -248,7 +247,9 @@ public class AuthorizationTests
         private readonly AuthorizationTests _authorizationTests;
 
         public CustomErrorInfoProvider(AuthorizationTests authorizationTests)
-            => _authorizationTests = authorizationTests;
+        {
+            _authorizationTests = authorizationTests;
+        }
 
         public override ErrorInfo GetInfo(ExecutionError executionError)
         {

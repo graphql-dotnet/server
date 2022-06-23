@@ -37,6 +37,7 @@
     <Using Include="Microsoft.AspNetCore.Http" />
     <Using Include="Microsoft.AspNetCore.TestHost" />
     <Using Include="Microsoft.Extensions.DependencyInjection" />
+    <Using Include="Microsoft.Extensions.Hosting" />
     <Using Include="Moq" />
     <Using Include="Moq.Protected" />
     <Using Include="Shouldly" />

@@ -1,7 +1,6 @@
 using System.Net;
-using GraphQL.Server.Transports.AspNetCore.Errors;
 using GraphQL.Execution;
-using Microsoft.Extensions.Hosting;
+using GraphQL.Server.Transports.AspNetCore.Errors;
 
 namespace Tests.Middleware;
 
