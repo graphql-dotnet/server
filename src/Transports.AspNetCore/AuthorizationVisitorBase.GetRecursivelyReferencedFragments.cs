@@ -50,6 +50,7 @@ public partial class AuthorizationVisitorBase
             // check if this node should be skipped or not (check @skip and @include directives)
             if (node == null || !context.AuthorizationVisitor.SkipNode(node, context.ValidationContext))
                 return base.VisitAsync(node, context);
+
             return default;
         }
 
@@ -62,7 +63,7 @@ public partial class AuthorizationVisitorBase
         protected override ValueTask VisitInlineFragmentAsync(GraphQLInlineFragment inlineFragment, GetRecursivelyReferencedFragmentsVisitorContext context)
             => VisitAsync(inlineFragment.SelectionSet, context);
 
-        protected override async ValueTask VisitFragmentSpreadAsync(GraphQLFragmentSpread fragmentSpread, GetRecursivelyReferencedFragmentsVisitorContext context)
+        protected override ValueTask VisitFragmentSpreadAsync(GraphQLFragmentSpread fragmentSpread, GetRecursivelyReferencedFragmentsVisitorContext context)
         {
             // if we have not encountered this fragment before
             if (!Contains(fragmentSpread, context))
@@ -74,9 +75,11 @@ public partial class AuthorizationVisitorBase
                     // add the fragment definition to our known list
                     (context.FragmentDefinitions ??= new()).Add(fragmentDefinition);
                     // walk the fragment definition
-                    await VisitSelectionSetAsync(fragmentDefinition.SelectionSet, context).ConfigureAwait(false);
+                    return VisitSelectionSetAsync(fragmentDefinition.SelectionSet, context);
                 }
             }
+
+            return default;
         }
 
         private static bool Contains(GraphQLFragmentSpread fragmentSpread, GetRecursivelyReferencedFragmentsVisitorContext context)
