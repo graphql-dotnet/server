@@ -8,9 +8,11 @@ public class UserContextBuilderTests : IDisposable
     private void Configure(Action<IGraphQLBuilder> configureBuilder)
     {
         var hostBuilder = new WebHostBuilder();
-        hostBuilder.ConfigureServices(services => {
+        hostBuilder.ConfigureServices(services =>
+        {
             services.AddSingleton<Chat.IChat, Chat.Chat>();
-            services.AddGraphQL(b => {
+            services.AddGraphQL(b =>
+            {
                 configureBuilder(b);
                 b.AddAutoSchema<MyQuery>();
                 b.AddSystemTextJson();
@@ -20,7 +22,8 @@ public class UserContextBuilderTests : IDisposable
             services.AddHostApplicationLifetime();
 #endif
         });
-        hostBuilder.Configure(app => {
+        hostBuilder.Configure(app =>
+        {
             app.UseWebSockets();
             app.UseGraphQL("/graphql");
         });
@@ -53,7 +56,8 @@ public class UserContextBuilderTests : IDisposable
     {
         var context = Mock.Of<HttpContext>(MockBehavior.Strict);
         var userContext = new MyUserContext();
-        var builder = new UserContextBuilder<MyUserContext>(context2 => {
+        var builder = new UserContextBuilder<MyUserContext>(context2 =>
+        {
             context2.ShouldBe(context);
             return userContext;
         });
@@ -65,7 +69,8 @@ public class UserContextBuilderTests : IDisposable
     {
         var context = Mock.Of<HttpContext>(MockBehavior.Strict);
         var userContext = new MyUserContext();
-        var builder = new UserContextBuilder<MyUserContext>(context2 => {
+        var builder = new UserContextBuilder<MyUserContext>(context2 =>
+        {
             context2.ShouldBe(context);
             return new ValueTask<MyUserContext>(userContext);
         });
@@ -77,7 +82,8 @@ public class UserContextBuilderTests : IDisposable
     {
         var context = Mock.Of<HttpContext>(MockBehavior.Strict);
         var userContext = new MyUserContext();
-        var builder = new UserContextBuilder<MyUserContext>((context2, payload) => {
+        var builder = new UserContextBuilder<MyUserContext>((context2, payload) =>
+        {
             context2.ShouldBe(context);
             payload.ShouldBe("test");
             return userContext;
@@ -90,7 +96,8 @@ public class UserContextBuilderTests : IDisposable
     {
         var context = Mock.Of<HttpContext>(MockBehavior.Strict);
         var userContext = new MyUserContext();
-        var builder = new UserContextBuilder<MyUserContext>((context2, payload) => {
+        var builder = new UserContextBuilder<MyUserContext>((context2, payload) =>
+        {
             context2.ShouldBe(context);
             payload.ShouldBe("test");
             return new ValueTask<MyUserContext>(userContext);
@@ -109,7 +116,8 @@ public class UserContextBuilderTests : IDisposable
     private async Task TestDirect(string name)
     {
         var executer = _server.Host.Services.GetRequiredService<IDocumentExecuter<ISchema>>();
-        var result = await executer.ExecuteAsync(new ExecutionOptions {
+        var result = await executer.ExecuteAsync(new ExecutionOptions
+        {
             Query = "{test}",
             RequestServices = _server.Host.Services,
         });

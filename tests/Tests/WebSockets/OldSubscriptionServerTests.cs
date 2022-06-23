@@ -52,10 +52,12 @@ public class OldSubscriptionServerTests : IDisposable
     [InlineData(true)]
     public async Task Message_Terminate(bool initialized)
     {
-        var message = new OperationMessage {
+        var message = new OperationMessage
+        {
             Type = "connection_terminate",
         };
-        if (initialized) {
+        if (initialized)
+        {
             _server.Do_TryInitialize();
         }
         _mockServer.Protected().Setup<Task>("OnCloseConnectionAsync").Returns(Task.CompletedTask).Verifiable();
@@ -70,14 +72,18 @@ public class OldSubscriptionServerTests : IDisposable
     [InlineData(true)]
     public async Task Message_Initialize(bool initialized)
     {
-        var message = new OperationMessage {
+        var message = new OperationMessage
+        {
             Type = "connection_init",
         };
-        if (initialized) {
+        if (initialized)
+        {
             _server.Do_TryInitialize();
             _mockServer.Protected().Setup<Task>("ErrorTooManyInitializationRequestsAsync", message)
                 .Returns(Task.CompletedTask).Verifiable();
-        } else {
+        }
+        else
+        {
             _mockServer.Protected().Setup<Task>("OnConnectionInitAsync", message, false)
                 .Returns(Task.CompletedTask).Verifiable();
         }
@@ -96,7 +102,8 @@ public class OldSubscriptionServerTests : IDisposable
     [InlineData("ka")]
     public async Task Message_ThrowsWhenNotInitialized(string? messageType)
     {
-        var message = new OperationMessage {
+        var message = new OperationMessage
+        {
             Type = messageType,
         };
         _mockServer.Protected().Setup<Task>("ErrorNotInitializedAsync", message)
@@ -215,10 +222,12 @@ public class OldSubscriptionServerTests : IDisposable
     public async Task SendErrorResultAsync(bool wasSubscribed)
     {
         var result = new ExecutionResult();
-        if (wasSubscribed) {
+        if (wasSubscribed)
+        {
             _server.Get_Subscriptions.TryAdd("abc", Mock.Of<IDisposable>());
             _mockStream.Setup(x => x.SendMessageAsync(It.IsAny<OperationMessage>()))
-                .Returns<OperationMessage>(o => {
+                .Returns<OperationMessage>(o =>
+                {
                     o.Id.ShouldBe("abc");
                     o.Type.ShouldBe("error");
                     o.Payload.ShouldBe(result);
@@ -239,10 +248,12 @@ public class OldSubscriptionServerTests : IDisposable
     public async Task SendDataAsync(bool wasSubscribed)
     {
         var result = new ExecutionResult();
-        if (wasSubscribed) {
+        if (wasSubscribed)
+        {
             _server.Get_Subscriptions.TryAdd("abc", Mock.Of<IDisposable>());
             _mockStream.Setup(x => x.SendMessageAsync(It.IsAny<OperationMessage>()))
-                .Returns<OperationMessage>(o => {
+                .Returns<OperationMessage>(o =>
+                {
                     o.Id.ShouldBe("abc");
                     o.Type.ShouldBe("data");
                     o.Payload.ShouldBe(result);
@@ -263,10 +274,12 @@ public class OldSubscriptionServerTests : IDisposable
     public async Task SendCompletedAsync(bool wasSubscribed)
     {
         var result = new ExecutionResult();
-        if (wasSubscribed) {
+        if (wasSubscribed)
+        {
             _server.Get_Subscriptions.TryAdd("abc", Mock.Of<IDisposable>());
             _mockStream.Setup(x => x.SendMessageAsync(It.IsAny<OperationMessage>()))
-                .Returns<OperationMessage>(o => {
+                .Returns<OperationMessage>(o =>
+                {
                     o.Id.ShouldBe("abc");
                     o.Type.ShouldBe("complete");
                     o.Payload.ShouldBeNull();
@@ -285,10 +298,12 @@ public class OldSubscriptionServerTests : IDisposable
     public async Task ExecuteRequestAsync()
     {
         var payload = new object();
-        var message = new OperationMessage {
+        var message = new OperationMessage
+        {
             Payload = payload
         };
-        var request = new GraphQLRequest {
+        var request = new GraphQLRequest
+        {
             Query = "abc",
             Variables = new Inputs(new Dictionary<string, object?>()),
             Extensions = new Inputs(new Dictionary<string, object?>()),
@@ -308,7 +323,8 @@ public class OldSubscriptionServerTests : IDisposable
         var mockUserContext = new Mock<IDictionary<string, object?>>(MockBehavior.Strict);
         _server.Set_UserContext(mockUserContext.Object);
         _mockDocumentExecuter.Setup(x => x.ExecuteAsync(It.IsAny<ExecutionOptions>()))
-            .Returns<ExecutionOptions>(options => {
+            .Returns<ExecutionOptions>(options =>
+            {
                 options.ShouldNotBeNull();
                 options.Query.ShouldBe(request.Query);
                 options.Variables.ShouldBe(request.Variables);
@@ -349,7 +365,8 @@ public class OldSubscriptionServerTests : IDisposable
     [Fact]
     public async Task ErrorAccessDeniedAsync()
     {
-        _mockStream.Setup(x => x.SendMessageAsync(It.IsAny<OperationMessage>())).Returns<OperationMessage>(msg => {
+        _mockStream.Setup(x => x.SendMessageAsync(It.IsAny<OperationMessage>())).Returns<OperationMessage>(msg =>
+        {
             msg.Type.ShouldBe("connection_error");
             msg.Payload.ShouldBe("Access denied");
             return Task.CompletedTask;

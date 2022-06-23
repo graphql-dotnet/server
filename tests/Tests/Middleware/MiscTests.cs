@@ -40,7 +40,8 @@ public class MiscTests
         var mockMiddleware = new Mock<MyMiddleware>(MockBehavior.Strict);
         var mockContext = Mock.Of<HttpContext>();
         mockMiddleware.Protected().Setup<Task>("WriteErrorResponseAsync", mockContext, HttpStatusCode.OK, ItExpr.IsAny<ExecutionError>())
-            .Returns<HttpContext, HttpStatusCode, ExecutionError>((_, _, error) => {
+            .Returns<HttpContext, HttpStatusCode, ExecutionError>((_, _, error) =>
+            {
                 error.ShouldBeOfType<ExecutionError>();
                 error.Message.ShouldBe("testing");
                 return Task.CompletedTask;

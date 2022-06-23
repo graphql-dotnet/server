@@ -39,7 +39,8 @@ public class AuthorizationTests
     private IValidationResult Validate(string query, bool shouldPassCoreRules = true, string? variables = null)
     {
         var mockAuthorizationService = new Mock<IAuthorizationService>(MockBehavior.Strict);
-        mockAuthorizationService.Setup(x => x.AuthorizeAsync(_principal, null, It.IsAny<string>())).Returns<ClaimsPrincipal, object, string>((_, _, policy) => {
+        mockAuthorizationService.Setup(x => x.AuthorizeAsync(_principal, null, It.IsAny<string>())).Returns<ClaimsPrincipal, object, string>((_, _, policy) =>
+        {
             if (policy == "MyPolicy" && _policyPasses)
                 return Task.FromResult(AuthorizationResult.Success());
             return Task.FromResult(AuthorizationResult.Failed());
@@ -55,7 +56,8 @@ public class AuthorizationTests
         var inputs = new GraphQLSerializer().Deserialize<Inputs>(variables) ?? Inputs.Empty;
 
         var validator = new DocumentValidator();
-        var (coreRulesResult, _) = validator.ValidateAsync(new ValidationOptions {
+        var (coreRulesResult, _) = validator.ValidateAsync(new ValidationOptions
+        {
             Document = document,
             Extensions = Inputs.Empty,
             Operation = (GraphQLOperationDefinition)document.Definitions.First(x => x.Kind == ASTNodeKind.OperationDefinition),
@@ -66,7 +68,8 @@ public class AuthorizationTests
         }).GetAwaiter().GetResult(); // there is no async code being tested
         coreRulesResult.IsValid.ShouldBe(shouldPassCoreRules);
 
-        var (result, _) = validator.ValidateAsync(new ValidationOptions {
+        var (result, _) = validator.ValidateAsync(new ValidationOptions
+        {
             Document = document,
             Extensions = Inputs.Empty,
             Operation = (GraphQLOperationDefinition)document.Definitions.First(x => x.Kind == ASTNodeKind.OperationDefinition),
@@ -188,7 +191,8 @@ public class AuthorizationTests
         ret.Errors[0].Message.ShouldBe(message);
         if (column == -1)
             ret.Errors[0].Locations.ShouldBeNull();
-        else {
+        else
+        {
             ret.Errors[0].Locations.ShouldNotBeNull();
             ret.Errors[0].Locations!.Count.ShouldBe(1);
             ret.Errors[0].Locations![0].Line.ShouldBe(1);
@@ -423,9 +427,12 @@ public class AuthorizationTests
 
         IValidationResult ret;
 
-        if (includeField) {
+        if (includeField)
+        {
             ret = Validate("{ __typename parent { child } }");
-        } else {
+        }
+        else
+        {
             ret = Validate("{ __typename }");
         }
         ret.IsValid.ShouldBe(isValid);
@@ -471,7 +478,8 @@ public class AuthorizationTests
 
     private void Apply(IProvideMetadata obj, Mode mode)
     {
-        switch (mode) {
+        switch (mode)
+        {
             case Mode.None:
                 break;
             case Mode.RoleSuccess:
@@ -519,7 +527,8 @@ public class AuthorizationTests
     public void MiscErrors(bool noHttpContext, bool noClaimsPrincipal, bool noRequestServices, bool noAuthenticationService)
     {
         var mockAuthorizationService = new Mock<IAuthorizationService>(MockBehavior.Strict);
-        mockAuthorizationService.Setup(x => x.AuthorizeAsync(_principal, null, It.IsAny<string>())).Returns<ClaimsPrincipal, object, string>((_, _, policy) => {
+        mockAuthorizationService.Setup(x => x.AuthorizeAsync(_principal, null, It.IsAny<string>())).Returns<ClaimsPrincipal, object, string>((_, _, policy) =>
+        {
             if (policy == "MyPolicy" && _policyPasses)
                 return Task.FromResult(AuthorizationResult.Success());
             return Task.FromResult(AuthorizationResult.Failed());
@@ -533,7 +542,8 @@ public class AuthorizationTests
         var document = GraphQLParser.Parser.Parse("{ __typename }");
         var validator = new DocumentValidator();
 
-        var err = Should.Throw<Exception>(() => validator.ValidateAsync(new ValidationOptions {
+        var err = Should.Throw<Exception>(() => validator.ValidateAsync(new ValidationOptions
+        {
             Document = document,
             Extensions = Inputs.Empty,
             Operation = (GraphQLOperationDefinition)document.Definitions.Single(x => x.Kind == ASTNodeKind.OperationDefinition),
@@ -571,7 +581,8 @@ public class AuthorizationTests
         var validator = new DocumentValidator();
         _schema.Authorize();
 
-        var (result, _) = validator.ValidateAsync(new ValidationOptions {
+        var (result, _) = validator.ValidateAsync(new ValidationOptions
+        {
             Document = document,
             Extensions = Inputs.Empty,
             Operation = (GraphQLOperationDefinition)document.Definitions.Single(x => x.Kind == ASTNodeKind.OperationDefinition),
@@ -687,7 +698,8 @@ public class AuthorizationTests
         using var provider = services.BuildServiceProvider();
 
         var executer = provider.GetRequiredService<IDocumentExecuter<ISchema>>();
-        var ret = await executer.ExecuteAsync(new ExecutionOptions {
+        var ret = await executer.ExecuteAsync(new ExecutionOptions
+        {
             Query = @"{ parent { child } }",
             RequestServices = provider,
         });

@@ -10,7 +10,8 @@ public class BatchTests : IDisposable
     public BatchTests()
     {
         var hostBuilder = new WebHostBuilder();
-        hostBuilder.ConfigureServices(services => {
+        hostBuilder.ConfigureServices(services =>
+        {
             services.AddSingleton<Chat.IChat, Chat.Chat>();
             services.AddGraphQL(b => b
                 .AddAutoSchema<Chat.Query>(s => s
@@ -23,12 +24,15 @@ public class BatchTests : IDisposable
             services.AddHostApplicationLifetime();
 #endif
         });
-        hostBuilder.Configure(app => {
+        hostBuilder.Configure(app =>
+        {
             app.UseWebSockets();
-            app.UseGraphQL("/graphql", opts => {
+            app.UseGraphQL("/graphql", opts =>
+            {
                 _options = opts;
             });
-            app.UseGraphQL<Schema2>("/graphql2", opts => {
+            app.UseGraphQL<Schema2>("/graphql2", opts =>
+            {
                 _options2 = opts;
             });
         });
@@ -184,7 +188,8 @@ public class BatchTests : IDisposable
     [Fact]
     public async Task WithVariables()
     {
-        using var response = await PostBatchRequestAsync("/graphql2", new GraphQLRequest() {
+        using var response = await PostBatchRequestAsync("/graphql2", new GraphQLRequest()
+        {
             Query = "query($test:String){var(test:$test)}",
             Variables = new Inputs(new Dictionary<string, object?> {
                 { "test", "abc" }
@@ -225,7 +230,8 @@ public class BatchTests : IDisposable
     {
         _options2.ReadQueryStringOnPost = true;
         var url = "/graphql2?operationName=op2";
-        var request = new GraphQLRequest {
+        var request = new GraphQLRequest
+        {
             Query = "query op1($test:String!){ext var(test:$test)} query op2($test:String!){var(test:$test) ext}",
             Variables = new Inputs(new Dictionary<string, object?> {
                 { "test", "postvar" }

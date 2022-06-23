@@ -174,7 +174,8 @@ public class BaseSubscriptionServerTests : IDisposable
         var tcs = new TaskCompletionSource<bool>();
         _mockStream.Setup(x => x.LastMessageSentAt).Returns(DateTime.UtcNow);
         _mockServer.Protected().Setup<Task>("OnConnectionAcknowledgeAsync", msg).Returns(Task.CompletedTask).Verifiable();
-        _mockServer.Protected().Setup<Task>("OnSendKeepAliveAsync").Returns(() => {
+        _mockServer.Protected().Setup<Task>("OnSendKeepAliveAsync").Returns(() =>
+        {
             tcs.TrySetResult(true);
             return Task.CompletedTask;
         }).Verifiable();
@@ -229,7 +230,8 @@ public class BaseSubscriptionServerTests : IDisposable
     {
         _options.WebSockets.ConnectionInitWaitTimeout = TimeSpan.FromSeconds(1);
         var tcs = new TaskCompletionSource<bool>();
-        _mockServer.Protected().Setup<Task>("OnConnectionInitWaitTimeoutAsync").Returns(() => {
+        _mockServer.Protected().Setup<Task>("OnConnectionInitWaitTimeoutAsync").Returns(() =>
+        {
             tcs.TrySetResult(true);
             return Task.CompletedTask;
         }).Verifiable();
@@ -244,7 +246,8 @@ public class BaseSubscriptionServerTests : IDisposable
     {
         _options.WebSockets.ConnectionInitWaitTimeout = TimeSpan.FromSeconds(1);
         var tcs = new TaskCompletionSource<bool>();
-        _mockServer.Protected().Setup<Task>("OnConnectionInitWaitTimeoutAsync").Returns(() => {
+        _mockServer.Protected().Setup<Task>("OnConnectionInitWaitTimeoutAsync").Returns(() =>
+        {
             tcs.TrySetResult(true);
             return Task.CompletedTask;
         });
@@ -260,7 +263,8 @@ public class BaseSubscriptionServerTests : IDisposable
     {
         _options.WebSockets.ConnectionInitWaitTimeout = TimeSpan.FromSeconds(1);
         var tcs = new TaskCompletionSource<bool>();
-        _mockServer.Protected().Setup<Task>("OnConnectionInitWaitTimeoutAsync").Returns(() => {
+        _mockServer.Protected().Setup<Task>("OnConnectionInitWaitTimeoutAsync").Returns(() =>
+        {
             tcs.TrySetResult(true);
             return Task.CompletedTask;
         });
@@ -297,11 +301,13 @@ public class BaseSubscriptionServerTests : IDisposable
         var testResult = new ExecutionResult();
         var tcs1 = new TaskCompletionSource<bool>();
         var tcs2 = new TaskCompletionSource<bool>();
-        _mockServer.Protected().Setup<Task>("SendDataAsync", testId, testResult).Returns(() => {
+        _mockServer.Protected().Setup<Task>("SendDataAsync", testId, testResult).Returns(() =>
+        {
             tcs1.TrySetResult(true);
             return Task.CompletedTask;
         }).Verifiable();
-        _mockServer.Protected().Setup<Task>("SendCompletedAsync", testId).Returns(() => {
+        _mockServer.Protected().Setup<Task>("SendCompletedAsync", testId).Returns(() =>
+        {
             tcs2.TrySetResult(true);
             return Task.CompletedTask;
         }).Verifiable();
@@ -316,7 +322,8 @@ public class BaseSubscriptionServerTests : IDisposable
         var testId = "abc";
         var testError = new ExecutionError("testing");
         var tcs1 = new TaskCompletionSource<bool>();
-        _mockServer.Protected().Setup<Task>("SendErrorResultAsync", testId, ItExpr.IsAny<ExecutionResult>()).Returns<string, ExecutionResult>((_, actualResult) => {
+        _mockServer.Protected().Setup<Task>("SendErrorResultAsync", testId, ItExpr.IsAny<ExecutionResult>()).Returns<string, ExecutionResult>((_, actualResult) =>
+        {
             actualResult.Errors.ShouldNotBeNull();
             actualResult.Errors.Single().ShouldBe(testError);
             tcs1.SetResult(true);
@@ -334,7 +341,8 @@ public class BaseSubscriptionServerTests : IDisposable
     {
         var message = new OperationMessage { Id = "abc" };
         var error = new ExecutionError("test");
-        _mockServer.Protected().Setup<Task>("SendErrorResultAsync", message.Id, ItExpr.IsAny<ExecutionResult>()).Returns<string, ExecutionResult>((_, result) => {
+        _mockServer.Protected().Setup<Task>("SendErrorResultAsync", message.Id, ItExpr.IsAny<ExecutionResult>()).Returns<string, ExecutionResult>((_, result) =>
+        {
             result.ShouldNotBeNull();
             result.Errors.ShouldNotBeNull();
             result.Errors.ShouldHaveSingleItem().ShouldBe(error);
@@ -367,7 +375,8 @@ public class BaseSubscriptionServerTests : IDisposable
     {
         var tcs1 = new TaskCompletionSource<bool>();
         var message = new OperationMessage { Id = id };
-        _mockServer.Protected().Setup<Task>("ErrorIdCannotBeBlankAsync", message).Returns(() => {
+        _mockServer.Protected().Setup<Task>("ErrorIdCannotBeBlankAsync", message).Returns(() =>
+        {
             tcs1.SetResult(true);
             return Task.CompletedTask;
         }).Verifiable();
@@ -383,7 +392,8 @@ public class BaseSubscriptionServerTests : IDisposable
     {
         var message = new OperationMessage { Id = "abc" };
         var source = new Subject<ExecutionResult>();
-        var result = new ExecutionResult {
+        var result = new ExecutionResult
+        {
             Streams = new Dictionary<string, IObservable<ExecutionResult>> {
                     { "field", source },
                 },
@@ -405,14 +415,16 @@ public class BaseSubscriptionServerTests : IDisposable
     {
         var message1 = new OperationMessage { Id = "abc" };
         var source1 = new Subject<ExecutionResult>();
-        var result1 = new ExecutionResult {
+        var result1 = new ExecutionResult
+        {
             Streams = new Dictionary<string, IObservable<ExecutionResult>> {
                     { "field", source1 },
                 },
         };
         var message2 = new OperationMessage { Id = "abc" };
         var source2 = new Subject<ExecutionResult>();
-        var result2 = new ExecutionResult {
+        var result2 = new ExecutionResult
+        {
             Streams = new Dictionary<string, IObservable<ExecutionResult>> {
                     { "field", source2 },
                 },
@@ -420,11 +432,14 @@ public class BaseSubscriptionServerTests : IDisposable
         _mockServer.Protected().Setup<Task<ExecutionResult>>("ExecuteRequestAsync", message1)
             .Returns(Task.FromResult<ExecutionResult>(result1))
             .Verifiable();
-        if (overwrite) {
+        if (overwrite)
+        {
             _mockServer.Protected().Setup<Task<ExecutionResult>>("ExecuteRequestAsync", message2)
                 .Returns(Task.FromResult<ExecutionResult>(result2))
                 .Verifiable();
-        } else {
+        }
+        else
+        {
             _mockServer.Protected().Setup<Task>("ErrorIdAlreadyExistsAsync", message2)
                 .Returns(Task.CompletedTask)
                 .Verifiable();
@@ -445,7 +460,8 @@ public class BaseSubscriptionServerTests : IDisposable
     public async Task Subscribe_CompletedSingleResult(bool withData)
     {
         var message = new OperationMessage { Id = "abc" };
-        var result = new ExecutionResult {
+        var result = new ExecutionResult
+        {
             Executed = true,
             Data = withData ? new object { } : null,
         };
@@ -465,7 +481,8 @@ public class BaseSubscriptionServerTests : IDisposable
     public async Task Subscribe_NotCompletedResult()
     {
         var message = new OperationMessage { Id = "abc" };
-        var result = new ExecutionResult {
+        var result = new ExecutionResult
+        {
             Executed = false,
         };
         _mockServer.Protected().Setup<Task<ExecutionResult>>("ExecuteRequestAsync", message)
@@ -484,11 +501,13 @@ public class BaseSubscriptionServerTests : IDisposable
     public async Task Subscribe_ThrowsWhenDisposed()
     {
         var message = new OperationMessage { Id = "abc" };
-        var result = new ExecutionResult {
+        var result = new ExecutionResult
+        {
             Executed = false,
         };
         _mockServer.Protected().Setup<Task<ExecutionResult>>("ExecuteRequestAsync", message)
-            .Returns(() => {
+            .Returns(() =>
+            {
                 _server.Dispose();
                 return Task.FromException<ExecutionResult>(new OperationCanceledException());
             })
@@ -542,11 +561,13 @@ public class BaseSubscriptionServerTests : IDisposable
     public async Task Subscribe_DoesNotSendWhenDisposed()
     {
         var message = new OperationMessage { Id = "abc" };
-        var result = new ExecutionResult {
+        var result = new ExecutionResult
+        {
             Executed = false,
         };
         _mockServer.Protected().Setup<Task<ExecutionResult>>("ExecuteRequestAsync", message)
-            .Returns(() => {
+            .Returns(() =>
+            {
                 _server.Dispose();
                 return Task.FromResult(result);
             })
@@ -562,11 +583,13 @@ public class BaseSubscriptionServerTests : IDisposable
     public async Task Subscribe_DoesNotSendWhenUnsubscribed()
     {
         var message = new OperationMessage { Id = "abc" };
-        var result = new ExecutionResult {
+        var result = new ExecutionResult
+        {
             Executed = false,
         };
         _mockServer.Protected().Setup<Task<ExecutionResult>>("ExecuteRequestAsync", message)
-            .Returns(() => {
+            .Returns(() =>
+            {
                 _server.Do_UnsubscribeAsync(message.Id);
                 return Task.FromResult(result);
             })
@@ -583,35 +606,41 @@ public class BaseSubscriptionServerTests : IDisposable
     {
         var message1 = new OperationMessage { Id = "abc" };
         var message2 = new OperationMessage { Id = "def" };
-        var result1 = new ExecutionResult {
+        var result1 = new ExecutionResult
+        {
             Executed = true,
         };
-        var result2 = new ExecutionResult {
+        var result2 = new ExecutionResult
+        {
             Executed = true,
         };
         var waiter = new TaskCompletionSource<bool>();
         var done = new TaskCompletionSource<bool>();
         var done2 = new TaskCompletionSource<bool>();
         _mockServer.Protected().Setup<Task<ExecutionResult>>("ExecuteRequestAsync", message1)
-            .Returns(async () => {
+            .Returns(async () =>
+            {
                 await waiter.Task;
                 await done2.Task;
                 return result1;
             })
             .Verifiable();
         _mockServer.Protected().Setup<Task<ExecutionResult>>("ExecuteRequestAsync", message2)
-            .Returns(async () => {
+            .Returns(async () =>
+            {
                 await waiter.Task;
                 return result2;
             })
             .Verifiable();
         _mockServer.Protected().Setup<Task>("SubscribeAsync", message1, false).Verifiable();
         _mockServer.Protected().Setup<Task>("SubscribeAsync", message2, false).Verifiable();
-        _mockServer.Protected().Setup<Task>("SendSingleResultAsync", message1, result1).Returns(() => {
+        _mockServer.Protected().Setup<Task>("SendSingleResultAsync", message1, result1).Returns(() =>
+        {
             done.SetResult(true);
             return Task.CompletedTask;
         }).Verifiable();
-        _mockServer.Protected().Setup<Task>("SendSingleResultAsync", message2, result2).Returns(() => {
+        _mockServer.Protected().Setup<Task>("SendSingleResultAsync", message2, result2).Returns(() =>
+        {
             done2.SetResult(true);
             return Task.CompletedTask;
         }).Verifiable();
@@ -630,7 +659,8 @@ public class BaseSubscriptionServerTests : IDisposable
     {
         var message = new OperationMessage { Id = "abc" };
         var source = new Subject<ExecutionResult>();
-        var result = new ExecutionResult {
+        var result = new ExecutionResult
+        {
             Streams = new Dictionary<string, IObservable<ExecutionResult>> {
                     { "field", source },
                 },
@@ -670,7 +700,8 @@ public class BaseSubscriptionServerTests : IDisposable
     {
         var message = new OperationMessage { Id = "abc" };
         var source = new Subject<ExecutionResult>();
-        var result = new ExecutionResult {
+        var result = new ExecutionResult
+        {
             Streams = new Dictionary<string, IObservable<ExecutionResult>> {
                     { "field", source },
                 },
@@ -694,7 +725,8 @@ public class BaseSubscriptionServerTests : IDisposable
     {
         var message = new OperationMessage { Id = "abc" };
         var source = new Subject<ExecutionResult>();
-        var result = new ExecutionResult {
+        var result = new ExecutionResult
+        {
             Streams = new Dictionary<string, IObservable<ExecutionResult>> {
                     { "field", source },
                 },
@@ -724,12 +756,14 @@ public class BaseSubscriptionServerTests : IDisposable
         _options.WebSockets.DisconnectAfterAnyError = closeAfterError;
         var message = new OperationMessage { Id = "abc" };
         var source = new Subject<ExecutionResult>();
-        var result = new ExecutionResult {
+        var result = new ExecutionResult
+        {
             Streams = new Dictionary<string, IObservable<ExecutionResult>> {
                     { "field", source },
                 },
         };
-        var result2 = new ExecutionResult() {
+        var result2 = new ExecutionResult()
+        {
             Errors = new ExecutionErrors {
                     new ExecutionError("test"),
                 },
@@ -738,7 +772,8 @@ public class BaseSubscriptionServerTests : IDisposable
             .Returns(Task.FromResult<ExecutionResult>(result))
             .Verifiable();
         _mockServer.Protected().Setup<Task>("SendDataAsync", message.Id, result2).Returns(Task.CompletedTask).Verifiable();
-        if (closeAfterError) {
+        if (closeAfterError)
+        {
             _mockServer.Protected().Setup<Task>("SendCompletedAsync", message.Id)
                 .Returns(Task.CompletedTask)
                 .Verifiable();
@@ -757,12 +792,14 @@ public class BaseSubscriptionServerTests : IDisposable
     {
         var message = new OperationMessage { Id = "abc" };
         var source = new Subject<ExecutionResult>();
-        var result = new ExecutionResult {
+        var result = new ExecutionResult
+        {
             Streams = new Dictionary<string, IObservable<ExecutionResult>> {
                     { "field", source },
                 },
         };
-        var result2 = new ExecutionResult() {
+        var result2 = new ExecutionResult()
+        {
             Executed = true,
             Data = new object(),
         };
@@ -792,7 +829,8 @@ public class BaseSubscriptionServerTests : IDisposable
         _options.WebSockets.DisconnectAfterErrorEvent = closeAfterError;
         var message = new OperationMessage { Id = "abc" };
         var source = new Subject<ExecutionResult>();
-        var result = new ExecutionResult {
+        var result = new ExecutionResult
+        {
             Streams = new Dictionary<string, IObservable<ExecutionResult>> {
                     { "field", source },
                 },
@@ -803,7 +841,8 @@ public class BaseSubscriptionServerTests : IDisposable
             .Returns(Task.FromResult<ExecutionResult>(result))
             .Verifiable();
         _mockServer.Protected().Setup<Task>("SendDataAsync", message.Id, ItExpr.IsAny<ExecutionResult>())
-            .Returns<string, ExecutionResult>((_, actualResult) => {
+            .Returns<string, ExecutionResult>((_, actualResult) =>
+            {
                 actualResult.Errors.ShouldNotBeNull();
                 actualResult.Errors.Single().ShouldBe(executionError);
                 return Task.CompletedTask;
@@ -811,7 +850,8 @@ public class BaseSubscriptionServerTests : IDisposable
         _mockServer.Protected().Setup<Task<ExecutionError>>("HandleErrorFromSourceAsync", error)
             .Returns(Task.FromResult<ExecutionError>(executionError))
             .Verifiable();
-        if (closeAfterError) {
+        if (closeAfterError)
+        {
             _mockServer.Protected().Setup<Task>("SendCompletedAsync", message.Id)
                 .Returns(Task.CompletedTask)
                 .Verifiable();
@@ -831,7 +871,8 @@ public class BaseSubscriptionServerTests : IDisposable
     {
         var message = new OperationMessage { Id = "abc" };
         var source = new Subject<ExecutionResult>();
-        var result = new ExecutionResult {
+        var result = new ExecutionResult
+        {
             Streams = new Dictionary<string, IObservable<ExecutionResult>> {
                     { "field", source },
                 },
@@ -842,7 +883,8 @@ public class BaseSubscriptionServerTests : IDisposable
             .Returns(Task.FromResult<ExecutionResult>(result))
             .Verifiable();
         _mockServer.Protected().Setup<Task>("SendDataAsync", message.Id, ItExpr.IsAny<ExecutionResult>())
-            .Returns<string, ExecutionResult>((_, actualResult) => {
+            .Returns<string, ExecutionResult>((_, actualResult) =>
+            {
                 actualResult.Errors.ShouldNotBeNull();
                 actualResult.Errors.Single().ShouldBe(executionError);
                 return Task.CompletedTask;
@@ -869,7 +911,8 @@ public class BaseSubscriptionServerTests : IDisposable
     {
         var msg = new OperationMessage();
         _options.AuthorizationRequired = true;
-        if (!authorized) {
+        if (!authorized)
+        {
             _mockServer.Protected().Setup<Task>("OnNotAuthenticatedAsync", msg).CallBase().Verifiable();
             _mockServer.Protected().Setup<Task>("ErrorAccessDeniedAsync").CallBase().Verifiable();
             _mockStream.Setup(x => x.CloseAsync(4401, "Access denied")).Returns(Task.CompletedTask);
@@ -892,7 +935,8 @@ public class BaseSubscriptionServerTests : IDisposable
     {
         var msg = new OperationMessage();
         _options.AuthorizedRoles.Add("myRole");
-        if (!authorized) {
+        if (!authorized)
+        {
             _mockServer.Protected().Setup<Task>("OnNotAuthorizedRoleAsync", msg).CallBase().Verifiable();
             _mockServer.Protected().Setup<Task>("ErrorAccessDeniedAsync").CallBase().Verifiable();
             _mockStream.Setup(x => x.CloseAsync(4401, "Access denied")).Returns(Task.CompletedTask);
@@ -915,7 +959,8 @@ public class BaseSubscriptionServerTests : IDisposable
     {
         var msg = new OperationMessage();
         _options.AuthorizedPolicy = "myPolicy";
-        if (!authorized) {
+        if (!authorized)
+        {
             _mockServer.Protected().Setup<Task>("OnNotAuthorizedPolicyAsync", msg, ItExpr.IsAny<AuthorizationResult>()).CallBase().Verifiable();
             _mockServer.Protected().Setup<Task>("ErrorAccessDeniedAsync").CallBase().Verifiable();
             _mockStream.Setup(x => x.CloseAsync(4401, "Access denied")).Returns(Task.CompletedTask);

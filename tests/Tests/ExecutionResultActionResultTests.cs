@@ -8,7 +8,8 @@ public class ExecutionResultActionResultTests
     public async Task Basic()
     {
         var _hostBuilder = new WebHostBuilder();
-        _hostBuilder.ConfigureServices(services => {
+        _hostBuilder.ConfigureServices(services =>
+        {
             services.AddSingleton<Chat.IChat, Chat.Chat>();
             services.AddGraphQL(b => b
                 .AddAutoSchema<Chat.Query>()
@@ -20,7 +21,8 @@ public class ExecutionResultActionResultTests
             services.AddControllers();
 #endif
         });
-        _hostBuilder.Configure(app => {
+        _hostBuilder.Configure(app =>
+        {
 #if NETCOREAPP2_1 || NET48
             app.UseMvc(routes => {
                 routes.MapRoute(
@@ -29,7 +31,8 @@ public class ExecutionResultActionResultTests
             });
 #else
             app.UseRouting();
-            app.UseEndpoints(endpoints => {
+            app.UseEndpoints(endpoints =>
+            {
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
@@ -67,7 +70,8 @@ public class TestController : Controller
     [Route("graphql")]
     public async Task<IActionResult> Test(string query, int? resultCode = null)
     {
-        var result = await _documentExecuter.ExecuteAsync(new() {
+        var result = await _documentExecuter.ExecuteAsync(new()
+        {
             Query = query,
             RequestServices = HttpContext.RequestServices,
             CancellationToken = HttpContext.RequestAborted,

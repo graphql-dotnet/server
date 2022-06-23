@@ -10,7 +10,8 @@ public class FileUploadTests : IDisposable
     public FileUploadTests()
     {
         var hostBuilder = new WebHostBuilder();
-        hostBuilder.ConfigureServices(services => {
+        hostBuilder.ConfigureServices(services =>
+        {
             services.AddSingleton<FileGraphType>();
             services.AddGraphQL(b => b
                 .AddSchema<MySchema>()
@@ -19,7 +20,8 @@ public class FileUploadTests : IDisposable
             services.AddHostApplicationLifetime();
 #endif
         });
-        hostBuilder.Configure(app => {
+        hostBuilder.Configure(app =>
+        {
             app.UseWebSockets();
             app.UseGraphQL<MyMiddleware>("/graphql", new GraphQLHttpMiddlewareOptions());
         });
@@ -39,7 +41,8 @@ public class FileUploadTests : IDisposable
         var queryContent = new StringContent(@"query($prefix: String, $file: File!) { convertToBase64(prefix: $prefix, file: $file) }");
         queryContent.Headers.ContentType = new("application/graphql");
         content.Add(queryContent, "query");
-        if (withOtherVariables) {
+        if (withOtherVariables)
+        {
             var variablesContent = new StringContent(@"{""prefix"":""pre-""}");
             variablesContent.Headers.ContentType = new("application/json");
             content.Add(variablesContent, "variables");
@@ -49,9 +52,12 @@ public class FileUploadTests : IDisposable
         fileContent.Headers.ContentType = new("application/octet-stream");
         content.Add(fileContent, "file", "filename.bin");
         using var response = await client.PostAsync("/graphql", content);
-        if (withOtherVariables) {
+        if (withOtherVariables)
+        {
             await response.ShouldBeAsync(@"{""data"":{""convertToBase64"":""pre-filename.bin-YWJjZA==""}}");
-        } else {
+        }
+        else
+        {
             await response.ShouldBeAsync(@"{""data"":{""convertToBase64"":""filename.bin-YWJjZA==""}}");
         }
     }
@@ -69,11 +75,15 @@ public class FileUploadTests : IDisposable
         protected override async Task<(GraphQLRequest? SingleRequest, IList<GraphQLRequest?>? BatchRequest)?> ReadPostContentAsync(
             HttpContext context, RequestDelegate next, string? mediaType, Encoding? sourceEncoding)
         {
-            if (context.Request.HasFormContentType) {
-                try {
+            if (context.Request.HasFormContentType)
+            {
+                try
+                {
                     var formCollection = await context.Request.ReadFormAsync(context.RequestAborted);
                     return (DeserializeFromFormBody(formCollection), null);
-                } catch (Exception ex) {
+                }
+                catch (Exception ex)
+                {
                     if (!await HandleDeserializationErrorAsync(context, next, ex))
                         throw;
                     return null;
@@ -84,15 +94,18 @@ public class FileUploadTests : IDisposable
 
         private GraphQLRequest DeserializeFromFormBody(IFormCollection formCollection)
         {
-            var request = new GraphQLRequest {
+            var request = new GraphQLRequest
+            {
                 Query = formCollection.TryGetValue("query", out var queryValues) ? queryValues[0] : null,
                 Variables = formCollection.TryGetValue("variables", out var variablesValues) ? _serializer.Deserialize<Inputs>(variablesValues[0]) : null,
                 Extensions = formCollection.TryGetValue("extensions", out var extensionsValues) ? _serializer.Deserialize<Inputs>(extensionsValues[0]) : null,
                 OperationName = formCollection.TryGetValue("operationName", out var operationNameValues) ? operationNameValues[0] : null,
             };
-            if (formCollection.Files.Count > 0) {
+            if (formCollection.Files.Count > 0)
+            {
                 var dic = request.Variables != null ? new Dictionary<string, object?>(request.Variables) : new Dictionary<string, object?>();
-                foreach (var file in formCollection.Files) {
+                foreach (var file in formCollection.Files)
+                {
                     dic.Add(file.Name, file);
                 }
                 request.Variables = new Inputs(dic);
@@ -105,7 +118,8 @@ public class FileUploadTests : IDisposable
     {
         public MySchema()
         {
-            var query = new ObjectGraphType {
+            var query = new ObjectGraphType
+            {
                 Name = "Query",
             };
             query.Field<StringGraphType>(
@@ -114,7 +128,8 @@ public class FileUploadTests : IDisposable
                     new QueryArgument(typeof(StringGraphType)) { Name = "prefix" },
                     new QueryArgument(typeof(NonNullGraphType<FileGraphType>)) { Name = "file" }
                 ),
-                resolve: context => {
+                resolve: context =>
+                {
                     var prefix = context.GetArgument<string?>("prefix");
                     var file = context.GetArgument<IFormFile>("file");
                     var memStream = new MemoryStream();
@@ -136,7 +151,8 @@ public class FileUploadTests : IDisposable
         public override object? ParseLiteral(GraphQLValue value)
             => value is GraphQLNullValue ? null : ThrowLiteralConversionError(value);
 
-        public override object? ParseValue(object? value) => value switch {
+        public override object? ParseValue(object? value) => value switch
+        {
             null => null,
             IFormFile => value,
             _ => ThrowValueConversionError(value),

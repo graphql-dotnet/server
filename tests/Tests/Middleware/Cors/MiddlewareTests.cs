@@ -13,7 +13,8 @@ public class MiddlewareTests
         Action<HttpRequestHeaders> configureHeaders)
     {
         var hostBuilder = new WebHostBuilder();
-        hostBuilder.ConfigureServices(services => {
+        hostBuilder.ConfigureServices(services =>
+        {
             services.AddGraphQL(b => b
                 .AddAutoSchema<Query>()
                 .AddSystemTextJson());
@@ -22,7 +23,8 @@ public class MiddlewareTests
             services.AddHostApplicationLifetime();
 #endif
         });
-        hostBuilder.Configure(app => {
+        hostBuilder.Configure(app =>
+        {
             if (configureCorsPolicy != null)
                 app.UseCors(configureCorsPolicy);
             else
@@ -32,20 +34,25 @@ public class MiddlewareTests
         using var server = new TestServer(hostBuilder);
         using var client = server.CreateClient();
         var request = new HttpRequestMessage(method, "/graphql");
-        if (method == HttpMethod.Post) {
+        if (method == HttpMethod.Post)
+        {
             var content = new StringContent("{hello}");
             content.Headers.ContentType = new("application/graphql");
             request.Content = content;
-        } else {
+        }
+        else
+        {
             request.Headers.Add("Access-Control-Request-Method", "POST");
         }
         configureHeaders(request.Headers);
         using var response = await client.SendAsync(request);
-        if (method == HttpMethod.Post) {
+        if (method == HttpMethod.Post)
+        {
             (await response.Content.ReadAsStringAsync()).ShouldBe(@"{""data"":{""hello"":""world""}}");
         }
         response.EnsureSuccessStatusCode();
-        return new CorsResponse {
+        return new CorsResponse
+        {
             AllowCredentials = response.Headers.TryGetValues("Access-Control-Allow-Credentials", out var values) ? bool.Parse(values.Single()) : null,
             AllowHeaders = response.Headers.TryGetValues("Access-Control-Allow-Headers", out var values2) ? values2.Single() : null,
             AllowMethods = response.Headers.TryGetValues("Access-Control-Allow-Methods", out var values3) ? values3.Single() : null,
@@ -75,7 +82,8 @@ public class MiddlewareTests
             httpMethod == "POST" ? HttpMethod.Post : httpMethod == "OPTIONS" ? HttpMethod.Options : throw new ArgumentOutOfRangeException(nameof(httpMethod)),
             configureCorsPolicy: _ => { },
             configureGraphQl: _ => { },
-            configureHeaders: headers => {
+            configureHeaders: headers =>
+            {
                 headers.Add("Origin", "http://www.example.com");
             });
 
@@ -94,26 +102,32 @@ public class MiddlewareTests
     {
         var ret = await ExecuteMiddleware(
             httpMethod == "POST" ? HttpMethod.Post : httpMethod == "OPTIONS" ? HttpMethod.Options : throw new ArgumentOutOfRangeException(nameof(httpMethod)),
-            configureCorsPolicy: b => {
+            configureCorsPolicy: b =>
+            {
                 b.AllowCredentials();
                 b.WithOrigins("http://www.example.com", "http://www.example2.com");
                 b.WithMethods("POST");
             },
             configureGraphQl: _ => { },
-            configureHeaders: headers => {
+            configureHeaders: headers =>
+            {
                 headers.Add("Origin", pass ? "http://www.example.com" : "http://www.dummy.com");
             });
 
         ret.AllowHeaders.ShouldBeNull();
-        if (pass) {
+        if (pass)
+        {
             ret.AllowCredentials.ShouldBe(true);
             ret.AllowOrigin.ShouldBe("http://www.example.com");
 #if !NET48 && !NETCOREAPP2_1
-            if (httpMethod == "OPTIONS") {
+            if (httpMethod == "OPTIONS")
+            {
                 ret.AllowMethods.ShouldBe("POST");
             }
 #endif
-        } else {
+        }
+        else
+        {
             ret.AllowCredentials.ShouldBeNull();
             ret.AllowOrigin.ShouldBeNull();
             ret.AllowMethods.ShouldBeNull();

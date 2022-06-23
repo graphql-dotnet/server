@@ -15,7 +15,8 @@ public class ChatTests : IDisposable
     private IWebHostBuilder ConfigureBuilder()
     {
         var hostBuilder = new WebHostBuilder();
-        hostBuilder.ConfigureServices(services => {
+        hostBuilder.ConfigureServices(services =>
+        {
             services.AddSingleton<Chat.IChat, Chat.Chat>();
             services.AddGraphQL(b => b
                 .AddAutoSchema<Chat.Query>(s => s
@@ -26,9 +27,11 @@ public class ChatTests : IDisposable
             services.AddHostApplicationLifetime();
 #endif
         });
-        hostBuilder.Configure(app => {
+        hostBuilder.Configure(app =>
+        {
             app.UseWebSockets();
-            app.UseGraphQL("/graphql", o => {
+            app.UseGraphQL("/graphql", o =>
+            {
                 _options = o;
             });
         });
@@ -136,14 +139,16 @@ public class ChatTests : IDisposable
     {
         // create websocket connection
         var webSocketClient = _app.CreateWebSocketClient();
-        webSocketClient.ConfigureRequest = request => {
+        webSocketClient.ConfigureRequest = request =>
+        {
             request.Headers["Sec-WebSocket-Protocol"] = subProtocol;
         };
         webSocketClient.SubProtocols.Add(subProtocol);
         using var webSocket = await webSocketClient.ConnectAsync(new Uri(_app.BaseAddress, "/graphql"), default);
 
         // send CONNECTION_INIT
-        await webSocket.SendMessageAsync(new OperationMessage {
+        await webSocket.SendMessageAsync(new OperationMessage
+        {
             Type = "connection_init"
         });
 
@@ -152,10 +157,12 @@ public class ChatTests : IDisposable
         message.Type.ShouldBe("connection_ack");
 
         // subscribe
-        await webSocket.SendMessageAsync(new OperationMessage {
+        await webSocket.SendMessageAsync(new OperationMessage
+        {
             Type = subProtocol == "graphql-ws" ? "start" : "subscribe",
             Id = "123",
-            Payload = new GraphQLRequest {
+            Payload = new GraphQLRequest
+            {
                 Query = "subscription { events { type message { id message from } } }",
             },
         });
@@ -171,7 +178,8 @@ public class ChatTests : IDisposable
         message.Payload.ShouldBe(@"{""data"":{""events"":{""type"":""NEW_MESSAGE"",""message"":{""id"":""1"",""message"":""hello"",""from"":""John Doe""}}}}");
 
         // clear messages
-        _ = Task.Run(async () => {
+        _ = Task.Run(async () =>
+        {
             await ClearMessagesInternal(1);
         });
 
@@ -197,18 +205,23 @@ public class ChatTests : IDisposable
         message.Payload.ShouldBe(@"{""data"":{""events"":{""type"":""DELETE_MESSAGE"",""message"":{""id"":""2"",""message"":""hello"",""from"":""John Doe""}}}}");
 
         // unsubscribe
-        await webSocket.SendMessageAsync(new OperationMessage {
+        await webSocket.SendMessageAsync(new OperationMessage
+        {
             Type = subProtocol == "graphql-ws" ? "stop" : "complete",
             Id = "123",
         });
 
         // initiate closure
-        if (subProtocol == "graphql-ws") {
+        if (subProtocol == "graphql-ws")
+        {
             // send close message
-            await webSocket.SendMessageAsync(new OperationMessage {
+            await webSocket.SendMessageAsync(new OperationMessage
+            {
                 Type = "connection_terminate",
             });
-        } else {
+        }
+        else
+        {
             // close websocket
             await webSocket.CloseOutputAsync(System.Net.WebSockets.WebSocketCloseStatus.NormalClosure, null, default);
         }
@@ -228,14 +241,16 @@ public class ChatTests : IDisposable
     {
         // create websocket connection
         var webSocketClient = _app.CreateWebSocketClient();
-        webSocketClient.ConfigureRequest = request => {
+        webSocketClient.ConfigureRequest = request =>
+        {
             request.Headers["Sec-WebSocket-Protocol"] = subProtocol;
         };
         webSocketClient.SubProtocols.Add(subProtocol);
         using var webSocket = await webSocketClient.ConnectAsync(new Uri(_app.BaseAddress, "/graphql"), default);
 
         // send CONNECTION_INIT
-        await webSocket.SendMessageAsync(new OperationMessage {
+        await webSocket.SendMessageAsync(new OperationMessage
+        {
             Type = "connection_init"
         });
 
@@ -244,10 +259,12 @@ public class ChatTests : IDisposable
         message.Type.ShouldBe("connection_ack");
 
         // subscribe
-        await webSocket.SendMessageAsync(new OperationMessage {
+        await webSocket.SendMessageAsync(new OperationMessage
+        {
             Type = subProtocol == "graphql-ws" ? "start" : "subscribe",
             Id = "123",
-            Payload = new GraphQLRequest {
+            Payload = new GraphQLRequest
+            {
                 Query = "subscription { newMessages(from:" + (from == null ? "null" : $"\"{from}\"") + ") { id message from } }",
             },
         });
@@ -258,13 +275,15 @@ public class ChatTests : IDisposable
         await AddMessageInternal(1);
         await AddMessageInternal(2, "test");
 
-        if (from == "John Doe" || from == null) {
+        if (from == "John Doe" || from == null)
+        {
             // wait for a new message sent over this websocket
             message = await webSocket.ReceiveMessageAsync();
             message.Type.ShouldBe(subProtocol == "graphql-ws" ? "data" : "next");
             message.Payload.ShouldBe(@"{""data"":{""newMessages"":{""id"":""1"",""message"":""hello"",""from"":""John Doe""}}}");
         }
-        if (from == "test" || from == null) {
+        if (from == "test" || from == null)
+        {
             // wait for a new message sent over this websocket
             message = await webSocket.ReceiveMessageAsync();
             message.Type.ShouldBe(subProtocol == "graphql-ws" ? "data" : "next");
@@ -272,32 +291,40 @@ public class ChatTests : IDisposable
         }
 
         // send a ping
-        if (subProtocol == "graphql-transport-ws") {
-            await webSocket.SendMessageAsync(new OperationMessage {
+        if (subProtocol == "graphql-transport-ws")
+        {
+            await webSocket.SendMessageAsync(new OperationMessage
+            {
                 Type = "ping",
             });
             message = await webSocket.ReceiveMessageAsync();
             message.Type.ShouldBe("pong");
 
             // and an unsolicited pong, with no expected response
-            await webSocket.SendMessageAsync(new OperationMessage {
+            await webSocket.SendMessageAsync(new OperationMessage
+            {
                 Type = "pong",
             });
         }
 
         // unsubscribe
-        await webSocket.SendMessageAsync(new OperationMessage {
+        await webSocket.SendMessageAsync(new OperationMessage
+        {
             Type = subProtocol == "graphql-ws" ? "stop" : "complete",
             Id = "123",
         });
 
         // initiate closure
-        if (subProtocol == "graphql-ws") {
+        if (subProtocol == "graphql-ws")
+        {
             // send close message
-            await webSocket.SendMessageAsync(new OperationMessage {
+            await webSocket.SendMessageAsync(new OperationMessage
+            {
                 Type = "connection_terminate",
             });
-        } else {
+        }
+        else
+        {
             // close websocket
             await webSocket.CloseOutputAsync(System.Net.WebSockets.WebSocketCloseStatus.NormalClosure, null, default);
         }
@@ -320,18 +347,21 @@ public class ChatTests : IDisposable
 
         // create websocket connection
         var webSocketClient = app.CreateWebSocketClient();
-        webSocketClient.ConfigureRequest = request => {
+        webSocketClient.ConfigureRequest = request =>
+        {
             request.Headers["Sec-WebSocket-Protocol"] = subProtocol;
         };
         webSocketClient.SubProtocols.Add(subProtocol);
         using var webSocket = await webSocketClient.ConnectAsync(new Uri(_app.BaseAddress, "/graphql"), default);
 
         // send CONNECTION_INIT
-        await webSocket.SendMessageAsync(new OperationMessage {
+        await webSocket.SendMessageAsync(new OperationMessage
+        {
             Type = "connection_init"
         });
 
-        if (subProtocol == "graphql-ws") {
+        if (subProtocol == "graphql-ws")
+        {
             // wait for CONNECTION_ERROR
             var message = await webSocket.ReceiveMessageAsync();
             message.Type.ShouldBe("connection_error");
@@ -354,7 +384,8 @@ public class ChatTests : IDisposable
         var builder = ConfigureBuilder();
         var mockAuthorizationService = new Mock<IWebSocketAuthenticationService>(MockBehavior.Strict);
         mockAuthorizationService.Setup(x => x.AuthenticateAsync(It.IsAny<IWebSocketConnection>(), subProtocol, It.IsAny<OperationMessage>()))
-            .Returns<WebSocketConnection, string, OperationMessage>((connection, _, message) => {
+            .Returns<WebSocketConnection, string, OperationMessage>((connection, _, message) =>
+            {
                 connection.HttpContext.User.Identity!.IsAuthenticated.ShouldBeFalse();
                 var serializer = connection.HttpContext.RequestServices.GetRequiredService<IGraphQLSerializer>();
                 var payload = serializer.ReadNode<Inputs>(message.Payload);
@@ -371,26 +402,33 @@ public class ChatTests : IDisposable
 
         // create websocket connection
         var webSocketClient = app.CreateWebSocketClient();
-        webSocketClient.ConfigureRequest = request => {
+        webSocketClient.ConfigureRequest = request =>
+        {
             request.Headers["Sec-WebSocket-Protocol"] = subProtocol;
         };
         webSocketClient.SubProtocols.Add(subProtocol);
         using var webSocket = await webSocketClient.ConnectAsync(new Uri(_app.BaseAddress, "/graphql"), default);
 
         // send CONNECTION_INIT
-        await webSocket.SendMessageAsync(new OperationMessage {
+        await webSocket.SendMessageAsync(new OperationMessage
+        {
             Type = "connection_init",
-            Payload = new {
+            Payload = new
+            {
                 Authorization = "Bearer testing",
             },
         });
 
-        if (successfulAuthentication) {
+        if (successfulAuthentication)
+        {
             // wait for CONNECTION_ACK
             var message = await webSocket.ReceiveMessageAsync();
             message.Type.ShouldBe("connection_ack");
-        } else {
-            if (subProtocol == "graphql-ws") {
+        }
+        else
+        {
+            if (subProtocol == "graphql-ws")
+            {
                 // wait for CONNECTION_ERROR
                 var message = await webSocket.ReceiveMessageAsync();
                 message.Type.ShouldBe("connection_error");

@@ -17,22 +17,26 @@ public class AuthorizationTests
     public AuthorizationTests()
     {
         var hostBuilder = new WebHostBuilder();
-        hostBuilder.ConfigureServices(services => {
+        hostBuilder.ConfigureServices(services =>
+        {
             services.AddSingleton<Chat.IChat, Chat.Chat>();
             services.AddGraphQL(b => b
                 .AddAutoSchema<Chat.Query>()
                 .AddErrorInfoProvider(new CustomErrorInfoProvider(this))
                 .AddSystemTextJson());
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(options => {
+                .AddJwtBearer(options =>
+                {
                     options.TokenValidationParameters.ValidateIssuerSigningKey = false;
                     options.TokenValidationParameters.ValidateLifetime = false;
                     options.TokenValidationParameters.ValidateAudience = false;
                     options.TokenValidationParameters.ValidIssuer = "test";
                     options.TokenValidationParameters.RequireSignedTokens = false;
                 });
-            services.AddAuthorization(config => {
-                config.AddPolicy("MyPolicy", policyConfig => {
+            services.AddAuthorization(config =>
+            {
+                config.AddPolicy("MyPolicy", policyConfig =>
+                {
                     policyConfig.RequireAuthenticatedUser();
                 });
             });
@@ -40,13 +44,15 @@ public class AuthorizationTests
             services.AddHostApplicationLifetime();
 #endif
         });
-        hostBuilder.Configure(app => {
+        hostBuilder.Configure(app =>
+        {
             app.UseWebSockets();
             app.UseAuthentication();
 #if !NETCOREAPP2_1 && !NET48
             app.UseAuthorization();
 #endif
-            app.UseGraphQL("/graphql", opts => {
+            app.UseGraphQL("/graphql", opts =>
+            {
                 _options = opts;
             });
         });
@@ -99,7 +105,8 @@ public class AuthorizationTests
     {
         _options.AuthorizationRequired = true;
         var webSocketClient = _server.CreateWebSocketClient();
-        webSocketClient.ConfigureRequest = request => {
+        webSocketClient.ConfigureRequest = request =>
+        {
             request.Headers["Sec-WebSocket-Protocol"] = "graphql-ws";
         };
         webSocketClient.SubProtocols.Add("graphql-ws");
@@ -110,7 +117,8 @@ public class AuthorizationTests
     public async Task WebSocket_NotAuthorized()
     {
         var hostBuilder = new WebHostBuilder();
-        hostBuilder.ConfigureServices(services => {
+        hostBuilder.ConfigureServices(services =>
+        {
             services.AddGraphQL(b => b
                 .AddAutoSchema<Chat.Query>()
                 .AddSystemTextJson());
@@ -118,14 +126,16 @@ public class AuthorizationTests
             services.AddHostApplicationLifetime();
 #endif
         });
-        hostBuilder.Configure(app => {
+        hostBuilder.Configure(app =>
+        {
             app.UseWebSockets();
             app.UseGraphQL<MyMiddleware>("/graphql");
         });
         var server = new TestServer(hostBuilder);
 
         var webSocketClient = server.CreateWebSocketClient();
-        webSocketClient.ConfigureRequest = request => {
+        webSocketClient.ConfigureRequest = request =>
+        {
             request.Headers["Sec-WebSocket-Protocol"] = "graphql-ws";
         };
         webSocketClient.SubProtocols.Add("graphql-ws");
@@ -245,14 +255,20 @@ public class AuthorizationTests
             var info = base.GetInfo(executionError);
             if (!_authorizationTests._enableCustomErrorInfoProvider)
                 return info;
-            if (executionError is AccessDeniedError accessDeniedError) {
-                if (accessDeniedError.RolesRequired != null) {
+            if (executionError is AccessDeniedError accessDeniedError)
+            {
+                if (accessDeniedError.RolesRequired != null)
+                {
                     info.Message = $"Access denied; roles required {string.Join("/", accessDeniedError.RolesRequired.Select(x => $"'{x}'"))}.";
-                } else if (accessDeniedError.PolicyRequired != null) {
+                }
+                else if (accessDeniedError.PolicyRequired != null)
+                {
                     info.Message = $"Access denied; policy required '{accessDeniedError.PolicyRequired}'.";
                     accessDeniedError.PolicyAuthorizationResult.ShouldNotBeNull();
                     accessDeniedError.PolicyAuthorizationResult.Succeeded.ShouldBeFalse();
-                } else {
+                }
+                else
+                {
                     info.Message = $"Access denied; authorization required.";
                 }
             }

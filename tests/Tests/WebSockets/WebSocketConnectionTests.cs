@@ -40,7 +40,8 @@ public class WebSocketConnectionTests : IDisposable
             .Returns<ArraySegment<byte>, CancellationToken>(async (bytes, _) => {
 #else
         _mockWebSocket.Setup(x => x.ReceiveAsync(It.IsAny<Memory<byte>>(), _token))
-            .Returns<Memory<byte>, CancellationToken>(async (bytes, _) => {
+            .Returns<Memory<byte>, CancellationToken>(async (bytes, _) =>
+            {
 #endif
                 if (_webSocketResponses.Count == 0)
                     throw new InvalidOperationException("No more data");
@@ -55,7 +56,8 @@ public class WebSocketConnectionTests : IDisposable
 #endif
             })
             .Verifiable();
-        if (verifyCloseOutput) {
+        if (verifyCloseOutput)
+        {
             _mockConnection.Protected().Setup<Task>("OnCloseOutputAsync", WebSocketCloseStatus.NormalClosure, ItExpr.IsNull<string>())
                 .Returns(Task.CompletedTask)
                 .Verifiable();
@@ -123,21 +125,24 @@ public class WebSocketConnectionTests : IDisposable
         var message = new OperationMessage();
         var mockReceiveStream = new Mock<IOperationMessageProcessor>(MockBehavior.Strict);
         // upon initialization, send a message
-        mockReceiveStream.Setup(x => x.InitializeConnectionAsync()).Returns(async () => {
+        mockReceiveStream.Setup(x => x.InitializeConnectionAsync()).Returns(async () =>
+        {
             await _mockConnection.Object.SendMessageAsync(message);
             delay1.SetResult(true);
         }).Verifiable();
         mockReceiveStream.Setup(x => x.Dispose()).Verifiable();
 
         _mockSerializer.Setup(x => x.WriteAsync<OperationMessage?>(It.IsAny<Stream>(), message, _token))
-            .Returns<Stream, OperationMessage, CancellationToken>((stream, _, _) => {
+            .Returns<Stream, OperationMessage, CancellationToken>((stream, _, _) =>
+            {
                 return stream.WriteAsync(new byte[] { 1, 2, 3 }, 0, 3, _token);
             }).Verifiable();
         _mockWebSocket.Setup(x => x.SendAsync(new ArraySegment<byte>(new byte[] { 1, 2, 3 }), WebSocketMessageType.Text, false, _token))
             .Returns(Task.CompletedTask).Verifiable();
         _mockWebSocket.Setup(x => x.SendAsync(new ArraySegment<byte>(new byte[] { }), WebSocketMessageType.Text, true, _token))
             .Returns(Task.Delay(delayMs)).Verifiable();
-        if (closesOutput) {
+        if (closesOutput)
+        {
             _mockWebSocket.Setup(x => x.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, null, _token))
                 .Returns(Task.CompletedTask).Verifiable();
         }
@@ -163,12 +168,16 @@ public class WebSocketConnectionTests : IDisposable
         SetupWebSocketReceive(new byte[] { 4, 5 }, new ValueWebSocketReceiveResult(2, WebSocketMessageType.Text, true));
         SetupWebSocketReceive(new byte[] { }, new ValueWebSocketReceiveResult(0, WebSocketMessageType.Close, true));
         _mockSerializer.Setup(x => x.ReadAsync<OperationMessage?>(It.IsAny<Stream>(), _token))
-            .Returns<Stream, CancellationToken>((stream, _) => {
+            .Returns<Stream, CancellationToken>((stream, _) =>
+            {
                 var buf = StreamToArray(stream);
-                if (buf.Length == 3) {
+                if (buf.Length == 3)
+                {
                     buf.ShouldBe(new byte[] { 1, 2, 3 });
                     return new ValueTask<OperationMessage?>(message);
-                } else {
+                }
+                else
+                {
                     buf.ShouldBe(new byte[] { 4, 5 });
                     return new ValueTask<OperationMessage?>(message2);
                 }
@@ -185,7 +194,8 @@ public class WebSocketConnectionTests : IDisposable
         var message = new OperationMessage();
         var message2 = new OperationMessage();
         mockReceiveStream.Setup(x => x.InitializeConnectionAsync()).Returns(Task.CompletedTask).Verifiable();
-        mockReceiveStream.Setup(x => x.OnMessageReceivedAsync(message)).Returns(() => {
+        mockReceiveStream.Setup(x => x.OnMessageReceivedAsync(message)).Returns(() =>
+        {
             return _connection.CloseAsync();
         }).Verifiable();
         mockReceiveStream.Setup(x => x.Dispose()).Verifiable();
@@ -193,12 +203,16 @@ public class WebSocketConnectionTests : IDisposable
         SetupWebSocketReceive(new byte[] { 4, 5 }, new ValueWebSocketReceiveResult(2, WebSocketMessageType.Text, true));
         SetupWebSocketReceive(new byte[] { }, new ValueWebSocketReceiveResult(0, WebSocketMessageType.Close, true));
         _mockSerializer.Setup(x => x.ReadAsync<OperationMessage?>(It.IsAny<Stream>(), _token))
-            .Returns<Stream, CancellationToken>((stream, _) => {
+            .Returns<Stream, CancellationToken>((stream, _) =>
+            {
                 var buf = StreamToArray(stream);
-                if (buf.Length == 3) {
+                if (buf.Length == 3)
+                {
                     buf.ShouldBe(new byte[] { 1, 2, 3 });
                     return new ValueTask<OperationMessage?>(message);
-                } else {
+                }
+                else
+                {
                     buf.ShouldBe(new byte[] { 4, 5 });
                     return new ValueTask<OperationMessage?>(message2);
                 }
@@ -223,12 +237,16 @@ public class WebSocketConnectionTests : IDisposable
         SetupWebSocketReceive(new byte[] { 6 }, new ValueWebSocketReceiveResult(1, WebSocketMessageType.Text, true));
         SetupWebSocketReceive(new byte[] { }, new ValueWebSocketReceiveResult(0, WebSocketMessageType.Close, true));
         _mockSerializer.Setup(x => x.ReadAsync<OperationMessage?>(It.IsAny<Stream>(), _token))
-            .Returns<Stream, CancellationToken>((stream, _) => {
+            .Returns<Stream, CancellationToken>((stream, _) =>
+            {
                 var buf = StreamToArray(stream);
-                if (buf.Length == 5) {
+                if (buf.Length == 5)
+                {
                     buf.ShouldBe(new byte[] { 1, 2, 3, 4, 5 });
                     return new ValueTask<OperationMessage?>(message);
-                } else {
+                }
+                else
+                {
                     buf.ShouldBe(new byte[] { 6 });
                     return new ValueTask<OperationMessage?>(message2);
                 }
@@ -250,7 +268,8 @@ public class WebSocketConnectionTests : IDisposable
         SetupWebSocketReceive(new byte[] { }, new ValueWebSocketReceiveResult(0, WebSocketMessageType.Text, true));
         SetupWebSocketReceive(new byte[] { }, new ValueWebSocketReceiveResult(0, WebSocketMessageType.Close, true));
         _mockSerializer.Setup(x => x.ReadAsync<OperationMessage?>(It.IsAny<Stream>(), _token))
-            .Returns<Stream, CancellationToken>((stream, _) => {
+            .Returns<Stream, CancellationToken>((stream, _) =>
+            {
                 StreamToArray(stream).ShouldBe(new byte[] { 1, 2, 3 });
                 return new ValueTask<OperationMessage?>(message);
             })
@@ -268,7 +287,8 @@ public class WebSocketConnectionTests : IDisposable
         SetupWebSocketReceive(new byte[] { 1, 2, 3 }, new ValueWebSocketReceiveResult(3, WebSocketMessageType.Text, true));
         SetupWebSocketReceive(new byte[] { }, new ValueWebSocketReceiveResult(0, WebSocketMessageType.Close, true));
         _mockSerializer.Setup(x => x.ReadAsync<OperationMessage?>(It.IsAny<Stream>(), _token))
-            .Returns<Stream, CancellationToken>((stream, _) => {
+            .Returns<Stream, CancellationToken>((stream, _) =>
+            {
                 StreamToArray(stream).ShouldBe(new byte[] { 1, 2, 3 });
                 return default;
             })
@@ -287,7 +307,8 @@ public class WebSocketConnectionTests : IDisposable
         SetupWebSocketReceive(new byte[] { }, new ValueWebSocketReceiveResult(0, WebSocketMessageType.Text, true));
         SetupWebSocketReceive(new byte[] { }, new ValueWebSocketReceiveResult(0, WebSocketMessageType.Close, true));
         _mockSerializer.Setup(x => x.ReadAsync<OperationMessage?>(It.IsAny<Stream>(), _token))
-            .Returns<Stream, CancellationToken>((stream, _) => {
+            .Returns<Stream, CancellationToken>((stream, _) =>
+            {
                 StreamToArray(stream).ShouldBe(new byte[] { 1, 2, 3 });
                 return default;
             })
@@ -312,12 +333,16 @@ public class WebSocketConnectionTests : IDisposable
         SetupWebSocketReceive(new byte[] { 6 }, new ValueWebSocketReceiveResult(1, WebSocketMessageType.Text, true));
         SetupWebSocketReceive(new byte[] { }, new ValueWebSocketReceiveResult(0, WebSocketMessageType.Close, true));
         _mockSerializer.Setup(x => x.ReadAsync<OperationMessage?>(It.IsAny<Stream>(), _token))
-            .Returns<Stream, CancellationToken>((stream, _) => {
+            .Returns<Stream, CancellationToken>((stream, _) =>
+            {
                 var buf = StreamToArray(stream);
-                if (buf.Length == 5) {
+                if (buf.Length == 5)
+                {
                     buf.ShouldBe(new byte[] { 1, 2, 3, 4, 5 });
                     return new ValueTask<OperationMessage?>(message);
-                } else {
+                }
+                else
+                {
                     buf.ShouldBe(new byte[] { 6 });
                     return new ValueTask<OperationMessage?>(message2);
                 }
@@ -342,12 +367,16 @@ public class WebSocketConnectionTests : IDisposable
         SetupWebSocketReceive(new byte[] { 6 }, new ValueWebSocketReceiveResult(1, WebSocketMessageType.Text, true));
         SetupWebSocketReceive(new byte[] { }, new ValueWebSocketReceiveResult(0, WebSocketMessageType.Close, true));
         _mockSerializer.Setup(x => x.ReadAsync<OperationMessage?>(It.IsAny<Stream>(), _token))
-            .Returns<Stream, CancellationToken>((stream, _) => {
+            .Returns<Stream, CancellationToken>((stream, _) =>
+            {
                 var buf = StreamToArray(stream);
-                if (buf.Length == 5) {
+                if (buf.Length == 5)
+                {
                     buf.ShouldBe(new byte[] { 1, 2, 3, 4, 5 });
                     return new ValueTask<OperationMessage?>(message);
-                } else {
+                }
+                else
+                {
                     buf.ShouldBe(new byte[] { 6 });
                     return new ValueTask<OperationMessage?>(message2);
                 }
@@ -414,7 +443,8 @@ public class WebSocketConnectionTests : IDisposable
         mockReceiveStream.Setup(x => x.Dispose());
         SetupWebSocketReceive(new byte[] { 1, 2, 3, 4, 5 }, new ValueWebSocketReceiveResult(5, WebSocketMessageType.Text, true), false);
         _mockSerializer.Setup(x => x.ReadAsync<OperationMessage>(It.IsAny<Stream>(), _token))
-            .Returns<Stream, CancellationToken>((_, token) => {
+            .Returns<Stream, CancellationToken>((_, token) =>
+            {
                 _cts.Cancel();
                 token.ThrowIfCancellationRequested();
                 return default;
@@ -433,7 +463,8 @@ public class WebSocketConnectionTests : IDisposable
         SetupWebSocketReceive(new byte[] { 1, 2, 3, 4, 5 }, new ValueWebSocketReceiveResult(5, WebSocketMessageType.Text, false), false);
         SetupWebSocketReceive(new byte[] { }, new ValueWebSocketReceiveResult(0, WebSocketMessageType.Text, true), false);
         _mockSerializer.Setup(x => x.ReadAsync<OperationMessage>(It.IsAny<Stream>(), _token))
-            .Returns<Stream, CancellationToken>((_, token) => {
+            .Returns<Stream, CancellationToken>((_, token) =>
+            {
                 _cts.Cancel();
                 token.ThrowIfCancellationRequested();
                 return default;

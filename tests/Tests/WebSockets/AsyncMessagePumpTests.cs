@@ -12,7 +12,8 @@ public class AsyncMessagePumpTests
     public void CallsSynchronously()
     {
         var sb = new StringBuilder();
-        var pump = new AsyncMessagePump<string>(t => {
+        var pump = new AsyncMessagePump<string>(t =>
+        {
             Thread.Sleep(int.Parse(t));
             sb.Append(t + " ");
             return Task.CompletedTask;
@@ -27,7 +28,8 @@ public class AsyncMessagePumpTests
     {
         var reset = new TaskCompletionSource<bool>();
         var sb = new StringBuilder();
-        var pump = new AsyncMessagePump<string>(async t => {
+        var pump = new AsyncMessagePump<string>(async t =>
+        {
             await Task.Delay(int.Parse(t));
             lock (sb)
                 sb.Append(t + " ");
@@ -46,14 +48,16 @@ public class AsyncMessagePumpTests
     {
         var reset = new TaskCompletionSource<bool>();
         var sb = new StringBuilder();
-        var pump = new AsyncMessagePump<string>(async t => {
+        var pump = new AsyncMessagePump<string>(async t =>
+        {
             await Task.Delay(int.Parse(t));
             lock (sb)
                 sb.Append(t + " ");
             if (t == "1")
                 reset.SetResult(true);
         });
-        Func<ValueTask<string>> func = async () => {
+        Func<ValueTask<string>> func = async () =>
+        {
             await Task.Delay(100);
             return "100";
         };
@@ -68,7 +72,8 @@ public class AsyncMessagePumpTests
     public void HandlesErrorsGracefully()
     {
         var sb = new StringBuilder();
-        var pump = new AsyncMessagePump<string>(t => {
+        var pump = new AsyncMessagePump<string>(t =>
+        {
             int.Parse(t);
             sb.Append(t + " ");
         });
@@ -82,7 +87,8 @@ public class AsyncMessagePumpTests
     public void HandlesErrorsGracefullyDerived()
     {
         var sb = new StringBuilder();
-        var pump = new DerivedAsyncMessagePump(t => {
+        var pump = new DerivedAsyncMessagePump(t =>
+        {
             int.Parse(t);
             sb.Append(t + " ");
         }, sb);

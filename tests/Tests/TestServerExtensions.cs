@@ -26,14 +26,16 @@ internal static class TestServerExtensions
     {
         // create websocket connection
         var webSocketClient = server.CreateWebSocketClient();
-        webSocketClient.ConfigureRequest = request => {
+        webSocketClient.ConfigureRequest = request =>
+        {
             request.Headers["Sec-WebSocket-Protocol"] = "graphql-transport-ws";
         };
         webSocketClient.SubProtocols.Add("graphql-transport-ws");
         using var webSocket = await webSocketClient.ConnectAsync(new Uri(server.BaseAddress, url), default);
 
         // send CONNECTION_INIT
-        await webSocket.SendMessageAsync(new OperationMessage {
+        await webSocket.SendMessageAsync(new OperationMessage
+        {
             Type = "connection_init"
         });
 
@@ -42,10 +44,12 @@ internal static class TestServerExtensions
         message.Type.ShouldBe("connection_ack");
 
         // subscribe
-        await webSocket.SendMessageAsync(new OperationMessage {
+        await webSocket.SendMessageAsync(new OperationMessage
+        {
             Type = "subscribe",
             Id = "123",
-            Payload = new GraphQLRequest {
+            Payload = new GraphQLRequest
+            {
                 Query = "subscription { events { type message { id message from } } }",
             },
         });
@@ -66,7 +70,8 @@ internal static class TestServerExtensions
         message.Payload.ShouldBe(@"{""data"":{""events"":{""type"":""NEW_MESSAGE"",""message"":{""id"":""1"",""message"":""hello"",""from"":""John Doe""}}}}");
 
         // unsubscribe
-        await webSocket.SendMessageAsync(new OperationMessage {
+        await webSocket.SendMessageAsync(new OperationMessage
+        {
             Type = "complete",
             Id = "123",
         });

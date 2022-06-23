@@ -52,14 +52,18 @@ public class NewSubscriptionServerTests : IDisposable
     [InlineData(true)]
     public async Task Message_Initialize(bool initialized)
     {
-        var message = new OperationMessage {
+        var message = new OperationMessage
+        {
             Type = "connection_init",
         };
-        if (initialized) {
+        if (initialized)
+        {
             _server.Do_TryInitialize();
             _mockServer.Protected().Setup<Task>("ErrorTooManyInitializationRequestsAsync", message)
                 .Returns(Task.CompletedTask).Verifiable();
-        } else {
+        }
+        else
+        {
             _mockServer.Protected().Setup<Task>("OnConnectionInitAsync", message, true)
                 .Returns(Task.CompletedTask).Verifiable();
         }
@@ -80,7 +84,8 @@ public class NewSubscriptionServerTests : IDisposable
     [InlineData("complete")]
     public async Task Message_ThrowsWhenNotInitialized(string? messageType)
     {
-        var message = new OperationMessage {
+        var message = new OperationMessage
+        {
             Type = messageType,
         };
         _mockServer.Protected().Setup<Task>("ErrorNotInitializedAsync", message)
@@ -99,7 +104,8 @@ public class NewSubscriptionServerTests : IDisposable
         var message = new OperationMessage { Type = "ping" };
         _mockServer.Protected().Setup<Task>("OnPingAsync", message)
             .Returns(Task.CompletedTask).Verifiable();
-        if (initialized) {
+        if (initialized)
+        {
             _server.Do_TryInitialize();
         }
         _mockServer.Setup(x => x.OnMessageReceivedAsync(message)).CallBase().Verifiable();
@@ -116,7 +122,8 @@ public class NewSubscriptionServerTests : IDisposable
         var message = new OperationMessage { Type = "pong" };
         _mockServer.Protected().Setup<Task>("OnPongAsync", message)
             .Returns(Task.CompletedTask).Verifiable();
-        if (initialized) {
+        if (initialized)
+        {
             _server.Do_TryInitialize();
         }
         _mockServer.Setup(x => x.OnMessageReceivedAsync(message)).CallBase().Verifiable();
@@ -257,13 +264,16 @@ public class NewSubscriptionServerTests : IDisposable
     [InlineData(false, false)]
     public async Task SendErrorResultAsync(bool wasSubscribed, bool hasErrorList)
     {
-        var result = new ExecutionResult() {
+        var result = new ExecutionResult()
+        {
             Errors = hasErrorList ? new ExecutionErrors { } : null,
         };
-        if (wasSubscribed) {
+        if (wasSubscribed)
+        {
             _server.Get_Subscriptions.TryAdd("abc", Mock.Of<IDisposable>());
             _mockStream.Setup(x => x.SendMessageAsync(It.IsAny<OperationMessage>()))
-                .Returns<OperationMessage>(o => {
+                .Returns<OperationMessage>(o =>
+                {
                     o.Id.ShouldBe("abc");
                     o.Type.ShouldBe("error");
                     o.Payload.ShouldBe(hasErrorList ? result.Errors : Array.Empty<ExecutionError>());
@@ -284,10 +294,12 @@ public class NewSubscriptionServerTests : IDisposable
     public async Task SendDataAsync(bool wasSubscribed)
     {
         var result = new ExecutionResult();
-        if (wasSubscribed) {
+        if (wasSubscribed)
+        {
             _server.Get_Subscriptions.TryAdd("abc", Mock.Of<IDisposable>());
             _mockStream.Setup(x => x.SendMessageAsync(It.IsAny<OperationMessage>()))
-                .Returns<OperationMessage>(o => {
+                .Returns<OperationMessage>(o =>
+                {
                     o.Id.ShouldBe("abc");
                     o.Type.ShouldBe("next");
                     o.Payload.ShouldBe(result);
@@ -308,10 +320,12 @@ public class NewSubscriptionServerTests : IDisposable
     public async Task SendCompletedAsync(bool wasSubscribed)
     {
         var result = new ExecutionResult();
-        if (wasSubscribed) {
+        if (wasSubscribed)
+        {
             _server.Get_Subscriptions.TryAdd("abc", Mock.Of<IDisposable>());
             _mockStream.Setup(x => x.SendMessageAsync(It.IsAny<OperationMessage>()))
-                .Returns<OperationMessage>(o => {
+                .Returns<OperationMessage>(o =>
+                {
                     o.Id.ShouldBe("abc");
                     o.Type.ShouldBe("complete");
                     o.Payload.ShouldBeNull();
@@ -330,10 +344,12 @@ public class NewSubscriptionServerTests : IDisposable
     public async Task ExecuteRequestAsync()
     {
         var payload = new object();
-        var message = new OperationMessage {
+        var message = new OperationMessage
+        {
             Payload = payload
         };
-        var request = new GraphQLRequest {
+        var request = new GraphQLRequest
+        {
             Query = "abc",
             Variables = new Inputs(new Dictionary<string, object?>()),
             Extensions = new Inputs(new Dictionary<string, object?>()),
@@ -353,7 +369,8 @@ public class NewSubscriptionServerTests : IDisposable
         var mockUserContext = new Mock<IDictionary<string, object?>>(MockBehavior.Strict);
         _server.Set_UserContext(mockUserContext.Object);
         _mockDocumentExecuter.Setup(x => x.ExecuteAsync(It.IsAny<ExecutionOptions>()))
-            .Returns<ExecutionOptions>(options => {
+            .Returns<ExecutionOptions>(options =>
+            {
                 options.ShouldNotBeNull();
                 options.Query.ShouldBe(request.Query);
                 options.Variables.ShouldBe(request.Variables);

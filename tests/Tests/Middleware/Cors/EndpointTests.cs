@@ -17,20 +17,23 @@ public class EndpointTests
         string url)
     {
         var hostBuilder = new WebHostBuilder();
-        hostBuilder.ConfigureServices(services => {
+        hostBuilder.ConfigureServices(services =>
+        {
             services.AddGraphQL(b => b
                 .AddAutoSchema<Query>()
                 .AddSystemTextJson());
             services.AddCors(configureCors);
             services.AddRouting();
         });
-        hostBuilder.Configure(app => {
+        hostBuilder.Configure(app =>
+        {
             app.UseRouting();
             if (configureCorsPolicy != null)
                 app.UseCors(configureCorsPolicy);
             else
                 app.UseCors();
-            app.UseEndpoints(endpoints => {
+            app.UseEndpoints(endpoints =>
+            {
                 var ep = endpoints.MapGraphQL(configureMiddleware: configureGraphQl);
                 configureGraphQlEndpoint(ep);
             });
@@ -38,20 +41,25 @@ public class EndpointTests
         using var server = new TestServer(hostBuilder);
         using var client = server.CreateClient();
         var request = new HttpRequestMessage(method, url);
-        if (method == HttpMethod.Post) {
+        if (method == HttpMethod.Post)
+        {
             var content = new StringContent("{hello}");
             content.Headers.ContentType = new("application/graphql");
             request.Content = content;
-        } else {
+        }
+        else
+        {
             request.Headers.Add("Access-Control-Request-Method", "POST");
         }
         configureHeaders(request.Headers);
         using var response = await client.SendAsync(request);
-        if (method == HttpMethod.Post) {
+        if (method == HttpMethod.Post)
+        {
             (await response.Content.ReadAsStringAsync()).ShouldBe(@"{""data"":{""hello"":""world""}}");
         }
         response.EnsureSuccessStatusCode();
-        return new CorsResponse {
+        return new CorsResponse
+        {
             AllowCredentials = response.Headers.TryGetValues("Access-Control-Allow-Credentials", out var values) ? bool.Parse(values.Single()) : null,
             AllowHeaders = response.Headers.TryGetValues("Access-Control-Allow-Headers", out var values2) ? values2.Single() : null,
             AllowMethods = response.Headers.TryGetValues("Access-Control-Allow-Methods", out var values3) ? values3.Single() : null,
@@ -84,7 +92,8 @@ public class EndpointTests
             configureCorsPolicy: _ => { },
             configureGraphQl: _ => { },
             configureGraphQlEndpoint: _ => { },
-            configureHeaders: headers => {
+            configureHeaders: headers =>
+            {
                 headers.Add("Origin", "http://www.example.com");
             },
             url);
@@ -105,23 +114,28 @@ public class EndpointTests
         var ret = await ExecuteEndpoint(
             httpMethod == "POST" ? HttpMethod.Post : httpMethod == "OPTIONS" ? HttpMethod.Options : throw new ArgumentOutOfRangeException(nameof(httpMethod)),
             configureCors: _ => { },
-            configureCorsPolicy: b => {
+            configureCorsPolicy: b =>
+            {
                 b.AllowCredentials();
                 b.WithOrigins("http://www.example.com", "http://www.example2.com");
             },
             configureGraphQl: _ => { },
             configureGraphQlEndpoint: _ => { },
-            configureHeaders: headers => {
+            configureHeaders: headers =>
+            {
                 headers.Add("Origin", pass ? "http://www.example.com" : "http://www.dummy.com");
             },
             "/graphql");
 
         ret.AllowHeaders.ShouldBeNull();
         ret.AllowMethods.ShouldBeNull();
-        if (pass) {
+        if (pass)
+        {
             ret.AllowCredentials.ShouldBe(true);
             ret.AllowOrigin.ShouldBe("http://www.example.com");
-        } else {
+        }
+        else
+        {
             ret.AllowCredentials.ShouldBeNull();
             ret.AllowOrigin.ShouldBeNull();
         }
@@ -136,8 +150,10 @@ public class EndpointTests
     {
         var ret = await ExecuteEndpoint(
             httpMethod == "POST" ? HttpMethod.Post : httpMethod == "OPTIONS" ? HttpMethod.Options : throw new ArgumentOutOfRangeException(nameof(httpMethod)),
-            configureCors: opts => {
-                opts.AddPolicy("MyCorsPolicy", b => {
+            configureCors: opts =>
+            {
+                opts.AddPolicy("MyCorsPolicy", b =>
+                {
                     b.AllowCredentials();
                     b.WithOrigins("http://www.example.com", "http://www.example2.com");
                 });
@@ -145,17 +161,21 @@ public class EndpointTests
             configureCorsPolicy: null,
             configureGraphQl: _ => { },
             configureGraphQlEndpoint: ep => ep.RequireCors("MyCorsPolicy"),
-            configureHeaders: headers => {
+            configureHeaders: headers =>
+            {
                 headers.Add("Origin", pass ? "http://www.example.com" : "http://www.dummy.com");
             },
             "/graphql");
 
         ret.AllowHeaders.ShouldBeNull();
         ret.AllowMethods.ShouldBeNull();
-        if (pass) {
+        if (pass)
+        {
             ret.AllowCredentials.ShouldBe(true);
             ret.AllowOrigin.ShouldBe("http://www.example.com");
-        } else {
+        }
+        else
+        {
             ret.AllowCredentials.ShouldBeNull();
             ret.AllowOrigin.ShouldBeNull();
         }
@@ -170,29 +190,36 @@ public class EndpointTests
     {
         var ret = await ExecuteEndpoint(
             httpMethod == "POST" ? HttpMethod.Post : httpMethod == "OPTIONS" ? HttpMethod.Options : throw new ArgumentOutOfRangeException(nameof(httpMethod)),
-            configureCors: opts => {
-                opts.AddPolicy("MyCorsPolicy", b => {
+            configureCors: opts =>
+            {
+                opts.AddPolicy("MyCorsPolicy", b =>
+                {
                     b.AllowCredentials();
                     b.WithOrigins("http://www.example.com", "http://www.example2.com");
                 });
-                opts.AddDefaultPolicy(b => {
+                opts.AddDefaultPolicy(b =>
+                {
                     b.WithOrigins("http://www.alternate.com");
                 });
             },
             configureCorsPolicy: null,
             configureGraphQl: _ => { },
             configureGraphQlEndpoint: ep => ep.RequireCors("MyCorsPolicy"),
-            configureHeaders: headers => {
+            configureHeaders: headers =>
+            {
                 headers.Add("Origin", pass ? "http://www.example.com" : "http://www.dummy.com");
             },
             "/graphql");
 
         ret.AllowHeaders.ShouldBeNull();
         ret.AllowMethods.ShouldBeNull();
-        if (pass) {
+        if (pass)
+        {
             ret.AllowCredentials.ShouldBe(true);
             ret.AllowOrigin.ShouldBe("http://www.example.com");
-        } else {
+        }
+        else
+        {
             ret.AllowCredentials.ShouldBeNull();
             ret.AllowOrigin.ShouldBeNull();
         }

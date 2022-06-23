@@ -28,7 +28,8 @@ public static class WebSocketExtensions
         cts.CancelAfter(5000);
         var mem = new MemoryStream();
         ValueWebSocketReceiveResult response;
-        do {
+        do
+        {
             var buffer = new byte[1024];
             response = await socket.ReceiveAsync(new MemoryBytes(buffer), cts.Token);
             mem.Write(buffer, 0, response.Count);
@@ -47,7 +48,8 @@ public static class WebSocketExtensions
         cts.CancelAfter(5000);
         var mem = new MemoryStream();
         ValueWebSocketReceiveResult response;
-        do {
+        do
+        {
             var buffer = new byte[1024];
             response = await socket.ReceiveAsync(new MemoryBytes(buffer), cts.Token);
             mem.Write(buffer, 0, response.Count);

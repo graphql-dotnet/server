@@ -15,7 +15,8 @@ public class WebSocketTests : IDisposable
             configureServices = _ => { };
 
         var hostBuilder = new WebHostBuilder();
-        hostBuilder.ConfigureServices(services => {
+        hostBuilder.ConfigureServices(services =>
+        {
             services.AddSingleton<Chat.IChat, Chat.Chat>();
             services.AddGraphQL(b => b
                 .AddAutoSchema<Chat.Query>(s => s
@@ -28,7 +29,8 @@ public class WebSocketTests : IDisposable
 #endif
             configureServices(services);
         });
-        hostBuilder.Configure(app => {
+        hostBuilder.Configure(app =>
+        {
             app.UseWebSockets();
             app.UseGraphQL("/graphql", configureOptions);
             app.UseGraphQL<Schema2>("/graphql2", configureOptions);
@@ -57,7 +59,8 @@ public class WebSocketTests : IDisposable
     private WebSocketClient BuildClient(string subProtocol = "graphql-ws")
     {
         var webSocketClient = _server.CreateWebSocketClient();
-        webSocketClient.ConfigureRequest = request => {
+        webSocketClient.ConfigureRequest = request =>
+        {
             request.Headers["Sec-WebSocket-Protocol"] = subProtocol;
         };
         webSocketClient.SubProtocols.Add(subProtocol);
@@ -68,14 +71,16 @@ public class WebSocketTests : IDisposable
     public async Task NoConfiguredHandlers()
     {
         var hostBuilder = new WebHostBuilder();
-        hostBuilder.ConfigureServices(services => {
+        hostBuilder.ConfigureServices(services =>
+        {
             services.AddSingleton<Chat.IChat, Chat.Chat>();
             services.AddGraphQL(b => b
                 .AddSchema<Schema2>()
                 .AddSystemTextJson());
         });
 
-        hostBuilder.Configure(app => {
+        hostBuilder.Configure(app =>
+        {
             app.UseWebSockets();
             app.UseGraphQL<TestMiddleware>("/graphql", new object[] { new string[] { } });
         });
@@ -91,13 +96,15 @@ public class WebSocketTests : IDisposable
     public async Task UnsupportedHandler()
     {
         var hostBuilder = new WebHostBuilder();
-        hostBuilder.ConfigureServices(services => {
+        hostBuilder.ConfigureServices(services =>
+        {
             services.AddSingleton<Chat.IChat, Chat.Chat>();
             services.AddGraphQL(b => b
                 .AddSchema<Schema2>()
                 .AddSystemTextJson());
         });
-        hostBuilder.Configure(app => {
+        hostBuilder.Configure(app =>
+        {
             app.UseWebSockets();
             app.UseGraphQL<TestMiddleware>("/graphql", new object[] { new string[] { "unsupported" } });
         });
@@ -128,7 +135,8 @@ public class WebSocketTests : IDisposable
         var tuple = new Tuple<CancellationTokenSource, TaskCompletionSource<bool>>(new(), new());
 
         var hostBuilder = new WebHostBuilder();
-        hostBuilder.ConfigureServices(services => {
+        hostBuilder.ConfigureServices(services =>
+        {
             services.AddSingleton<Chat.IChat, Chat.Chat>();
             services.AddGraphQL(b => b
                 .AddSchema<Schema2>()
@@ -136,7 +144,8 @@ public class WebSocketTests : IDisposable
             services.AddSingleton(tuple);
         });
 
-        hostBuilder.Configure(app => {
+        hostBuilder.Configure(app =>
+        {
             app.UseWebSockets();
             var options = new GraphQLHttpMiddlewareOptions();
             options.WebSockets.ConnectionInitWaitTimeout = Timeout.InfiniteTimeSpan;
@@ -146,11 +155,14 @@ public class WebSocketTests : IDisposable
         _server = new TestServer(hostBuilder);
 
         var webSocketClient = BuildClient();
-        if (beforeConnect) {
+        if (beforeConnect)
+        {
             tuple.Item1.Cancel();
             using var socket = await webSocketClient.ConnectAsync(new Uri(_server.BaseAddress, "/graphql"), default);
             await tuple.Item2.Task;
-        } else {
+        }
+        else
+        {
             using var socket = await webSocketClient.ConnectAsync(new Uri(_server.BaseAddress, "/graphql"), default);
             await Task.WhenAny(Task.Delay(1000), tuple.Item2.Task);
             tuple.Item2.Task.IsCompleted.ShouldBeFalse();

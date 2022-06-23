@@ -12,7 +12,8 @@ public class GetTests : IDisposable
     public GetTests()
     {
         var hostBuilder = new WebHostBuilder();
-        hostBuilder.ConfigureServices(services => {
+        hostBuilder.ConfigureServices(services =>
+        {
             services.AddSingleton<Chat.IChat, Chat.Chat>();
             services.AddGraphQL(b => b
                 .AddAutoSchema<Chat.Query>(s => s
@@ -25,12 +26,15 @@ public class GetTests : IDisposable
             services.AddHostApplicationLifetime();
 #endif
         });
-        hostBuilder.Configure(app => {
+        hostBuilder.Configure(app =>
+        {
             app.UseWebSockets();
-            app.UseGraphQL("/graphql", opts => {
+            app.UseGraphQL("/graphql", opts =>
+            {
                 _options = opts;
             });
-            app.UseGraphQL<Schema2>("/graphql2", opts => {
+            app.UseGraphQL<Schema2>("/graphql2", opts =>
+            {
                 _options2 = opts;
             });
         });
@@ -65,7 +69,8 @@ public class GetTests : IDisposable
     public async Task NoUseWebSockets()
     {
         var hostBuilder = new WebHostBuilder();
-        hostBuilder.ConfigureServices(services => {
+        hostBuilder.ConfigureServices(services =>
+        {
             services.AddSingleton<Chat.IChat, Chat.Chat>();
             services.AddGraphQL(b => b
                 .AddAutoSchema<Chat.Query>()
@@ -166,9 +171,12 @@ public class GetTests : IDisposable
         _options.ValidationErrorsReturnBadRequest = false;
         var client = _server.CreateClient();
         using var response = await client.GetAsync("/graphql?query=query($from:String!){allMessages(from:$from){id}}&variables={%22from%22:%22abc%22}");
-        if (readVariablesFromQueryString) {
+        if (readVariablesFromQueryString)
+        {
             await response.ShouldBeAsync(@"{""data"":{""allMessages"":[]}}");
-        } else {
+        }
+        else
+        {
             await response.ShouldBeAsync(@"{""errors"":[{""message"":""Variable \u0027$from\u0027 is invalid. No value provided for a non-null variable."",""locations"":[{""line"":1,""column"":7}],""extensions"":{""code"":""INVALID_VALUE"",""codes"":[""INVALID_VALUE""],""number"":""5.8""}}]}");
         }
     }

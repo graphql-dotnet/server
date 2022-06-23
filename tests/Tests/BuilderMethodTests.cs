@@ -7,7 +7,8 @@ public class BuilderMethodTests
     public BuilderMethodTests()
     {
         _hostBuilder = new WebHostBuilder();
-        _hostBuilder.ConfigureServices(services => {
+        _hostBuilder.ConfigureServices(services =>
+        {
             services.AddSingleton<Chat.IChat, Chat.Chat>();
             services.AddGraphQL(b => b
                 .AddAutoSchema<Chat.Query>(s => s
@@ -79,7 +80,8 @@ public class BuilderMethodTests
     [InlineData("/graphql2")]
     public async Task Basic(string url)
     {
-        _hostBuilder.Configure(app => {
+        _hostBuilder.Configure(app =>
+        {
             app.UseWebSockets();
             app.UseGraphQL(url);
         });
@@ -91,7 +93,8 @@ public class BuilderMethodTests
     [InlineData("/graphql/more")]
     public async Task Basic_FailedConnection(string url)
     {
-        _hostBuilder.Configure(app => {
+        _hostBuilder.Configure(app =>
+        {
             app.UseWebSockets();
             app.UseGraphQL();
         });
@@ -104,14 +107,19 @@ public class BuilderMethodTests
     [Fact]
     public async Task Basic_NoGet()
     {
-        _hostBuilder.Configure(app => {
+        _hostBuilder.Configure(app =>
+        {
             app.UseWebSockets();
             app.UseGraphQL(configureMiddleware: b => b.HandleGet = false);
-            app.Use(next => context => {
-                if (context.Request.Path.Equals(new PathString("/graphql")) && context.Request.Method == HttpMethods.Get) {
+            app.Use(next => context =>
+            {
+                if (context.Request.Path.Equals(new PathString("/graphql")) && context.Request.Method == HttpMethods.Get)
+                {
                     context.Response.StatusCode = StatusCodes.Status202Accepted;
                     return Task.CompletedTask;
-                } else {
+                }
+                else
+                {
                     return next(context);
                 }
             });
@@ -125,7 +133,8 @@ public class BuilderMethodTests
     [Fact]
     public async Task Basic_CaseInsensitive()
     {
-        _hostBuilder.Configure(app => {
+        _hostBuilder.Configure(app =>
+        {
             app.UseWebSockets();
             app.UseGraphQL("/GRAPHQL");
         });
@@ -135,7 +144,8 @@ public class BuilderMethodTests
     [Fact]
     public async Task Basic_PathString()
     {
-        _hostBuilder.Configure(app => {
+        _hostBuilder.Configure(app =>
+        {
             app.UseWebSockets();
             app.UseGraphQL(new PathString("/graphql"));
         });
@@ -145,7 +155,8 @@ public class BuilderMethodTests
     [Fact]
     public async Task Basic_WithSchema()
     {
-        _hostBuilder.Configure(app => {
+        _hostBuilder.Configure(app =>
+        {
             app.UseWebSockets();
             app.UseGraphQL<ISchema>("/graphql");
         });
@@ -155,7 +166,8 @@ public class BuilderMethodTests
     [Fact]
     public async Task Basic_PathString_WithSchema()
     {
-        _hostBuilder.Configure(app => {
+        _hostBuilder.Configure(app =>
+        {
             app.UseWebSockets();
             app.UseGraphQL<ISchema>(new PathString("/graphql"));
         });
@@ -165,7 +177,8 @@ public class BuilderMethodTests
     [Fact]
     public async Task SpecificMiddleware()
     {
-        _hostBuilder.Configure(app => {
+        _hostBuilder.Configure(app =>
+        {
             app.UseWebSockets();
             app.UseGraphQL<GraphQLHttpMiddleware<ISchema>>("/graphql", new GraphQLHttpMiddlewareOptions());
         });
@@ -175,7 +188,8 @@ public class BuilderMethodTests
     [Fact]
     public async Task SpecificMiddleware_PathString()
     {
-        _hostBuilder.Configure(app => {
+        _hostBuilder.Configure(app =>
+        {
             app.UseWebSockets();
             app.UseGraphQL<GraphQLHttpMiddleware<ISchema>>(new PathString("/graphql"), new GraphQLHttpMiddlewareOptions());
         });
@@ -190,10 +204,12 @@ public class BuilderMethodTests
     public async Task EndpointRouting(string pattern, string url)
     {
         _hostBuilder.ConfigureServices(services => services.AddRouting());
-        _hostBuilder.Configure(app => {
+        _hostBuilder.Configure(app =>
+        {
             app.UseWebSockets();
             app.UseRouting();
-            app.UseEndpoints(endpoints => {
+            app.UseEndpoints(endpoints =>
+            {
                 endpoints.MapGraphQL(pattern);
             });
         });
@@ -203,10 +219,12 @@ public class BuilderMethodTests
     public async Task EndpointRouting_Invalid()
     {
         _hostBuilder.ConfigureServices(services => services.AddRouting());
-        _hostBuilder.Configure(app => {
+        _hostBuilder.Configure(app =>
+        {
             app.UseWebSockets();
             app.UseRouting();
-            app.UseEndpoints(endpoints => {
+            app.UseEndpoints(endpoints =>
+            {
                 endpoints.MapGraphQL<ISchema>("graphql");
             });
         });
@@ -220,12 +238,15 @@ public class BuilderMethodTests
     public async Task EndpointRouting_NoGet()
     {
         _hostBuilder.ConfigureServices(services => services.AddRouting());
-        _hostBuilder.Configure(app => {
+        _hostBuilder.Configure(app =>
+        {
             app.UseWebSockets();
             app.UseRouting();
-            app.UseEndpoints(endpoints => {
+            app.UseEndpoints(endpoints =>
+            {
                 endpoints.MapGraphQL<ISchema>("graphql", configureMiddleware: b => b.HandleGet = false);
-                endpoints.MapGet("/graphql", context => {
+                endpoints.MapGet("/graphql", context =>
+                {
                     context.Response.StatusCode = StatusCodes.Status202Accepted;
                     return Task.CompletedTask;
                 });
@@ -243,10 +264,12 @@ public class BuilderMethodTests
     public async Task EndpointRouting_WithSchema()
     {
         _hostBuilder.ConfigureServices(services => services.AddRouting());
-        _hostBuilder.Configure(app => {
+        _hostBuilder.Configure(app =>
+        {
             app.UseWebSockets();
             app.UseRouting();
-            app.UseEndpoints(endpoints => {
+            app.UseEndpoints(endpoints =>
+            {
                 endpoints.MapGraphQL<ISchema>("graphql");
             });
         });
@@ -257,10 +280,12 @@ public class BuilderMethodTests
     public async Task EndpointRouting_WithMiddleware()
     {
         _hostBuilder.ConfigureServices(services => services.AddRouting());
-        _hostBuilder.Configure(app => {
+        _hostBuilder.Configure(app =>
+        {
             app.UseWebSockets();
             app.UseRouting();
-            app.UseEndpoints(endpoints => {
+            app.UseEndpoints(endpoints =>
+            {
                 endpoints.MapGraphQL<GraphQLHttpMiddleware<ISchema>>("graphql", new GraphQLHttpMiddlewareOptions());
             });
         });
@@ -271,7 +296,8 @@ public class BuilderMethodTests
     [Fact]
     public async Task UserContextBuilder_Configure1()
     {
-        _hostBuilder.ConfigureServices(services => {
+        _hostBuilder.ConfigureServices(services =>
+        {
             services.AddGraphQL(b => b.AddUserContextBuilder<MyUserContextBuilder>());
         });
         await VerifyUserContextAsync("fromBuilder");
@@ -280,7 +306,8 @@ public class BuilderMethodTests
     [Fact]
     public async Task UserContextBuilder_Configure2()
     {
-        _hostBuilder.ConfigureServices(services => {
+        _hostBuilder.ConfigureServices(services =>
+        {
             services.AddGraphQL(b => b.AddUserContextBuilder(context => Task.FromResult(new MyUserContext { UserInfo = "test2" })));
         });
         await VerifyUserContextAsync("test2");
@@ -289,7 +316,8 @@ public class BuilderMethodTests
     [Fact]
     public async Task UserContextBuilder_Configure3()
     {
-        _hostBuilder.ConfigureServices(services => {
+        _hostBuilder.ConfigureServices(services =>
+        {
             services.AddGraphQL(b => b.AddUserContextBuilder(context => new MyUserContext { UserInfo = "test3" }));
         });
         await VerifyUserContextAsync("test3");
@@ -303,7 +331,8 @@ public class BuilderMethodTests
 
     private async Task VerifyUserContextAsync(string value)
     {
-        _hostBuilder.Configure(app => {
+        _hostBuilder.Configure(app =>
+        {
             app.UseWebSockets();
             app.UseGraphQL<Schema2>();
         });

@@ -12,7 +12,8 @@ public class PostTests : IDisposable
     public PostTests()
     {
         var hostBuilder = new WebHostBuilder();
-        hostBuilder.ConfigureServices(services => {
+        hostBuilder.ConfigureServices(services =>
+        {
             services.AddSingleton<Chat.IChat, Chat.Chat>();
             services.AddGraphQL(b => b
                 .AddAutoSchema<Chat.Query>(s => s
@@ -25,12 +26,15 @@ public class PostTests : IDisposable
             services.AddHostApplicationLifetime();
 #endif
         });
-        hostBuilder.Configure(app => {
+        hostBuilder.Configure(app =>
+        {
             app.UseWebSockets();
-            app.UseGraphQL("/graphql", opts => {
+            app.UseGraphQL("/graphql", opts =>
+            {
                 _options = opts;
             });
-            app.UseGraphQL<Schema2>("/graphql2", opts => {
+            app.UseGraphQL<Schema2>("/graphql2", opts =>
+            {
                 _options2 = opts;
             });
         });
@@ -288,7 +292,8 @@ public class PostTests : IDisposable
     [Fact]
     public async Task WithVariables()
     {
-        using var response = await PostRequestAsync("/graphql2", new() {
+        using var response = await PostRequestAsync("/graphql2", new()
+        {
             Query = "query($test:String){var(test:$test)}",
             Variables = new Inputs(new Dictionary<string, object?> {
                 { "test", "abc" }
@@ -336,7 +341,8 @@ public class PostTests : IDisposable
         _options2.ReadVariablesFromQueryString = readVariablesFromQueryString;
         _options2.ReadExtensionsFromQueryString = readExtensionsFromQueryString;
         var url = "/graphql2?query=query op1($test:String!){altext:ext var(test:$test)} query op2($test:String!){var(test:$test) altext:ext}&operationName=op2&variables={%22test%22:%22urlvar%22}&extensions={%22test%22:%22urlext%22}";
-        var request = new GraphQLRequest {
+        var request = new GraphQLRequest
+        {
             Query = "query op1($test:String!){ext var(test:$test)} query op2($test:String!){var(test:$test) ext}",
             Variables = new Inputs(new Dictionary<string, object?> {
                 { "test", "postvar" }
