@@ -1,23 +1,5 @@
 namespace GraphQL.Server
 {
-    public static class GraphQLBuilderExtensions
-    {
-        public static GraphQL.DI.IGraphQLBuilder AddAuthorization(this GraphQL.DI.IGraphQLBuilder builder) { }
-        public static GraphQL.DI.IGraphQLBuilder AddUserContextBuilder<TUserContextBuilder>(this GraphQL.DI.IGraphQLBuilder builder)
-            where TUserContextBuilder :  class, GraphQL.Server.Transports.AspNetCore.IUserContextBuilder { }
-        public static GraphQL.DI.IGraphQLBuilder AddUserContextBuilder<TUserContext>(this GraphQL.DI.IGraphQLBuilder builder, System.Func<Microsoft.AspNetCore.Http.HttpContext, System.Threading.Tasks.Task<TUserContext>> creator)
-            where TUserContext :  class, System.Collections.Generic.IDictionary<string, object?> { }
-        public static GraphQL.DI.IGraphQLBuilder AddUserContextBuilder<TUserContext>(this GraphQL.DI.IGraphQLBuilder builder, System.Func<Microsoft.AspNetCore.Http.HttpContext, TUserContext> creator)
-            where TUserContext :  class, System.Collections.Generic.IDictionary<string, object?> { }
-        public static GraphQL.DI.IGraphQLBuilder AddUserContextBuilder<TUserContext>(this GraphQL.DI.IGraphQLBuilder builder, System.Func<Microsoft.AspNetCore.Http.HttpContext, object?, System.Threading.Tasks.Task<TUserContext>> creator)
-            where TUserContext :  class, System.Collections.Generic.IDictionary<string, object?> { }
-        public static GraphQL.DI.IGraphQLBuilder AddUserContextBuilder<TUserContext>(this GraphQL.DI.IGraphQLBuilder builder, System.Func<Microsoft.AspNetCore.Http.HttpContext, object?, TUserContext> creator)
-            where TUserContext :  class, System.Collections.Generic.IDictionary<string, object?> { }
-        public static GraphQL.DI.IGraphQLBuilder AddWebSocketAuthentication(this GraphQL.DI.IGraphQLBuilder builder, GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketAuthenticationService webSocketAuthenticationService) { }
-        public static GraphQL.DI.IGraphQLBuilder AddWebSocketAuthentication(this GraphQL.DI.IGraphQLBuilder builder, System.Func<System.IServiceProvider, GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketAuthenticationService> factory) { }
-        public static GraphQL.DI.IGraphQLBuilder AddWebSocketAuthentication<TWebSocketAuthenticationService>(this GraphQL.DI.IGraphQLBuilder builder)
-            where TWebSocketAuthenticationService :  class, GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketAuthenticationService { }
-    }
     public static class ServiceCollectionExtensions
     {
         public static void AddHostApplicationLifetime(this Microsoft.Extensions.DependencyInjection.IServiceCollection services) { }
@@ -381,6 +363,27 @@ namespace GraphQL.Server.Transports.AspNetCore.WebSockets.SubscriptionsTransport
         protected override System.Threading.Tasks.Task SendCompletedAsync(string id) { }
         protected override System.Threading.Tasks.Task SendDataAsync(string id, GraphQL.ExecutionResult result) { }
         protected override System.Threading.Tasks.Task SendErrorResultAsync(string id, GraphQL.ExecutionResult result) { }
+    }
+}
+namespace GraphQL
+{
+    public static class ServerGraphQLBuilderExtensions
+    {
+        public static GraphQL.DI.IGraphQLBuilder AddAuthorization(this GraphQL.DI.IGraphQLBuilder builder) { }
+        public static GraphQL.DI.IGraphQLBuilder AddUserContextBuilder<TUserContextBuilder>(this GraphQL.DI.IGraphQLBuilder builder)
+            where TUserContextBuilder :  class, GraphQL.Server.Transports.AspNetCore.IUserContextBuilder { }
+        public static GraphQL.DI.IGraphQLBuilder AddUserContextBuilder<TUserContext>(this GraphQL.DI.IGraphQLBuilder builder, System.Func<Microsoft.AspNetCore.Http.HttpContext, System.Threading.Tasks.Task<TUserContext>> creator)
+            where TUserContext :  class, System.Collections.Generic.IDictionary<string, object?> { }
+        public static GraphQL.DI.IGraphQLBuilder AddUserContextBuilder<TUserContext>(this GraphQL.DI.IGraphQLBuilder builder, System.Func<Microsoft.AspNetCore.Http.HttpContext, TUserContext> creator)
+            where TUserContext :  class, System.Collections.Generic.IDictionary<string, object?> { }
+        public static GraphQL.DI.IGraphQLBuilder AddUserContextBuilder<TUserContext>(this GraphQL.DI.IGraphQLBuilder builder, System.Func<Microsoft.AspNetCore.Http.HttpContext, object?, System.Threading.Tasks.Task<TUserContext>> creator)
+            where TUserContext :  class, System.Collections.Generic.IDictionary<string, object?> { }
+        public static GraphQL.DI.IGraphQLBuilder AddUserContextBuilder<TUserContext>(this GraphQL.DI.IGraphQLBuilder builder, System.Func<Microsoft.AspNetCore.Http.HttpContext, object?, TUserContext> creator)
+            where TUserContext :  class, System.Collections.Generic.IDictionary<string, object?> { }
+        public static GraphQL.DI.IGraphQLBuilder AddWebSocketAuthentication(this GraphQL.DI.IGraphQLBuilder builder, GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketAuthenticationService webSocketAuthenticationService) { }
+        public static GraphQL.DI.IGraphQLBuilder AddWebSocketAuthentication(this GraphQL.DI.IGraphQLBuilder builder, System.Func<System.IServiceProvider, GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketAuthenticationService> factory) { }
+        public static GraphQL.DI.IGraphQLBuilder AddWebSocketAuthentication<TWebSocketAuthenticationService>(this GraphQL.DI.IGraphQLBuilder builder)
+            where TWebSocketAuthenticationService :  class, GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketAuthenticationService { }
     }
 }
 namespace Microsoft.AspNetCore.Builder
