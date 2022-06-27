@@ -12,7 +12,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="GraphQL.MicrosoftDI" Version="$(GraphQLVersion)" />
     <PackageReference Include="GraphQL.SystemTextJson" Version="$(GraphQLVersion)" />
   </ItemGroup>
 
