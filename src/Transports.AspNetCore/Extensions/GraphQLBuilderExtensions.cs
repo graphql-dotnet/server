@@ -1,9 +1,9 @@
-namespace GraphQL.Server;
+namespace GraphQL;
 
 /// <summary>
 /// Extension methods for <see cref="IGraphQLBuilder"/>.
 /// </summary>
-public static class GraphQLBuilderExtensions
+public static class ServerGraphQLBuilderExtensions
 {
     /// <summary>
     /// Registers the specified <typeparamref name="TUserContextBuilder"/> as a singleton of

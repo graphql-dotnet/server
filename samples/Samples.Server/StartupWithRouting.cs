@@ -2,7 +2,6 @@ using GraphQL.DataLoader;
 using GraphQL.Execution;
 using GraphQL.MicrosoftDI;
 using GraphQL.Samples.Schemas.Chat;
-using GraphQL.Server;
 using GraphQL.Server.Transports.AspNetCore;
 using GraphQL.Server.Ui.Altair;
 using GraphQL.Server.Ui.GraphiQL;
