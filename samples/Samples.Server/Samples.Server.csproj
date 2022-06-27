@@ -12,8 +12,6 @@
     <PackageReference Include="GraphQL.DataLoader" Version="$(GraphQLVersion)" />
     <PackageReference Include="Serilog.AspNetCore" Version="5.0.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="4.0.1" />
-    <PackageReference Include="GraphQL.MicrosoftDI" Version="$(GraphQLVersion)" />
-    <PackageReference Include="GraphQL.SystemTextJson" Version="$(GraphQLVersion)" />
   </ItemGroup>
 
   <ItemGroup>
