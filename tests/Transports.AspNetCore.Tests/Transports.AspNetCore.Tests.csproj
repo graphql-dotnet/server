@@ -8,8 +8,8 @@
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Castle.Core" Version="5.0.0" />
-    <PackageReference Include="GraphQL.SystemTextJson" Version="5.1.1" />
-    <PackageReference Include="GraphQL.NewtonsoftJson" Version="5.1.1" />
+    <PackageReference Include="GraphQL.SystemTextJson" Version="$(GraphQLVersion)" />
+    <PackageReference Include="GraphQL.NewtonsoftJson" Version="$(GraphQLVersion)" />
   </ItemGroup>
 
   <ItemGroup>
