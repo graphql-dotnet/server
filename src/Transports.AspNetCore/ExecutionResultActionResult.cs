@@ -22,13 +22,16 @@ public sealed class ExecutionResultActionResult : IActionResult
         _statusCode = statusCode;
     }
 
+    /// <inheritdoc cref="HttpResponse.ContentType"/>
+    public string ContentType { get; set; } = GraphQLHttpMiddleware.CONTENTTYPE_GRAPHQLJSON;
+
     /// <inheritdoc/>
     public async Task ExecuteResultAsync(ActionContext context)
     {
-        var writer = context.HttpContext.RequestServices.GetRequiredService<IGraphQLSerializer>();
+        var serializer = context.HttpContext.RequestServices.GetRequiredService<IGraphQLSerializer>();
         var response = context.HttpContext.Response;
-        response.ContentType = GraphQLHttpMiddleware.CONTENTTYPE_GRAPHQLJSON;
+        response.ContentType = ContentType;
         response.StatusCode = (int)_statusCode;
-        await writer.WriteAsync(response.Body, _executionResult, context.HttpContext.RequestAborted);
+        await serializer.WriteAsync(response.Body, _executionResult, context.HttpContext.RequestAborted);
     }
 }

@@ -65,6 +65,7 @@ namespace GraphQL.Server.Transports.AspNetCore
     {
         public ExecutionResultActionResult(GraphQL.ExecutionResult executionResult) { }
         public ExecutionResultActionResult(GraphQL.ExecutionResult executionResult, System.Net.HttpStatusCode statusCode) { }
+        public string ContentType { get; set; }
         public System.Threading.Tasks.Task ExecuteResultAsync(Microsoft.AspNetCore.Mvc.ActionContext context) { }
     }
     public class GraphQLHttpMiddleware : GraphQL.Server.Transports.AspNetCore.IUserContextBuilder
