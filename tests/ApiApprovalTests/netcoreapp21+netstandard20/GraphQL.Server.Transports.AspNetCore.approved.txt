@@ -61,6 +61,13 @@ namespace GraphQL.Server.Transports.AspNetCore
             public GraphQL.Types.IGraphType? ParentGraphType { get; set; }
         }
     }
+    public sealed class ExecutionResultActionResult : Microsoft.AspNetCore.Mvc.IActionResult
+    {
+        public ExecutionResultActionResult(GraphQL.ExecutionResult executionResult) { }
+        public ExecutionResultActionResult(GraphQL.ExecutionResult executionResult, System.Net.HttpStatusCode statusCode) { }
+        public string ContentType { get; set; }
+        public System.Threading.Tasks.Task ExecuteResultAsync(Microsoft.AspNetCore.Mvc.ActionContext context) { }
+    }
     public class GraphQLHttpMiddleware : GraphQL.Server.Transports.AspNetCore.IUserContextBuilder
     {
         public GraphQLHttpMiddleware(Microsoft.AspNetCore.Http.RequestDelegate next, GraphQL.IGraphQLTextSerializer serializer, GraphQL.IDocumentExecuter documentExecuter, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions options, GraphQL.Server.Transports.AspNetCore.IHostApplicationLifetime hostApplicationLifetime) { }
