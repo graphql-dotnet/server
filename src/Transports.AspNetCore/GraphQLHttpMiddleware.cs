@@ -54,7 +54,7 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
     private const string MEDIATYPE_GRAPHQLJSON = "application/graphql+json";
     private const string MEDIATYPE_JSON = "application/json";
     private const string MEDIATYPE_GRAPHQL = "application/graphql";
-    private const string CONTENTTYPE_GRAPHQLJSON = "application/graphql+json; charset=utf-8";
+    internal const string CONTENTTYPE_GRAPHQLJSON = "application/graphql+json; charset=utf-8";
 
     /// <summary>
     /// Initializes a new instance.
