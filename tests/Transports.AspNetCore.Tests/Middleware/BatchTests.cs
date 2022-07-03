@@ -170,7 +170,7 @@ public class BatchTests : IDisposable
     [Fact]
     public async Task Mutation()
     {
-        using var response = await PostBatchRequestAsync(new GraphQLRequest() { Query = "mutation{clearMessages}" });
+        using var response = await PostBatchRequestAsync(new GraphQLRequest { Query = "mutation{clearMessages}" });
         await response.ShouldBeAsync(@"[{""data"":{""clearMessages"":0}}]");
     }
 
