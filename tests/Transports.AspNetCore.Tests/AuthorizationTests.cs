@@ -632,7 +632,7 @@ public class AuthorizationTests
         ret.IsValid.ShouldBe(expectedIsValid);
     }
 
-    // these tests will fail core rules validation and so it does not really matter
+    // these tests will fail core validation rules and so it does not really matter
     // if they pass or fail authorization, but we are testing them to be sure that
     // they do not cause a fatal exception
     [Theory]
