@@ -22,7 +22,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <Nullable>enable</Nullable>
-    <NoWarn>$(NoWarn);IDE0056;IDE0057</NoWarn>
+    <NoWarn>$(NoWarn);IDE0056;IDE0057</NoWarn> <!-- Index/Range operators -->
 
     <AssemblyName>GraphQL.Server.$(MSBuildProjectName)</AssemblyName>
     <RootNamespace>GraphQL.Server.$(MSBuildProjectName)</RootNamespace>
