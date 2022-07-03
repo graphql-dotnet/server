@@ -19,8 +19,10 @@
     <DebugType>embedded</DebugType>
     <ImplicitUsings>enable</ImplicitUsings>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
-    <PackageReadmeFile Condition="'$(IsPackable)' == 'true'">README.md</PackageReadmeFile>
+    <Nullable>enable</Nullable>
+    <NoWarn>$(NoWarn);IDE0056;IDE0057</NoWarn> <!-- Index/Range operators -->
 
     <AssemblyName>GraphQL.Server.$(MSBuildProjectName)</AssemblyName>
     <RootNamespace>GraphQL.Server.$(MSBuildProjectName)</RootNamespace>
@@ -33,6 +35,7 @@
     <None Include="..\..\assets\logo.64x64.png" Pack="true" PackagePath="\" />
     <None Include="..\..\README.md" Pack="true" PackagePath="\" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+    <InternalsVisibleTo Include="$(AssemblyName).Tests" />
   </ItemGroup>
 
 </Project>

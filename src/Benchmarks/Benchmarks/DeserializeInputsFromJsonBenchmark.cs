@@ -8,8 +8,8 @@ namespace GraphQL.Server.Benchmarks;
 [RPlotExporter, CsvMeasurementsExporter]
 public class DeserializeInputsFromJsonBenchmark
 {
-    private NsjDeserializer _nsjDeserializer;
-    private StjDeserializer _stjDeserializer;
+    private NsjDeserializer _nsjDeserializer = null!;
+    private StjDeserializer _stjDeserializer = null!;
     private const string SHORT_JSON = @"{
   ""key0"": null,
   ""key1"": true,
@@ -37,8 +37,8 @@ public class DeserializeInputsFromJsonBenchmark
     // other custom implementations someone else might want to contribute.
 
     [Benchmark(Baseline = true)]
-    public Inputs NewtonsoftJson() => _nsjDeserializer.Deserialize<Inputs>(SHORT_JSON);
+    public Inputs? NewtonsoftJson() => _nsjDeserializer.Deserialize<Inputs>(SHORT_JSON);
 
     [Benchmark]
-    public Inputs SystemTextJson() => _stjDeserializer.Deserialize<Inputs>(SHORT_JSON);
+    public Inputs? SystemTextJson() => _stjDeserializer.Deserialize<Inputs>(SHORT_JSON);
 }

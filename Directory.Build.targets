@@ -4,7 +4,15 @@
     <CoverletOutputFormat>opencover</CoverletOutputFormat>
     <CoverletOutput>$(MSBuildThisFileDirectory).coverage/$(AssemblyName)/</CoverletOutput>
     <Exclude>[GraphQL.Samples.Schemas.Chat]*,[GraphQL.Samples.Server]*</Exclude>
-    <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(IsPackable)' != 'true'">
+    <NoWarn>$(NoWarn);CS1591;IDE1006;IDE0053;CS1998</NoWarn>
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);IDE0060</WarningsNotAsErrors>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IsPackable)' == 'true'">
+    <AnalysisMode>Recommended</AnalysisMode>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
 </Project>
