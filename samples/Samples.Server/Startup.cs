@@ -33,10 +33,11 @@ public class Startup
         services.AddGraphQL(builder => builder
             .AddApolloTracing()
             .AddSchema<ChatSchema>()
+            .AddAutoClrMappings()
             .ConfigureExecutionOptions(options =>
             {
                 options.EnableMetrics = Environment.IsDevelopment();
-                var logger = options.RequestServices.GetRequiredService<ILogger<Startup>>();
+                var logger = options.RequestServices!.GetRequiredService<ILogger<Startup>>();
                 options.UnhandledExceptionDelegate = ctx =>
                 {
                     logger.LogError("{Error} occurred", ctx.OriginalException.Message);
@@ -46,7 +47,7 @@ public class Startup
             .AddSystemTextJson()
             .AddErrorInfoProvider<CustomErrorInfoProvider>()
             .AddDataLoader()
-            .AddUserContextBuilder(context => new Dictionary<string, object> { { "user", context.User.Identity.IsAuthenticated ? context.User : null } })
+            .AddUserContextBuilder(context => new Dictionary<string, object?> { { "user", context.User.Identity!.IsAuthenticated ? context.User : null } })
             .AddGraphTypes(typeof(ChatSchema).Assembly));
     }
 

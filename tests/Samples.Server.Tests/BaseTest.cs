@@ -43,7 +43,7 @@ public abstract class BaseTest : IDisposable
     /// Raw response as a string of JSON.
     /// </returns>
     protected async Task<string> SendRequestAsync(GraphQLRequest request, RequestType requestType,
-        GraphQLRequest queryStringOverride = null)
+        GraphQLRequest? queryStringOverride = null)
     {
         // Different servings over HTTP:
         // https://graphql.org/learn/serving-over-http/
@@ -97,7 +97,7 @@ public abstract class BaseTest : IDisposable
                     OperationName = queryStringOverride?.OperationName ?? request.OperationName,
                     Variables = queryStringOverride?.Variables ?? request.Variables
                 });
-                var graphContent = new StringContent(request.Query, Encoding.UTF8, "application/graphql");
+                var graphContent = new StringContent(request.Query ?? "", Encoding.UTF8, "application/graphql");
                 response = await Client.PostAsync(urlWithParams, graphContent);
                 break;
 

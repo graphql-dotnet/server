@@ -40,6 +40,8 @@ public static class ServerGraphQLBuilderExtensions
     public static IGraphQLBuilder AddUserContextBuilder<TUserContext>(this IGraphQLBuilder builder, Func<HttpContext, Task<TUserContext>> creator)
         where TUserContext : class, IDictionary<string, object?>
     {
+        if (creator == null)
+            throw new ArgumentNullException(nameof(creator));
         builder.Services.Register<IUserContextBuilder>(new UserContextBuilder<TUserContext>(context => new(creator(context))));
         builder.Services.TryRegister<IConfigureExecution, UserContextConfigurator>(DI.ServiceLifetime.Singleton, RegistrationCompareMode.ServiceTypeAndImplementationType);
 

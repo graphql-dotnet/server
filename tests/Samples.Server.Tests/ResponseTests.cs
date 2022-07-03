@@ -16,7 +16,7 @@ public class ResponseTests : BaseTest
     {
         var request = new GraphQLRequest { Query = "{ __schema { queryType { name } } }" };
         string response = await SendRequestAsync(request, requestType);
-        response.ShouldBeEquivalentJson(@"{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}}", ignoreExtensions: true);
+        response.ShouldBeEquivalentJson(@"{""data"":{""__schema"":{""queryType"":{""name"":""Query""}}}}", ignoreExtensions: true);
     }
 
     /// <summary>
@@ -30,21 +30,21 @@ public class ResponseTests : BaseTest
     {
         var request = new GraphQLRequest
         {
-            Query = "mutation one ($content: String!, $fromId: String!, $sentAt: Date!) { addMessage(message: { content: $content, fromId: $fromId, sentAt: $sentAt }) { sentAt, content, from { id } } }",
-            Variables = @"{ ""content"": ""one content"", ""sentAt"": ""2020-01-01"", ""fromId"": ""1"" }".ToInputs(),
+            Query = "mutation one ($message: String!, $from: String!) { addMessage(message: { message: $message, from: $from }) { from, id, message } }",
+            Variables = @"{ ""message"": ""one content"", ""from"": ""alpha"" }".ToInputs(),
             OperationName = "one"
         };
 
         var requestB = new GraphQLRequest
         {
-            Query = "mutation two ($content: String!, $fromId: String!, $sentAt: Date!) { addMessage(message: { content: $content, fromId: $fromId, sentAt: $sentAt }) { sentAt, content, from { id } } }",
-            Variables = @"{ ""content"": ""two content"", ""sentAt"": ""2020-01-01"", ""fromId"": ""1"" }".ToInputs(),
+            Query = "mutation two ($message: String!, $from: String!) { addMessage(message: { message: $message, from: $from }) { id, from, message } }",
+            Variables = @"{ ""message"": ""two content"", ""from"": ""bravo"" }".ToInputs(),
             OperationName = "two"
         };
 
         string response = await SendRequestAsync(request, requestType, queryStringOverride: requestB);
         response.ShouldBeEquivalentJson(
-            @"{""data"":{""addMessage"":{""sentAt"":""2020-01-01T00:00:00Z"",""content"":""two content"",""from"":{""id"":""1""}}}}",
+            @"{""data"":{""addMessage"":{""id"":""1"",""from"":""bravo"",""message"":""two content""}}}",
             ignoreExtensions: true);
     }
 
@@ -56,7 +56,7 @@ public class ResponseTests : BaseTest
             new GraphQLRequest { Query = "query two { __schema { queryType { name } } }", OperationName = "two" },
             new GraphQLRequest { Query = "query three { __schema { queryType { name } } }", OperationName = "three" }
             );
-        response.ShouldBeEquivalentJson(@"[{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}},{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}},{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}}]", ignoreExtensions: true);
+        response.ShouldBeEquivalentJson(@"[{""data"":{""__schema"":{""queryType"":{""name"":""Query""}}}},{""data"":{""__schema"":{""queryType"":{""name"":""Query""}}}},{""data"":{""__schema"":{""queryType"":{""name"":""Query""}}}}]", ignoreExtensions: true);
     }
 
     [Fact]
@@ -65,7 +65,7 @@ public class ResponseTests : BaseTest
         string response = await SendBatchRequestAsync(
             new GraphQLRequest { Query = "query one { __schema { queryType { name } } }", OperationName = "one" }
             );
-        response.ShouldBeEquivalentJson(@"[{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}}]", ignoreExtensions: true);
+        response.ShouldBeEquivalentJson(@"[{""data"":{""__schema"":{""queryType"":{""name"":""Query""}}}}]", ignoreExtensions: true);
     }
 
     [Fact]
@@ -92,10 +92,10 @@ public class ResponseTests : BaseTest
             content.ShouldBeEquivalentJson(expected);
     }
 
-    public static IEnumerable<object[]> WrongQueryData => new object[][]
+    public static IEnumerable<object?[]> WrongQueryData => new object?[][]
     {
         // Methods other than GET or POST shouldn't be allowed
-        new object[]
+        new object?[]
         {
             HttpMethod.Put,
             new StringContent(Serializer.ToJson(new GraphQLRequest { Query = "query { __schema { queryType { name } } }" }), Encoding.UTF8, "application/json"),
@@ -104,7 +104,7 @@ public class ResponseTests : BaseTest
         },
 
         // POST with unsupported mime type should be a unsupported media type
-        new object[]
+        new object?[]
         {
             HttpMethod.Post,
             new StringContent(Serializer.ToJson(new GraphQLRequest { Query = "query { __schema { queryType { name } } }" }), Encoding.UTF8, "something/unknown"),
@@ -114,7 +114,7 @@ public class ResponseTests : BaseTest
 
         // MediaTypeHeaderValue ctor throws exception
         // POST with unsupported charset should be a unsupported media type
-        //new object[]
+        //new object?[]
         //{
         //    HttpMethod.Post,
         //    new StringContent(Serializer.ToJson(new GraphQLRequest { Query = "query { __schema { queryType { name } } }" }), Encoding.UTF8, "application/json; charset=utf-3"),
@@ -123,7 +123,7 @@ public class ResponseTests : BaseTest
         //},
 
         // POST with JSON mime type that doesn't start with an object or array token should be a bad request
-        new object[]
+        new object?[]
         {
             HttpMethod.Post,
             new StringContent("Oops", Encoding.UTF8, "application/json"),
@@ -132,7 +132,7 @@ public class ResponseTests : BaseTest
         },
 
         // POST with JSON mime type that is invalid JSON should be a bad request
-        new object[]
+        new object?[]
         {
             HttpMethod.Post,
             new StringContent("{oops}", Encoding.UTF8, "application/json"),
@@ -141,7 +141,7 @@ public class ResponseTests : BaseTest
         },
 
         // POST with JSON mime type that is null JSON should be a bad request
-        new object[]
+        new object?[]
         {
             HttpMethod.Post,
             new StringContent("null", Encoding.UTF8, "application/json"),
@@ -150,7 +150,7 @@ public class ResponseTests : BaseTest
         },
 
         // GET with an empty QueryString should be a bad request
-        new object[]
+        new object?[]
         {
             HttpMethod.Get,
             null,
@@ -159,7 +159,7 @@ public class ResponseTests : BaseTest
         },
 
         // POST with a GraphQL parsing error should be a bad request
-        new object[]
+        new object?[]
         {
             HttpMethod.Post,
             new StringContent(@"{""query"":""parseError""}", Encoding.UTF8, "application/json"),
@@ -168,7 +168,7 @@ public class ResponseTests : BaseTest
         },
 
         // POST with no operation should be a bad request
-        new object[]
+        new object?[]
         {
             HttpMethod.Post,
             new StringContent(@"{""query"":""fragment frag on Query { hello }""}", Encoding.UTF8, "application/json"),
@@ -177,12 +177,12 @@ public class ResponseTests : BaseTest
         },
 
         // POST with validation error should be a bad request
-        new object[]
+        new object?[]
         {
             HttpMethod.Post,
             new StringContent(@"{""query"":""{ dummy }""}", Encoding.UTF8, "application/json"),
             HttpStatusCode.BadRequest,
-            @"{""errors"":[{""message"":""Cannot query field \u0027dummy\u0027 on type \u0027ChatQuery\u0027."",""locations"":[{""line"":1,""column"":3}],""extensions"":{""code"":""FIELDS_ON_CORRECT_TYPE"",""codes"":[""FIELDS_ON_CORRECT_TYPE""],""number"":""5.3.1""}}]}"
+            @"{""errors"":[{""message"":""Cannot query field \u0027dummy\u0027 on type \u0027Query\u0027."",""locations"":[{""line"":1,""column"":3}],""extensions"":{""code"":""FIELDS_ON_CORRECT_TYPE"",""codes"":[""FIELDS_ON_CORRECT_TYPE""],""number"":""5.3.1""}}]}"
         },
     };
 
@@ -194,11 +194,11 @@ public class ResponseTests : BaseTest
     {
         var request = new GraphQLRequest
         {
-            Query = @"mutation { addMessage(message: { content: ""some content"", fromId: ""1"", sentAt: ""2020-01-01"" }) { sentAt, content, from { id } } }"
+            Query = @"mutation { addMessage(message: { message: ""some content"", from: ""alpha"" }) { message, from } }"
         };
         string response = await SendRequestAsync(request, requestType);
         response.ShouldBeEquivalentJson(
-            @"{""data"":{""addMessage"":{""sentAt"":""2020-01-01T00:00:00Z"",""content"":""some content"",""from"":{""id"":""1""}}}}",
+            @"{""data"":{""addMessage"":{""message"":""some content"",""from"":""alpha""}}}",
             ignoreExtensions: true);
     }
 
@@ -210,12 +210,12 @@ public class ResponseTests : BaseTest
     {
         var request = new GraphQLRequest
         {
-            Query = "mutation ($content: String!, $fromId: String!, $sentAt: Date!) { addMessage(message: { content: $content, fromId: $fromId, sentAt: $sentAt }) { sentAt, content, from { id } } }",
-            Variables = @"{ ""content"": ""some content"", ""sentAt"": ""2020-01-01"", ""fromId"": ""1"" }".ToInputs()
+            Query = "mutation ($message: String!, $from: String!) { addMessage(message: { message: $message, from: $from }) { message, from } }",
+            Variables = @"{ ""message"": ""some content"", ""from"": ""alpha"" }".ToInputs()
         };
         string response = await SendRequestAsync(request, requestType);
         response.ShouldBeEquivalentJson(
-            @"{""data"":{""addMessage"":{""sentAt"":""2020-01-01T00:00:00Z"",""content"":""some content"",""from"":{""id"":""1""}}}}",
+            @"{""data"":{""addMessage"":{""message"":""some content"",""from"":""alpha""}}}",
             ignoreExtensions: true);
     }
 
@@ -227,12 +227,12 @@ public class ResponseTests : BaseTest
     {
         var request = new GraphQLRequest
         {
-            Query = "mutation ($msg: MessageInputType!) { addMessage(message: $msg) { sentAt, content, from { id } } }",
-            Variables = @"{ ""msg"": { ""content"": ""some content"", ""sentAt"": ""2020-01-01"", ""fromId"": ""1"" } }".ToInputs()
+            Query = "mutation ($msg: MessageInput!) { addMessage(message: $msg) { message, from } }",
+            Variables = @"{ ""msg"": { ""message"": ""some content"", ""from"": ""alpha"" } }".ToInputs()
         };
         string response = await SendRequestAsync(request, requestType);
         response.ShouldBeEquivalentJson(
-            @"{""data"":{""addMessage"":{""sentAt"":""2020-01-01T00:00:00Z"",""content"":""some content"",""from"":{""id"":""1""}}}}",
+            @"{""data"":{""addMessage"":{""message"":""some content"",""from"":""alpha""}}}",
             ignoreExtensions: true);
     }
 
@@ -249,6 +249,6 @@ public class ResponseTests : BaseTest
             Variables = "{}".ToInputs()
         };
         string response = await SendRequestAsync(request, requestType);
-        response.ShouldBeEquivalentJson(@"{""data"":{""__schema"":{""queryType"":{""name"":""ChatQuery""}}}}", ignoreExtensions: true);
+        response.ShouldBeEquivalentJson(@"{""data"":{""__schema"":{""queryType"":{""name"":""Query""}}}}", ignoreExtensions: true);
     }
 }
