@@ -159,6 +159,31 @@ public class AuthorizationTests
     [InlineData("query ($arg: Boolean!) { parent @include(if: $arg) { child } test }", @"{ ""arg"": false }", false, true)]
     [InlineData("query ($arg: Boolean!) { parent @include(if: $arg) { child } test }", @"{ ""arg"": true }", true, true)]
     [InlineData("query ($arg: Boolean!) { parent @include(if: $arg) { child } test }", @"{ ""arg"": false }", true, true)]
+
+    [InlineData("{ ... @skip(if: true) { parent { child } } test }", null, false, true)]
+    [InlineData("{ ... @skip(if: false) { parent { child } } test }", null, false, false)]
+    [InlineData("{ ... @skip(if: true) { parent { child } } test }", null, true, true)]
+    [InlineData("{ ... @skip(if: false) { parent { child } } test }", null, true, true)]
+
+    [InlineData("{ ...frag1 @skip(if: true) test } fragment frag1 on QueryType { parent { child } }", null, false, true)]
+    [InlineData("{ ...frag1 @skip(if: false) test } fragment frag1 on QueryType { parent { child } }", null, false, false)]
+    [InlineData("{ ...frag1 @skip(if: true) test } fragment frag1 on QueryType { parent { child } }", null, true, true)]
+    [InlineData("{ ...frag1 @skip(if: false) test } fragment frag1 on QueryType { parent { child } }", null, true, true)]
+
+    [InlineData("fragment frag1 on QueryType { parent { child } } { ...frag1 @skip(if: true) test }", null, false, true)]
+    [InlineData("fragment frag1 on QueryType { parent { child } } { ...frag1 @skip(if: false) test }", null, false, false)]
+    [InlineData("fragment frag1 on QueryType { parent { child } } { ...frag1 @skip(if: true) test }", null, true, true)]
+    [InlineData("fragment frag1 on QueryType { parent { child } } { ...frag1 @skip(if: false) test }", null, true, true)]
+
+    [InlineData("{ parent @skip(if: true) { ...frag1 } test } fragment frag1 on ChildType { child }", null, false, true)]
+    [InlineData("{ parent @skip(if: false) { ...frag1 } test } fragment frag1 on ChildType { child }", null, false, false)]
+    [InlineData("{ parent @skip(if: true) { ...frag1 } test } fragment frag1 on ChildType { child }", null, true, true)]
+    [InlineData("{ parent @skip(if: false) { ...frag1 } test } fragment frag1 on ChildType { child }", null, true, true)]
+
+    [InlineData("fragment frag1 on ChildType { child } { parent @skip(if: true) { ...frag1 } test }", null, false, true)]
+    [InlineData("fragment frag1 on ChildType { child } { parent @skip(if: false) { ...frag1 } test }", null, false, false)]
+    [InlineData("fragment frag1 on ChildType { child } { parent @skip(if: true) { ...frag1 } test }", null, true, true)]
+    [InlineData("fragment frag1 on ChildType { child } { parent @skip(if: false) { ...frag1 } test }", null, true, true)]
     public void SkipInclude(string query, string? variables, bool authenticated, bool expectedIsValid)
     {
         _field.Authorize();
