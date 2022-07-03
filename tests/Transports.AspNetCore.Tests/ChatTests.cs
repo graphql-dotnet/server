@@ -167,6 +167,11 @@ public class ChatTests : IDisposable
             },
         });
 
+        // Delay is necessary to allow time for the asynchronous websocket handler code
+        // to execute prior to the independent call to AddMessageInternal below.
+        // Since the websocket call does not return a response when the subscription
+        // has completed being set up, there is no response we can await to determine
+        // when to call AddMessageInternal.
         await Task.Delay(1000);
 
         // post a new message on a separate thread
