@@ -30,7 +30,6 @@ public class MiscTests
         Should.Throw<ArgumentNullException>(() => new GraphQLHttpMiddleware(next, serializer, executer, scopeFactory, null!, appLifetime));
         Should.Throw<ArgumentNullException>(() => new GraphQLHttpMiddleware(next, serializer, executer, scopeFactory, options, null!));
         _ = new GraphQLHttpMiddleware(next, serializer, executer, scopeFactory, options, appLifetime);
-
     }
 
     [Fact]
