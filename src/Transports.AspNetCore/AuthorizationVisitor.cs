@@ -32,6 +32,6 @@ public class AuthorizationVisitor : AuthorizationVisitorBase
         => ClaimsPrincipal.IsInRole(role);
 
     /// <inheritdoc/>
-    protected override AuthorizationResult Authorize(string policy)
-        => AuthorizationService.AuthorizeAsync(ClaimsPrincipal, policy).GetAwaiter().GetResult();
+    protected override ValueTask<AuthorizationResult> AuthorizeAsync(string policy)
+        => new(AuthorizationService.AuthorizeAsync(ClaimsPrincipal, policy));
 }
