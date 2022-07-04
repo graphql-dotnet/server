@@ -8,7 +8,7 @@ public abstract partial class AuthorizationVisitorBase : INodeVisitor
     {
         if (context == null)
             throw new ArgumentNullException(nameof(context));
-        _fragmentDefinitionsToCheck = context.GetRecursivelyReferencedFragments(context.Operation);
+        _fragmentDefinitionsToCheck = GetRecursivelyReferencedUsedFragments(context);
     }
 
     private bool _checkTree; // used to skip processing fragments or operations that do not apply
@@ -35,47 +35,44 @@ public abstract partial class AuthorizationVisitorBase : INodeVisitor
         }
         else if (_checkTree)
         {
-            if (node is GraphQLField fieldNode)
+            // if a directive indicates to skip this node, skip authorization checks until Leave() is called for this node
+            if (SkipNode(node, context))
             {
-                // if a directive indicates to skip this field, skip authorization checks until Leave() is called for this node
-                if (SkipField(fieldNode, context))
+                _checkTree = false;
+                _checkUntil = node;
+            }
+            else if (node is GraphQLField)
+            {
+                var field = context.TypeInfo.GetFieldDef();
+                // Note: 'field' might be null here if no match was found in the schema (which causes a different validation error).
+                // Also, skip processing for __typeName entirely; do not consider it an anonymous field or
+                // a field that would require authentication for the type -- in this manner, a selection for
+                // only __typename will require authentication, but a selection for __typename and an anonymous
+                // field will not.
+                if (field != null && field != context.Schema.TypeNameMetaFieldType)
                 {
-                    _checkTree = false;
-                    _checkUntil = node;
-                }
-                else
-                {
-                    var field = context.TypeInfo.GetFieldDef();
-                    // Note: 'field' might be null here if no match was found in the schema (which causes a different validation error).
-                    // Also, skip processing for __typeName entirely; do not consider it an anonymous field or
-                    // a field that would require authentication for the type -- in this manner, a selection for
-                    // only __typename will require authentication, but a selection for __typename and an anonymous
-                    // field will not.
-                    if (field != null && field != context.Schema.TypeNameMetaFieldType)
+                    // If the field is marked as AllowAnonymous, record that we have encountered a field for this type
+                    // which is anonymous; if it is not, record that we have encountered a field for this type
+                    // which will require the type to be authenticated.
+                    // Also, __type and __schema are implicitly marked as AllowAnonymous; the schema can be marked
+                    // with authorization requirements if introspection queries are to be disallowed.
+                    var fieldAnonymousAllowed = field.IsAnonymousAllowed() || field == context.Schema.TypeMetaFieldType || field == context.Schema.SchemaMetaFieldType;
+                    var ti = _onlyAnonymousSelected.Pop();
+                    if (fieldAnonymousAllowed)
+                        ti.AnyAnonymous = true;
+                    else
+                        ti.AnyAuthenticated = true;
+                    _onlyAnonymousSelected.Push(ti);
+
+                    // Fields, unlike types, are validated immediately.
+                    if (!fieldAnonymousAllowed)
                     {
-                        // If the field is marked as AllowAnonymous, record that we have encountered a field for this type
-                        // which is anonymous; if it is not, record that we have encountered a field for this type
-                        // which will require the type to be authenticated.
-                        // Also, __type and __schema are implicitly marked as AllowAnonymous; the schema can be marked
-                        // with authorization requirements if introspection queries are to be disallowed.
-                        var fieldAnonymousAllowed = field.IsAnonymousAllowed() || field == context.Schema.TypeMetaFieldType || field == context.Schema.SchemaMetaFieldType;
-                        var ti = _onlyAnonymousSelected.Pop();
-                        if (fieldAnonymousAllowed)
-                            ti.AnyAnonymous = true;
-                        else
-                            ti.AnyAuthenticated = true;
-                        _onlyAnonymousSelected.Push(ti);
-
-                        // Fields, unlike types, are validated immediately.
-                        if (!fieldAnonymousAllowed)
-                        {
-                            Validate(field, node, context);
-                        }
+                        Validate(field, node, context);
                     }
-
-                    // prep for descendants, if any
-                    _onlyAnonymousSelected.Push(new());
                 }
+
+                // prep for descendants, if any
+                _onlyAnonymousSelected.Push(new());
             }
             else if (node is GraphQLFragmentSpread fragmentSpread)
             {
@@ -179,12 +176,21 @@ public abstract partial class AuthorizationVisitorBase : INodeVisitor
     }
 
     /// <summary>
-    /// Indicates if the specified field should skip authentication processing.
+    /// Indicates if the specified node should skip authentication processing.
     /// Default implementation looks at @skip and @include directives only.
     /// </summary>
-    protected virtual bool SkipField(GraphQLField node, ValidationContext context)
+    protected virtual bool SkipNode(ASTNode node, ValidationContext context)
     {
-        var skipDirective = node.Directives?.FirstOrDefault(x => x.Name == "skip");
+        // according to GraphQL spec, directives with the same name may be defined so long as they cannot be
+        // placed on the same node types as other directives with the same name; so here we verify that the
+        // node is a field, fragment spread, or inline fragment, the only nodes allowed by the built-in @skip
+        // and @include directives
+        if (node is not GraphQLField && node is not GraphQLFragmentSpread && node is not GraphQLInlineFragment)
+            return false;
+
+        var directivesNode = (IHasDirectivesNode)node;
+
+        var skipDirective = directivesNode.Directives?.FirstOrDefault(x => x.Name == "skip");
         if (skipDirective != null)
         {
             var value = GetDirectiveValue(skipDirective, context, false);
@@ -192,7 +198,7 @@ public abstract partial class AuthorizationVisitorBase : INodeVisitor
                 return true;
         }
 
-        var includeDirective = node.Directives?.FirstOrDefault(x => x.Name == "include");
+        var includeDirective = directivesNode.Directives?.FirstOrDefault(x => x.Name == "include");
         if (includeDirective != null)
         {
             var value = GetDirectiveValue(includeDirective, context, true);
