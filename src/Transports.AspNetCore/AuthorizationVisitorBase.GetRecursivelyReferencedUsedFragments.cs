@@ -53,6 +53,9 @@ public partial class AuthorizationVisitorBase
             return default;
         }
 
+        protected override ValueTask VisitOperationDefinitionAsync(GraphQLOperationDefinition operationDefinition, GetRecursivelyReferencedFragmentsVisitorContext context)
+            => VisitAsync(operationDefinition.SelectionSet, context);
+
         protected override ValueTask VisitSelectionSetAsync(GraphQLSelectionSet selectionSet, GetRecursivelyReferencedFragmentsVisitorContext context)
             => VisitAsync(selectionSet.Selections, context);
 
