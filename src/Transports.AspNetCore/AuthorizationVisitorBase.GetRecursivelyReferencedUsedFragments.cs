@@ -12,7 +12,7 @@ public partial class AuthorizationVisitorBase
     /// <remarks>
     /// <see cref="SkipNode(ASTNode, ValidationContext)"/> is used to determine if the node should be skipped or not.
     /// </remarks>
-    protected List<GraphQLFragmentDefinition>? GetRecursivelyReferencedFragments(ValidationContext validationContext)
+    protected List<GraphQLFragmentDefinition>? GetRecursivelyReferencedUsedFragments(ValidationContext validationContext)
     {
         var context = new GetRecursivelyReferencedFragmentsVisitorContext(this, validationContext);
         var ret = GetRecursivelyReferencedFragmentsVisitor.Instance.VisitAsync(validationContext.Operation, context);
@@ -26,7 +26,6 @@ public partial class AuthorizationVisitorBase
         public GetRecursivelyReferencedFragmentsVisitorContext(AuthorizationVisitorBase authorizationVisitor, ValidationContext validationContext)
         {
             AuthorizationVisitor = authorizationVisitor;
-            FragmentDefinitions = null;
             ValidationContext = validationContext;
         }
 

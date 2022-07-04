@@ -36,7 +36,7 @@ namespace GraphQL.Server.Transports.AspNetCore
         protected abstract Microsoft.AspNetCore.Authorization.AuthorizationResult Authorize(string policy);
         public virtual void Enter(GraphQLParser.AST.ASTNode node, GraphQL.Validation.ValidationContext context) { }
         protected virtual string GenerateResourceDescription(GraphQL.Server.Transports.AspNetCore.AuthorizationVisitorBase.ValidationInfo info) { }
-        protected System.Collections.Generic.List<GraphQLParser.AST.GraphQLFragmentDefinition>? GetRecursivelyReferencedFragments(GraphQL.Validation.ValidationContext validationContext) { }
+        protected System.Collections.Generic.List<GraphQLParser.AST.GraphQLFragmentDefinition>? GetRecursivelyReferencedUsedFragments(GraphQL.Validation.ValidationContext validationContext) { }
         protected virtual void HandleNodeNotAuthorized(GraphQL.Server.Transports.AspNetCore.AuthorizationVisitorBase.ValidationInfo info) { }
         protected virtual void HandleNodeNotInPolicy(GraphQL.Server.Transports.AspNetCore.AuthorizationVisitorBase.ValidationInfo info, string policy, Microsoft.AspNetCore.Authorization.AuthorizationResult authorizationResult) { }
         protected virtual void HandleNodeNotInRoles(GraphQL.Server.Transports.AspNetCore.AuthorizationVisitorBase.ValidationInfo info, System.Collections.Generic.List<string> roles) { }
