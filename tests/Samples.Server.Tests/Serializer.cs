@@ -16,7 +16,14 @@ internal static class Serializer
         => ToJson(Array.ConvertAll(requests, r => r.ToDictionary()));
 
     public static string ToJson(object obj)
-        => JsonSerializer.Serialize(obj, new JsonSerializerOptions { IgnoreNullValues = true });
+        => JsonSerializer.Serialize(obj, new JsonSerializerOptions
+        {
+#if NET6_0_OR_GREATER
+            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+#else
+            IgnoreNullValues = true
+#endif
+        });
 
     internal static FormUrlEncodedContent ToFormUrlEncodedContent(GraphQLRequest request)
     {
@@ -44,7 +51,7 @@ internal static class Serializer
             dictionary["extensions"] = ToJson(request.Extensions);
         }
 
-        return new FormUrlEncodedContent(dictionary);
+        return new FormUrlEncodedContent(dictionary.Cast<KeyValuePair<string?, string?>>());
     }
 
     internal static Task<string> ToQueryStringParamsAsync(GraphQLRequest request)

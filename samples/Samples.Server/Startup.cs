@@ -2,8 +2,7 @@ using GraphQL.DataLoader;
 using GraphQL.Execution;
 using GraphQL.MicrosoftDI;
 using GraphQL.Samples.Schemas.Chat;
-using GraphQL.Server;
-using GraphQL.Server.Authorization.AspNetCore;
+using GraphQL.Server.Transports.AspNetCore;
 using GraphQL.Server.Ui.Altair;
 using GraphQL.Server.Ui.GraphiQL;
 using GraphQL.Server.Ui.Playground;
@@ -29,18 +28,16 @@ public class Startup
     {
         services
             .AddSingleton<IChat, Chat>()
-            .Configure<ErrorInfoProviderOptions>(opt => opt.ExposeExceptionStackTrace = Environment.IsDevelopment())
-            .AddTransient<IAuthorizationErrorMessageBuilder, DefaultAuthorizationErrorMessageBuilder>(); // required by CustomErrorInfoProvider
+            .Configure<ErrorInfoProviderOptions>(opt => opt.ExposeExceptionStackTrace = Environment.IsDevelopment());
 
         services.AddGraphQL(builder => builder
             .AddApolloTracing()
-            .AddHttpMiddleware<ChatSchema, GraphQLHttpMiddlewareWithLogs<ChatSchema>>()
-            .AddWebSocketsHttpMiddleware<ChatSchema>()
             .AddSchema<ChatSchema>()
+            .AddAutoClrMappings()
             .ConfigureExecutionOptions(options =>
             {
                 options.EnableMetrics = Environment.IsDevelopment();
-                var logger = options.RequestServices.GetRequiredService<ILogger<Startup>>();
+                var logger = options.RequestServices!.GetRequiredService<ILogger<Startup>>();
                 options.UnhandledExceptionDelegate = ctx =>
                 {
                     logger.LogError("{Error} occurred", ctx.OriginalException.Message);
@@ -49,8 +46,8 @@ public class Startup
             })
             .AddSystemTextJson()
             .AddErrorInfoProvider<CustomErrorInfoProvider>()
-            .AddWebSockets()
             .AddDataLoader()
+            .AddUserContextBuilder(context => new Dictionary<string, object?> { { "user", context.User.Identity!.IsAuthenticated ? context.User : null } })
             .AddGraphTypes(typeof(ChatSchema).Assembly));
     }
 
@@ -62,8 +59,7 @@ public class Startup
 
         app.UseWebSockets();
 
-        app.UseGraphQLWebSockets<ChatSchema>();
-        app.UseGraphQL<ChatSchema, GraphQLHttpMiddlewareWithLogs<ChatSchema>>();
+        app.UseGraphQL<GraphQLHttpMiddlewareWithLogs<ChatSchema>>("/graphql", new GraphQLHttpMiddlewareOptions());
 
         app.UseGraphQLPlayground(new PlaygroundOptions
         {

@@ -12,7 +12,7 @@ public class DITest
     public void Services_Should_Contain_Only_One_DocumentWriter()
     {
         var cfg = new ConfigurationBuilder().Build();
-        var env = (IWebHostEnvironment)Activator.CreateInstance(Type.GetType("Microsoft.AspNetCore.Hosting.HostingEnvironment, Microsoft.AspNetCore.Hosting"));
+        var env = (IWebHostEnvironment)Activator.CreateInstance(Type.GetType("Microsoft.AspNetCore.Hosting.HostingEnvironment, Microsoft.AspNetCore.Hosting")!)!;
         var startup = new Startup(cfg, env);
         var services = new ServiceCollection();
         startup.ConfigureServices(services);

@@ -10,10 +10,10 @@ namespace GraphQL.Server.Benchmarks;
 [RPlotExporter, CsvMeasurementsExporter]
 public class DeserializeFromJsonBodyBenchmark
 {
-    private NsjDeserializer _nsjDeserializer;
-    private StjDeserializer _stjDeserializer;
-    private Stream _httpRequestBody;
-    private Stream _httpRequestBody2;
+    private NsjDeserializer _nsjDeserializer = null!;
+    private StjDeserializer _stjDeserializer = null!;
+    private Stream _httpRequestBody = null!;
+    private Stream _httpRequestBody2 = null!;
 
     private const string SHORT_JSON = @"{
   ""key0"": null,
@@ -59,14 +59,14 @@ public class DeserializeFromJsonBodyBenchmark
     }
 
     [Benchmark(Baseline = true)]
-    public ValueTask<GraphQLRequest[]> NewtonsoftJson() => _nsjDeserializer.ReadAsync<GraphQLRequest[]>(_httpRequestBody);
+    public ValueTask<GraphQLRequest[]?> NewtonsoftJson() => _nsjDeserializer.ReadAsync<GraphQLRequest[]>(_httpRequestBody);
 
     [Benchmark]
-    public ValueTask<GraphQLRequest[]> SystemTextJson() => _stjDeserializer.ReadAsync<GraphQLRequest[]>(_httpRequestBody);
+    public ValueTask<GraphQLRequest[]?> SystemTextJson() => _stjDeserializer.ReadAsync<GraphQLRequest[]>(_httpRequestBody);
 
     [Benchmark]
-    public ValueTask<GraphQLRequest[]> NewtonsoftJson_WithOpNameAndVariables() => _nsjDeserializer.ReadAsync<GraphQLRequest[]>(_httpRequestBody2);
+    public ValueTask<GraphQLRequest[]?> NewtonsoftJson_WithOpNameAndVariables() => _nsjDeserializer.ReadAsync<GraphQLRequest[]>(_httpRequestBody2);
 
     [Benchmark]
-    public ValueTask<GraphQLRequest[]> SystemTextJson_WithOpNameAndVariables() => _stjDeserializer.ReadAsync<GraphQLRequest[]>(_httpRequestBody2);
+    public ValueTask<GraphQLRequest[]?> SystemTextJson_WithOpNameAndVariables() => _stjDeserializer.ReadAsync<GraphQLRequest[]>(_httpRequestBody2);
 }

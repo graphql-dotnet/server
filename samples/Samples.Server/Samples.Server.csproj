@@ -5,21 +5,16 @@
     <AssemblyName>GraphQL.Samples.Server</AssemblyName>
     <RootNamespace>GraphQL.Samples.Server</RootNamespace>
     <IsPackable>false</IsPackable>
-    <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="GraphQL.DataLoader" Version="$(GraphQLVersion)" />
     <PackageReference Include="Serilog.AspNetCore" Version="5.0.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="4.0.1" />
-    <PackageReference Include="GraphQL.MicrosoftDI" Version="$(GraphQLVersion)" />
-    <PackageReference Include="GraphQL.SystemTextJson" Version="$(GraphQLVersion)" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Transports.AspNetCore\Transports.AspNetCore.csproj" />
-    <ProjectReference Include="..\..\src\Authorization.AspNetCore\Authorization.AspNetCore.csproj" />
-    <ProjectReference Include="..\..\src\Transports.Subscriptions.WebSockets\Transports.Subscriptions.WebSockets.csproj" />
     <ProjectReference Include="..\..\src\Ui.GraphiQL\Ui.GraphiQL.csproj" />
     <ProjectReference Include="..\..\src\Ui.Playground\Ui.Playground.csproj" />
     <ProjectReference Include="..\..\src\Ui.Altair\Ui.Altair.csproj" />
