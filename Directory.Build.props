@@ -41,7 +41,4 @@
     <InternalsVisibleTo Include="$(AssemblyName).Tests" />
   </ItemGroup>
 
-  <ItemGroup>
-    <InternalsVisibleTo Include="GraphQL.Server.Samples.Tests" />
-  </ItemGroup>
 </Project>
