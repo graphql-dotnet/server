@@ -1,6 +1,3 @@
-using GraphQL.MicrosoftDI;
-using GraphQL.SystemTextJson;
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorPages();

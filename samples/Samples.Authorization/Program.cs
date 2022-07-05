@@ -1,8 +1,6 @@
 using AuthorizationSample.Data;
 using AuthorizationSample.Schema;
 using GraphQL;
-using GraphQL.MicrosoftDI;
-using GraphQL.SystemTextJson;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 

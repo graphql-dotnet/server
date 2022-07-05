@@ -1,6 +1,4 @@
 using GraphQL;
-using GraphQL.MicrosoftDI;
-using GraphQL.SystemTextJson;
 using Chat = GraphQL.Samples.Schemas.Chat;
 
 var builder = WebApplication.CreateBuilder(args);

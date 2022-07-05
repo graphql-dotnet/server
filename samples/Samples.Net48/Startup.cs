@@ -1,5 +1,3 @@
-using GraphQL.MicrosoftDI;
-using GraphQL.NewtonsoftJson;
 using Chat = GraphQL.Samples.Schemas.Chat;
 
 namespace GraphQL.Server.Samples.Net48;
