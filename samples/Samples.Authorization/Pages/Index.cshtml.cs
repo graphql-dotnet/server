@@ -25,14 +25,19 @@ public class IndexModel : PageModel
     public async Task<IActionResult> OnPost([FromForm] FormInfo info)
     {
         var identity = HttpContext.User.Identity;
-        if (identity != null) {
-            if (!await _roleManager.RoleExistsAsync("User")) {
+        if (identity != null)
+        {
+            if (!await _roleManager.RoleExistsAsync("User"))
+            {
                 await _roleManager.CreateAsync(new IdentityRole("User"));
             }
             var user = await _userManager.FindByNameAsync(identity.Name);
-            if (info.Do == "add") {
+            if (info.Do == "add")
+            {
                 await _userManager.AddToRoleAsync(user, "User");
-            } else if (info.Do == "remove") {
+            }
+            else if (info.Do == "remove")
+            {
                 await _userManager.RemoveFromRoleAsync(user, "User");
             }
         }
