@@ -6,6 +6,7 @@ namespace GraphQL.Server.Authorization.AspNetCore;
 /// <summary>
 /// Provides access to the <see cref="ClaimsPrincipal"/> used for GraphQL operation authorization.
 /// </summary>
+[Obsolete("This class will be removed in v8; please override GraphQLHttpMiddleware.HandleAuthorizeAsync and set HttpContext.User if needed.")]
 public interface IClaimsPrincipalAccessor
 {
     /// <summary>

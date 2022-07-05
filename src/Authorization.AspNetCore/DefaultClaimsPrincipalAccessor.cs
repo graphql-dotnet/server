@@ -7,6 +7,7 @@ namespace GraphQL.Server.Authorization.AspNetCore;
 /// <summary>
 /// The default claims principal accessor.
 /// </summary>
+[Obsolete("This class will be removed in v8; please override GraphQLHttpMiddleware.HandleAuthorizeAsync and set HttpContext.User if needed.")]
 public class DefaultClaimsPrincipalAccessor : IClaimsPrincipalAccessor
 {
     private readonly IHttpContextAccessor _contextAccessor;

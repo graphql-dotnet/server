@@ -7,6 +7,7 @@ namespace GraphQL.Server.Authorization.AspNetCore;
 /// <summary>
 /// An error that represents an authorization failure while parsing the document.
 /// </summary>
+[Obsolete("This class has been replaced by GraphQL.Server.Transports.AspNetCore.Errors.AccessDeniedError and will be removed in v8.")]
 public class AuthorizationError : ValidationError
 {
     /// <summary>

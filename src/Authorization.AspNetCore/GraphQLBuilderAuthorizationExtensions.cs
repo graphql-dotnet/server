@@ -15,6 +15,7 @@ public static class GraphQLBuilderAuthorizationExtensions
     /// </summary>
     /// <param name="builder">The GraphQL builder.</param>
     /// <returns>Reference to the passed <paramref name="builder"/>.</returns>
+    [Obsolete("This extension method has been replaced with AddAuthorization and will be removed in v8.")]
     public static IGraphQLBuilder AddGraphQLAuthorization(this IGraphQLBuilder builder)
 #if NETCOREAPP3_1_OR_GREATER
         => builder.AddGraphQLAuthorization(_ => { });

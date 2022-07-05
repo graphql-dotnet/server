@@ -8,6 +8,7 @@ namespace GraphQL.Server.Authorization.AspNetCore;
 /// GraphQL authorization validation rule which integrates to ASP.NET Core authorization mechanism.
 /// For more information see https://docs.microsoft.com/en-us/aspnet/core/security/authorization/introduction.
 /// </summary>
+[Obsolete("This class has been replaced by GraphQL.Server.Transports.AspNetCore.AuthorizationValidationRule and will be removed in v8.")]
 public partial class AuthorizationValidationRule : IValidationRule
 {
     private readonly IAuthorizationService _authorizationService;
