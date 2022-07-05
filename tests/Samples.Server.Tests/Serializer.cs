@@ -51,7 +51,7 @@ internal static class Serializer
             dictionary["extensions"] = ToJson(request.Extensions);
         }
 
-        return new FormUrlEncodedContent(dictionary);
+        return new FormUrlEncodedContent(dictionary.Cast<KeyValuePair<string?, string?>>());
     }
 
     internal static Task<string> ToQueryStringParamsAsync(GraphQLRequest request)

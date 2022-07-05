@@ -26,16 +26,19 @@ public class CustomErrorInfoProvider : ErrorInfoProvider
         var errorMessage = new StringBuilder();
         errorMessage.Append(error.Message);
 
-        foreach (var failedRequirement in error.PolicyAuthorizationResult.Failure.FailedRequirements)
+        if (error.PolicyAuthorizationResult != null)
         {
-            switch (failedRequirement)
+            foreach (var failedRequirement in error.PolicyAuthorizationResult.Failure!.FailedRequirements)
             {
-                case MinimumAgeRequirement minimumAgeRequirement:
-                    errorMessage.AppendLine();
-                    errorMessage.Append("The current user must be at least ");
-                    errorMessage.Append(minimumAgeRequirement.MinimumAge);
-                    errorMessage.Append(" years old.");
-                    break;
+                switch (failedRequirement)
+                {
+                    case MinimumAgeRequirement minimumAgeRequirement:
+                        errorMessage.AppendLine();
+                        errorMessage.Append("The current user must be at least ");
+                        errorMessage.Append(minimumAgeRequirement.MinimumAge);
+                        errorMessage.Append(" years old.");
+                        break;
+                }
             }
         }
 

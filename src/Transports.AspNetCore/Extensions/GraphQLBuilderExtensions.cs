@@ -1,9 +1,9 @@
-namespace GraphQL.Server;
+namespace GraphQL;
 
 /// <summary>
 /// Extension methods for <see cref="IGraphQLBuilder"/>.
 /// </summary>
-public static class GraphQLBuilderExtensions
+public static class ServerGraphQLBuilderExtensions
 {
     /// <summary>
     /// Registers the specified <typeparamref name="TUserContextBuilder"/> as a singleton of
@@ -40,6 +40,8 @@ public static class GraphQLBuilderExtensions
     public static IGraphQLBuilder AddUserContextBuilder<TUserContext>(this IGraphQLBuilder builder, Func<HttpContext, Task<TUserContext>> creator)
         where TUserContext : class, IDictionary<string, object?>
     {
+        if (creator == null)
+            throw new ArgumentNullException(nameof(creator));
         builder.Services.Register<IUserContextBuilder>(new UserContextBuilder<TUserContext>(context => new(creator(context))));
         builder.Services.TryRegister<IConfigureExecution, UserContextConfigurator>(DI.ServiceLifetime.Singleton, RegistrationCompareMode.ServiceTypeAndImplementationType);
 

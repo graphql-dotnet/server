@@ -1,14 +1,10 @@
-using GraphQL.DataLoader;
 using GraphQL.Execution;
-using GraphQL.MicrosoftDI;
 using GraphQL.Samples.Schemas.Chat;
-using GraphQL.Server;
 using GraphQL.Server.Transports.AspNetCore;
 using GraphQL.Server.Ui.Altair;
 using GraphQL.Server.Ui.GraphiQL;
 using GraphQL.Server.Ui.Playground;
 using GraphQL.Server.Ui.Voyager;
-using GraphQL.SystemTextJson;
 
 namespace GraphQL.Samples.Server;
 
@@ -35,10 +31,11 @@ public class StartupWithRouting
         services.AddGraphQL(builder => builder
             .AddApolloTracing()
             .AddSchema<ChatSchema>()
+            .AddAutoClrMappings()
             .ConfigureExecutionOptions(options =>
             {
                 options.EnableMetrics = Environment.IsDevelopment();
-                var logger = options.RequestServices.GetRequiredService<ILogger<Startup>>();
+                var logger = options.RequestServices!.GetRequiredService<ILogger<Startup>>();
                 options.UnhandledExceptionDelegate = ctx =>
                 {
                     logger.LogError("{Error} occurred", ctx.OriginalException.Message);
@@ -48,7 +45,7 @@ public class StartupWithRouting
             .AddSystemTextJson()
             .AddErrorInfoProvider<CustomErrorInfoProvider>()
             .AddDataLoader()
-            .AddUserContextBuilder(context => new Dictionary<string, object> { { "user", context.User.Identity.IsAuthenticated ? context.User : null } })
+            .AddUserContextBuilder(context => new Dictionary<string, object?> { { "user", context.User.Identity!.IsAuthenticated ? context.User : null } })
             .AddGraphTypes(typeof(ChatSchema).Assembly));
     }
 

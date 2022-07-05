@@ -2,15 +2,19 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <AssemblyName>GraphQL.Samples.Schemas.Chat</AssemblyName>
-    <RootNamespace>GraphQL.Samples.Schemas.Chat</RootNamespace>
+    <WarningsNotAsErrors>CS8618</WarningsNotAsErrors>
     <IsPackable>false</IsPackable>
-    <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="GraphQL" Version="$(GraphQLVersion)" />
     <PackageReference Include="System.Reactive" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="GraphQL" />
+    <Using Include="GraphQL.Samples.Schemas.Chat" />
+    <Using Include="GraphQL.Types" />
   </ItemGroup>
 
 </Project>
