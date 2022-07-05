@@ -16,6 +16,7 @@
     <ProjectReference Include="..\Ui.Voyager\Ui.Voyager.csproj" />
 
     <PackageReference Include="GraphQL.MemoryCache" Version="$(GraphQLVersion)" />
+    <PackageReference Include="GraphQL.DataLoader" Version="$(GraphQLVersion)" />
     <PackageReference Include="GraphQL.MicrosoftDI" Version="$(GraphQLVersion)" />
     <PackageReference Include="GraphQL.SystemTextJson" Version="$(GraphQLVersion)" />
   </ItemGroup>
