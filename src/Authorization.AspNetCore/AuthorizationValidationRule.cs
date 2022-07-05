@@ -31,12 +31,12 @@ public partial class AuthorizationValidationRule : IValidationRule
     }
 
     /// <inheritdoc/>
-    public ValueTask<INodeVisitor?> ValidateAsync(ValidationContext context)
+    public async ValueTask<INodeVisitor?> ValidateAsync(ValidationContext context)
     {
         var visitor = new AuthorizationVisitor(context, _claimsPrincipalAccessor.GetClaimsPrincipal(context), _authorizationService, _messageBuilder, this);
 
         // if the schema fails authentication, report the error and do not perform any additional authorization checks.
-        return visitor.ValidateSchema(context) ? new(visitor) : default;
+        return await visitor.ValidateSchemaAsync(context) ? visitor : null;
     }
 
     /// <summary>
