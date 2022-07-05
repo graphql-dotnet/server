@@ -26,6 +26,7 @@ public static class GraphQLBuilderAuthorizationExtensions
     /// <param name="builder">The GraphQL builder.</param>
     /// <param name="configure">An action delegate to configure the provided <see cref="AuthorizationOptions"/>.</param>
     /// <returns>Reference to the passed <paramref name="builder"/>.</returns>
+    [Obsolete("This extension method has been replaced with AddAuthorization and will be removed in v8.")]
     public static IGraphQLBuilder AddGraphQLAuthorization(this IGraphQLBuilder builder, Action<AuthorizationOptions>? configure)
 #endif
     {
