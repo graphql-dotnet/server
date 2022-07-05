@@ -137,7 +137,7 @@ public abstract partial class AuthorizationVisitorBase : INodeVisitor
         if (node == context.Operation)
         {
             _checkTree = false;
-            await PopAndProcess();
+            await PopAndProcessAsync();
         }
         else if (node is GraphQLFragmentDefinition fragmentDefinition)
         {
@@ -152,12 +152,12 @@ public abstract partial class AuthorizationVisitorBase : INodeVisitor
         }
         else if (_checkTree && node is GraphQLField)
         {
-            await PopAndProcess();
+            await PopAndProcessAsync();
         }
 
         // pop the current type info, and validate the type if it does not contain only fields marked
         // with AllowAnonymous (assuming it is not waiting on fragments)
-        async ValueTask PopAndProcess()
+        async ValueTask PopAndProcessAsync()
         {
             var info = _onlyAnonymousSelected.Pop();
             var type = context.TypeInfo.GetLastType()?.GetNamedType();
