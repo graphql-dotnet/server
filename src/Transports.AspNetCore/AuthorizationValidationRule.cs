@@ -14,7 +14,7 @@ public class AuthorizationValidationRule : IValidationRule
     }
 
     /// <inheritdoc/>
-    public virtual ValueTask<INodeVisitor?> ValidateAsync(ValidationContext context)
+    public virtual async ValueTask<INodeVisitor?> ValidateAsync(ValidationContext context)
     {
         var httpContext = _contextAccessor.HttpContext
             ?? throw new InvalidOperationException("HttpContext could not be retrieved from IHttpContextAccessor.");
@@ -27,6 +27,6 @@ public class AuthorizationValidationRule : IValidationRule
 
         var visitor = new AuthorizationVisitor(context, user, authService);
         // if the schema fails authentication, report the error and do not perform any additional authorization checks.
-        return visitor.ValidateSchema(context) ? new(visitor) : default;
+        return await visitor.ValidateSchemaAsync(context) ? visitor : null;
     }
 }
