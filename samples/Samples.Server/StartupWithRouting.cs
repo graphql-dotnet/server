@@ -1,13 +1,10 @@
-using GraphQL.DataLoader;
 using GraphQL.Execution;
-using GraphQL.MicrosoftDI;
 using GraphQL.Samples.Schemas.Chat;
 using GraphQL.Server.Transports.AspNetCore;
 using GraphQL.Server.Ui.Altair;
 using GraphQL.Server.Ui.GraphiQL;
 using GraphQL.Server.Ui.Playground;
 using GraphQL.Server.Ui.Voyager;
-using GraphQL.SystemTextJson;
 
 namespace GraphQL.Samples.Server;
 
