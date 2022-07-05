@@ -1,0 +1,69 @@
+namespace GraphQL.Server.Authorization.AspNetCore
+{
+    [System.Obsolete("This class has been replaced by GraphQL.Server.Transports.AspNetCore.Errors.Acces" +
+        "sDeniedError and will be removed in v8.")]
+    public class AuthorizationError : GraphQL.Validation.ValidationError
+    {
+        public AuthorizationError(GraphQLParser.AST.ASTNode? node, GraphQL.Validation.ValidationContext context, string message, Microsoft.AspNetCore.Authorization.AuthorizationResult result, GraphQLParser.AST.OperationType? operationType = default) { }
+        public virtual Microsoft.AspNetCore.Authorization.AuthorizationResult AuthorizationResult { get; }
+        public GraphQLParser.AST.OperationType? OperationType { get; }
+    }
+    [System.Obsolete("This class has been replaced by GraphQL.Server.Transports.AspNetCore.Authorizatio" +
+        "nValidationRule and will be removed in v8.")]
+    public class AuthorizationValidationRule : GraphQL.Validation.IValidationRule
+    {
+        public AuthorizationValidationRule(Microsoft.AspNetCore.Authorization.IAuthorizationService authorizationService, GraphQL.Server.Authorization.AspNetCore.IClaimsPrincipalAccessor claimsPrincipalAccessor, GraphQL.Server.Authorization.AspNetCore.IAuthorizationErrorMessageBuilder messageBuilder) { }
+        protected virtual void AddValidationError(GraphQLParser.AST.ASTNode? node, GraphQL.Validation.ValidationContext context, GraphQLParser.AST.OperationType? operationType, Microsoft.AspNetCore.Authorization.AuthorizationResult result) { }
+        public System.Threading.Tasks.ValueTask<GraphQL.Validation.INodeVisitor?> ValidateAsync(GraphQL.Validation.ValidationContext context) { }
+        [System.Obsolete("This class has been replaced by GraphQL.Server.Transports.AspNetCore.Authorizatio" +
+            "nValidationRule.AuthorizationVisitor and will be removed in v8.")]
+        public class AuthorizationVisitor : GraphQL.Server.Transports.AspNetCore.AuthorizationVisitor
+        {
+            public AuthorizationVisitor(GraphQL.Validation.ValidationContext context, System.Security.Claims.ClaimsPrincipal claimsPrincipal, Microsoft.AspNetCore.Authorization.IAuthorizationService authorizationService, GraphQL.Server.Authorization.AspNetCore.IAuthorizationErrorMessageBuilder authorizationErrorMessageBuilder, GraphQL.Server.Authorization.AspNetCore.AuthorizationValidationRule authorizationValidationRule) { }
+            protected override void HandleNodeNotAuthorized(GraphQL.Server.Transports.AspNetCore.AuthorizationVisitorBase.ValidationInfo info) { }
+            protected override void HandleNodeNotInPolicy(GraphQL.Server.Transports.AspNetCore.AuthorizationVisitorBase.ValidationInfo info, string policy, Microsoft.AspNetCore.Authorization.AuthorizationResult authorizationResult) { }
+            protected override void HandleNodeNotInRoles(GraphQL.Server.Transports.AspNetCore.AuthorizationVisitorBase.ValidationInfo info, System.Collections.Generic.List<string> roles) { }
+        }
+    }
+    [System.Obsolete("This class will be removed in v8 as revealing authorization requirements may be a" +
+        " security risk; please use ErrorInfoProvider if you require detailed access-deni" +
+        "ed error messages.")]
+    public class DefaultAuthorizationErrorMessageBuilder : GraphQL.Server.Authorization.AspNetCore.IAuthorizationErrorMessageBuilder
+    {
+        public DefaultAuthorizationErrorMessageBuilder() { }
+        public virtual void AppendFailureHeader(System.Text.StringBuilder error, GraphQLParser.AST.OperationType? operationType) { }
+        public virtual void AppendFailureLine(System.Text.StringBuilder error, Microsoft.AspNetCore.Authorization.IAuthorizationRequirement authorizationRequirement) { }
+        public virtual string GenerateMessage(GraphQLParser.AST.OperationType? operationType, Microsoft.AspNetCore.Authorization.AuthorizationResult result) { }
+    }
+    [System.Obsolete("This class will be removed in v8; please override GraphQLHttpMiddleware.HandleAut" +
+        "horizeAsync and set HttpContext.User if needed.")]
+    public class DefaultClaimsPrincipalAccessor : GraphQL.Server.Authorization.AspNetCore.IClaimsPrincipalAccessor
+    {
+        public DefaultClaimsPrincipalAccessor(Microsoft.AspNetCore.Http.IHttpContextAccessor contextAccessor) { }
+        public System.Security.Claims.ClaimsPrincipal GetClaimsPrincipal(GraphQL.Validation.ValidationContext context) { }
+    }
+    [System.Obsolete("This class will be removed in v8 as revealing authorization requirements may be a" +
+        " security risk; please use ErrorInfoProvider if you require detailed access-deni" +
+        "ed error messages.")]
+    public interface IAuthorizationErrorMessageBuilder
+    {
+        void AppendFailureHeader(System.Text.StringBuilder error, GraphQLParser.AST.OperationType? operationType);
+        void AppendFailureLine(System.Text.StringBuilder error, Microsoft.AspNetCore.Authorization.IAuthorizationRequirement authorizationRequirement);
+        string GenerateMessage(GraphQLParser.AST.OperationType? operationType, Microsoft.AspNetCore.Authorization.AuthorizationResult result);
+    }
+    [System.Obsolete("This class will be removed in v8; please override GraphQLHttpMiddleware.HandleAut" +
+        "horizeAsync and set HttpContext.User if needed.")]
+    public interface IClaimsPrincipalAccessor
+    {
+        System.Security.Claims.ClaimsPrincipal GetClaimsPrincipal(GraphQL.Validation.ValidationContext context);
+    }
+}
+namespace GraphQL.Server
+{
+    public static class GraphQLBuilderAuthorizationExtensions
+    {
+        [System.Obsolete("This extension method has been replaced with AddAuthorization and will be removed" +
+            " in v8.")]
+        public static GraphQL.DI.IGraphQLBuilder AddGraphQLAuthorization(this GraphQL.DI.IGraphQLBuilder builder) { }
+    }
+}
