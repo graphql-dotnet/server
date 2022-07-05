@@ -63,6 +63,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples.Server.Tests", "tes
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Transports.AspNetCore.Tests", "tests\Transports.AspNetCore.Tests\Transports.AspNetCore.Tests.csproj", "{E6254F37-CE6A-4CF8-B38A-15317E7B70D9}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Authorization.AspNetCore", "src\Authorization.AspNetCore\Authorization.AspNetCore.csproj", "{A4875E2D-62AF-4D86-9D8A-19A310365FE8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Authorization.AspNetCore.Tests", "tests\Authorization.AspNetCore.Tests\Authorization.AspNetCore.Tests.csproj", "{9AEB9941-618B-430A-A14C-37F39AFFC0C4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -117,6 +121,14 @@ Global
 		{E6254F37-CE6A-4CF8-B38A-15317E7B70D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E6254F37-CE6A-4CF8-B38A-15317E7B70D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E6254F37-CE6A-4CF8-B38A-15317E7B70D9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A4875E2D-62AF-4D86-9D8A-19A310365FE8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A4875E2D-62AF-4D86-9D8A-19A310365FE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A4875E2D-62AF-4D86-9D8A-19A310365FE8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A4875E2D-62AF-4D86-9D8A-19A310365FE8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9AEB9941-618B-430A-A14C-37F39AFFC0C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9AEB9941-618B-430A-A14C-37F39AFFC0C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9AEB9941-618B-430A-A14C-37F39AFFC0C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9AEB9941-618B-430A-A14C-37F39AFFC0C4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -133,6 +145,7 @@ Global
 		{9F1A96BC-FF87-427F-8284-5A0670CA596C} = {BBD07745-C962-4D2D-B302-6DA1BCC2FF43}
 		{6F69C42F-7CC2-4BCA-A785-B65E42E4B4FB} = {BBD07745-C962-4D2D-B302-6DA1BCC2FF43}
 		{E6254F37-CE6A-4CF8-B38A-15317E7B70D9} = {BBD07745-C962-4D2D-B302-6DA1BCC2FF43}
+		{9AEB9941-618B-430A-A14C-37F39AFFC0C4} = {BBD07745-C962-4D2D-B302-6DA1BCC2FF43}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3FC7FA59-E938-453C-8C4A-9D5635A9489A}

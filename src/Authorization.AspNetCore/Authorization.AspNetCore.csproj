@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;netcoreapp2.1;netcoreapp3.1;net5</TargetFrameworks>
+    <Description>Integration of GraphQL.NET validation subsystem into ASP.NET Core</Description>
+    <PackageTags>GraphQL;authentication;authorization;validation</PackageTags>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Transports.AspNetCore\Transports.AspNetCore.csproj" />
+  </ItemGroup>
+
+</Project>
