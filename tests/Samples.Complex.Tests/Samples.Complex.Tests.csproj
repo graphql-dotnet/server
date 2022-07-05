@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../../Tests.props" />
+
+  <PropertyGroup>
+    <TargetFrameworks>net6;net5;netcoreapp3.1</TargetFrameworks>
+    <Description>End to end tests for Samples.Server project</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <ProjectReference Include="..\..\samples\Samples.Complex\Samples.Complex.csproj" />
+  </ItemGroup>
+
+</Project>

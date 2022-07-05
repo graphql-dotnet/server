@@ -11,12 +11,12 @@
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.13.1" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
-    <PackageReference Include="GraphQL.SystemTextJson" Version="5.1.1" />
-    <PackageReference Include="GraphQL.NewtonsoftJson" Version="5.1.1" />
+    <PackageReference Include="GraphQL.SystemTextJson" Version="$(GraphQLVersion)" />
+    <PackageReference Include="GraphQL.NewtonsoftJson" Version="$(GraphQLVersion)" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\tests\Samples.Server.Tests\Serializer.cs" Link="Shared\Serializer.cs" />
+    <Compile Include="..\..\tests\Samples.Complex.Tests\Serializer.cs" Link="Shared\Serializer.cs" />
   </ItemGroup>
 
 </Project>
