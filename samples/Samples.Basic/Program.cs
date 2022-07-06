@@ -19,8 +19,8 @@ app.UseGraphQL("/graphql");
 app.UseGraphQLPlayground(
     new GraphQL.Server.Ui.Playground.PlaygroundOptions
     {
-        GraphQLEndPoint = new PathString("/graphql"),
-        SubscriptionsEndPoint = new PathString("/graphql"),
+        GraphQLEndPoint = "/graphql",
+        SubscriptionsEndPoint = "/graphql",
     },
     "/");
 
