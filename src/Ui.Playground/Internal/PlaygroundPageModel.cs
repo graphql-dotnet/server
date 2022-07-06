@@ -1,5 +1,4 @@
 using System.Text;
-using System.Text.Json;
 
 namespace GraphQL.Server.Ui.Playground.Internal;
 
@@ -46,13 +45,22 @@ internal sealed class PlaygroundPageModel
             var builder = new StringBuilder(streamReader.ReadToEnd())
                 .Replace("@Model.GraphQLEndPoint", _options.GraphQLEndPoint)
                 .Replace("@Model.SubscriptionsEndPoint", _options.SubscriptionsEndPoint)
-                .Replace("@Model.GraphQLConfig", JsonSerializer.Serialize<object>(_options.GraphQLConfig!))
-                .Replace("@Model.Headers", JsonSerializer.Serialize<object>(headers))
-                .Replace("@Model.PlaygroundSettings", JsonSerializer.Serialize<object>(_options.PlaygroundSettings));
+                .Replace("@Model.GraphQLConfig", JsonSerialize(_options.GraphQLConfig!))
+                .Replace("@Model.Headers", JsonSerialize(headers))
+                .Replace("@Model.PlaygroundSettings", JsonSerialize(_options.PlaygroundSettings));
 
             _playgroundCSHtml = _options.PostConfigure(_options, builder.ToString());
         }
 
         return _playgroundCSHtml;
+    }
+
+    private static string JsonSerialize(object value)
+    {
+#if NETSTANDARD2_0
+        return Newtonsoft.Json.JsonConvert.SerializeObject(value);
+#else
+        return System.Text.Json.JsonSerializer.Serialize(value);
+#endif
     }
 }

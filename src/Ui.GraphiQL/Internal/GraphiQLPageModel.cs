@@ -1,5 +1,4 @@
 using System.Text;
-using System.Text.Json;
 
 namespace GraphQL.Server.Ui.GraphiQL.Internal;
 
@@ -37,7 +36,7 @@ internal sealed class GraphiQLPageModel
             var builder = new StringBuilder(streamReader.ReadToEnd())
                 .Replace("@Model.GraphQLEndPoint", _options.GraphQLEndPoint)
                 .Replace("@Model.SubscriptionsEndPoint", _options.SubscriptionsEndPoint)
-                .Replace("@Model.Headers", JsonSerializer.Serialize<object>(headers))
+                .Replace("@Model.Headers", JsonSerialize(headers))
                 .Replace("@Model.HeaderEditorEnabled", _options.HeaderEditorEnabled ? "true" : "false")
                 .Replace("@Model.GraphiQLElement", _options.ExplorerExtensionEnabled ? "GraphiQLWithExtensions.GraphiQLWithExtensions" : "GraphiQL");
 
@@ -45,5 +44,14 @@ internal sealed class GraphiQLPageModel
         }
 
         return _graphiQLCSHtml;
+    }
+
+    private static string JsonSerialize(object value)
+    {
+#if NETSTANDARD2_0
+        return Newtonsoft.Json.JsonConvert.SerializeObject(value);
+#else
+        return System.Text.Json.JsonSerializer.Serialize(value);
+#endif
     }
 }
