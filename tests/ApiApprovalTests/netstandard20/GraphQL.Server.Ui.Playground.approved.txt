@@ -1,0 +1,59 @@
+namespace GraphQL.Server.Ui.Playground
+{
+    public enum EditorCursorShape
+    {
+        Line = 0,
+        Block = 1,
+        Underline = 2,
+    }
+    public enum EditorTheme
+    {
+        Dark = 0,
+        Light = 1,
+    }
+    public class PlaygroundMiddleware
+    {
+        public PlaygroundMiddleware(Microsoft.AspNetCore.Http.RequestDelegate next, GraphQL.Server.Ui.Playground.PlaygroundOptions options) { }
+        public System.Threading.Tasks.Task Invoke(Microsoft.AspNetCore.Http.HttpContext httpContext) { }
+    }
+    public class PlaygroundOptions
+    {
+        public PlaygroundOptions() { }
+        public bool BetaUpdates { get; set; }
+        public GraphQL.Server.Ui.Playground.EditorCursorShape EditorCursorShape { get; set; }
+        public string EditorFontFamily { get; set; }
+        public int EditorFontSize { get; set; }
+        public bool EditorReuseHeaders { get; set; }
+        public GraphQL.Server.Ui.Playground.EditorTheme EditorTheme { get; set; }
+        public System.Collections.Generic.Dictionary<string, object>? GraphQLConfig { get; set; }
+        public Microsoft.AspNetCore.Http.PathString GraphQLEndPoint { get; set; }
+        public System.Collections.Generic.Dictionary<string, object>? Headers { get; set; }
+        public bool HideTracingResponse { get; set; }
+        public System.Func<GraphQL.Server.Ui.Playground.PlaygroundOptions, System.IO.Stream> IndexStream { get; set; }
+        public System.Collections.Generic.Dictionary<string, object> PlaygroundSettings { get; set; }
+        public System.Func<GraphQL.Server.Ui.Playground.PlaygroundOptions, string, string> PostConfigure { get; set; }
+        public int PrettierPrintWidth { get; set; }
+        public int PrettierTabWidth { get; set; }
+        public bool PrettierUseTabs { get; set; }
+        public GraphQL.Server.Ui.Playground.RequestCredentials RequestCredentials { get; set; }
+        public bool SchemaDisableComments { get; set; }
+        public bool SchemaPollingEnabled { get; set; }
+        public string SchemaPollingEndpointFilter { get; set; }
+        public int SchemaPollingInterval { get; set; }
+        public Microsoft.AspNetCore.Http.PathString SubscriptionsEndPoint { get; set; }
+    }
+    public enum RequestCredentials
+    {
+        Omit = 0,
+        Include = 1,
+        SameOrigin = 2,
+    }
+}
+namespace Microsoft.AspNetCore.Builder
+{
+    public static class PlaygroundApplicationBuilderExtensions
+    {
+        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQLPlayground(this Microsoft.AspNetCore.Builder.IApplicationBuilder app, string path = "/ui/playground") { }
+        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQLPlayground(this Microsoft.AspNetCore.Builder.IApplicationBuilder app, GraphQL.Server.Ui.Playground.PlaygroundOptions options, string path = "/ui/playground") { }
+    }
+}
