@@ -54,7 +54,7 @@ public class HomeController : Controller
         return BadRequest();
     }
 
-    private GraphQLRequest ParseRequest(string query, string? operationName, string? variables = null, string? extensions = null)
+    private GraphQLRequest BuildRequest(string query, string? operationName, string? variables = null, string? extensions = null)
         => new GraphQLRequest
         {
             Query = query == "" ? null : query,
