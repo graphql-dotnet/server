@@ -1,3 +1,5 @@
+#if !NETSTANDARD2_0
+
 using GraphQL.Server.Ui.Playground;
 using Microsoft.AspNetCore.Routing;
 
@@ -50,3 +52,5 @@ public class PlaygroundEndpointConventionBuilder : IEndpointConventionBuilder
     /// <inheritdoc />
     public void Add(Action<EndpointBuilder> convention) => _builder.Add(convention);
 }
+
+#endif

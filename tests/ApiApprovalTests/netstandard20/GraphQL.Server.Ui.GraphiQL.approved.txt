@@ -1,0 +1,27 @@
+namespace GraphQL.Server.Ui.GraphiQL
+{
+    public class GraphiQLMiddleware
+    {
+        public GraphiQLMiddleware(Microsoft.AspNetCore.Http.RequestDelegate next, GraphQL.Server.Ui.GraphiQL.GraphiQLOptions options) { }
+        public System.Threading.Tasks.Task Invoke(Microsoft.AspNetCore.Http.HttpContext httpContext) { }
+    }
+    public class GraphiQLOptions
+    {
+        public GraphiQLOptions() { }
+        public bool ExplorerExtensionEnabled { get; set; }
+        public Microsoft.AspNetCore.Http.PathString GraphQLEndPoint { get; set; }
+        public bool HeaderEditorEnabled { get; set; }
+        public System.Collections.Generic.Dictionary<string, string>? Headers { get; set; }
+        public System.Func<GraphQL.Server.Ui.GraphiQL.GraphiQLOptions, System.IO.Stream> IndexStream { get; set; }
+        public System.Func<GraphQL.Server.Ui.GraphiQL.GraphiQLOptions, string, string> PostConfigure { get; set; }
+        public Microsoft.AspNetCore.Http.PathString SubscriptionsEndPoint { get; set; }
+    }
+}
+namespace Microsoft.AspNetCore.Builder
+{
+    public static class GraphiQLApplicationBuilderExtensions
+    {
+        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQLGraphiQL(this Microsoft.AspNetCore.Builder.IApplicationBuilder app, string path = "/ui/graphiql") { }
+        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQLGraphiQL(this Microsoft.AspNetCore.Builder.IApplicationBuilder app, GraphQL.Server.Ui.GraphiQL.GraphiQLOptions options, string path = "/ui/graphiql") { }
+    }
+}
