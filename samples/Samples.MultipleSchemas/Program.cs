@@ -20,8 +20,8 @@ app.UseGraphQL<MultipleSchema.Dogs.DogsSchema>("/dogs/graphql");
 app.UseGraphQLPlayground(
     new GraphQL.Server.Ui.Playground.PlaygroundOptions
     {
-        GraphQLEndPoint = new PathString("/cats/graphql"),
-        SubscriptionsEndPoint = new PathString("/cats/graphql"),
+        GraphQLEndPoint = "/cats/graphql",
+        SubscriptionsEndPoint = "/cats/graphql",
     },
     "/cats");
 // configure Playground at "/dogs"
