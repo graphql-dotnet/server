@@ -48,10 +48,10 @@ internal sealed class GraphiQLPageModel
 
     private static string JsonSerialize(object value)
     {
-#if !NETSTANDARD2_0
-        return System.Text.Json.JsonSerializer.Serialize(value);
-#else
+#if NETSTANDARD2_0
         return Newtonsoft.Json.JsonConvert.SerializeObject(value);
+#else
+        return System.Text.Json.JsonSerializer.Serialize(value);
 #endif
     }
 }
