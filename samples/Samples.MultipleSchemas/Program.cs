@@ -28,8 +28,8 @@ app.UseGraphQLPlayground(
 app.UseGraphQLPlayground(
     new GraphQL.Server.Ui.Playground.PlaygroundOptions
     {
-        GraphQLEndPoint = new PathString("/dogs/graphql"),
-        SubscriptionsEndPoint = new PathString("/dogs/graphql"),
+        GraphQLEndPoint = "/dogs/graphql",
+        SubscriptionsEndPoint = "/dogs/graphql",
     },
     "/dogs");
 app.MapRazorPages();
