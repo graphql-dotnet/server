@@ -14,6 +14,9 @@ public class ApiApprovalTests
     [InlineData(typeof(Server.Ui.Playground.PlaygroundMiddleware))]
     [InlineData(typeof(Server.Ui.Voyager.VoyagerMiddleware))]
     [InlineData(typeof(Server.Transports.AspNetCore.GraphQLHttpMiddleware<>))]
+#pragma warning disable CS0618 // Type or member is obsolete
+    [InlineData(typeof(Server.Authorization.AspNetCore.AuthorizationValidationRule))]
+#pragma warning restore CS0618 // Type or member is obsolete
     public void public_api_should_not_change_unintentionally(Type type)
     {
         string baseDir = AppDomain.CurrentDomain.BaseDirectory;
