@@ -33,7 +33,7 @@ public class HomeController : Controller
         }
         else
         {
-            return ExecuteGraphQLRequestAsync(ParseRequest(query, operationName));
+            return ExecuteGraphQLRequestAsync(BuildRequest(query, operationName));
         }
     }
 
@@ -44,7 +44,7 @@ public class HomeController : Controller
         if (HttpContext.Request.HasFormContentType)
         {
             var form = await HttpContext.Request.ReadFormAsync(HttpContext.RequestAborted);
-            return await ExecuteGraphQLRequestAsync(ParseRequest(form["query"].ToString(), form["operationName"].ToString(), form["variables"].ToString(), form["extensions"].ToString()));
+            return await ExecuteGraphQLRequestAsync(BuildRequest(form["query"].ToString(), form["operationName"].ToString(), form["variables"].ToString(), form["extensions"].ToString()));
         }
         else if (HttpContext.Request.HasJsonContentType())
         {
