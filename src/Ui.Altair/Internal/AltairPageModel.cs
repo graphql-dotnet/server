@@ -1,5 +1,4 @@
 using System.Text;
-using System.Text.Json;
 
 namespace GraphQL.Server.Ui.Altair.Internal;
 
@@ -37,11 +36,20 @@ internal sealed class AltairPageModel
             var builder = new StringBuilder(streamReader.ReadToEnd())
                 .Replace("@Model.GraphQLEndPoint", _options.GraphQLEndPoint)
                 .Replace("@Model.SubscriptionsEndPoint", _options.SubscriptionsEndPoint)
-                .Replace("@Model.Headers", JsonSerializer.Serialize<object>(headers));
+                .Replace("@Model.Headers", JsonSerialize(headers));
 
             _altairCSHtml = _options.PostConfigure(_options, builder.ToString());
         }
 
         return _altairCSHtml;
+    }
+
+    private static string JsonSerialize(object value)
+    {
+#if NETCOREAPP3_1_OR_GREATER
+        return System.Text.Json.JsonSerializer.Serialize(value);
+#else
+        return Newtonsoft.Json.JsonConvert.SerializeObject(value);
+#endif
     }
 }
