@@ -45,7 +45,7 @@ internal sealed class VoyagerPageModel
 
     private static string JsonSerialize(object value)
     {
-#if NETCOREAPP3_1_OR_GREATER
+#if !NETSTANDARD2_0
         return System.Text.Json.JsonSerializer.Serialize(value);
 #else
         return Newtonsoft.Json.JsonConvert.SerializeObject(value);
