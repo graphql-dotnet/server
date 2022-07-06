@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../../Tests.props" />
+
+  <PropertyGroup>
+    <TargetFramework>net6</TargetFramework>
+    <Description>End to end tests for the Samples.Controller project</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\samples\Samples.Controller\Samples.Controller.csproj" />
+    <ProjectReference Include="..\Samples.Tests\Samples.Tests.csproj" />
+  </ItemGroup>
+
+</Project>

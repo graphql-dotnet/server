@@ -1,0 +1,46 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">GraphQL authentication sample</h1>
+</div>
+<div>
+    <div class="card">
+        <div class="card-header">Authentication status</div>
+        <div class="card-body">
+            <p>Logged in? @(HttpContext.User.Identity?.IsAuthenticated == true ? "Yes" : "No")</p>
+            @if (HttpContext.User.Identity?.IsAuthenticated == true)
+            {
+                <p>Current identity claims:</p>
+                <ul>
+                    @{
+                        foreach (var claim in HttpContext.User.Claims)
+                        {
+                                    <li>@claim.Type: @claim.Value</li>
+                        }
+                    }
+                </ul>
+                <p><form method="post"><button type="submit">Add to User role</button><input type="hidden" name="do" value="add" /></form></p>
+                <p><form method="post"><button type="submit">Remove from User role</button><input type="hidden" name="do" value="remove" /></form></p>
+            }
+        </div>
+    </div>
+    <p></p>
+    <div class="card">
+        <div class="card-header">Instructions</div>
+        <div class="card-body">
+            <ol>
+                <li>Test GraphQL via link above; should see that only anonymous operations are allowed (e.g. 'hello')</li>
+                <li>Register as a new user; execute database migrations if necessary</li>
+                <li>Log in as new user</li>
+                <li>Test GraphQL via link above; should see operations requiring authentication are allowed, while ones requiring the 'User' role are not (e.g. 'helloRegisteredUser')</li>
+                <li>Click the "Add to User role" button below to add the current user to the 'User' role</li>
+                <li>Log out and log back in</li>
+                <li>Test GraphQL via link above; all operations should work correctly (e.g. 'helloUser')</li>
+            </ol>
+        </div>
+    </div>
+</div>
