@@ -48,10 +48,10 @@ internal sealed class GraphiQLPageModel
 
     // https://html.spec.whatwg.org/multipage/scripting.html#restrictions-for-contents-of-script-elements
     private static string StringEncode(string value) => value
+        .Replace("\\", "\\\\")  // encode  \  as  \\
         .Replace("<", "\\x3C")  // encode  <  as  \x3C   -- so "<!--", "<script" and "</script" are handled correctly
         .Replace("'", "\\'")    // encode  '  as  \'
-        .Replace("\"", "\\\"")  // encode  "  as  \"
-        .Replace("\\", "\\\\"); // encode  \  as  \\
+        .Replace("\"", "\\\""); // encode  "  as  \"
 
     private static string JsonSerialize(object value)
     {
