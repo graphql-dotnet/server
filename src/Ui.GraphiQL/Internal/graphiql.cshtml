@@ -169,7 +169,7 @@
     }
 
     function getSubscriptionsEndPoint() {
-      var subscriptionsEndPoint = "@Model.SubscriptionsEndPoint";
+      const subscriptionsEndPoint = "@Model.SubscriptionsEndPoint";
       if (/^(?:[a-z]+:)?\/\//i.test(subscriptionsEndPoint)) {
         // if location includes protocol (e.g. "wss://") then return exact string
         return subscriptionsEndPoint;
