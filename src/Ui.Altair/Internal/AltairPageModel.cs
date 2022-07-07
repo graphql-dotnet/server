@@ -48,7 +48,8 @@ internal sealed class AltairPageModel
     private static string StringEncode(string value) => value
         .Replace("<", "\\x3C")  // encode  <  as  \x3C   -- so "<!--", "<script" and "</script" are handled correctly
         .Replace("'", "\\'")    // encode  '  as  \'
-        .Replace("\"", "\\\""); // encode  "  as  \"
+        .Replace("\"", "\\\"")  // encode  "  as  \"
+        .Replace("\\", "\\\\"); // encode  \  as  \\
 
     private static string JsonSerialize(object value)
     {
