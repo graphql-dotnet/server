@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Http;
-
 namespace GraphQL.Server.Ui.GraphiQL;
 
 /// <summary>
@@ -10,12 +8,12 @@ public class GraphiQLOptions
     /// <summary>
     /// The GraphQL EndPoint.
     /// </summary>
-    public PathString GraphQLEndPoint { get; set; } = "/graphql";
+    public string GraphQLEndPoint { get; set; } = "/graphql";
 
     /// <summary>
     /// Subscriptions EndPoint.
     /// </summary>
-    public PathString SubscriptionsEndPoint { get; set; } = "/graphql";
+    public string SubscriptionsEndPoint { get; set; } = "/graphql";
 
     /// <summary>
     /// HTTP headers with which the GraphiQL will be initialized.

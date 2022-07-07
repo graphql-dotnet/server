@@ -34,8 +34,8 @@ internal sealed class GraphiQLPageModel
             }
 
             var builder = new StringBuilder(streamReader.ReadToEnd())
-                .Replace("@Model.GraphQLEndPoint", _options.GraphQLEndPoint)
-                .Replace("@Model.SubscriptionsEndPoint", _options.SubscriptionsEndPoint)
+                .Replace("@Model.GraphQLEndPoint", StringEncode(_options.GraphQLEndPoint))
+                .Replace("@Model.SubscriptionsEndPoint", StringEncode(_options.SubscriptionsEndPoint))
                 .Replace("@Model.Headers", JsonSerialize(headers))
                 .Replace("@Model.HeaderEditorEnabled", _options.HeaderEditorEnabled ? "true" : "false")
                 .Replace("@Model.GraphiQLElement", _options.ExplorerExtensionEnabled ? "GraphiQLWithExtensions.GraphiQLWithExtensions" : "GraphiQL");
@@ -45,6 +45,12 @@ internal sealed class GraphiQLPageModel
 
         return _graphiQLCSHtml;
     }
+
+    // https://html.spec.whatwg.org/multipage/scripting.html#restrictions-for-contents-of-script-elements
+    private static string StringEncode(string value) => value
+        .Replace("<", "\\x3C")  // encode  <  as  \x3C   -- so "<!--", "<script" and "</script" are handled correctly
+        .Replace("'", "\\'")    // encode  '  as  \'
+        .Replace("\"", "\\\""); // encode  "  as  \"
 
     private static string JsonSerialize(object value)
     {
