@@ -8,7 +8,7 @@ namespace GraphQL.Server.Ui.Voyager
     public class VoyagerOptions
     {
         public VoyagerOptions() { }
-        public Microsoft.AspNetCore.Http.PathString GraphQLEndPoint { get; set; }
+        public string GraphQLEndPoint { get; set; }
         public System.Collections.Generic.Dictionary<string, object>? Headers { get; set; }
         public System.Func<GraphQL.Server.Ui.Voyager.VoyagerOptions, System.IO.Stream> IndexStream { get; set; }
         public System.Func<GraphQL.Server.Ui.Voyager.VoyagerOptions, string, string> PostConfigure { get; set; }
