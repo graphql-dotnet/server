@@ -52,5 +52,5 @@ public class GraphiQLOptions
     /// <remarks>
     /// See <see href="https://developer.mozilla.org/en-US/docs/Web/API/Request/credentials"/>.
     /// </remarks>
-    public RequestCredentials RequestCredentials { get; set; } = RequestCredentials.Include;
+    public RequestCredentials RequestCredentials { get; set; } = RequestCredentials.SameOrigin;
 }
