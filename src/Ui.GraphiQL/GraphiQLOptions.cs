@@ -50,7 +50,7 @@ public class GraphiQLOptions
     /// in the case of cross-origin requests.
     /// </summary>
     /// <remarks>
-    /// See <see href="https://developer.mozilla.org/en-US/docs/Web/API/Request/credentials"/>
+    /// See <see href="https://developer.mozilla.org/en-US/docs/Web/API/Request/credentials"/>.
     /// </remarks>
     public RequestCredentials RequestCredentials { get; set; } = RequestCredentials.Include;
 }

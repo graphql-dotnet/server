@@ -33,9 +33,18 @@ internal sealed class VoyagerPageModel
                     headers[item.Key] = item.Value;
             }
 
+            var requestCredentials = _options.RequestCredentials switch
+            {
+                RequestCredentials.Include => "include",
+                RequestCredentials.SameOrigin => "same-origin",
+                RequestCredentials.Omit => "omit",
+                _ => throw new InvalidOperationException("The RequestCredentials property is invalid."),
+            };
+
             var builder = new StringBuilder(streamReader.ReadToEnd())
                 .Replace("@Model.GraphQLEndPoint", StringEncode(_options.GraphQLEndPoint))
-                .Replace("@Model.Headers", JsonSerialize(headers));
+                .Replace("@Model.Headers", JsonSerialize(headers))
+                .Replace("@Model.RequestCredentials", requestCredentials);
 
             _voyagerCSHtml = _options.PostConfigure(_options, builder.ToString());
         }

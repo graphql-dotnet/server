@@ -103,6 +103,13 @@ public class PlaygroundOptions
         set => PlaygroundSettings["prettier.useTabs"] = value;
     }
 
+    /// <summary>
+    /// Indicates whether the user agent should send cookies from the other domain
+    /// in the case of cross-origin requests.
+    /// </summary>
+    /// <remarks>
+    /// See <see href="https://developer.mozilla.org/en-US/docs/Web/API/Request/credentials"/>.
+    /// </remarks>
     public RequestCredentials RequestCredentials
     {
         get => (string)PlaygroundSettings["request.credentials"] switch
@@ -172,11 +179,4 @@ public enum EditorTheme
 {
     Dark,
     Light
-}
-
-public enum RequestCredentials
-{
-    Omit,
-    Include,
-    SameOrigin
 }

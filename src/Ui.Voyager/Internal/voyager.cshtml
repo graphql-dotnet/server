@@ -47,7 +47,7 @@
         method: 'post',
         headers: @Model.Headers,
         body: JSON.stringify({query: introspectionQuery}),
-        credentials: 'include',
+        credentials: '@Model.RequestCredentials',
       }).then(function (response) {
         return response.text();
       }).then(function (responseBody) {
