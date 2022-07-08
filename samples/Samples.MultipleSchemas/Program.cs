@@ -16,21 +16,21 @@ app.UseWebSockets();
 app.UseGraphQL<MultipleSchema.Cats.CatsSchema>("/cats/graphql");
 // configure the graphql endpoint at "/dogs/graphql"
 app.UseGraphQL<MultipleSchema.Dogs.DogsSchema>("/dogs/graphql");
-// configure Playground at "/cats/ui" with relative link to api
+// configure Playground at "/cats/ui/playground" with relative link to api
 app.UseGraphQLPlayground(
     new GraphQL.Server.Ui.Playground.PlaygroundOptions
     {
-        GraphQLEndPoint = "graphql",
-        SubscriptionsEndPoint = "graphql",
+        GraphQLEndPoint = "../graphql",
+        SubscriptionsEndPoint = "../graphql",
     },
-    "/cats/ui");
-// configure Playground at "/dogs/ui" with relative link to api
+    "/cats/ui/playground");
+// configure Playground at "/dogs/ui/playground" with relative link to api
 app.UseGraphQLPlayground(
     new GraphQL.Server.Ui.Playground.PlaygroundOptions
     {
-        GraphQLEndPoint = "graphql",
-        SubscriptionsEndPoint = "graphql",
+        GraphQLEndPoint = "../graphql",
+        SubscriptionsEndPoint = "../graphql",
     },
-    "/dogs/ui");
+    "/dogs/ui/playground");
 app.MapRazorPages();
 await app.RunAsync();
