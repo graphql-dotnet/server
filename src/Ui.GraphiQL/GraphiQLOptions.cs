@@ -44,4 +44,13 @@ public class GraphiQLOptions
     /// Enables the explorer extension when <see langword="true"/>.
     /// </summary>
     public bool ExplorerExtensionEnabled { get; set; } = true;
+
+    /// <summary>
+    /// Indicates whether the user agent should send cookies from the other domain
+    /// in the case of cross-origin requests.
+    /// </summary>
+    /// <remarks>
+    /// See <see href="https://developer.mozilla.org/en-US/docs/Web/API/Request/credentials"/>
+    /// </remarks>
+    public RequestCredentials RequestCredentials { get; set; } = RequestCredentials.Include;
 }

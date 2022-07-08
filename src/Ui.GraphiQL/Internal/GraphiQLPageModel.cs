@@ -33,12 +33,21 @@ internal sealed class GraphiQLPageModel
                     headers[item.Key] = item.Value;
             }
 
+            var requestCredentials = _options.RequestCredentials switch
+            {
+                RequestCredentials.Include => "include",
+                RequestCredentials.SameOrigin => "same-origin",
+                RequestCredentials.Omit => "omit",
+                _ => throw new InvalidOperationException("The RequestCredentials property is invalid."),
+            };
+
             var builder = new StringBuilder(streamReader.ReadToEnd())
                 .Replace("@Model.GraphQLEndPoint", StringEncode(_options.GraphQLEndPoint))
                 .Replace("@Model.SubscriptionsEndPoint", StringEncode(_options.SubscriptionsEndPoint))
                 .Replace("@Model.Headers", JsonSerialize(headers))
                 .Replace("@Model.HeaderEditorEnabled", _options.HeaderEditorEnabled ? "true" : "false")
-                .Replace("@Model.GraphiQLElement", _options.ExplorerExtensionEnabled ? "GraphiQLWithExtensions.GraphiQLWithExtensions" : "GraphiQL");
+                .Replace("@Model.GraphiQLElement", _options.ExplorerExtensionEnabled ? "GraphiQLWithExtensions.GraphiQLWithExtensions" : "GraphiQL")
+                .Replace("@Model.RequestCredentials", requestCredentials);
 
             _graphiQLCSHtml = _options.PostConfigure(_options, builder.ToString());
         }

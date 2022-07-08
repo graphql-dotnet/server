@@ -156,7 +156,7 @@
         method: 'post',
         headers: Object.assign(@Model.Headers, fetcherOpts.headers),
         body: JSON.stringify(graphQLParams),
-        credentials: 'include',
+        credentials: '@Model.RequestCredentials',
       }).then(function (response) {
         return response.text();
       }).then(function (responseBody) {
