@@ -202,4 +202,6 @@ If you used the `AddUserContextBuilder` builder method, there are no changes nec
 For custom implementations of `IUserContextBuilder`, you will need to update the method
 signature for `BuildUserContextAsync`.
 
-## Migration of authentication handlers
+## Migration of authorization validation rule
+
+If you need `IClaimsPrincipalAccessor` 
