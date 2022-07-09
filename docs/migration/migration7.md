@@ -89,7 +89,9 @@ Added multiple sample projects, as follows:
 
 #### General migration notes
 
-Remove the call to `AddHttpMiddleware`, and if present, `AddWebSockets`, `AddWebSocketsHttpMiddleware` and `UseGraphQLWebSockets`.
+1. Remove the call to `AddHttpMiddleware`, and if present, `AddWebSockets`, `AddWebSocketsHttpMiddleware` and `UseGraphQLWebSockets`.
+2. Remove the NuGet reference to GraphQL.Server.Transports.Subscriptions.WebSockets, if any.
+   Only the GraphQL.Server.Transports.AspNetCore (or the GraphQL.Server.All) NuGet package is necessary.
 
 ```csharp
 // v6
@@ -209,8 +211,34 @@ signature for `BuildUserContextAsync`.
 
 ## Migration of authorization validation rule
 
-<p style="background-color: #f8d7da; color: #842029; border: 1px solid #f5c2c7; border-radius: 0.375rem">Note that authorization rules on input types are ignored in v7</p>
+| :warning: **Note that authorization rules on input types are ignored in v7** :warning: |
+| --- |
 
 If you need `IClaimsPrincipalAccessor`,  `IAuthorizationErrorMessageBuilder`, or the detailed authorization
 failure messages provided in v6, then you may use the deprecated authorization rule with no code changes.
+Please open an issue within GitHub explaining your need so it may be addressed.
 
+Otherwise, remove the GraphQL.Server.Authorization.AspNetCore NuGet package and make changes as shown below:
+
+```csharp
+// v6
+services.AddGraphQL(b => b
+    .AddGraphQLAuthorization(options => {
+        // ASP.NET authorization configuration
+    })
+    // other code
+);
+
+// v7
+services.AddGraphQL(b => b
+    .AddAuthorization()
+    // other code
+);
+services.AddAuthorization(options => {
+    // ASP.NET authorization configuration
+});
+```
+
+## Migration of UI middleware
+
+No changes are necessary for UI middleware
