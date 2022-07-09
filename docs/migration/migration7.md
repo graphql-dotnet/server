@@ -7,7 +7,6 @@
 - Configuration simplified to a single line of code
 - Single middleware to support GET, POST and WebSocket connections (configurable)
 - Media type of 'application/graphql+json' is accepted and returned as recommended by the draft spec (configurable via virutal method)
-- Status code of 400 is returned when the request fails validation as recommended by the draft spec (configurable)
 - Batched requests will execute in parallel within separate service scopes (configurable)
 - Authorization rules can be set on endpoints, regardless of schema configuration
 - Mutation requests are disallowed over GET connections, as required by the spec
@@ -93,13 +92,13 @@ Added multiple sample projects, as follows:
 
 ### General migration notes
 
-Remove the call to `AddHttpMiddleware`, and if present, `AddWebSockets` and `UseGraphQLWebSockets`.
+Remove the call to `AddHttpMiddleware`, and if present, `AddWebSockets`, `AddWebSocketsHttpMiddleware` and `UseGraphQLWebSockets`.
 
 ```csharp
 // v6
 services.AddGraphQL(b => b
-    // other code
     .AddHttpMiddleware<MySchema>()
+    .AddWebSocketsHttpMiddleware<MySchema>()
     .AddWebSockets()
     // other code
 );
@@ -167,3 +166,40 @@ app.UseGraphQL<MySchema>("/graphqlsubscription", o => {
     o.HandlePost = false;
 });
 ```
+
+### To retain prior media type of `application/json`
+
+```csharp
+class MyMiddleware<TSchema> : GraphQLHttpMiddleware<TSchema>
+    where TSchema : ISchema
+{
+    public MyMiddleware(
+        RequestDelegate next,
+        IGraphQLTextSerializer serializer,
+        IDocumentExecuter<TSchema> documentExecuter,
+        IServiceScopeFactory serviceScopeFactory,
+        GraphQLHttpMiddlewareOptions options,
+        IHostApplicationLifetime hostApplicationLifetime)
+        : base(next, serializer, documentExecuter, serviceScopeFactory, options, hostApplicationLifetime)
+    {
+    }
+
+    protected override string SelectResponseContentType(HttpContext context)
+        => "application/json";
+}
+
+app.UseGraphQL<MyMiddleware<ISchema>>("/graphql", new GraphQLHttpMiddlewareOptions());
+```
+
+### If you had code within the `RequestExecutedAsync` protected method
+
+Either override `HandleRequestAsync`, `HandleBatchRequestAsync` and/or `ExecuteRequestAsync`,
+or call the builder method `ConfigureExecution` to add code before/after the call to `IDocumentExecuter.ExecuteAsync`.
+
+## Migration of user context builder
+
+If you used the `AddUserContextBuilder` builder method, there are no changes necessary.
+For custom implementations of `IUserContextBuilder`, you will need to update the method
+signature for `BuildUserContextAsync`.
+
+## Migration of authentication handlers
