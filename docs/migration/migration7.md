@@ -2,7 +2,7 @@
 
 ## Major changes and new features
 
-### GraphQL Middleware
+#### GraphQL Middleware
 
 - Configuration simplified to a single line of code
 - Single middleware to support GET, POST and WebSocket connections (configurable)
@@ -16,7 +16,7 @@
 - New OOP design; middleware is easily extended in a derived class
 - Removed virtual method `GetCancellationToken`; token is pulled from `HttpContext.RequestAborted`
 
-### Subscriptions / WebSocket connections
+#### Subscriptions / WebSocket connections
 
 - WebSocket support has been moved into the main project and is included within the middleware above; no separate configuration is necessary
 - No 3rd party dependencies required (i.e. DataFlow or System.Reactive)
@@ -31,7 +31,7 @@
   be configured to execute within their own scope as well
 - Active subscription connections are terminated when the host is shutting down
 
-### Authorization rule (new)
+#### Authorization rule (new)
 
 - Configuration simplifed to a single line of code
 - Support moved into the main project; no separate NuGet reference required
@@ -44,30 +44,27 @@
 - Removed support for authorization checks on all input types
 - Authorization checks are skipped for fields or fragments that should be skipped due to an `@skip` or `@include` directive
 
-### Old authorization rule
+#### Old authorization rule
 
-The authorization rule as it existed in GraphQL.NET Server v6 is still present, but marked as `[Obsolete]`.
-`IClaimsPrincipalAccessor` and `IAuthorizationErrorMessageBuilder` are still supported and messages are
-generated in the same manner as in v6.
+- The authorization rule as it existed in GraphQL.NET Server v6 is still present, but marked as `[Obsolete]`.
+  `IClaimsPrincipalAccessor` and `IAuthorizationErrorMessageBuilder` are still supported and messages are
+  generated in the same manner as in v6.
+- Other new features, such as `AuthorizeWithRole` and proper `@skip` support are included.
+- These obsolete classes will be removed in v8; please open an issue if you require any of the deprecated features.
+- It is important to note that authorization checks on all input types are not supported even with this deprecated rule.
 
-Other new features, such as `AuthorizeWithRole` and proper `@skip` support are included.
-
-These obsolete classes will be removed in v8; please open an issue if you require any of the deprecated features.
-
-It is important to note that authorization checks on all input types are not supported even with this deprecated rule.
-
-### MVC projects
+#### MVC projects
 
 - Added an ExecutionResultActionResult class for returning GraphQL responses from MVC controller action methods
 
-### UI middleware
+#### UI middleware
 
 - Support for ASP.NET Core 2.1 and .NET Framework 4.8 has been added
 - Supports relative URLs for graphql and subscription endpoints
 - Supports fully-qualified URLs for graphql and subscription endpoints
 - Supports configuring RequestCredentials for Altair and GraphiQL middleware
 
-### Sample projects
+#### Sample projects
 
 Added multiple sample projects, as follows:
 
@@ -83,14 +80,14 @@ Added multiple sample projects, as follows:
 | Net48 | .NET Core 2.1 / .NET 4.8 | Demonstrates configuring GraphQL on .NET 4.8 / Core 2.1 |
 | Pages | .NET 6 Minimal | Demonstrates configuring GraphQL on top of a Razor Pages template |
 
-### Testing
+#### Testing
 
 - Enhanced testing of all code, reaching approximately 95%+ coverage for Transports.AspNetCore
 - Extensive testing of authorization rules
 
 ## Migration of middleware
 
-### General migration notes
+#### General migration notes
 
 Remove the call to `AddHttpMiddleware`, and if present, `AddWebSockets`, `AddWebSocketsHttpMiddleware` and `UseGraphQLWebSockets`.
 
@@ -127,7 +124,7 @@ app.UseGraphQL("/graphql");
 
 Note that the call to `app.UseWebSockets()` is part of ASP.NET Core and is still required for WebSocket support.
 
-### With derived middleware class
+<details><summary>With derived middleware class</summary><p>
 
 There is no clear example for rewriting derived middleware classes, as most of the virtual methods' signatures have changed.
 Be aware that `GraphQLHttpMiddlewareOptions`, or your derived options class, must be passed with the `UseGraphQL` method.
@@ -152,7 +149,9 @@ class MyMiddleware : GraphQLHttpMiddleware<MySchema>
 app.UseGraphQL<MyMiddleware>(new GraphQLHttpMiddlewareOptions());
 ```
 
-### With separate subscription endpoint
+</p></details>
+
+<details><summary>With separate subscription endpoint</summary><p>
 
 ```csharp
 // v6
@@ -167,7 +166,9 @@ app.UseGraphQL<MySchema>("/graphqlsubscription", o => {
 });
 ```
 
-### To retain prior media type of `application/json`
+</p></details>
+
+<details><summary>To retain prior media type of `application/json`</summary><p>
 
 ```csharp
 class MyMiddleware<TSchema> : GraphQLHttpMiddleware<TSchema>
@@ -191,10 +192,14 @@ class MyMiddleware<TSchema> : GraphQLHttpMiddleware<TSchema>
 app.UseGraphQL<MyMiddleware<ISchema>>("/graphql", new GraphQLHttpMiddlewareOptions());
 ```
 
-### If you had code within the `RequestExecutedAsync` protected method
+</p></details>
+
+<details><summary>If you had code within the `RequestExecutedAsync` protected method</summary><p>
 
 Either override `HandleRequestAsync`, `HandleBatchRequestAsync` and/or `ExecuteRequestAsync`,
 or call the builder method `ConfigureExecution` to add code before/after the call to `IDocumentExecuter.ExecuteAsync`.
+
+</p></details>
 
 ## Migration of user context builder
 
@@ -204,4 +209,8 @@ signature for `BuildUserContextAsync`.
 
 ## Migration of authorization validation rule
 
-If you need `IClaimsPrincipalAccessor` 
+<p style="background-color: #f8d7da; color: #842029; border: 1px solid #f5c2c7; border-radius: 0.375rem">Note that authorization rules on input types are ignored in v7</p>
+
+If you need `IClaimsPrincipalAccessor`,  `IAuthorizationErrorMessageBuilder`, or the detailed authorization
+failure messages provided in v6, then you may use the deprecated authorization rule with no code changes.
+
