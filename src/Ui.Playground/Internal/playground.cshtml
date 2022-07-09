@@ -63,7 +63,7 @@
         }
         return (window.location.protocol === "http:" ? "ws://" : "wss://") + window.location.host + currentUrl + '/' + subscriptionsEndPoint;
       }
-      // if location is is absolute (e.g. "/api") then prepend host only
+      // if location is absolute (e.g. "/api") then prepend host only
       return (window.location.protocol === "http:" ? "ws://" : "wss://") + window.location.host + subscriptionsEndPoint;
     }
 
