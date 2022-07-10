@@ -1,4 +1,4 @@
-# GraphQL for .NET - Subscription Transport WebSockets
+# ASP.NET Core Server for GraphQL.NET
 
 ![License](https://img.shields.io/github/license/graphql-dotnet/server)
 [![codecov](https://codecov.io/gh/graphql-dotnet/server/branch/master/graph/badge.svg?token=ZBcVYq7hz4)](https://codecov.io/gh/graphql-dotnet/server)
@@ -38,10 +38,8 @@ and [enisdenjo/graphql-ws](https://github.com/enisdenjo/graphql-ws) respoitories
 The `graphql-subscriptions` sub-protocol is not supported.
 
 The middleware can be configured through the `IApplicationBuilder` or `IEndpointRouteBuilder`
-builder interfaces.
-
-In addition, an `ExecutionResultActionResult` class is added for returning `ExecutionResult`
-instances directly from a controller action.
+builder interfaces.  In addition, an `ExecutionResultActionResult` class is added for returning
+`ExecutionResult` instances directly from a controller action.
 
 Authorization is also supported with the included `AuthorizationValidationRule`.  It will
 scan GraphQL documents and validate that the schema and all referenced output graph types, fields of
@@ -51,8 +49,7 @@ any policies or roles specified for input graph types, fields of input graph typ
 directives.  It skips validations for fields or fragments that are marked with the `@skip` or
 `@include` directives.
 
-See [migration notes](https://github.com/graphql-dotnet/server/blob/master/docs/migration/migration7.md)
-for changes from version 6.x.
+See [migration notes](migration/migration7.md) for changes from version 6.x.
 
 ## Configuration
 
@@ -304,17 +301,21 @@ Similarly for unions, validation occurs on the exact type that is queried.  Be s
 consider placement of authorization rules when using interfaces and unions, especially when some
 fields are marked with `AllowAnonymous`.
 
+| :warning: Note that authorization rules are ignored for input types and fields of input types :warning: |
+|-|
+
 #### Custom authentication configuration for GET/POST requests
 
 To provide custom authentication code, bypassing ASP.NET Core's authentication, derive from the
 `GraphQLHttpMiddleware` class and override `HandleAuthorizeAsync`, setting `HttpContext.User`
-to an appropriate `ClaimsPrincipal` instance.  See 'Customizing middleware behavior' below
-for more details.
+to an appropriate `ClaimsPrincipal` instance.
+
+See 'Customizing middleware behavior' below for an example of deriving from `GraphQLHttpMiddleware`.
 
 #### Authentication for WebSocket requests
 
 Since WebSocket requests from browsers cannot typically carry a HTTP Authorization header, you
-will need to authorize requests via the ConnectionInit WebSocket message or carry the authorization
+will need to authorize requests via the `ConnectionInit` WebSocket message or carry the authorization
 token within the URL.  Below is a sample of the former:
 
 ```cs
@@ -358,6 +359,15 @@ class MyAuthService : IWebSocketAuthenticationService
     }
 }
 ```
+
+To authorize based on information within the query string, it is recommended to
+derive from `GraphQLHttpMiddleware` and override `InvokeAsync`, setting
+`HttpContext.User` based on the query string parameters, and then calling `base.InvokeAsync`.
+Alternatively you may override `HandleAuthorizeAsync` which will execute for GET/POST requests,
+and `HandleAuthorizeWebSocketConnectionAsync` for WebSocket requests.
+Note that `InvokeAsync` will execute even if the protocol is disabled in the options via
+disabling `HandleGet` or similar; `HandleAuthorizeAsync` and `HandleAuthorizeWebSocketConnectionAsync`
+will not.
 
 ### UI configuration
 
