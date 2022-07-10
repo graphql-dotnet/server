@@ -448,7 +448,8 @@ public class BaseSubscriptionServerTests : IDisposable
         _mockServer.Protected().Setup<Task>("SubscribeAsync", message1, overwrite).Verifiable();
         _mockServer.Protected().Setup<Task>("SendSubscriptionSuccessfulAsync", message1).Verifiable();
         _mockServer.Protected().Setup<Task>("SubscribeAsync", message2, overwrite).Verifiable();
-        _mockServer.Protected().Setup<Task>("SendSubscriptionSuccessfulAsync", message2).Verifiable();
+        if (overwrite)
+            _mockServer.Protected().Setup<Task>("SendSubscriptionSuccessfulAsync", message2).Verifiable();
         await _server.Do_SubscribeAsync(message1, overwrite);
         _server.Get_Subscriptions.Contains(message1.Id).ShouldBeTrue();
         await _server.Do_SubscribeAsync(message2, overwrite);
