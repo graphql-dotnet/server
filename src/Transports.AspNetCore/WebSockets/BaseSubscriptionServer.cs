@@ -381,6 +381,7 @@ public abstract partial class BaseSubscriptionServer : IOperationMessageProcesso
                 // validation rules are in place, that should not be possible.
                 if (result.Streams?.Count == 1)
                 {
+                    await SendSubscriptionSuccessfulAsync(message);
                     // do not return a result, but set up a subscription
                     var stream = result.Streams!.Single().Value;
                     // note that this may immediately trigger some notifications
@@ -467,6 +468,11 @@ public abstract partial class BaseSubscriptionServer : IOperationMessageProcesso
     /// Sends an execution error to the client during set-up of a GraphQL request (typically subscription).
     /// </summary>
     protected abstract Task SendErrorResultAsync(string id, ExecutionResult result);
+
+    /// <summary>
+    /// Sends a notification that the specified subscription has been set up successfully.
+    /// </summary>
+    protected virtual Task SendSubscriptionSuccessfulAsync(OperationMessage message) => Task.CompletedTask;
 
     /// <summary>
     /// Sends a data packet to the client for a GraphQL request (typically a subscription event).
