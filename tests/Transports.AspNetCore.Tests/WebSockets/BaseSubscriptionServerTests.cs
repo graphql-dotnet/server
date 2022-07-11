@@ -402,6 +402,7 @@ public class BaseSubscriptionServerTests : IDisposable
             .Returns(Task.FromResult<ExecutionResult>(result))
             .Verifiable();
         _mockServer.Protected().Setup<Task>("SubscribeAsync", message, overwrite).Verifiable();
+        _mockServer.Protected().Setup<Task>("SendSubscriptionSuccessfulAsync", message).Verifiable();
         await _server.Do_SubscribeAsync(message, overwrite);
         _server.Get_Subscriptions.Contains(message.Id).ShouldBeTrue();
         _mockServer.Verify();
@@ -445,7 +446,10 @@ public class BaseSubscriptionServerTests : IDisposable
                 .Verifiable();
         }
         _mockServer.Protected().Setup<Task>("SubscribeAsync", message1, overwrite).Verifiable();
+        _mockServer.Protected().Setup<Task>("SendSubscriptionSuccessfulAsync", message1).Verifiable();
         _mockServer.Protected().Setup<Task>("SubscribeAsync", message2, overwrite).Verifiable();
+        if (overwrite)
+            _mockServer.Protected().Setup<Task>("SendSubscriptionSuccessfulAsync", message2).Verifiable();
         await _server.Do_SubscribeAsync(message1, overwrite);
         _server.Get_Subscriptions.Contains(message1.Id).ShouldBeTrue();
         await _server.Do_SubscribeAsync(message2, overwrite);
@@ -669,6 +673,7 @@ public class BaseSubscriptionServerTests : IDisposable
             .Returns(Task.FromResult<ExecutionResult>(result))
             .Verifiable();
         _mockServer.Protected().Setup<Task>("SubscribeAsync", message, false).Verifiable();
+        _mockServer.Protected().Setup<Task>("SendSubscriptionSuccessfulAsync", message).Verifiable();
         _mockServer.Protected().Setup<Task>("UnsubscribeAsync", message.Id).Verifiable();
         await _server.Do_SubscribeAsync(message, false);
         _server.Get_Subscriptions.Contains(message.Id).ShouldBeTrue();
@@ -710,6 +715,7 @@ public class BaseSubscriptionServerTests : IDisposable
             .Returns(Task.FromResult<ExecutionResult>(result))
             .Verifiable();
         _mockServer.Protected().Setup<Task>("SubscribeAsync", message, false).Verifiable();
+        _mockServer.Protected().Setup<Task>("SendSubscriptionSuccessfulAsync", message).Verifiable();
         _mockServer.Setup(x => x.Dispose()).CallBase().Verifiable();
         await _server.Do_SubscribeAsync(message, false);
         _server.Get_Subscriptions.Contains(message.Id).ShouldBeTrue();
@@ -739,6 +745,7 @@ public class BaseSubscriptionServerTests : IDisposable
         _mockServer.Protected().Setup<Task>("SendDataAsync", message.Id, result2).Returns(Task.CompletedTask).Verifiable();
         _mockServer.Protected().Setup<Task>("SendDataAsync", message.Id, result3).Returns(Task.CompletedTask).Verifiable();
         _mockServer.Protected().Setup<Task>("SubscribeAsync", message, false).Verifiable();
+        _mockServer.Protected().Setup<Task>("SendSubscriptionSuccessfulAsync", message).Verifiable();
         await _server.Do_SubscribeAsync(message, false);
         _server.Get_Subscriptions.Contains(message.Id).ShouldBeTrue();
         source.HasObservers.ShouldBeTrue();
@@ -779,6 +786,7 @@ public class BaseSubscriptionServerTests : IDisposable
                 .Verifiable();
         }
         _mockServer.Protected().Setup<Task>("SubscribeAsync", message, false).Verifiable();
+        _mockServer.Protected().Setup<Task>("SendSubscriptionSuccessfulAsync", message).Verifiable();
         await _server.Do_SubscribeAsync(message, false);
         _server.Get_Subscriptions.Contains(message.Id).ShouldBeTrue();
         source.HasObservers.ShouldBeTrue();
@@ -811,6 +819,7 @@ public class BaseSubscriptionServerTests : IDisposable
             .Returns(Task.CompletedTask)
             .Verifiable();
         _mockServer.Protected().Setup<Task>("SubscribeAsync", message, false).Verifiable();
+        _mockServer.Protected().Setup<Task>("SendSubscriptionSuccessfulAsync", message).Verifiable();
         await _server.Do_SubscribeAsync(message, false);
         _server.Get_Subscriptions.Contains(message.Id).ShouldBeTrue();
         source.HasObservers.ShouldBeTrue();
@@ -857,6 +866,7 @@ public class BaseSubscriptionServerTests : IDisposable
                 .Verifiable();
         }
         _mockServer.Protected().Setup<Task>("SubscribeAsync", message, false).Verifiable();
+        _mockServer.Protected().Setup<Task>("SendSubscriptionSuccessfulAsync", message).Verifiable();
         await _server.Do_SubscribeAsync(message, false);
         _server.Get_Subscriptions.Contains(message.Id).ShouldBeTrue();
         source.HasObservers.ShouldBeTrue();
