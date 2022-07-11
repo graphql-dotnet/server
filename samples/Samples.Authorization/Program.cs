@@ -31,7 +31,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddGraphQL(b => b
     .AddAutoSchema<Query>()
     .AddSystemTextJson()
-    .AddAuthorization());
+    .AddAuthorizationRule());
 // ------------------------------------
 
 var app = builder.Build();
