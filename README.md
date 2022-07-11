@@ -254,14 +254,14 @@ app.UseGraphQL("/graphql", config =>
 #### For individual graph types, fields and query arguments
 
 To configure the ASP.NET Core authorization validation rule for GraphQL, add the corresponding
-validation rule during GraphQL configuration, typically by calling `.AddAuthorization()`
+validation rule during GraphQL configuration, typically by calling `.AddAuthorizationRule()`
 as shown below:
 
 ```csharp
 builder.Services.AddGraphQL(b => b
     .AddAutoSchema<Query>()
     .AddSystemTextJson()
-    .AddAuthorization());
+    .AddAuthorizationRule());
 ```
 
 Both roles and policies are supported for output graph types, fields on output graph types,
@@ -319,7 +319,11 @@ will need to authorize requests via the `ConnectionInit` WebSocket message or ca
 token within the URL.  Below is a sample of the former:
 
 ```cs
-services.AddSingleton<IWebSocketAuthorizationService, MyAuthService>();
+builder.Services.AddGraphQL(b => b
+    .AddAutoSchema<Query>()
+    .AddSystemTextJson()
+    .AddAuthorizationRule()  // not required for endpoint authorization
+    .AddWebSocketAuthentication<MyAuthService>());
 
 app.UseGraphQL("/graphql", config =>
 {
