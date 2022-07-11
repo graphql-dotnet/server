@@ -1,5 +1,11 @@
 namespace GraphQL.Server.Ui.Voyager
 {
+    public enum RequestCredentials
+    {
+        Omit = 0,
+        Include = 1,
+        SameOrigin = 2,
+    }
     public class VoyagerMiddleware
     {
         public VoyagerMiddleware(Microsoft.AspNetCore.Http.RequestDelegate next, GraphQL.Server.Ui.Voyager.VoyagerOptions options) { }
@@ -8,10 +14,11 @@ namespace GraphQL.Server.Ui.Voyager
     public class VoyagerOptions
     {
         public VoyagerOptions() { }
-        public Microsoft.AspNetCore.Http.PathString GraphQLEndPoint { get; set; }
+        public string GraphQLEndPoint { get; set; }
         public System.Collections.Generic.Dictionary<string, object>? Headers { get; set; }
         public System.Func<GraphQL.Server.Ui.Voyager.VoyagerOptions, System.IO.Stream> IndexStream { get; set; }
         public System.Func<GraphQL.Server.Ui.Voyager.VoyagerOptions, string, string> PostConfigure { get; set; }
+        public GraphQL.Server.Ui.Voyager.RequestCredentials RequestCredentials { get; set; }
     }
 }
 namespace Microsoft.AspNetCore.Builder

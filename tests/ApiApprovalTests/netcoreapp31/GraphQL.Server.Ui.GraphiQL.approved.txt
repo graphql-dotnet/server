@@ -9,12 +9,19 @@ namespace GraphQL.Server.Ui.GraphiQL
     {
         public GraphiQLOptions() { }
         public bool ExplorerExtensionEnabled { get; set; }
-        public Microsoft.AspNetCore.Http.PathString GraphQLEndPoint { get; set; }
+        public string GraphQLEndPoint { get; set; }
         public bool HeaderEditorEnabled { get; set; }
         public System.Collections.Generic.Dictionary<string, string>? Headers { get; set; }
         public System.Func<GraphQL.Server.Ui.GraphiQL.GraphiQLOptions, System.IO.Stream> IndexStream { get; set; }
         public System.Func<GraphQL.Server.Ui.GraphiQL.GraphiQLOptions, string, string> PostConfigure { get; set; }
-        public Microsoft.AspNetCore.Http.PathString SubscriptionsEndPoint { get; set; }
+        public GraphQL.Server.Ui.GraphiQL.RequestCredentials RequestCredentials { get; set; }
+        public string SubscriptionsEndPoint { get; set; }
+    }
+    public enum RequestCredentials
+    {
+        Omit = 0,
+        Include = 1,
+        SameOrigin = 2,
     }
 }
 namespace Microsoft.AspNetCore.Builder

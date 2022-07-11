@@ -33,15 +33,31 @@ internal sealed class VoyagerPageModel
                     headers[item.Key] = item.Value;
             }
 
+            var requestCredentials = _options.RequestCredentials switch
+            {
+                RequestCredentials.Include => "include",
+                RequestCredentials.SameOrigin => "same-origin",
+                RequestCredentials.Omit => "omit",
+                _ => throw new InvalidOperationException("The RequestCredentials property is invalid."),
+            };
+
             var builder = new StringBuilder(streamReader.ReadToEnd())
-                .Replace("@Model.GraphQLEndPoint", _options.GraphQLEndPoint)
-                .Replace("@Model.Headers", JsonSerialize(headers));
+                .Replace("@Model.GraphQLEndPoint", StringEncode(_options.GraphQLEndPoint))
+                .Replace("@Model.Headers", JsonSerialize(headers))
+                .Replace("@Model.RequestCredentials", requestCredentials);
 
             _voyagerCSHtml = _options.PostConfigure(_options, builder.ToString());
         }
 
         return _voyagerCSHtml;
     }
+
+    // https://html.spec.whatwg.org/multipage/scripting.html#restrictions-for-contents-of-script-elements
+    private static string StringEncode(string value) => value
+        .Replace("\\", "\\\\")  // encode  \  as  \\
+        .Replace("<", "\\x3C")  // encode  <  as  \x3C   -- so "<!--", "<script" and "</script" are handled correctly
+        .Replace("'", "\\'")    // encode  '  as  \'
+        .Replace("\"", "\\\""); // encode  "  as  \"
 
     private static string JsonSerialize(object value)
     {
