@@ -26,7 +26,7 @@ namespace GraphQL.Server.Ui.Playground
         public bool EditorReuseHeaders { get; set; }
         public GraphQL.Server.Ui.Playground.EditorTheme EditorTheme { get; set; }
         public System.Collections.Generic.Dictionary<string, object>? GraphQLConfig { get; set; }
-        public Microsoft.AspNetCore.Http.PathString GraphQLEndPoint { get; set; }
+        public string GraphQLEndPoint { get; set; }
         public System.Collections.Generic.Dictionary<string, object>? Headers { get; set; }
         public bool HideTracingResponse { get; set; }
         public System.Func<GraphQL.Server.Ui.Playground.PlaygroundOptions, System.IO.Stream> IndexStream { get; set; }
@@ -40,7 +40,7 @@ namespace GraphQL.Server.Ui.Playground
         public bool SchemaPollingEnabled { get; set; }
         public string SchemaPollingEndpointFilter { get; set; }
         public int SchemaPollingInterval { get; set; }
-        public Microsoft.AspNetCore.Http.PathString SubscriptionsEndPoint { get; set; }
+        public string SubscriptionsEndPoint { get; set; }
     }
     public enum RequestCredentials
     {

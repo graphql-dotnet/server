@@ -43,11 +43,11 @@
     // as long as it returns a Promise
     // Voyager passes introspectionQuery as an argument for this function
     function introspectionProvider(introspectionQuery) {
-      return fetch(window.location.protocol + "//" + window.location.host + "@Model.GraphQLEndPoint", {
+      return fetch("@Model.GraphQLEndPoint", {
         method: 'post',
         headers: @Model.Headers,
         body: JSON.stringify({query: introspectionQuery}),
-        credentials: 'include',
+        credentials: '@Model.RequestCredentials',
       }).then(function (response) {
         return response.text();
       }).then(function (responseBody) {

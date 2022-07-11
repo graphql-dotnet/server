@@ -8,11 +8,11 @@ namespace GraphQL.Server.Ui.Altair
     public class AltairOptions
     {
         public AltairOptions() { }
-        public Microsoft.AspNetCore.Http.PathString GraphQLEndPoint { get; set; }
+        public string GraphQLEndPoint { get; set; }
         public System.Collections.Generic.Dictionary<string, string>? Headers { get; set; }
         public System.Func<GraphQL.Server.Ui.Altair.AltairOptions, System.IO.Stream> IndexStream { get; set; }
         public System.Func<GraphQL.Server.Ui.Altair.AltairOptions, string, string> PostConfigure { get; set; }
-        public Microsoft.AspNetCore.Http.PathString SubscriptionsEndPoint { get; set; }
+        public string SubscriptionsEndPoint { get; set; }
     }
 }
 namespace Microsoft.AspNetCore.Builder

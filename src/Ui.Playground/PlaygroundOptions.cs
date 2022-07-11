@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Http;
-
 namespace GraphQL.Server.Ui.Playground;
 
 /// <summary>
@@ -10,12 +8,12 @@ public class PlaygroundOptions
     /// <summary>
     /// The GraphQL EndPoint.
     /// </summary>
-    public PathString GraphQLEndPoint { get; set; } = "/graphql";
+    public string GraphQLEndPoint { get; set; } = "/graphql";
 
     /// <summary>
     /// Subscriptions EndPoint.
     /// </summary>
-    public PathString SubscriptionsEndPoint { get; set; } = "/graphql";
+    public string SubscriptionsEndPoint { get; set; } = "/graphql";
 
     /// <summary>
     /// The GraphQL configuration.
@@ -105,6 +103,13 @@ public class PlaygroundOptions
         set => PlaygroundSettings["prettier.useTabs"] = value;
     }
 
+    /// <summary>
+    /// Indicates whether the user agent should send cookies from the other domain
+    /// in the case of cross-origin requests.
+    /// </summary>
+    /// <remarks>
+    /// See <see href="https://developer.mozilla.org/en-US/docs/Web/API/Request/credentials"/>.
+    /// </remarks>
     public RequestCredentials RequestCredentials
     {
         get => (string)PlaygroundSettings["request.credentials"] switch
@@ -174,11 +179,4 @@ public enum EditorTheme
 {
     Dark,
     Light
-}
-
-public enum RequestCredentials
-{
-    Omit,
-    Include,
-    SameOrigin
 }

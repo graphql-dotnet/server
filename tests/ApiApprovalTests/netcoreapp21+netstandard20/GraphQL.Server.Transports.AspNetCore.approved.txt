@@ -238,6 +238,7 @@ namespace GraphQL.Server.Transports.AspNetCore.WebSockets
         protected virtual System.Threading.Tasks.Task SendErrorResultAsync(string id, GraphQL.ExecutionError executionError) { }
         protected abstract System.Threading.Tasks.Task SendErrorResultAsync(string id, GraphQL.ExecutionResult result);
         protected virtual System.Threading.Tasks.Task SendSingleResultAsync(GraphQL.Transport.OperationMessage message, GraphQL.ExecutionResult result) { }
+        protected virtual System.Threading.Tasks.Task SendSubscriptionSuccessfulAsync(GraphQL.Transport.OperationMessage message) { }
         protected virtual System.Threading.Tasks.Task SubscribeAsync(GraphQL.Transport.OperationMessage message, bool overwrite) { }
         protected bool TryInitialize() { }
         protected virtual System.Threading.Tasks.Task UnsubscribeAsync(string? id) { }

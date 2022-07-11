@@ -66,7 +66,7 @@ public class StartupWithRouting
             endpoints.MapGraphQLPlayground(new PlaygroundOptions
             {
                 BetaUpdates = true,
-                RequestCredentials = RequestCredentials.Omit,
+                RequestCredentials = Server.Ui.Playground.RequestCredentials.Omit,
                 HideTracingResponse = false,
 
                 EditorCursorShape = EditorCursorShape.Line,
