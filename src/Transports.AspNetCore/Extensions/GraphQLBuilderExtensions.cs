@@ -134,7 +134,7 @@ public static class ServerGraphQLBuilderExtensions
     /// Registers <see cref="AuthorizationValidationRule"/> with the dependency injection framework
     /// and configures it to be used when executing a request.
     /// </summary>
-    public static IGraphQLBuilder AddAuthorization(this IGraphQLBuilder builder)
+    public static IGraphQLBuilder AddAuthorizationRule(this IGraphQLBuilder builder)
     {
         builder.AddValidationRule<AuthorizationValidationRule>(true);
         builder.Services.TryRegister<IHttpContextAccessor, HttpContextAccessor>(DI.ServiceLifetime.Singleton);

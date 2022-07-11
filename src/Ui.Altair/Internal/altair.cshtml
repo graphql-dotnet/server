@@ -36,9 +36,29 @@
   <script rel="preload" as="script" type="text/javascript" src="//cdn.jsdelivr.net/npm/altair-static/build/dist/main.js"></script>
 
   <script>
+    function getSubscriptionsEndPoint() {
+      let subscriptionsEndPoint = "@Model.SubscriptionsEndPoint";
+      if (/^(?:[a-z]+:)?\/\//i.test(subscriptionsEndPoint)) {
+        // if location includes protocol (e.g. "wss://") then return exact string
+        return subscriptionsEndPoint;
+      } else if (subscriptionsEndPoint[0] != '/') {
+        // if location is relative (e.g. "api") then prepend host and current path
+        let currentUrl = /^[^?]*(?=\/)/.exec(window.location.pathname);
+        currentUrl = currentUrl ? currentUrl[0] : '';
+        while (subscriptionsEndPoint.substring(0, 3) == '../') {
+          subscriptionsEndPoint = subscriptionsEndPoint.substring(3);
+          currentUrl = /^[^?]*(?=\/)/.exec(currentUrl);
+          currentUrl = currentUrl ? currentUrl[0] : '';
+        }
+        return (window.location.protocol === "http:" ? "ws://" : "wss://") + window.location.host + currentUrl + '/' + subscriptionsEndPoint;
+      }
+      // if location is absolute (e.g. "/api") then prepend host only
+      return (window.location.protocol === "http:" ? "ws://" : "wss://") + window.location.host + subscriptionsEndPoint;
+    }
+
     var altairOptions = {
-        endpointURL: window.location.protocol + "//" + window.location.host + "@Model.GraphQLEndPoint",
-        subscriptionsEndpoint: (window.location.protocol === "http:" ? "ws://" : "wss://") + window.location.host + "@Model.SubscriptionsEndPoint",
+        endpointURL: "@Model.GraphQLEndPoint",
+        subscriptionsEndpoint: getSubscriptionsEndPoint(),
         initialHeaders: @Model.Headers,
     };
 
