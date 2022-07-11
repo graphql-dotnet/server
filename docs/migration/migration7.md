@@ -231,7 +231,7 @@ services.AddGraphQL(b => b
 
 // v7
 services.AddGraphQL(b => b
-    .AddAuthorization()
+    .AddAuthorizationRule()
     // other code
 );
 services.AddAuthorization(options => {
