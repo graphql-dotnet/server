@@ -11,11 +11,11 @@ public class EndToEndTests
 
     [Fact]
     public Task Cats_Playground()
-        => new ServerTests<Program>().VerifyPlaygroundAsync("/cats");
+        => new ServerTests<Program>().VerifyPlaygroundAsync("/cats/ui/playground");
 
     [Fact]
     public Task Dogs_Playground()
-        => new ServerTests<Program>().VerifyPlaygroundAsync("/dogs");
+        => new ServerTests<Program>().VerifyPlaygroundAsync("/dogs/ui/playground");
 
     [Fact]
     public Task Cats_GraphQLGet()

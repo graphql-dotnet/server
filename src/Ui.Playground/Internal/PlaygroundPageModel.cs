@@ -43,17 +43,29 @@ internal sealed class PlaygroundPageModel
             }
 
             var builder = new StringBuilder(streamReader.ReadToEnd())
-                .Replace("@Model.GraphQLEndPoint", _options.GraphQLEndPoint)
-                .Replace("@Model.SubscriptionsEndPoint", _options.SubscriptionsEndPoint)
+                .Replace("@Model.GraphQLEndPoint", StringEncode(_options.GraphQLEndPoint))
+                .Replace("@Model.SubscriptionsEndPoint", StringEncode(_options.SubscriptionsEndPoint))
                 .Replace("@Model.GraphQLConfig", JsonSerialize(_options.GraphQLConfig!))
                 .Replace("@Model.Headers", JsonSerialize(headers))
                 .Replace("@Model.PlaygroundSettings", JsonSerialize(_options.PlaygroundSettings));
+
+            // Here, fully-qualified, absolute and relative URLs are supported for both the
+            // GraphQLEndPoint and SubscriptionsEndPoint.  Those paths can be passed unmodified
+            // to 'fetch', but for websocket connectivity, fully-qualified URLs are required.
+            // So within the javascript, we convert the absolute/relative URLs to fully-qualified URLs.
 
             _playgroundCSHtml = _options.PostConfigure(_options, builder.ToString());
         }
 
         return _playgroundCSHtml;
     }
+
+    // https://html.spec.whatwg.org/multipage/scripting.html#restrictions-for-contents-of-script-elements
+    private static string StringEncode(string value) => value
+        .Replace("\\", "\\\\")  // encode  \  as  \\
+        .Replace("<", "\\x3C")  // encode  <  as  \x3C   -- so "<!--", "<script" and "</script" are handled correctly
+        .Replace("'", "\\'")    // encode  '  as  \'
+        .Replace("\"", "\\\""); // encode  "  as  \"
 
     private static string JsonSerialize(object value)
     {

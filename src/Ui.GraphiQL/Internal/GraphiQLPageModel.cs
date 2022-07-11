@@ -33,18 +33,39 @@ internal sealed class GraphiQLPageModel
                     headers[item.Key] = item.Value;
             }
 
+            var requestCredentials = _options.RequestCredentials switch
+            {
+                RequestCredentials.Include => "include",
+                RequestCredentials.SameOrigin => "same-origin",
+                RequestCredentials.Omit => "omit",
+                _ => throw new InvalidOperationException("The RequestCredentials property is invalid."),
+            };
+
             var builder = new StringBuilder(streamReader.ReadToEnd())
-                .Replace("@Model.GraphQLEndPoint", _options.GraphQLEndPoint)
-                .Replace("@Model.SubscriptionsEndPoint", _options.SubscriptionsEndPoint)
+                .Replace("@Model.GraphQLEndPoint", StringEncode(_options.GraphQLEndPoint))
+                .Replace("@Model.SubscriptionsEndPoint", StringEncode(_options.SubscriptionsEndPoint))
                 .Replace("@Model.Headers", JsonSerialize(headers))
                 .Replace("@Model.HeaderEditorEnabled", _options.HeaderEditorEnabled ? "true" : "false")
-                .Replace("@Model.GraphiQLElement", _options.ExplorerExtensionEnabled ? "GraphiQLWithExtensions.GraphiQLWithExtensions" : "GraphiQL");
+                .Replace("@Model.GraphiQLElement", _options.ExplorerExtensionEnabled ? "GraphiQLWithExtensions.GraphiQLWithExtensions" : "GraphiQL")
+                .Replace("@Model.RequestCredentials", requestCredentials);
+
+            // Here, fully-qualified, absolute and relative URLs are supported for both the
+            // GraphQLEndPoint and SubscriptionsEndPoint.  Those paths can be passed unmodified
+            // to 'fetch', but for websocket connectivity, fully-qualified URLs are required.
+            // So within the javascript, we convert the absolute/relative URLs to fully-qualified URLs.
 
             _graphiQLCSHtml = _options.PostConfigure(_options, builder.ToString());
         }
 
         return _graphiQLCSHtml;
     }
+
+    // https://html.spec.whatwg.org/multipage/scripting.html#restrictions-for-contents-of-script-elements
+    private static string StringEncode(string value) => value
+        .Replace("\\", "\\\\")  // encode  \  as  \\
+        .Replace("<", "\\x3C")  // encode  <  as  \x3C   -- so "<!--", "<script" and "</script" are handled correctly
+        .Replace("'", "\\'")    // encode  '  as  \'
+        .Replace("\"", "\\\""); // encode  "  as  \"
 
     private static string JsonSerialize(object value)
     {
