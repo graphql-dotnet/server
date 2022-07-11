@@ -481,11 +481,11 @@ For more advanced configurations, see the overloads and configuration options
 available for the various builder methods, listed below.  Methods and properties
 contain XML comments to provide assistance while coding with Visual Studio.
 
-| Builder interface | Method | Description |
-|-------------------|--------|-------------|
-| `IGraphQLBuilder` | `AddUserContextBuilder` | Sets up a delegate to create the UserContext for each GraphQL request. |
-| `IApplicationBuilder`   | `UseGraphQL`      | Adds the GraphQL middleware to the HTTP request pipeline. |
-| `IEndpointRouteBuilder` | `MapGraphQL`      | Adds the GraphQL middleware to the HTTP request pipeline. |
+| Builder interface       | Method                  | Description |
+|-------------------------|-------------------------|-------------|
+| `IGraphQLBuilder`       | `AddUserContextBuilder` | Sets up a delegate to create the UserContext for each GraphQL request. |
+| `IApplicationBuilder`   | `UseGraphQL`            | Adds the GraphQL middleware to the HTTP request pipeline. |
+| `IEndpointRouteBuilder` | `MapGraphQL`            | Adds the GraphQL middleware to the HTTP request pipeline. |
 
 A number of the methods contain optional parameters or configuration delegates to
 allow further customization.  Please review the overloads of each method to determine
