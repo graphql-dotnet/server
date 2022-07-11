@@ -708,7 +708,7 @@ public class AuthorizationTests
         services.AddGraphQL(b => b
             .AddSchema(_schema)
             .AddSystemTextJson()
-            .AddAuthorization());
+            .AddAuthorizationRule());
 
         services.AddSingleton(Mock.Of<IAuthorizationService>(MockBehavior.Strict));
 
