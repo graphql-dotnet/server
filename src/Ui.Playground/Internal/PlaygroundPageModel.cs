@@ -49,6 +49,11 @@ internal sealed class PlaygroundPageModel
                 .Replace("@Model.Headers", JsonSerialize(headers))
                 .Replace("@Model.PlaygroundSettings", JsonSerialize(_options.PlaygroundSettings));
 
+            // Here, fully-qualified, absolute and relative URLs are supported for both the
+            // GraphQLEndPoint and SubscriptionsEndPoint.  Those paths can be passed unmodified
+            // to 'fetch', but for websocket connectivity, fully-qualified URLs are required.
+            // So within the javascript, we convert the absolute/relative URLs to fully-qualified URLs.
+
             _playgroundCSHtml = _options.PostConfigure(_options, builder.ToString());
         }
 

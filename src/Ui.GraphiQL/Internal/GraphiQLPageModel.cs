@@ -49,6 +49,11 @@ internal sealed class GraphiQLPageModel
                 .Replace("@Model.GraphiQLElement", _options.ExplorerExtensionEnabled ? "GraphiQLWithExtensions.GraphiQLWithExtensions" : "GraphiQL")
                 .Replace("@Model.RequestCredentials", requestCredentials);
 
+            // Here, fully-qualified, absolute and relative URLs are supported for both the
+            // GraphQLEndPoint and SubscriptionsEndPoint.  Those paths can be passed unmodified
+            // to 'fetch', but for websocket connectivity, fully-qualified URLs are required.
+            // So within the javascript, we convert the absolute/relative URLs to fully-qualified URLs.
+
             _graphiQLCSHtml = _options.PostConfigure(_options, builder.ToString());
         }
 

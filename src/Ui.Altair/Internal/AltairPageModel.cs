@@ -38,6 +38,11 @@ internal sealed class AltairPageModel
                 .Replace("@Model.SubscriptionsEndPoint", StringEncode(_options.SubscriptionsEndPoint))
                 .Replace("@Model.Headers", JsonSerialize(headers));
 
+            // Here, fully-qualified, absolute and relative URLs are supported for both the
+            // GraphQLEndPoint and SubscriptionsEndPoint.  Those paths can be passed unmodified
+            // to 'fetch', but for websocket connectivity, fully-qualified URLs are required.
+            // So within the javascript, we convert the absolute/relative URLs to fully-qualified URLs.
+
             _altairCSHtml = _options.PostConfigure(_options, builder.ToString());
         }
 
