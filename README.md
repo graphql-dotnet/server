@@ -467,8 +467,10 @@ Besides that requirement, all features are supported in exactly the same manner 
 when using ASP.NET Core 3.1+.  You may find differences in the ASP.NET Core runtime,
 such as CORS implementation differences, which are outside the scope of this project.
 
-Please note that a serializer reference is not included for these projects; you will
-need to reference either `GraphQL.NewtonsoftJson` or `GraphQL.SystemTextJson`.
+Please note that a serializer reference is not included for these projects within
+`GraphQL.Server.Transports.AspNetCore`; you will need to reference either
+`GraphQL.NewtonsoftJson` or `GraphQL.SystemTextJson`, or reference
+`GraphQL.Server.All` which includes `GraphQL.NewtonsoftJson` for ASP.NET Core 2.1 projects.
 This is because `Newtonsoft.Json` is the default serializer for ASP.NET Core 2.1
 rather `System.Text.Json`.  When using `GraphQL.NewtonsoftJson`, you will need to call
 `AddNewtonsoftJson()` rather than `AddSystemTextJson()` while configuring GraphQL.NET.
