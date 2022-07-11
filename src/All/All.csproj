@@ -1,7 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net6;net5;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netcoreapp3.1</TargetFrameworks>
     <Description>GraphQL Server meta package with all the packages you need to get started</Description>
     <PackageTags>GraphQL;transport;server;WebSockets;subscriptions;middleware;authentication;authorization</PackageTags>
     <IncludeBuildOutput>false</IncludeBuildOutput>
@@ -17,8 +17,9 @@
 
     <PackageReference Include="GraphQL.MemoryCache" Version="$(GraphQLVersion)" />
     <PackageReference Include="GraphQL.DataLoader" Version="$(GraphQLVersion)" />
-    <PackageReference Include="GraphQL.MicrosoftDI" Version="$(GraphQLVersion)" />
-    <PackageReference Include="GraphQL.SystemTextJson" Version="$(GraphQLVersion)" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="GraphQL.NewtonsoftJson" Version="$(GraphQLVersion)" />
+  </ItemGroup>
 </Project>
