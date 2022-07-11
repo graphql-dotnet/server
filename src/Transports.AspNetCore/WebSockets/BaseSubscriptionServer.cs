@@ -471,6 +471,10 @@ public abstract partial class BaseSubscriptionServer : IOperationMessageProcesso
 
     /// <summary>
     /// Sends a notification that the specified subscription has been set up successfully.
+    /// Note that both graphql-ws and subscriptions-transport-ws protocols do not need
+    /// such notification but some custom protocol may require it; for example, see start_ack message
+    /// from https://docs.aws.amazon.com/appsync/latest/devguide/real-time-websocket-client.html
+    /// protocol for AWS AppSync. 
     /// </summary>
     protected virtual Task SendSubscriptionSuccessfulAsync(OperationMessage message) => Task.CompletedTask;
 
