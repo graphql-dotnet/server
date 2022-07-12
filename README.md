@@ -100,12 +100,12 @@ app.UseDeveloperExceptionPage();
 app.UseWebSockets();
 app.UseGraphQL("/graphql");            // url to host GraphQL endpoint
 app.UseGraphQLPlayground(
+    "/",                               // url to host Playground at
     new GraphQL.Server.Ui.Playground.PlaygroundOptions
     {
-        GraphQLEndPoint = new PathString("/graphql"),         // url of GraphQL endpoint
-        SubscriptionsEndPoint = new PathString("/graphql"),   // url of GraphQL endpoint
-    },
-    "/");                              // url to host Playground at
+        GraphQLEndPoint = "/graphql",         // url of GraphQL endpoint
+        SubscriptionsEndPoint = "/graphql",   // url of GraphQL endpoint
+    });
 await app.RunAsync();
 ```
 
