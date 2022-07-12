@@ -34,7 +34,7 @@
 #### Authorization rule (new)
 
 - Configuration simplifed to a single line of code
-- Support moved into the main project; no separate NuGet reference required
+- Support moved into the main project (Transports.AspNetCore); no separate NuGet reference required
 - Removed `IClaimsPrincipalAccessor`; `HttpContext.User` is used to acquire `ClaimsPrincipal` reference
 - As a security fix, authorization failure messages do not reveal the authorization requirements to the caller
 - Removed `IAuthorizationErrorMessageBuilder`
