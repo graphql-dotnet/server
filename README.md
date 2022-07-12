@@ -1,4 +1,4 @@
-# ASP.NET Core Server for GraphQL.NET
+# ASP.NET Core GraphQL Server driven by GraphQL.NET
 
 ![License](https://img.shields.io/github/license/graphql-dotnet/server)
 [![codecov](https://codecov.io/gh/graphql-dotnet/server/branch/master/graph/badge.svg?token=ZBcVYq7hz4)](https://codecov.io/gh/graphql-dotnet/server)
@@ -28,14 +28,13 @@ Note that GitHub requires authentication to consume the feed. See more informati
 
 ## Description
 
-This package is designed for ASP.Net Core (2.1 through 6.0) to facilitate easy set-up of GraphQL requests
+This package is designed for ASP.NET Core (2.1 through 6.0) to facilitate easy set-up of GraphQL requests
 over HTTP.  The code is designed to be used as middleware within the ASP.NET Core pipeline,
 serving GET, POST or WebSocket requests.  GET requests process requests from the query string.
 POST requests can be in the form of JSON requests, form submissions, or raw GraphQL strings.
 WebSocket requests can use the `graphql-ws` or `graphql-transport-ws` WebSocket sub-protocol,
 as defined in the [apollographql/subscriptions-transport-ws](https://github.com/apollographql/subscriptions-transport-ws)
 and [enisdenjo/graphql-ws](https://github.com/enisdenjo/graphql-ws) respoitories, respectively.
-The `graphql-subscriptions` sub-protocol is not supported.
 
 The middleware can be configured through the `IApplicationBuilder` or `IEndpointRouteBuilder`
 builder interfaces.  In addition, an `ExecutionResultActionResult` class is added for returning
@@ -74,7 +73,6 @@ Below is a complete sample of a .NET 6 console app that hosts a GraphQL endpoint
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -102,7 +100,8 @@ app.UseDeveloperExceptionPage();
 app.UseWebSockets();
 app.UseGraphQL("/graphql");            // url to host GraphQL endpoint
 app.UseGraphQLPlayground(
-    new GraphQL.Server.Ui.Playground.PlaygroundOptions {
+    new GraphQL.Server.Ui.Playground.PlaygroundOptions
+    {
         GraphQLEndPoint = new PathString("/graphql"),         // url of GraphQL endpoint
         SubscriptionsEndPoint = new PathString("/graphql"),   // url of GraphQL endpoint
     },
@@ -142,7 +141,8 @@ var app = builder.Build();
 app.UseDeveloperExceptionPage();
 app.UseWebSockets();
 app.UseRouting();
-app.UseEndpoints(endpoints => {
+app.UseEndpoints(endpoints =>
+{
     endpoints.MapGraphQL("graphql");
     endpoints.MapGraphQLVoyager("ui/voyager");
 });
@@ -172,7 +172,8 @@ public class HomeController : Controller
     [HttpGet]
     public async Task<IActionResult> GraphQL(string query)
     {
-        var result = await _documentExecuter.ExecuteAsync(new() {
+        var result = await _documentExecuter.ExecuteAsync(new()
+        {
             Query = query,
             RequestServices = HttpContext.RequestServices,
             CancellationToken = HttpContext.RequestAborted,
@@ -205,7 +206,7 @@ public class MyUserContext : Dictionary<string, object?>
 {
     public ClaimsPrincipal User { get; }
 
-    public MyUserContext(HttpContext context) : base()
+    public MyUserContext(HttpContext context)
     {
         User = context.User;
     }
@@ -344,9 +345,9 @@ class MyAuthService : IWebSocketAuthenticationService
     {
         // read payload of ConnectionInit message and look for an "Authorization" entry that starts with "Bearer "
         var payload = _serializer.ReadNode<Inputs>(operationMessage.Payload);
-        if (payload?.TryGetValue("Authorization", out var value) ?? false)
+        if ((payload?.TryGetValue("Authorization", out var value) ?? false) && value is string valueString)
         {
-            var user = ParseToken(value);
+            var user = ParseToken(valueString);
             if (user != null)
             {
                 // set user and indicate authentication was successful
@@ -413,7 +414,8 @@ and call `RequireCors()` on the endpoint configuration builder.
 ```csharp
 // ...
 builder.Services.AddRouting();
-builder.Services.AddCors(builder => {
+builder.Services.AddCors(builder =>
+{
     // configure named and/or default policies here
 });
 
@@ -422,7 +424,8 @@ app.UseDeveloperExceptionPage();
 app.UseWebSockets();
 app.UseRouting();
 app.UseCors();
-app.UseEndpoints(endpoints => {
+app.UseEndpoints(endpoints =>
+{
     // configure the graphql endpoint with the specified CORS policy
     endpoints.MapGraphQL()
         .RequireCors("MyCorsPolicy");
@@ -439,7 +442,8 @@ follows:
 
 ```csharp
 // add and configure the service
-builder.Services.AddResponseCompression(options => {
+builder.Services.AddResponseCompression(options =>
+{
     options.EnableForHttps = true; // may lead to CRIME and BREACH attacks
     options.MimeTypes = new[] { "application/json", "application/graphql+json" };
 })
@@ -456,7 +460,7 @@ attacks.  These side-channel attacks typically affects sites that rely on cookie
 authentication.  Please read [this](https://docs.microsoft.com/en-us/aspnet/core/performance/response-compression?view=aspnetcore-6.0)
 and [this](http://www.breachattack.com/#howitworks) for more details.
 
-### ASP.NET Core 2.1
+### ASP.NET Core 2.1 / .NET Framework 4.8
 
 You may choose to use the .NET Core 2.1 runtime or the .NET Framework 4.8 runtime.
 This library has been tested with .NET Core 2.1 and .NET Framework 4.8.
@@ -483,7 +487,7 @@ rather `System.Text.Json`.  When using `GraphQL.NewtonsoftJson`, you will need t
 
 For more advanced configurations, see the overloads and configuration options
 available for the various builder methods, listed below.  Methods and properties
-contain XML comments to provide assistance while coding with Visual Studio.
+contain XML comments to provide assistance while coding with your IDE.
 
 | Builder interface       | Method                  | Description |
 |-------------------------|-------------------------|-------------|
@@ -528,7 +532,7 @@ methods allowing for different options for each configured endpoint.
 | `KeepAliveTimeout`          | The amount of time to wait between sending keep-alive packets. | disabled |
 | `DisconnectionTimeout`      | The amount of time to wait to attempt a graceful teardown of the WebSockets protocol. | 10 seconds |
 | `DisconnectAfterErrorEvent` | Disconnects a subscription from the client if the subscription source dispatches an `OnError` event. | True |
-| `DisconnectAfterAnyError`   | Disconnects a subscription from the client there are any GraphQL errors during a subscription. | False |
+| `DisconnectAfterAnyError`   | Disconnects a subscription from the client if there are any GraphQL errors during a subscription. | False |
 
 ### Multi-schema configuration
 
@@ -550,13 +554,15 @@ with certain authorization options, and POST connections with other authorizatio
 ```csharp
 var app = builder.Build();
 app.UseDeveloperExceptionPage();
-app.UseGraphQL("/graphql", options => {
+app.UseGraphQL("/graphql", options =>
+{
     options.HandleGet = true;
     options.HandlePost = false;
     options.HandleWebSockets = false;
     options.AuthorizationRequired = false;
 });
-app.UseGraphQL("/graphql", options => {
+app.UseGraphQL("/graphql", options =>
+{
     options.HandleGet = false;
     options.HandlePost = true;
     options.HandleWebSockets = true;
@@ -596,9 +602,9 @@ public class MySchema : Schema
 ### Customizing middleware behavior
 
 GET/POST requests are handled directly by the `GraphQLHttpMiddleware`.
-For WebSocket requests an `WebSocketConnection` instance is instated to dispatch incoming
+For WebSocket requests an `WebSocketConnection` instance is created to dispatch incoming
 messages and send outgoing messages.  Depending on the WebSocket sub-protocols supported by the
-client, the proper implementation of `IOperationMessageProcessor` is instated to act as a
+client, the proper implementation of `IOperationMessageProcessor` is created to act as a
 state machine, processing incoming messages and sending outgoing messages through the
 `WebSocketConnection` instance.
 
@@ -672,7 +678,7 @@ The WebSocket handling code is organized as follows:
 
 | Interface / Class                | Description |
 |----------------------------------|-------------|
-| `IWebSocketConnection`           | Provides methods to a send a message to a client or close the connection. |
+| `IWebSocketConnection`           | Provides methods to send a message to a client or close the connection. |
 | `IOperationMessageProcessor`     | Handles incoming messages from the client. |
 | `GraphQLWebSocketOptions`        | Provides configuration options for WebSocket connections. |
 | `WebSocketConnection`            | Standard implementation of a message pump for `OperationMessage` messages across a WebSockets connection.  Implements `IWebSocketConnection` and delivers messages to a specified `IOperationMessageProcessor`. |
@@ -719,7 +725,7 @@ services.AddGraphQL(b => b
     // configure queries for serial execution (optional)
     .AddExecutionStrategy<SerialExecutionStrategy>(OperationType.Query)
     // configure subscription field resolvers for scoped serial execution (parallel is optional)
-    .AddScopedExecutionStrategy());
+    .AddScopedSubscriptionExecutionStrategy());
 ```
 
 For single GET / POST requests, the service scope from the underlying HTTP context is used.
