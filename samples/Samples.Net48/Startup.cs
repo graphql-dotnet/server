@@ -36,11 +36,11 @@ public class Startup
         app.UseGraphQL("/graphql");
         // configure the GraphiQL endpoint at "/ui/graphql"
         app.UseGraphQLGraphiQL(
+            "/ui/graphql",
             new Ui.GraphiQL.GraphiQLOptions
             {
                 GraphQLEndPoint = "/graphql",
                 SubscriptionsEndPoint = "/graphql",
-            },
-            "/ui/graphql");
+            });
     }
 }

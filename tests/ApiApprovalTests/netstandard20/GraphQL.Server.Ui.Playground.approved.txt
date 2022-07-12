@@ -53,7 +53,6 @@ namespace Microsoft.AspNetCore.Builder
 {
     public static class PlaygroundApplicationBuilderExtensions
     {
-        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQLPlayground(this Microsoft.AspNetCore.Builder.IApplicationBuilder app, string path = "/ui/playground") { }
-        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQLPlayground(this Microsoft.AspNetCore.Builder.IApplicationBuilder app, GraphQL.Server.Ui.Playground.PlaygroundOptions options, string path = "/ui/playground") { }
+        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQLPlayground(this Microsoft.AspNetCore.Builder.IApplicationBuilder app, string path = "/ui/playground", GraphQL.Server.Ui.Playground.PlaygroundOptions? options = null) { }
     }
 }

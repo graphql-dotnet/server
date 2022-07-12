@@ -8,19 +8,12 @@ namespace Microsoft.AspNetCore.Builder;
 /// </summary>
 public static class PlaygroundApplicationBuilderExtensions
 {
-    /// <summary> Adds middleware for GraphQL Playground using default options. </summary>
-    /// <param name="app"> <see cref="IApplicationBuilder"/> to configure an application's request pipeline. </param>
-    /// <param name="path">The path to the GraphQL Playground endpoint which defaults to '/ui/playground'</param>
-    /// <returns> The reference to provided <paramref name="app"/> instance. </returns>
-    public static IApplicationBuilder UseGraphQLPlayground(this IApplicationBuilder app, string path = "/ui/playground")
-        => app.UseGraphQLPlayground(new PlaygroundOptions(), path);
-
     /// <summary> Adds middleware for GraphQL Playground using the specified options. </summary>
     /// <param name="app"> <see cref="IApplicationBuilder"/> to configure an application's request pipeline. </param>
     /// <param name="options"> Options to customize <see cref="PlaygroundMiddleware"/>. If not set, then the default values will be used. </param>
     /// <param name="path">The path to the GraphQL Playground endpoint which defaults to '/ui/playground'</param>
     /// <returns> The reference to provided <paramref name="app"/> instance. </returns>
-    public static IApplicationBuilder UseGraphQLPlayground(this IApplicationBuilder app, PlaygroundOptions options, string path = "/ui/playground")
+    public static IApplicationBuilder UseGraphQLPlayground(this IApplicationBuilder app, string path = "/ui/playground", PlaygroundOptions? options = null)
     {
         return app.UseWhen(
             context => HttpMethods.IsGet(context.Request.Method) && !context.WebSockets.IsWebSocketRequest &&

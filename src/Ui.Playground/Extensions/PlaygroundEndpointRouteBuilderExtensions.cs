@@ -14,19 +14,10 @@ public static class PlaygroundEndpointRouteBuilderExtensions
     /// Add the Playground middleware to the HTTP request pipeline
     /// </summary>
     /// <param name="endpoints">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
-    /// <param name="pattern">The route pattern.</param>
-    /// <returns>The <see cref="IApplicationBuilder"/> received as parameter</returns>
-    public static PlaygroundEndpointConventionBuilder MapGraphQLPlayground(this IEndpointRouteBuilder endpoints, string pattern = "ui/playground")
-        => endpoints.MapGraphQLPlayground(new PlaygroundOptions(), pattern);
-
-    /// <summary>
-    /// Add the Playground middleware to the HTTP request pipeline
-    /// </summary>
-    /// <param name="endpoints">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
     /// <param name="options">Options to customize <see cref="PlaygroundMiddleware"/>. If not set, then the default values will be used.</param>
     /// <param name="pattern">The route pattern.</param>
     /// <returns>The <see cref="IApplicationBuilder"/> received as parameter</returns>
-    public static PlaygroundEndpointConventionBuilder MapGraphQLPlayground(this IEndpointRouteBuilder endpoints, PlaygroundOptions options, string pattern = "ui/playground")
+    public static PlaygroundEndpointConventionBuilder MapGraphQLPlayground(this IEndpointRouteBuilder endpoints, string pattern = "ui/playground", PlaygroundOptions? options = null)
     {
         if (endpoints == null)
             throw new ArgumentNullException(nameof(endpoints));

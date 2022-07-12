@@ -25,7 +25,6 @@ namespace Microsoft.AspNetCore.Builder
 {
     public static class VoyagerApplicationBuilderExtensions
     {
-        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQLVoyager(this Microsoft.AspNetCore.Builder.IApplicationBuilder app, string path = "/ui/voyager") { }
-        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQLVoyager(this Microsoft.AspNetCore.Builder.IApplicationBuilder app, GraphQL.Server.Ui.Voyager.VoyagerOptions options, string path = "/ui/voyager") { }
+        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQLVoyager(this Microsoft.AspNetCore.Builder.IApplicationBuilder app, string path = "/ui/voyager", GraphQL.Server.Ui.Voyager.VoyagerOptions? options = null) { }
     }
 }
