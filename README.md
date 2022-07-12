@@ -775,7 +775,7 @@ Below are some basic requests you can use to test the schema:
 
 #### Return number of messages
 
-```gql
+```graphql
 {
   count
 }
