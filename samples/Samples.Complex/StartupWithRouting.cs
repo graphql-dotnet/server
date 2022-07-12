@@ -63,7 +63,7 @@ public class StartupWithRouting
         {
             endpoints.MapGraphQL<GraphQLHttpMiddlewareWithLogs<ChatSchema>>("/graphql", new GraphQLHttpMiddlewareOptions());
 
-            endpoints.MapGraphQLPlayground(new PlaygroundOptions
+            endpoints.MapGraphQLPlayground(options: new PlaygroundOptions
             {
                 BetaUpdates = true,
                 RequestCredentials = Server.Ui.Playground.RequestCredentials.Omit,
@@ -91,7 +91,7 @@ public class StartupWithRouting
                 },
             });
 
-            endpoints.MapGraphQLGraphiQL(new GraphiQLOptions
+            endpoints.MapGraphQLGraphiQL(options: new GraphiQLOptions
             {
                 Headers = new Dictionary<string, string>
                 {
@@ -99,7 +99,7 @@ public class StartupWithRouting
                 }
             });
 
-            endpoints.MapGraphQLAltair(new AltairOptions
+            endpoints.MapGraphQLAltair(options: new AltairOptions
             {
                 Headers = new Dictionary<string, string>
                 {
@@ -107,7 +107,7 @@ public class StartupWithRouting
                 }
             });
 
-            endpoints.MapGraphQLVoyager(new VoyagerOptions
+            endpoints.MapGraphQLVoyager(options: new VoyagerOptions
             {
                 Headers = new Dictionary<string, object>
                 {

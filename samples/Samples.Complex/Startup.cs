@@ -58,7 +58,7 @@ public class Startup
 
         app.UseGraphQL<GraphQLHttpMiddlewareWithLogs<ChatSchema>>("/graphql", new GraphQLHttpMiddlewareOptions());
 
-        app.UseGraphQLPlayground(new PlaygroundOptions
+        app.UseGraphQLPlayground(options: new PlaygroundOptions
         {
             BetaUpdates = true,
             RequestCredentials = Server.Ui.Playground.RequestCredentials.Omit,
@@ -86,7 +86,7 @@ public class Startup
             },
         });
 
-        app.UseGraphQLGraphiQL(new GraphiQLOptions
+        app.UseGraphQLGraphiQL(options: new GraphiQLOptions
         {
             Headers = new Dictionary<string, string>
             {
@@ -94,7 +94,7 @@ public class Startup
             }
         });
 
-        app.UseGraphQLAltair(new AltairOptions
+        app.UseGraphQLAltair(options: new AltairOptions
         {
             Headers = new Dictionary<string, string>
             {
@@ -102,7 +102,7 @@ public class Startup
             }
         });
 
-        app.UseGraphQLVoyager(new VoyagerOptions
+        app.UseGraphQLVoyager(options: new VoyagerOptions
         {
             Headers = new Dictionary<string, object>
             {
