@@ -754,7 +754,7 @@ As would be expected, subscription requests are only allowed over WebSocket chan
 ## Samples
 
 The following samples are provided to show how to integrate this project with various
-typical ASP.Net Core scenarios.
+typical ASP.NET Core scenarios.
 
 | Name            | Framework                | Description |
 |-----------------|--------------------------|-------------|
