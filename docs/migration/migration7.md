@@ -18,7 +18,7 @@
 
 #### Subscriptions / WebSocket connections
 
-- WebSocket support has been moved into the main project and is included within the middleware above; no separate configuration is necessary
+- WebSocket support has been moved into the main project (Transports.AspNetCore) and is included within the middleware above; no separate configuration is necessary
 - No 3rd party dependencies required (i.e. DataFlow or System.Reactive)
 - WebSocket connections now support both the GraphQLWs and SubscriptionsTransportWs protocols
 - Tighter adherence to the respective protocol, with configurable timeouts
