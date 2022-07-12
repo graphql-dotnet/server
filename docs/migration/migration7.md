@@ -241,4 +241,22 @@ services.AddAuthorization(options => {
 
 ## Migration of UI middleware
 
-No changes are necessary for UI middleware
+The path must now be specified prior to the options class, rather than after.
+
+```csharp
+// v6/v7
+app.UseGraphQLPlayground();
+
+// v6/v7
+app.UseGraphQLPlayground("/");
+
+// v6
+app.UseGraphQLPlayground(new PlaygroundOptions(), "/");
+// v7
+app.UseGraphQLPlayground("/", new PlaygroundOptions());
+
+// v6
+app.UseGraphQLPlayground(new PlaygroundOptions());
+// v7
+app.UseGraphQLPlayground(options: new PlaygroundOptions());
+```
