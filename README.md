@@ -783,7 +783,7 @@ Below are some basic requests you can use to test the schema:
 
 #### Return last message
 
-```gql
+```graphql
 {
   lastMessage {
     id
@@ -798,7 +798,7 @@ Below are some basic requests you can use to test the schema:
 
 #### Add a message
 
-```gql
+```graphql
 mutation {
   addMessage(message: { message: "Hello", from: "John Doe" }) {
     id
@@ -808,7 +808,7 @@ mutation {
 
 #### Clear all messages
 
-```gql
+```graphql
 mutation {
   clearMessages
 }
@@ -816,7 +816,7 @@ mutation {
 
 ### Subscriptions
 
-```gql
+```graphql
 subscription {
   newMessages {
     id
