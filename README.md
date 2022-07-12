@@ -579,7 +579,7 @@ and Subscription portions of your schema, as shown below:
 builder.Services.AddGraphQL(b => b
     .AddSchema<MySchema>()
     .AddSystemTextJson()
-    .AddAuthorization()); // add authorization validation rule
+    .AddAuthorizationRule()); // add authorization validation rule
 
 var app = builder.Build();
 app.UseDeveloperExceptionPage();
