@@ -55,7 +55,7 @@
 
 #### MVC projects
 
-- Added an ExecutionResultActionResult class for returning GraphQL responses from MVC controller action methods
+- Added an `ExecutionResultActionResult` class for returning GraphQL responses from MVC controller action methods
 
 #### UI middleware
 
