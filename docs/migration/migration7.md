@@ -20,7 +20,7 @@
 
 - WebSocket support has been moved into the main project (Transports.AspNetCore) and is included within the middleware above; no separate configuration is necessary
 - No 3rd party dependencies required (i.e. DataFlow or System.Reactive)
-- WebSocket connections now support both the GraphQLWs and SubscriptionsTransportWs protocols
+- WebSocket connections now support both the graphql-ws and graphql-transport-ws protocols
 - Tighter adherence to the respective protocol, with configurable timeouts
 - Added Server-side keep-alive functionality (configurable)
 - New OOP simplified design that can easily be extended to support additional protocols
