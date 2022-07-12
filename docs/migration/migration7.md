@@ -6,7 +6,7 @@
 
 - Configuration simplified to a single line of code
 - Single middleware to support GET, POST and WebSocket connections (configurable)
-- Media type of 'application/graphql+json' is accepted and returned as recommended by the draft spec (configurable via virutal method)
+- Media type of 'application/graphql+json' is accepted and returned as recommended by the draft spec (configurable via virtual method)
 - Batched requests will execute in parallel within separate service scopes (configurable)
 - Authorization rules can be set on endpoints, regardless of schema configuration
 - Mutation requests are disallowed over GET connections, as required by the spec
