@@ -14,19 +14,10 @@ public static class AltairEndpointRouteBuilderExtensions
     /// Add the Altair middleware to the HTTP request pipeline
     /// </summary>
     /// <param name="endpoints">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
-    /// <param name="pattern">The route pattern.</param>
-    /// <returns>The <see cref="IApplicationBuilder"/> received as parameter</returns>
-    public static AltairEndpointConventionBuilder MapGraphQLAltair(this IEndpointRouteBuilder endpoints, string pattern = "ui/altair")
-        => endpoints.MapGraphQLAltair(new AltairOptions(), pattern);
-
-    /// <summary>
-    /// Add the Altair middleware to the HTTP request pipeline
-    /// </summary>
-    /// <param name="endpoints">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
     /// <param name="options">Options to customize <see cref="AltairMiddleware"/>. If not set, then the default values will be used.</param>
     /// <param name="pattern">The route pattern.</param>
     /// <returns>The <see cref="IApplicationBuilder"/> received as parameter</returns>
-    public static AltairEndpointConventionBuilder MapGraphQLAltair(this IEndpointRouteBuilder endpoints, AltairOptions options, string pattern = "ui/altair")
+    public static AltairEndpointConventionBuilder MapGraphQLAltair(this IEndpointRouteBuilder endpoints, string pattern = "ui/altair", AltairOptions? options = null)
     {
         if (endpoints == null)
             throw new ArgumentNullException(nameof(endpoints));

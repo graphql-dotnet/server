@@ -14,19 +14,10 @@ public static class VoyagerEndpointRouteBuilderExtensions
     /// Add the Voyager middleware to the HTTP request pipeline
     /// </summary>
     /// <param name="endpoints">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
-    /// <param name="pattern">The route pattern.</param>
-    /// <returns>The <see cref="IApplicationBuilder"/> received as parameter</returns>
-    public static VoyagerEndpointConventionBuilder MapGraphQLVoyager(this IEndpointRouteBuilder endpoints, string pattern = "ui/voyager")
-        => endpoints.MapGraphQLVoyager(new VoyagerOptions(), pattern);
-
-    /// <summary>
-    /// Add the Voyager middleware to the HTTP request pipeline
-    /// </summary>
-    /// <param name="endpoints">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
     /// <param name="options">Options to customize <see cref="VoyagerMiddleware"/>. If not set, then the default values will be used.</param>
     /// <param name="pattern">The route pattern.</param>
     /// <returns>The <see cref="IApplicationBuilder"/> received as parameter</returns>
-    public static VoyagerEndpointConventionBuilder MapGraphQLVoyager(this IEndpointRouteBuilder endpoints, VoyagerOptions options, string pattern = "ui/voyager")
+    public static VoyagerEndpointConventionBuilder MapGraphQLVoyager(this IEndpointRouteBuilder endpoints, string pattern = "ui/voyager", VoyagerOptions? options = null)
     {
         if (endpoints == null)
             throw new ArgumentNullException(nameof(endpoints));
