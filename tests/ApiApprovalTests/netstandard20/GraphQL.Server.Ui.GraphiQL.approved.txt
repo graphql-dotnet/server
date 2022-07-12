@@ -28,7 +28,6 @@ namespace Microsoft.AspNetCore.Builder
 {
     public static class GraphiQLApplicationBuilderExtensions
     {
-        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQLGraphiQL(this Microsoft.AspNetCore.Builder.IApplicationBuilder app, string path = "/ui/graphiql") { }
-        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQLGraphiQL(this Microsoft.AspNetCore.Builder.IApplicationBuilder app, GraphQL.Server.Ui.GraphiQL.GraphiQLOptions options, string path = "/ui/graphiql") { }
+        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQLGraphiQL(this Microsoft.AspNetCore.Builder.IApplicationBuilder app, string path = "/ui/graphiql", GraphQL.Server.Ui.GraphiQL.GraphiQLOptions? options = null) { }
     }
 }

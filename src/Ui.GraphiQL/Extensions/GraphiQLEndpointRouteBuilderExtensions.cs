@@ -14,19 +14,10 @@ public static class GraphiQLEndpointRouteBuilderExtensions
     /// Add the GraphiQL middleware to the HTTP request pipeline
     /// </summary>
     /// <param name="endpoints">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
-    /// <param name="pattern">The route pattern.</param>
-    /// <returns>The <see cref="IApplicationBuilder"/> received as parameter</returns>
-    public static GraphiQLEndpointConventionBuilder MapGraphQLGraphiQL(this IEndpointRouteBuilder endpoints, string pattern = "ui/graphiql")
-        => endpoints.MapGraphQLGraphiQL(new GraphiQLOptions(), pattern);
-
-    /// <summary>
-    /// Add the GraphiQL middleware to the HTTP request pipeline
-    /// </summary>
-    /// <param name="endpoints">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
     /// <param name="options">Options to customize <see cref="GraphiQLMiddleware"/>. If not set, then the default values will be used.</param>
     /// <param name="pattern">The route pattern.</param>
     /// <returns>The <see cref="IApplicationBuilder"/> received as parameter</returns>
-    public static GraphiQLEndpointConventionBuilder MapGraphQLGraphiQL(this IEndpointRouteBuilder endpoints, GraphiQLOptions options, string pattern = "ui/graphiql")
+    public static GraphiQLEndpointConventionBuilder MapGraphQLGraphiQL(this IEndpointRouteBuilder endpoints, string pattern = "ui/graphiql", GraphiQLOptions? options = null)
     {
         if (endpoints == null)
             throw new ArgumentNullException(nameof(endpoints));

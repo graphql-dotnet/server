@@ -17,11 +17,11 @@ app.UseWebSockets();
 app.UseGraphQL("/graphql");
 // configure Playground at "/"
 app.UseGraphQLPlayground(
+    "/",
     new GraphQL.Server.Ui.Playground.PlaygroundOptions
     {
         GraphQLEndPoint = "/graphql",
         SubscriptionsEndPoint = "/graphql",
-    },
-    "/");
+    });
 
 await app.RunAsync();
