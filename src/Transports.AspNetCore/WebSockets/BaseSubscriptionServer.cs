@@ -345,6 +345,10 @@ public abstract partial class BaseSubscriptionServer : IOperationMessageProcesso
         }
         var messageId = message.Id!;
 
+        // 'dummyDisposer' is used as a placeholder between the request to start a subscription
+        // and the time that the subscription is set up.  In this manner, if a second 'start subscription'
+        // requests arrive within this interim, it will be rejected or overwritten (depending on the
+        // value of the overwrite argument) properly.
         var dummyDisposer = new DummyDisposer();
 
         if (overwrite)
