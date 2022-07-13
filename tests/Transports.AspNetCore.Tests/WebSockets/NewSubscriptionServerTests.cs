@@ -1,3 +1,5 @@
+using System.Security.Claims;
+
 namespace Tests.WebSockets;
 
 public class NewSubscriptionServerTests : IDisposable
@@ -366,6 +368,10 @@ public class NewSubscriptionServerTests : IDisposable
             .Verifiable();
         mockScope.Setup(x => x.Dispose()).Verifiable();
         var result = Mock.Of<ExecutionResult>(MockBehavior.Strict);
+        var principal = new ClaimsPrincipal();
+        var mockContext = new Mock<HttpContext>(MockBehavior.Strict);
+        mockContext.Setup(x => x.User).Returns(principal).Verifiable();
+        _mockStream.Setup(x => x.HttpContext).Returns(mockContext.Object).Verifiable();
         var mockUserContext = new Mock<IDictionary<string, object?>>(MockBehavior.Strict);
         _server.Set_UserContext(mockUserContext.Object);
         _mockDocumentExecuter.Setup(x => x.ExecuteAsync(It.IsAny<ExecutionOptions>()))
@@ -378,11 +384,13 @@ public class NewSubscriptionServerTests : IDisposable
                 options.OperationName.ShouldBe(request.OperationName);
                 options.UserContext.ShouldBe(mockUserContext.Object);
                 options.RequestServices.ShouldBe(mockServiceProvider.Object);
+                options.User.ShouldBe(principal);
                 return Task.FromResult(result);
             })
             .Verifiable();
         var actual = await _server.Do_ExecuteRequestAsync(message);
         actual.ShouldBe(result);
+        mockContext.Verify();
         _mockDocumentExecuter.Verify();
         _mockSerializer.Verify();
         _mockServiceScopeFactory.Verify();
