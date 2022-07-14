@@ -4,8 +4,8 @@
 [![codecov](https://codecov.io/gh/graphql-dotnet/server/branch/master/graph/badge.svg?token=ZBcVYq7hz4)](https://codecov.io/gh/graphql-dotnet/server)
 [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Transports.AspNetCore)](https://www.nuget.org/packages/GraphQL.Server.Transports.AspNetCore)
 [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.Transports.AspNetCore)](https://www.nuget.org/packages/GraphQL.Server.Transports.AspNetCore)
-[![GitHub Release Date](https://img.shields.io/github/release-date/graphql-dotnet/server)](https://github.com/graphql-dotnet/server/releases)
-[![GitHub commits since latest release (by date)](https://img.shields.io/github/commits-since/graphql-dotnet/server/latest)](https://github.com/graphql-dotnet/server/commits/master)
+[![GitHub Release Date](https://img.shields.io/github/release-date/graphql-dotnet/server?label=released)](https://github.com/graphql-dotnet/server/releases)
+[![GitHub commits since latest release (by date)](https://img.shields.io/github/commits-since/graphql-dotnet/server/latest?label=new+commits)](https://github.com/graphql-dotnet/server/commits/master)
 [![GitHub contributors](https://img.shields.io/github/contributors/graphql-dotnet/server)](https://github.com/graphql-dotnet/server/graphs/contributors)
 ![Size](https://img.shields.io/github/repo-size/graphql-dotnet/server)
 
