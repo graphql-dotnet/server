@@ -9,7 +9,7 @@
 GraphQL ASP.NET Core server on top of [GraphQL.NET](https://github.com/graphql-dotnet/graphql-dotnet).
 HTTP transport compatible with the [GraphQL over HTTP draft specification](https://github.com/graphql/graphql-over-http/blob/main/spec/GraphQLOverHTTP.md).
 WebSocket transport compatible with both [subscriptions-transport-ws](https://github.com/apollographql/subscriptions-transport-ws) and
-[graphql-ws](https://github.com/enisdenjo/graphql-ws) subscription protocols.
+[graphql-ws](https://github.com/enisdenjo/graphql-ws) subscription protocols. The transport format of all messages is supposed to be JSON.
 
 Provides the following packages:
 
