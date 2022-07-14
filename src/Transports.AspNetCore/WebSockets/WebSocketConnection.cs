@@ -26,6 +26,8 @@ public class WebSocketConnection : IWebSocketConnection
     private readonly TimeSpan _closeTimeout;
     private int _executed;
 
+    private const int BUFFER_SIZE = 16384;
+
     /// <inheritdoc/>
     public CancellationToken RequestAborted { get; }
 
@@ -82,19 +84,21 @@ public class WebSocketConnection : IWebSocketConnection
             // set up a buffer in case a message is longer than one block
             var receiveStream = new MemoryStream();
             // set up a 16KB data block
-            byte[] buffer = new byte[16384];
-            // prep a Memory instance pointing to the block
-#if NETSTANDARD2_0
-            var bufferMemory = new ArraySegment<byte>(buffer);
-#else
-            var bufferMemory = new Memory<byte>(buffer);
-#endif
+            byte[] buffer = new byte[BUFFER_SIZE];
+            int bufferOffset = 0;
             // prep a reader stream
             var bufferStream = new ReusableMemoryReaderStream(buffer);
             // read messages until an exception occurs, the cancellation token is signaled, or a 'close' message is received
             while (true)
             {
+                // prep a Memory instance pointing to the block
+#if NETSTANDARD2_0
+                var bufferMemory = new ArraySegment<byte>(buffer, bufferOffset, BUFFER_SIZE - bufferOffset);
+#else
+                var bufferMemory = new Memory<byte>(buffer, bufferOffset, BUFFER_SIZE - bufferOffset);
+#endif
                 var result = await _webSocket.ReceiveAsync(bufferMemory, RequestAborted);
+                bufferOffset += result.Count;
                 if (result.MessageType == WebSocketMessageType.Close)
                 {
                     receivedCloseMessage = true;
@@ -115,7 +119,10 @@ public class WebSocketConnection : IWebSocketConnection
                 }
                 // if close has been requested, ignore incoming messages
                 if (_closeRequested)
+                {
+                    bufferOffset = 0;
                     continue;
+                }
                 // if this is the last block terminating a message
                 if (result.EndOfMessage)
                 {
@@ -123,11 +130,12 @@ public class WebSocketConnection : IWebSocketConnection
                     if (receiveStream.Length == 0)
                     {
                         // if the message is empty, skip to the next message
-                        if (result.Count == 0)
+                        if (bufferOffset == 0)
                             continue;
                         // read the message
-                        bufferStream.ResetLength(result.Count);
+                        bufferStream.ResetLength(bufferOffset);
                         var message = await _serializer.ReadAsync<OperationMessage>(bufferStream, RequestAborted);
+                        bufferOffset = 0;
                         // dispatch the message
                         if (message != null)
                             await OnDispatchMessageAsync(operationMessageProcessor, message);
@@ -135,8 +143,9 @@ public class WebSocketConnection : IWebSocketConnection
                     else
                     {
                         // if there is any data in this block, add it to the buffer
-                        if (result.Count > 0)
-                            receiveStream.Write(buffer, 0, result.Count);
+                        if (bufferOffset > 0)
+                            receiveStream.Write(buffer, 0, bufferOffset);
+                        bufferOffset = 0;
                         // read the message from the buffer
                         receiveStream.Position = 0;
                         var message = await _serializer.ReadAsync<OperationMessage>(receiveStream, RequestAborted);
@@ -149,9 +158,13 @@ public class WebSocketConnection : IWebSocketConnection
                 }
                 else
                 {
+                    // if there is room in the buffer for more information, continue to fill the buffer
+                    if (bufferOffset < BUFFER_SIZE)
+                        continue;
                     // if there is any data in this block, add it to the buffer
-                    if (result.Count > 0)
-                        receiveStream.Write(buffer, 0, result.Count);
+                    if (bufferOffset > 0)
+                        receiveStream.Write(buffer, 0, bufferOffset);
+                    bufferOffset = 0;
                 }
             }
         }
