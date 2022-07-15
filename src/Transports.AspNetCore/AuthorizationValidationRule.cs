@@ -5,21 +5,11 @@ namespace GraphQL.Server.Transports.AspNetCore;
 /// </summary>
 public class AuthorizationValidationRule : IValidationRule
 {
-    private readonly IHttpContextAccessor _contextAccessor;
-
-    /// <inheritdoc cref="AuthorizationValidationRule"/>
-    public AuthorizationValidationRule(IHttpContextAccessor httpContextAccessor)
-    {
-        _contextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
-    }
-
     /// <inheritdoc/>
     public virtual async ValueTask<INodeVisitor?> ValidateAsync(ValidationContext context)
     {
-        var httpContext = _contextAccessor.HttpContext
-            ?? throw new InvalidOperationException("HttpContext could not be retrieved from IHttpContextAccessor.");
-        var user = httpContext.User
-            ?? throw new InvalidOperationException("ClaimsPrincipal could not be retrieved from HttpContext.");
+        var user = context.User
+            ?? throw new InvalidOperationException("User could not be retrieved from ValidationContext. Please be sure it is set in ExecutionOptions.User.");
         var provider = context.RequestServices
             ?? throw new MissingRequestServicesException();
         var authService = provider.GetService<IAuthorizationService>()

@@ -137,7 +137,6 @@ public static class ServerGraphQLBuilderExtensions
     public static IGraphQLBuilder AddAuthorizationRule(this IGraphQLBuilder builder)
     {
         builder.AddValidationRule<AuthorizationValidationRule>(true);
-        builder.Services.TryRegister<IHttpContextAccessor, HttpContextAccessor>(DI.ServiceLifetime.Singleton);
         return builder;
     }
 }

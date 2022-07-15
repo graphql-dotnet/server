@@ -28,7 +28,7 @@
     <RootNamespace>GraphQL.Server.$(MSBuildProjectName)</RootNamespace>
     <PackageId>GraphQL.Server.$(MSBuildProjectName)</PackageId>
 
-    <GraphQLVersion>6.0.0-preview-602</GraphQLVersion>
+    <GraphQLVersion>6.0.0-preview-612</GraphQLVersion>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(IsPackable)' == 'true'">

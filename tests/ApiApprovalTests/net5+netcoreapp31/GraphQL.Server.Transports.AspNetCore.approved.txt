@@ -17,7 +17,7 @@ namespace GraphQL.Server.Transports.AspNetCore
     }
     public class AuthorizationValidationRule : GraphQL.Validation.IValidationRule
     {
-        public AuthorizationValidationRule(Microsoft.AspNetCore.Http.IHttpContextAccessor httpContextAccessor) { }
+        public AuthorizationValidationRule() { }
         public virtual System.Threading.Tasks.ValueTask<GraphQL.Validation.INodeVisitor?> ValidateAsync(GraphQL.Validation.ValidationContext context) { }
     }
     public class AuthorizationVisitor : GraphQL.Server.Transports.AspNetCore.AuthorizationVisitorBase
