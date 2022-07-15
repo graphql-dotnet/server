@@ -167,12 +167,46 @@ public class ChatTests : IDisposable
             },
         });
 
-        // Delay is necessary to allow time for the asynchronous websocket handler code
+        // It is necessary to allow time for the asynchronous websocket handler code
         // to execute prior to the independent call to AddMessageInternal below.
         // Since the websocket call does not return a response when the subscription
         // has completed being set up, there is no response we can await to determine
-        // when to call AddMessageInternal.
-        await Task.Delay(1000);
+        // when to call AddMessageInternal; so for the purposes of testing, we make
+        // an additional call here.
+
+        // wait for the message to be handled by the server
+        if (subProtocol == "graphql-transport-ws")
+        {
+            // just send a ping and wait for the pong
+            await webSocket.SendMessageAsync(new OperationMessage
+            {
+                Type = "ping",
+            });
+            message = await webSocket.ReceiveMessageAsync();
+            message.Type.ShouldBe("pong");
+        }
+        else
+        {
+            // send a quick message
+            await webSocket.SendMessageAsync(new OperationMessage
+            {
+                Type = "start",
+                Id = "verify",
+                Payload = new GraphQLRequest
+                {
+                    Query = "{ count }"
+                },
+            });
+            // wait for the response
+            message = await webSocket.ReceiveMessageAsync();
+            message.Id.ShouldBe("verify");
+            message.Type.ShouldBe("data");
+            message.Payload.ShouldBe(@"{""data"":{""count"":0}}");
+            // and the complete message
+            message = await webSocket.ReceiveMessageAsync();
+            message.Id.ShouldBe("verify");
+            message.Type.ShouldBe("complete");
+        }
 
         // post a new message on a separate thread
         _ = Task.Run(() => AddMessageInternal(1));
@@ -274,7 +308,46 @@ public class ChatTests : IDisposable
             },
         });
 
-        await Task.Delay(1000);
+        // It is necessary to allow time for the asynchronous websocket handler code
+        // to execute prior to the independent call to AddMessageInternal below.
+        // Since the websocket call does not return a response when the subscription
+        // has completed being set up, there is no response we can await to determine
+        // when to call AddMessageInternal; so for the purposes of testing, we make
+        // an additional call here.
+
+        // wait for the message to be handled by the server
+        if (subProtocol == "graphql-transport-ws")
+        {
+            // just send a ping and wait for the pong
+            await webSocket.SendMessageAsync(new OperationMessage
+            {
+                Type = "ping",
+            });
+            message = await webSocket.ReceiveMessageAsync();
+            message.Type.ShouldBe("pong");
+        }
+        else
+        {
+            // send a quick message
+            await webSocket.SendMessageAsync(new OperationMessage
+            {
+                Type = "start",
+                Id = "verify",
+                Payload = new GraphQLRequest
+                {
+                    Query = "{ count }"
+                },
+            });
+            // wait for the response
+            message = await webSocket.ReceiveMessageAsync();
+            message.Id.ShouldBe("verify");
+            message.Type.ShouldBe("data");
+            message.Payload.ShouldBe(@"{""data"":{""count"":0}}");
+            // and the complete message
+            message = await webSocket.ReceiveMessageAsync();
+            message.Id.ShouldBe("verify");
+            message.Type.ShouldBe("complete");
+        }
 
         // post a new message
         await AddMessageInternal(1);
