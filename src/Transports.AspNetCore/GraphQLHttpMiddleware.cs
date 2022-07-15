@@ -388,6 +388,7 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
             OperationName = request?.OperationName,
             RequestServices = serviceProvider,
             UserContext = userContext,
+            User = context.User,
         };
         if (!context.WebSockets.IsWebSocketRequest)
         {

@@ -15,6 +15,7 @@
 - Configuration options can be set independently for each configured endpoint
 - New OOP design; middleware is easily extended in a derived class
 - Removed virtual method `GetCancellationToken`; token is pulled from `HttpContext.RequestAborted`
+- `HttpContext.User` is passed to `ExecutionOptions.User` so it can be accessed by validation rules and field resolvers
 
 #### Subscriptions / WebSocket connections
 
@@ -35,7 +36,7 @@
 
 - Configuration simplifed to a single line of code
 - Support moved into the main project (Transports.AspNetCore); no separate NuGet reference required
-- Removed `IClaimsPrincipalAccessor`; `HttpContext.User` is used to acquire `ClaimsPrincipal` reference
+- Removed `IClaimsPrincipalAccessor`; `ValidationContext.User` is used to acquire `ClaimsPrincipal` reference
 - As a security fix, authorization failure messages do not reveal the authorization requirements to the caller
 - Removed `IAuthorizationErrorMessageBuilder`
 - Added support for `AuthorizeWithRole(string role)`

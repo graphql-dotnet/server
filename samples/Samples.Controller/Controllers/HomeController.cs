@@ -75,6 +75,7 @@ public class HomeController : Controller
                 Extensions = request?.Extensions,
                 CancellationToken = HttpContext.RequestAborted,
                 RequestServices = HttpContext.RequestServices,
+                User = HttpContext.User,
             };
             IValidationRule rule = HttpMethods.IsGet(HttpContext.Request.Method) ? new HttpGetValidationRule() : new HttpPostValidationRule();
             opts.ValidationRules = DocumentValidator.CoreRules.Append(rule);

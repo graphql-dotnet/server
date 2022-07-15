@@ -212,6 +212,7 @@ public class SubscriptionServer : BaseSubscriptionServer
                 OperationName = request.OperationName,
                 RequestServices = scope.ServiceProvider,
                 CancellationToken = CancellationToken,
+                User = Connection.HttpContext.User,
             };
             if (UserContext != null)
                 options.UserContext = UserContext;
