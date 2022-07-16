@@ -54,7 +54,21 @@ internal static class TestServerExtensions
             },
         });
 
-        await Task.Delay(1000);
+        // It is necessary to allow time for the asynchronous websocket handler code
+        // to execute prior to the independent call to AddMessageInternal below.
+        // Since the websocket call does not return a response when the subscription
+        // has completed being set up, there is no response we can await to determine
+        // when to call AddMessageInternal; so for the purposes of testing, we make
+        // an additional call here.
+
+        // wait for the message to be handled by the server;
+        // just send a ping and wait for the pong
+        await webSocket.SendMessageAsync(new OperationMessage
+        {
+            Type = "ping",
+        });
+        message = await webSocket.ReceiveMessageAsync();
+        message.Type.ShouldBe("pong");
 
         // post a new message
         {
