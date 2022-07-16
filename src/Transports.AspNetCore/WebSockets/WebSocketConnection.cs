@@ -126,7 +126,7 @@ public class WebSocketConnection : IWebSocketConnection
                 // if this is the last block terminating a message
                 if (result.EndOfMessage)
                 {
-                    // if only one block of data was sent for this message
+                    // if message was less then 16 KB
                     if (receiveStream.Length == 0)
                     {
                         // if the message is empty, skip to the next message
