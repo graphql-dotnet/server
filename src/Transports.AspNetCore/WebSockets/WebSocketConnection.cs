@@ -81,17 +81,17 @@ public class WebSocketConnection : IWebSocketConnection
         try
         {
             await operationMessageProcessor.InitializeConnectionAsync();
-            // set up a buffer in case a message is longer than one block
+            // set up a buffer in case a message is longer than 16KB
             var receiveStream = new MemoryStream();
-            // set up a 16KB data block
+            // set up a 16KB block to accumulate data from WebSocket
             byte[] buffer = new byte[BUFFER_SIZE];
             int bufferOffset = 0;
-            // prep a reader stream
+            // prep a reader stream - just a view of the 16KB buffer for the deserializer so the data does not need to be copied to the memory stream
             var bufferStream = new ReusableMemoryReaderStream(buffer);
             // read messages until an exception occurs, the cancellation token is signaled, or a 'close' message is received
             while (true)
             {
-                // prep a Memory instance pointing to the block
+                // prep a Memory instance pointing to the free part of block
 #if NETSTANDARD2_0
                 var bufferMemory = new ArraySegment<byte>(buffer, bufferOffset, BUFFER_SIZE - bufferOffset);
 #else
@@ -161,7 +161,7 @@ public class WebSocketConnection : IWebSocketConnection
                     // if there is room in the buffer for more information, continue to fill the buffer
                     if (bufferOffset < BUFFER_SIZE)
                         continue;
-                    // if there is any data in this block, add it to the buffer
+                    // if there is any data in byte[] buffer, flush it into stream buffer
                     if (bufferOffset > 0)
                         receiveStream.Write(buffer, 0, bufferOffset);
                     bufferOffset = 0;
