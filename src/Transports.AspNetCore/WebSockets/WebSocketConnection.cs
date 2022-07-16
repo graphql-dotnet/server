@@ -142,7 +142,7 @@ public class WebSocketConnection : IWebSocketConnection
                     }
                     else
                     {
-                        // if there is any data in this block, add it to the buffer
+                        // if there is any data in byte[] buffer, flush it into stream buffer
                         if (bufferOffset > 0)
                             receiveStream.Write(buffer, 0, bufferOffset);
                         bufferOffset = 0;
