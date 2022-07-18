@@ -78,7 +78,6 @@ public class GraphQLHttpMiddlewareOptions : IAuthorizationOptions
     /// <inheritdoc cref="IAuthorizationOptions.AuthorizedRoles"/>
     /// <remarks>
     /// HTTP requests return <c>403 Forbidden</c> when the user fails the role check.
-    /// Also set <see cref="AuthorizationRequired"/> to <see langword="true"/> to return <c>401 Unauthorized</c> when the request is not authenticated.
     /// </remarks>
     public List<string> AuthorizedRoles { get; set; } = new();
 
@@ -87,7 +86,6 @@ public class GraphQLHttpMiddlewareOptions : IAuthorizationOptions
     /// <inheritdoc/>
     /// <remarks>
     /// HTTP requests return <c>403 Forbidden</c> when the user fails the policy check.
-    /// Also set <see cref="AuthorizationRequired"/> to <see langword="true"/> to return <c>401 Unauthorized</c> when the request is not authenticated.
     /// </remarks>
     public string? AuthorizedPolicy { get; set; }
 
