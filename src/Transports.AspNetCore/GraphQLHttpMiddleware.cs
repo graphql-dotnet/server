@@ -292,9 +292,14 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
         // Normal execution with single graphql request
         var userContext = await BuildUserContextAsync(context, null);
         var result = await ExecuteRequestAsync(context, gqlRequest, context.RequestServices, userContext);
-        var statusCode = _options.ValidationErrorsReturnBadRequest && !result.Executed
-            ? HttpStatusCode.BadRequest
-            : HttpStatusCode.OK;
+        HttpStatusCode statusCode = HttpStatusCode.OK;
+        if (!result.Executed)
+        {
+            if (result.Errors?.Any(e => e is HttpMethodValidationError) == true)
+                statusCode = HttpStatusCode.MethodNotAllowed;
+            else if (_options.ValidationErrorsReturnBadRequest)
+                statusCode = HttpStatusCode.BadRequest;
+        }
         await WriteJsonResponseAsync(context, statusCode, result);
     }
 
