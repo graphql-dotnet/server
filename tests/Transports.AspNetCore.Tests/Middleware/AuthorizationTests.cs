@@ -183,7 +183,7 @@ public class AuthorizationTests
         _options.AuthorizedRoles.Add("AnotherRole");
         _options.AuthorizedRoles.Add("MyRole");
         using var response = await PostQueryAsync("{ __typename }", false);
-        response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+        response.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
         var actual = await response.Content.ReadAsStringAsync();
         actual.ShouldBe(@"{""errors"":[{""message"":""Access denied for schema."",""extensions"":{""code"":""ACCESS_DENIED"",""codes"":[""ACCESS_DENIED""]}}]}");
     }
@@ -195,7 +195,7 @@ public class AuthorizationTests
         _options.AuthorizedRoles.Add("MyRole");
         _enableCustomErrorInfoProvider = true;
         using var response = await PostQueryAsync("{ __typename }", false);
-        response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+        response.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
         var actual = await response.Content.ReadAsStringAsync();
         actual.ShouldBe(@"{""errors"":[{""message"":""Access denied; roles required \u0027AnotherRole\u0027/\u0027MyRole\u0027."",""extensions"":{""code"":""ACCESS_DENIED"",""codes"":[""ACCESS_DENIED""]}}]}");
     }
@@ -216,7 +216,7 @@ public class AuthorizationTests
     {
         _options.AuthorizedPolicy = "MyPolicy";
         using var response = await PostQueryAsync("{ __typename }", false);
-        response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+        response.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
         var actual = await response.Content.ReadAsStringAsync();
         actual.ShouldBe(@"{""errors"":[{""message"":""Access denied for schema."",""extensions"":{""code"":""ACCESS_DENIED"",""codes"":[""ACCESS_DENIED""]}}]}");
     }
@@ -227,7 +227,7 @@ public class AuthorizationTests
         _options.AuthorizedPolicy = "MyPolicy";
         _enableCustomErrorInfoProvider = true;
         using var response = await PostQueryAsync("{ __typename }", false);
-        response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+        response.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
         var actual = await response.Content.ReadAsStringAsync();
         actual.ShouldBe(@"{""errors"":[{""message"":""Access denied; policy required \u0027MyPolicy\u0027."",""extensions"":{""code"":""ACCESS_DENIED"",""codes"":[""ACCESS_DENIED""]}}]}");
     }
