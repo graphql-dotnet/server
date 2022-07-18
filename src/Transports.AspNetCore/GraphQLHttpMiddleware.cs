@@ -346,7 +346,7 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
     /// <see cref="ExecuteRequestAsync(HttpContext, GraphQLRequest, IServiceProvider, IDictionary{string, object?})">ExecuteRequestAsync</see>,
     /// disposing of the scope when the asynchronous operation completes.
     /// </summary>
-    protected virtual async Task<ExecutionResult> ExecuteScopedRequestAsync(HttpContext context, GraphQLRequest? request, IDictionary<string, object?> userContext)
+    protected virtual async Task<ExecutionResult> ExecuteScopedRequestAsync(HttpContext context, GraphQLRequest? request, IDictionary<string, object?>? userContext)
     {
         var scope = _serviceScopeFactory.CreateScope();
         try
@@ -377,7 +377,7 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
     /// options.CachedDocumentValidationRules = new[] { rule };
     /// </code>
     /// </summary>
-    protected virtual async Task<ExecutionResult> ExecuteRequestAsync(HttpContext context, GraphQLRequest? request, IServiceProvider serviceProvider, IDictionary<string, object?> userContext)
+    protected virtual async Task<ExecutionResult> ExecuteRequestAsync(HttpContext context, GraphQLRequest? request, IServiceProvider serviceProvider, IDictionary<string, object?>? userContext)
     {
         var opts = new ExecutionOptions
         {
@@ -387,9 +387,12 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
             CancellationToken = context.RequestAborted,
             OperationName = request?.OperationName,
             RequestServices = serviceProvider,
-            UserContext = userContext,
             User = context.User,
         };
+
+        if (userContext != null)
+            opts.UserContext = userContext;
+
         if (!context.WebSockets.IsWebSocketRequest)
         {
             if (HttpMethods.IsGet(context.Request.Method))
@@ -403,6 +406,7 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
                 opts.CachedDocumentValidationRules = _postCachedDocumentValidationRules;
             }
         }
+
         return await _documentExecuter.ExecuteAsync(opts);
     }
 
@@ -424,16 +428,15 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
     /// In this manner, both scoped and singleton <see cref="IUserContextBuilder"/>
     /// instances are supported, although singleton instances are recommended.
     /// </summary>
-    protected virtual async ValueTask<IDictionary<string, object?>> BuildUserContextAsync(HttpContext context, object? payload)
+    protected virtual async ValueTask<IDictionary<string, object?>?> BuildUserContextAsync(HttpContext context, object? payload)
     {
         var userContextBuilder = context.RequestServices.GetService<IUserContextBuilder>();
-        var userContext = userContextBuilder == null
-            ? new Dictionary<string, object?>()
+        return userContextBuilder == null
+            ? null
             : await userContextBuilder.BuildUserContextAsync(context, payload);
-        return userContext;
     }
 
-    ValueTask<IDictionary<string, object?>> IUserContextBuilder.BuildUserContextAsync(HttpContext context, object? payload)
+    ValueTask<IDictionary<string, object?>?> IUserContextBuilder.BuildUserContextAsync(HttpContext context, object? payload)
         => BuildUserContextAsync(context, payload);
 
     /// <summary>

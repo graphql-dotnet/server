@@ -6,7 +6,7 @@ namespace GraphQL.Server.Transports.AspNetCore;
 public class UserContextBuilder<TUserContext> : IUserContextBuilder
     where TUserContext : IDictionary<string, object?>
 {
-    private readonly Func<HttpContext, object?, ValueTask<IDictionary<string, object?>>> _func;
+    private readonly Func<HttpContext, object?, ValueTask<IDictionary<string, object?>?>> _func;
 
     /// <summary>
     /// Initializes a new instance with the specified delegate.
@@ -34,7 +34,7 @@ public class UserContextBuilder<TUserContext> : IUserContextBuilder
         if (func == null)
             throw new ArgumentNullException(nameof(func));
 
-        if (func is Func<HttpContext, object?, ValueTask<IDictionary<string, object?>>> func2)
+        if (func is Func<HttpContext, object?, ValueTask<IDictionary<string, object?>?>> func2)
         {
             _func = func2;
         }
@@ -54,6 +54,6 @@ public class UserContextBuilder<TUserContext> : IUserContextBuilder
     }
 
     /// <inheritdoc/>
-    public ValueTask<IDictionary<string, object?>> BuildUserContextAsync(HttpContext context, object? payload)
+    public ValueTask<IDictionary<string, object?>?> BuildUserContextAsync(HttpContext context, object? payload)
         => _func(context, payload);
 }

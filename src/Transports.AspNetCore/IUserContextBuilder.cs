@@ -21,5 +21,6 @@ public interface IUserContextBuilder
     /// To determine if this is a WebSocket connection request, check
     /// <paramref name="context"/>.<see cref="HttpContext.WebSockets">WebSockets</see>.<see cref="WebSocketManager.IsWebSocketRequest">IsWebSocketRequest</see>.
     /// </param>
-    ValueTask<IDictionary<string, object?>> BuildUserContextAsync(HttpContext context, object? payload);
+    /// <returns>Dictionary object representing user context. Return <see langword="null"/> to use default user context.</returns>
+    ValueTask<IDictionary<string, object?>?> BuildUserContextAsync(HttpContext context, object? payload);
 }
