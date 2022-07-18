@@ -82,7 +82,7 @@ public class AuthorizationHelperTests
         var claims = new List<Claim>();
         if (expected)
             claims.Add(new Claim(ClaimTypes.Role, "test2"));
-        mockContext.Setup(x => x.User).Returns(new ClaimsPrincipal(new ClaimsIdentity(claims)));
+        mockContext.Setup(x => x.User).Returns(new ClaimsPrincipal(new ClaimsIdentity(claims, "Bearer")));
 
         var options = new GraphQLHttpMiddlewareOptions();
         options.AuthorizedRoles.Add("test1");
@@ -102,7 +102,7 @@ public class AuthorizationHelperTests
     public async Task AuthorizePolicy(bool expected)
     {
         var mockContext = new Mock<HttpContext>();
-        var user = new ClaimsPrincipal(new ClaimsIdentity());
+        var user = new ClaimsPrincipal(new ClaimsIdentity("Bearer"));
 
         var mockAuthorizationService = new Mock<IAuthorizationService>(MockBehavior.Strict);
         mockAuthorizationService.Setup(x => x.AuthorizeAsync(user, null, "test")).Returns(Task.FromResult(expected ? AuthorizationResult.Success() : AuthorizationResult.Failed()));

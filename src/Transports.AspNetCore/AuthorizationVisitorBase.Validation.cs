@@ -75,11 +75,16 @@ public partial class AuthorizationVisitorBase
         if (!requiresAuthorization)
             return true;
 
-        var success = true;
+        var authorized = _userIsAuthorized ??= IsAuthenticated;
+        if (!authorized)
+        {
+            HandleNodeNotAuthorized(info);
+            return false;
+        }
+
         var policies = info.Obj.GetPolicies();
         if (policies?.Count > 0)
         {
-            requiresAuthorization = false;
             _policyResults ??= new Dictionary<string, AuthorizationResult>();
             foreach (var policy in policies)
             {
@@ -91,7 +96,7 @@ public partial class AuthorizationVisitorBase
                 if (!result.Succeeded)
                 {
                     HandleNodeNotInPolicy(info, policy, result);
-                    success = false;
+                    return false;
                 }
             }
         }
@@ -99,7 +104,6 @@ public partial class AuthorizationVisitorBase
         var roles = info.Obj.GetRoles();
         if (roles?.Count > 0)
         {
-            requiresAuthorization = false;
             _roleResults ??= new Dictionary<string, bool>();
             foreach (var role in roles)
             {
@@ -112,21 +116,11 @@ public partial class AuthorizationVisitorBase
                     goto PassRoles;
             }
             HandleNodeNotInRoles(info, roles);
-            success = false;
+            return false;
         }
     PassRoles:
 
-        if (requiresAuthorization)
-        {
-            var authorized = _userIsAuthorized ??= IsAuthenticated;
-            if (!authorized)
-            {
-                HandleNodeNotAuthorized(info);
-                success = false;
-            }
-        }
-
-        return success;
+        return true;
     }
 
     /// <inheritdoc cref="IIdentity.IsAuthenticated"/>

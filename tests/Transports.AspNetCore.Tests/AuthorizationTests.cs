@@ -90,6 +90,7 @@ public class AuthorizationTests
     [Fact]
     public void ErrorHasPolicy()
     {
+        _principal = new ClaimsPrincipal(new ClaimsIdentity("Bearer"));
         Apply(_query, Mode.PolicyFailure);
         var ret = Validate(@"{ parent { child } }");
         var err = ret.Errors.ShouldHaveSingleItem().ShouldBeOfType<AccessDeniedError>();
@@ -102,6 +103,7 @@ public class AuthorizationTests
     [Fact]
     public void ErrorHasRole()
     {
+        _principal = new ClaimsPrincipal(new ClaimsIdentity("Bearer"));
         Apply(_query, Mode.RoleFailure);
         var ret = Validate(@"{ parent { child } }");
         var err = ret.Errors.ShouldHaveSingleItem().ShouldBeOfType<AccessDeniedError>();
@@ -113,6 +115,7 @@ public class AuthorizationTests
     [Fact]
     public void ErrorHasRoles()
     {
+        _principal = new ClaimsPrincipal(new ClaimsIdentity("Bearer"));
         _query.AuthorizeWithRoles("Role1,Role2");
         var ret = Validate(@"{ parent { child } }");
         var err = ret.Errors.ShouldHaveSingleItem().ShouldBeOfType<AccessDeniedError>();

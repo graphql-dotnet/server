@@ -951,7 +951,7 @@ public class BaseSubscriptionServerTests : IDisposable
             _mockServer.Protected().Setup<Task>("ErrorAccessDeniedAsync").CallBase().Verifiable();
             _mockStream.Setup(x => x.CloseAsync(4401, "Access denied")).Returns(Task.CompletedTask);
         }
-        var user = new ClaimsPrincipal(authorized ? new ClaimsIdentity(new Claim[] { new Claim(ClaimTypes.Role, "myRole") }) : new ClaimsIdentity());
+        var user = new ClaimsPrincipal(authorized ? new ClaimsIdentity(new Claim[] { new Claim(ClaimTypes.Role, "myRole") }, "Bearer") : new ClaimsIdentity("Bearer"));
         var mockContext = new Mock<HttpContext>(MockBehavior.Strict);
         mockContext.Setup(x => x.User).Returns(user);
         _mockStream.Setup(x => x.HttpContext).Returns(mockContext.Object);
@@ -975,7 +975,7 @@ public class BaseSubscriptionServerTests : IDisposable
             _mockServer.Protected().Setup<Task>("ErrorAccessDeniedAsync").CallBase().Verifiable();
             _mockStream.Setup(x => x.CloseAsync(4401, "Access denied")).Returns(Task.CompletedTask);
         }
-        var user = new ClaimsPrincipal(new ClaimsIdentity());
+        var user = new ClaimsPrincipal(new ClaimsIdentity("Bearer"));
         var mockAuthorizationService = new Mock<IAuthorizationService>(MockBehavior.Strict);
         mockAuthorizationService.Setup(x => x.AuthorizeAsync(user, null, "myPolicy")).Returns(authorized ? Task.FromResult(AuthorizationResult.Success()) : Task.FromResult(AuthorizationResult.Failed()));
         var mockProvider = new Mock<IServiceProvider>(MockBehavior.Strict);
