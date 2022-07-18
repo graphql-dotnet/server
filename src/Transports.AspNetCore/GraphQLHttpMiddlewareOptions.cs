@@ -70,14 +70,25 @@ public class GraphQLHttpMiddlewareOptions : IAuthorizationOptions
     public bool ReadExtensionsFromQueryString { get; set; } = true;
 
     /// <inheritdoc/>
+    /// <remarks>
+    /// HTTP requests return <c>401 Forbidden</c> when the request is not authenticated.
+    /// </remarks>
     public bool AuthorizationRequired { get; set; }
 
     /// <inheritdoc cref="IAuthorizationOptions.AuthorizedRoles"/>
+    /// <remarks>
+    /// HTTP requests return <c>403 Forbidden</c> when no roles are matched.
+    /// Also set <see cref="AuthorizationRequired"/> to <see langword="true"/> to return <c>401 Unauthorized</c> when the request is not authenticated.
+    /// </remarks>
     public List<string> AuthorizedRoles { get; set; } = new();
 
     IEnumerable<string> IAuthorizationOptions.AuthorizedRoles => AuthorizedRoles;
 
     /// <inheritdoc/>
+    /// <remarks>
+    /// HTTP requests return <c>403 Forbidden</c> when policy requirements are not met.
+    /// Also set <see cref="AuthorizationRequired"/> to <see langword="true"/> to return <c>401 Unauthorized</c> when the request is not authenticated.
+    /// </remarks>
     public string? AuthorizedPolicy { get; set; }
 
     /// <summary>
