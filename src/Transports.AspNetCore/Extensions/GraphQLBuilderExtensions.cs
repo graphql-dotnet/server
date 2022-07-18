@@ -94,7 +94,9 @@ public static class ServerGraphQLBuilderExtensions
             var requestServices = options.RequestServices ?? throw new MissingRequestServicesException();
             var httpContext = requestServices.GetRequiredService<IHttpContextAccessor>().HttpContext!;
             var contextBuilder = requestServices.GetRequiredService<IUserContextBuilder>();
-            options.UserContext = await contextBuilder.BuildUserContextAsync(httpContext, null);
+            var userContext = await contextBuilder.BuildUserContextAsync(httpContext, null);
+            if (userContext != null)
+                options.UserContext = userContext;
             return await next(options);
         }
     }

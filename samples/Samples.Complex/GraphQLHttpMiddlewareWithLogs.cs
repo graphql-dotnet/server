@@ -26,7 +26,7 @@ public class GraphQLHttpMiddlewareWithLogs<TSchema> : GraphQLHttpMiddleware<TSch
         _logger = logger;
     }
 
-    protected override async Task<ExecutionResult> ExecuteRequestAsync(HttpContext context, GraphQLRequest? request, IServiceProvider serviceProvider, IDictionary<string, object?> userContext)
+    protected override async Task<ExecutionResult> ExecuteRequestAsync(HttpContext context, GraphQLRequest? request, IServiceProvider serviceProvider, IDictionary<string, object?>? userContext)
     {
         var timer = Stopwatch.StartNew();
         var ret = await base.ExecuteRequestAsync(context, request, serviceProvider, userContext);

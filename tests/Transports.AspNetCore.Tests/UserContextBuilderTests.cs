@@ -222,7 +222,7 @@ public class UserContextBuilderTests : IDisposable
 
     private class MyBuilder : IUserContextBuilder
     {
-        public ValueTask<IDictionary<string, object?>> BuildUserContextAsync(HttpContext context, object? payload)
+        public ValueTask<IDictionary<string, object?>?> BuildUserContextAsync(HttpContext context, object? payload)
             => new(new MyUserContext { Name = "John Doe" });
     }
 
