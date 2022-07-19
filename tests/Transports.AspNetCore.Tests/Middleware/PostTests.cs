@@ -286,7 +286,7 @@ public class PostTests : IDisposable
     {
         _options.ValidationErrorsReturnBadRequest = badRequest;
         using var response = await PostRequestAsync(new() { Query = "subscription{newMessages{id}}" });
-        await response.ShouldBeAsync(badRequest, @"{""errors"":[{""message"":""Subscription operations are not supported for POST requests."",""locations"":[{""line"":1,""column"":1}],""extensions"":{""code"":""HTTP_METHOD_VALIDATION"",""codes"":[""HTTP_METHOD_VALIDATION""]}}]}");
+        await response.ShouldBeAsync(HttpStatusCode.MethodNotAllowed, @"{""errors"":[{""message"":""Subscription operations are not supported for POST requests."",""locations"":[{""line"":1,""column"":1}],""extensions"":{""code"":""HTTP_METHOD_VALIDATION"",""codes"":[""HTTP_METHOD_VALIDATION""]}}]}");
     }
 
     [Fact]

@@ -148,7 +148,7 @@ public class GetTests : IDisposable
         _options.ValidationErrorsReturnBadRequest = badRequest;
         var client = _server.CreateClient();
         using var response = await client.GetAsync("/graphql?query=mutation{clearMessages}");
-        await response.ShouldBeAsync(badRequest, @"{""errors"":[{""message"":""Only query operations allowed for GET requests."",""locations"":[{""line"":1,""column"":1}],""extensions"":{""code"":""HTTP_METHOD_VALIDATION"",""codes"":[""HTTP_METHOD_VALIDATION""]}}]}");
+        await response.ShouldBeAsync(HttpStatusCode.MethodNotAllowed, @"{""errors"":[{""message"":""Only query operations allowed for GET requests."",""locations"":[{""line"":1,""column"":1}],""extensions"":{""code"":""HTTP_METHOD_VALIDATION"",""codes"":[""HTTP_METHOD_VALIDATION""]}}]}");
     }
 
     [Theory]
@@ -159,7 +159,7 @@ public class GetTests : IDisposable
         _options.ValidationErrorsReturnBadRequest = badRequest;
         var client = _server.CreateClient();
         using var response = await client.GetAsync("/graphql?query=subscription{newMessages{id}}");
-        await response.ShouldBeAsync(badRequest, @"{""errors"":[{""message"":""Only query operations allowed for GET requests."",""locations"":[{""line"":1,""column"":1}],""extensions"":{""code"":""HTTP_METHOD_VALIDATION"",""codes"":[""HTTP_METHOD_VALIDATION""]}}]}");
+        await response.ShouldBeAsync(HttpStatusCode.MethodNotAllowed, @"{""errors"":[{""message"":""Only query operations allowed for GET requests."",""locations"":[{""line"":1,""column"":1}],""extensions"":{""code"":""HTTP_METHOD_VALIDATION"",""codes"":[""HTTP_METHOD_VALIDATION""]}}]}");
     }
 
     [Theory]
