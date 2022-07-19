@@ -9,13 +9,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Authorization.AspNetCore\Authorization.AspNetCore.csproj" />
-    <ProjectReference Include="..\Core\Core.csproj" />
-    <ProjectReference Include="..\Transports.AspNetCore.NewtonsoftJson\Transports.AspNetCore.NewtonsoftJson.csproj" />
-    <ProjectReference Include="..\Transports.AspNetCore.SystemTextJson\Transports.AspNetCore.SystemTextJson.csproj" />
-    <ProjectReference Include="..\Transports.AspNetCore\Transports.AspNetCore.csproj" />
-    <ProjectReference Include="..\Transports.Subscriptions.Abstractions\Transports.Subscriptions.Abstractions.csproj" />
-    <ProjectReference Include="..\Transports.Subscriptions.WebSockets\Transports.Subscriptions.WebSockets.csproj" />
+    <ProjectReference Include="..\Authorization.AspNetCore\Authorization.AspNetCore.csproj" PackageVersion="[$(Version),$(NextVersion))" />
+    <ProjectReference Include="..\Core\Core.csproj" PackageVersion="[$(Version),$(NextVersion))" />
+    <ProjectReference Include="..\Transports.AspNetCore.NewtonsoftJson\Transports.AspNetCore.NewtonsoftJson.csproj" PackageVersion="[$(Version),$(NextVersion))" />
+    <ProjectReference Include="..\Transports.AspNetCore.SystemTextJson\Transports.AspNetCore.SystemTextJson.csproj" PackageVersion="[$(Version),$(NextVersion))" />
+    <ProjectReference Include="..\Transports.AspNetCore\Transports.AspNetCore.csproj" PackageVersion="[$(Version),$(NextVersion))" />
+    <ProjectReference Include="..\Transports.Subscriptions.Abstractions\Transports.Subscriptions.Abstractions.csproj" PackageVersion="[$(Version),$(NextVersion))" />
+    <ProjectReference Include="..\Transports.Subscriptions.WebSockets\Transports.Subscriptions.WebSockets.csproj" PackageVersion="[$(Version),$(NextVersion))" />
     <ProjectReference Include="..\Ui.Altair\Ui.Altair.csproj" />
     <ProjectReference Include="..\Ui.GraphiQL\Ui.GraphiQL.csproj" />
     <ProjectReference Include="..\Ui.Playground\Ui.Playground.csproj" />

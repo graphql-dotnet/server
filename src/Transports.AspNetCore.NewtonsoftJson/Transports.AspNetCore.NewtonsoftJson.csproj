@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Transports.AspNetCore\Transports.AspNetCore.csproj" />
+    <ProjectReference Include="..\Transports.AspNetCore\Transports.AspNetCore.csproj" PackageVersion="[$(Version),$(NextVersion))" />
     <PackageReference Include="GraphQL.NewtonsoftJson" Version="4.6.1" />
   </ItemGroup>
 
