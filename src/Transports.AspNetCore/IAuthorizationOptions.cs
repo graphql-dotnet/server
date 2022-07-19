@@ -19,6 +19,7 @@ public interface IAuthorizationOptions
     /// for the user within <see cref="HttpContext.User"/>
     /// for at least one role in the list prior to executing the GraphQL request or accepting
     /// the WebSocket connection.  If no roles are specified, authorization is not checked.
+    /// Also implies <see cref="AuthorizationRequired"/> is enabled even if it is set to <see langword="false"/>.
     /// </summary>
     IEnumerable<string> AuthorizedRoles { get; }
 
@@ -27,6 +28,7 @@ public interface IAuthorizationOptions
     /// return a successful result for the user within <see cref="HttpContext.User"/>
     /// for the specified policy before executing the GraphQL
     /// request or accepting the WebSocket connection.
+    /// Also implies <see cref="AuthorizationRequired"/> is enabled even if it is set to <see langword="false"/>.
     /// </summary>
     string? AuthorizedPolicy { get; }
 }

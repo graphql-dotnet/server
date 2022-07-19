@@ -38,6 +38,10 @@ public class AuthorizationTests
                 {
                     policyConfig.RequireAuthenticatedUser();
                 });
+                config.AddPolicy("FailingPolicy", policyConfig =>
+                {
+                    policyConfig.RequireRole("FailingRole");
+                });
             });
 #if NETCOREAPP2_1 || NET48
             services.AddHostApplicationLifetime();
@@ -177,27 +181,38 @@ public class AuthorizationTests
         actual.ShouldBe(@"{""data"":{""__typename"":""Query""}}");
     }
 
-    [Fact]
-    public async Task NotAuthorized_Roles()
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task NotAuthorized_Roles(bool authenticated)
     {
         _options.AuthorizedRoles.Add("AnotherRole");
-        _options.AuthorizedRoles.Add("MyRole");
-        using var response = await PostQueryAsync("{ __typename }", false);
-        response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+        _options.AuthorizedRoles.Add("FailingRole");
+        using var response = await PostQueryAsync("{ __typename }", authenticated);
+        response.StatusCode.ShouldBe(authenticated ? HttpStatusCode.Forbidden : HttpStatusCode.Unauthorized);
         var actual = await response.Content.ReadAsStringAsync();
         actual.ShouldBe(@"{""errors"":[{""message"":""Access denied for schema."",""extensions"":{""code"":""ACCESS_DENIED"",""codes"":[""ACCESS_DENIED""]}}]}");
     }
 
-    [Fact]
-    public async Task NotAuthorized_Roles_2()
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task NotAuthorized_Roles_2(bool authenticated)
     {
         _options.AuthorizedRoles.Add("AnotherRole");
-        _options.AuthorizedRoles.Add("MyRole");
+        _options.AuthorizedRoles.Add("FailingRole");
         _enableCustomErrorInfoProvider = true;
-        using var response = await PostQueryAsync("{ __typename }", false);
-        response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+        using var response = await PostQueryAsync("{ __typename }", authenticated);
+        response.StatusCode.ShouldBe(authenticated ? HttpStatusCode.Forbidden : HttpStatusCode.Unauthorized);
         var actual = await response.Content.ReadAsStringAsync();
-        actual.ShouldBe(@"{""errors"":[{""message"":""Access denied; roles required \u0027AnotherRole\u0027/\u0027MyRole\u0027."",""extensions"":{""code"":""ACCESS_DENIED"",""codes"":[""ACCESS_DENIED""]}}]}");
+        if (authenticated)
+        {
+            actual.ShouldBe(@"{""errors"":[{""message"":""Access denied; roles required \u0027AnotherRole\u0027/\u0027FailingRole\u0027."",""extensions"":{""code"":""ACCESS_DENIED"",""codes"":[""ACCESS_DENIED""]}}]}");
+        }
+        else
+        {
+            actual.ShouldBe(@"{""errors"":[{""message"":""Access denied; authorization required."",""extensions"":{""code"":""ACCESS_DENIED"",""codes"":[""ACCESS_DENIED""]}}]}");
+        }
     }
 
     [Fact]
@@ -211,25 +226,36 @@ public class AuthorizationTests
         actual.ShouldBe(@"{""data"":{""__typename"":""Query""}}");
     }
 
-    [Fact]
-    public async Task NotAuthorized_Policy()
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task NotAuthorized_Policy(bool authenticated)
     {
-        _options.AuthorizedPolicy = "MyPolicy";
-        using var response = await PostQueryAsync("{ __typename }", false);
-        response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+        _options.AuthorizedPolicy = "FailingPolicy";
+        using var response = await PostQueryAsync("{ __typename }", authenticated);
+        response.StatusCode.ShouldBe(authenticated ? HttpStatusCode.Forbidden : HttpStatusCode.Unauthorized);
         var actual = await response.Content.ReadAsStringAsync();
         actual.ShouldBe(@"{""errors"":[{""message"":""Access denied for schema."",""extensions"":{""code"":""ACCESS_DENIED"",""codes"":[""ACCESS_DENIED""]}}]}");
     }
 
-    [Fact]
-    public async Task NotAuthorized_Policy_2()
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task NotAuthorized_Policy_2(bool authenticated)
     {
-        _options.AuthorizedPolicy = "MyPolicy";
+        _options.AuthorizedPolicy = "FailingPolicy";
         _enableCustomErrorInfoProvider = true;
-        using var response = await PostQueryAsync("{ __typename }", false);
-        response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+        using var response = await PostQueryAsync("{ __typename }", authenticated);
+        response.StatusCode.ShouldBe(authenticated ? HttpStatusCode.Forbidden : HttpStatusCode.Unauthorized);
         var actual = await response.Content.ReadAsStringAsync();
-        actual.ShouldBe(@"{""errors"":[{""message"":""Access denied; policy required \u0027MyPolicy\u0027."",""extensions"":{""code"":""ACCESS_DENIED"",""codes"":[""ACCESS_DENIED""]}}]}");
+        if (authenticated)
+        {
+            actual.ShouldBe(@"{""errors"":[{""message"":""Access denied; policy required \u0027FailingPolicy\u0027."",""extensions"":{""code"":""ACCESS_DENIED"",""codes"":[""ACCESS_DENIED""]}}]}");
+        }
+        else
+        {
+            actual.ShouldBe(@"{""errors"":[{""message"":""Access denied; authorization required."",""extensions"":{""code"":""ACCESS_DENIED"",""codes"":[""ACCESS_DENIED""]}}]}");
+        }
     }
 
     [Fact]

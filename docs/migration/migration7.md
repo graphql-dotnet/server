@@ -49,7 +49,7 @@
 
 - The authorization rule as it existed in GraphQL.NET Server v6 is still present, but marked as `[Obsolete]`.
   `IClaimsPrincipalAccessor` and `IAuthorizationErrorMessageBuilder` are still supported and messages are
-  generated in the same manner as in v6.
+  generated in generally the same manner as in v6.
 - Other new features, such as `AuthorizeWithRole` and proper `@skip` support are included.
 - These obsolete classes will be removed in v8; please open an issue if you require any of the deprecated features.
 - It is important to note that authorization checks on all input types are not supported even with this deprecated rule.
@@ -239,6 +239,16 @@ services.AddAuthorization(options => {
     // ASP.NET authorization configuration
 });
 ```
+
+## Use of old authorization validation rule
+
+| :warning: **Note that authorization rules on input types are ignored in v7** :warning: |
+| --- |
+
+The user is checked for being authenticated before checking for the specified policy,
+and will return a not-authenticated failure if not authenticated, prior to any policy checks.
+
+This allows for proper 401/403 status code responses over HTTP, if desired.
 
 ## Migration of UI middleware
 

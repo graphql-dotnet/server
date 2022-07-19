@@ -48,6 +48,7 @@ public class ValidationTestBase : IDisposable
     {
         var config = new ValidationTestConfig();
         config.Rules.Add(Rule);
+        config.User = CreatePrincipal();
         configure(config);
 
         config.Rules.Any().ShouldBeTrue("Must provide at least one rule to validate against.");
@@ -96,7 +97,7 @@ public class ValidationTestBase : IDisposable
         }).GetAwaiter().GetResult().validationResult;
     }
 
-    protected ClaimsPrincipal CreatePrincipal(string authenticationType = null, IDictionary<string, string> claims = null)
+    protected ClaimsPrincipal CreatePrincipal(string authenticationType = "Bearer", IDictionary<string, string> claims = null)
     {
         var claimsList = new List<Claim>();
 

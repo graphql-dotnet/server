@@ -573,22 +573,22 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
     }
 
     /// <summary>
-    /// Writes a '401 Access denied.' message to the output when the user is not authenticated.
+    /// Writes an access denied message to the output with status code <c>401 Unauthorized</c> when the user is not authenticated.
     /// </summary>
     protected virtual Task HandleNotAuthenticatedAsync(HttpContext context, RequestDelegate next)
         => WriteErrorResponseAsync(context, HttpStatusCode.Unauthorized, new AccessDeniedError("schema"));
 
     /// <summary>
-    /// Writes a '401 Access denied.' message to the output when the user fails the role checks.
+    /// Writes an access denied message to the output with status code <c>403 Forbidden</c> when the user fails the role checks.
     /// </summary>
     protected virtual Task HandleNotAuthorizedRoleAsync(HttpContext context, RequestDelegate next)
-        => WriteErrorResponseAsync(context, HttpStatusCode.Unauthorized, new AccessDeniedError("schema") { RolesRequired = _options.AuthorizedRoles });
+        => WriteErrorResponseAsync(context, HttpStatusCode.Forbidden, new AccessDeniedError("schema") { RolesRequired = _options.AuthorizedRoles });
 
     /// <summary>
-    /// Writes a '401 Access denied.' message to the output when the user fails the policy check.
+    /// Writes an access denied message to the output with status code <c>403 Forbidden</c> when the user fails the policy check.
     /// </summary>
     protected virtual Task HandleNotAuthorizedPolicyAsync(HttpContext context, RequestDelegate next, AuthorizationResult authorizationResult)
-        => WriteErrorResponseAsync(context, HttpStatusCode.Unauthorized, new AccessDeniedError("schema") { PolicyRequired = _options.AuthorizedPolicy, PolicyAuthorizationResult = authorizationResult });
+        => WriteErrorResponseAsync(context, HttpStatusCode.Forbidden, new AccessDeniedError("schema") { PolicyRequired = _options.AuthorizedPolicy, PolicyAuthorizationResult = authorizationResult });
 
     /// <summary>
     /// Writes a '400 JSON body text could not be parsed.' message to the output.
