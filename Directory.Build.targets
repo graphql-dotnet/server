@@ -6,6 +6,7 @@
     <Exclude>[GraphQL.Samples.Schemas.Chat]*,[GraphQL.Samples.Server]*</Exclude>
   </PropertyGroup>
 
+  <!--Workaround for https://github.com/NuGet/Home/issues/5556 and https://github.com/NuGet/Home/issues/5525-->
   <Target Name="UseExplicitPackageVersions" BeforeTargets="GenerateNuspec">
     <ItemGroup>
       <_ProjectReferenceWithExplicitPackageVersion Include="@(ProjectReference->'%(FullPath)')" Condition="'%(ProjectReference.PackageVersion)' != ''" />
