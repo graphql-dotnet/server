@@ -301,7 +301,7 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
             {
                 statusCode = HttpStatusCode.BadRequest;
                 if (!string.IsNullOrEmpty(_options.ValidationErrorsReturnHeader))
-                    context.Response.Headers.Add(_options.ValidationErrorsReturnHeader, Microsoft.Extensions.Primitives.StringValues.Empty);
+                    context.Response.Headers.Add(_options.ValidationErrorsReturnHeader, "true");
             }
         }
         await WriteJsonResponseAsync(context, statusCode, result);

@@ -58,7 +58,7 @@ public class GraphQLHttpMiddlewareOptions : IAuthorizationOptions
     /// <br/><br/>
     /// Does not apply to batched or WebSocket requests.
     /// </summary>
-    public string ValidationErrorsReturnHeader { get; set; } = "graphql-validation";
+    public string ValidationErrorsReturnHeader { get; set; } = "X-GraphQL-Validation-Error";
 
     /// <summary>
     /// Enables parsing the query string on POST requests.
