@@ -50,6 +50,17 @@ public class GraphQLHttpMiddlewareOptions : IAuthorizationOptions
     public bool ValidationErrorsReturnBadRequest { get; set; } = true;
 
     /// <summary>
+    /// When set and <see cref="ValidationErrorsReturnBadRequest"/> enabled,
+    /// GraphQL requests with validation errors have the specified header.
+    /// This helps to understand what the response body should be deserialized
+    /// in and whether it is necessary at all.
+    /// GraphQL requests with execution errors are unaffected.
+    /// <br/><br/>
+    /// Does not apply to batched or WebSocket requests.
+    /// </summary>
+    public string ValidationErrorsReturnHeader { get; set; } = "graphql-validation";
+
+    /// <summary>
     /// Enables parsing the query string on POST requests.
     /// If enabled, the query string properties override those in the body of the request.
     /// </summary>

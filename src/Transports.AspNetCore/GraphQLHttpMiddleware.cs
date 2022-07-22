@@ -298,7 +298,11 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
             if (result.Errors?.Any(e => e is HttpMethodValidationError) == true)
                 statusCode = HttpStatusCode.MethodNotAllowed;
             else if (_options.ValidationErrorsReturnBadRequest)
+            {
                 statusCode = HttpStatusCode.BadRequest;
+                if (!string.IsNullOrEmpty(_options.ValidationErrorsReturnHeader))
+                    context.Response.Headers.Add(_options.ValidationErrorsReturnHeader, Microsoft.Extensions.Primitives.StringValues.Empty);
+            }
         }
         await WriteJsonResponseAsync(context, statusCode, result);
     }
