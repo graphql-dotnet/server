@@ -73,6 +73,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "All", "src\All\All.csproj",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Transports.AspNetCore.Tests", "tests\Transports.AspNetCore.Tests\Transports.AspNetCore.Tests.csproj", "{1857A25B-C4A3-4332-9077-3F2516AC6059}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ui.SmartPlayground", "src\Ui.SmartPlayground\Ui.SmartPlayground.csproj", "{91382385-980C-44FC-A5DA-A4C26747BF8F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.Server.UI.SmartPlayground.Tests", "src\UI.SmartPlayground.Tests\GraphQL.Server.UI.SmartPlayground.Tests.csproj", "{DBE04FDC-9591-4A96-B179-F1BE63870445}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -151,6 +155,14 @@ Global
 		{1857A25B-C4A3-4332-9077-3F2516AC6059}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1857A25B-C4A3-4332-9077-3F2516AC6059}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1857A25B-C4A3-4332-9077-3F2516AC6059}.Release|Any CPU.Build.0 = Release|Any CPU
+		{91382385-980C-44FC-A5DA-A4C26747BF8F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{91382385-980C-44FC-A5DA-A4C26747BF8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{91382385-980C-44FC-A5DA-A4C26747BF8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{91382385-980C-44FC-A5DA-A4C26747BF8F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DBE04FDC-9591-4A96-B179-F1BE63870445}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DBE04FDC-9591-4A96-B179-F1BE63870445}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DBE04FDC-9591-4A96-B179-F1BE63870445}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DBE04FDC-9591-4A96-B179-F1BE63870445}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
