@@ -46,13 +46,14 @@
       Loading <span class="title">GraphQL Playground</span>
     </div>
   </div>
-  <script>
+
+  <script>          
     window.addEventListener('load', function (event) {
       GraphQLPlayground.init(document.getElementById('root'),
         {
           setTitle: true,
-          endpoint: window.location.protocol + "//" + window.location.host + "@Model.GraphQLEndPoint",
-          subscriptionEndpoint: (window.location.protocol === "http:" ? "ws://" : "wss://") + window.location.host + "@Model.SubscriptionsEndPoint",
+          endpoint: "@Model.GraphQLEndPoint",
+          subscriptionEndpoint: "@Model.SubscriptionsEndPoint",
           config: @Model.GraphQLConfig,
           settings: @Model.PlaygroundSettings,
           headers: @Model.Headers,

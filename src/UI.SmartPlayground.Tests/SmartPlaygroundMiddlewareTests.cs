@@ -1,7 +1,8 @@
 using GraphQL.Server.Ui.SmartPlayground;
-using GraphQL.Server.Ui.SmartPlayground.Factories;
 using GraphQL.Server.Ui.SmartPlayground.Smart;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using Moq;
 using Xunit;
@@ -11,18 +12,33 @@ namespace GraphQL.Server.UI.SmartPlayground.Tests
     public class SmartPlaygroundMiddlewareTests
     {
         private readonly SmartPlaygroundMiddleware _smartPlaygroundMiddleware;
-        private readonly Mock<ISmartClientFactory> _smartClientFactoryMock;
+
+        private readonly Mock<Func<ISmartClient>> _smartClientFactoryMock;
         private readonly Mock<ISmartClient> _smartClientMock;
+        private readonly Mock<ILogger<SmartPlaygroundMiddleware>> _loggerMock;
+        private readonly Mock<ILoggerFactory> _loggerFactoryMock;
 
         public SmartPlaygroundMiddlewareTests()
         {
             _smartClientMock = new Mock<ISmartClient>();
+            _smartClientFactoryMock = new Mock<Func<ISmartClient>>();
+            _smartClientFactoryMock.Setup(f => f.Invoke()).Returns(_smartClientMock.Object);
 
-            _smartClientFactoryMock = new Mock<ISmartClientFactory>();
-            _smartClientFactoryMock.Setup(f => f.CreateClient(It.IsAny<SmartPlaygroundOptions>())).Returns(_smartClientMock.Object);
+            _loggerMock = new Mock<ILogger<SmartPlaygroundMiddleware>>();
+            _loggerFactoryMock = new Mock<ILoggerFactory>();
+            _loggerFactoryMock.Setup(f => f.CreateLogger(It.IsAny<string>())).Returns(_loggerMock.Object);
+
+            var oauth2Settings = new OAuth2Settings
+            {
+                BaseUrl = new Uri("https://somepublishedurl")
+            };
+
+            var settingsOptionsMock = new Mock<IOptions<OAuth2Settings>>();
+            settingsOptionsMock.SetupGet(s => s.Value).Returns(oauth2Settings);
+
             _smartPlaygroundMiddleware = new SmartPlaygroundMiddleware(
                 new Mock<RequestDelegate>().Object,
-                new SmartPlaygroundOptions(),
+                new SmartPlaygroundOptions(_loggerFactoryMock.Object, settingsOptionsMock.Object),
                 _smartClientFactoryMock.Object);
         }
 
@@ -42,7 +58,7 @@ namespace GraphQL.Server.UI.SmartPlayground.Tests
             var httpContextMock = new Mock<HttpContext>();
             httpContextMock.Setup(c => c.Request).Returns(httpRequestMock.Object);
 
-            await _smartPlaygroundMiddleware.Invoke(httpContextMock.Object);
+            await _smartPlaygroundMiddleware.InvokeAsync(httpContextMock.Object);
 
             responseCookiesMock.Verify(c => c.Delete("token"), Times.Never());
             _smartClientMock.Verify(c => c.Launch());
@@ -66,7 +82,8 @@ namespace GraphQL.Server.UI.SmartPlayground.Tests
             httpContextMock.Setup(c => c.Request).Returns(httpRequestMock.Object);
             httpContextMock.Setup(c => c.Response).Returns(httpResponseMock.Object);
 
-            await _smartPlaygroundMiddleware.Invoke(httpContextMock.Object);
+
+            await _smartPlaygroundMiddleware.InvokeAsync(httpContextMock.Object);
 
             responseCookiesMock.Verify(c => c.Delete("token"), Times.Once());
             _smartClientMock.Verify(c => c.Launch());
@@ -84,7 +101,8 @@ namespace GraphQL.Server.UI.SmartPlayground.Tests
             var httpContextMock = new Mock<HttpContext>();
             httpContextMock.Setup(c => c.Request).Returns(httpRequestMock.Object);
 
-            await _smartPlaygroundMiddleware.Invoke(httpContextMock.Object);
+
+            await _smartPlaygroundMiddleware.InvokeAsync(httpContextMock.Object);
 
             _smartClientMock.Verify(c => c.Redirect(SomeCode));
         }
@@ -111,9 +129,10 @@ namespace GraphQL.Server.UI.SmartPlayground.Tests
             httpContextMock.Setup(c => c.Request).Returns(httpRequestMock.Object);
             httpContextMock.Setup(c => c.Response).Returns(httpResponseMock.Object);
 
-            await _smartPlaygroundMiddleware.Invoke(httpContextMock.Object);
 
-            Assert.Equal(1943, bodyStream.Length);
+            await _smartPlaygroundMiddleware.InvokeAsync(httpContextMock.Object);
+
+            Assert.True(1 <= bodyStream.Length);
         }
     }
 }

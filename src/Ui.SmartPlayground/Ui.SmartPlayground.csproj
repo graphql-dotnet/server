@@ -9,12 +9,13 @@
     <IsPackable>true</IsPackable>
     <AssemblyVersion>1.0.0.2</AssemblyVersion>
     <FileVersion>1.0.0.2</FileVersion>
-    <Version>1.0.0.3</Version>
+    <Version>1.0.0.9</Version>
     <OutputType>Library</OutputType>
     <IsPublishable>True</IsPublishable>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Authors>Thor Stenbæk</Authors>
-    <Company>thorstenbaek</Company>
+    <Company>DIPS AS</Company>
+    <Copyright>Thor Stenbæk</Copyright>
   </PropertyGroup>
 
   <ItemGroup>

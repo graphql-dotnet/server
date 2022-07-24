@@ -1,6 +1,6 @@
 using System.Text;
-using GraphQL.Server.Ui.SmartPlayground.Factories;
 using GraphQL.Server.Ui.SmartPlayground.Internal;
+using GraphQL.Server.Ui.SmartPlayground.Smart;
 using Microsoft.AspNetCore.Http;
 
 namespace GraphQL.Server.Ui.SmartPlayground;
@@ -11,11 +11,10 @@ namespace GraphQL.Server.Ui.SmartPlayground;
 public class SmartPlaygroundMiddleware
 {
     private readonly SmartPlaygroundOptions _options;
-    private readonly ISmartClientFactory _smartClientFactory;
-
+    private readonly Func<ISmartClient> _smartClientFactory;
     private PlaygroundPageModel? _pageModel;
 
-    public SmartPlaygroundMiddleware(RequestDelegate _, SmartPlaygroundOptions options, ISmartClientFactory smartClientFactory)
+    public SmartPlaygroundMiddleware(RequestDelegate _, SmartPlaygroundOptions options, Func<ISmartClient> smartClientFactory)
     {
         _options = options ?? throw new ArgumentNullException(nameof(options));
         _smartClientFactory = smartClientFactory ?? throw new ArgumentNullException(nameof(smartClientFactory));
@@ -23,13 +22,13 @@ public class SmartPlaygroundMiddleware
 
     public async Task Launch()
     {
-        var smartClient = _smartClientFactory.CreateClient(_options);
+        var smartClient = _smartClientFactory();
         await smartClient.Launch();
     }
 
     public async Task<string> Redirect(string code)
     {
-        var smartClient = _smartClientFactory.CreateClient(_options);
+        var smartClient = _smartClientFactory();
         return await smartClient.Redirect(code);
     }
 
@@ -37,14 +36,14 @@ public class SmartPlaygroundMiddleware
     /// Try to execute the logic of the middleware
     /// </summary>
     /// <param name="httpContext">The HttpContext</param>
-    public async Task Invoke(HttpContext httpContext)
+    public async Task InvokeAsync(HttpContext httpContext)
     {
         if (httpContext == null)
         {
             throw new ArgumentNullException(nameof(httpContext));
         }
 
-        if (httpContext.Request.Path.StartsWithSegments(new PathString("/ui/smartplayground/launch")))
+        if (httpContext.Request.Path.ToString().EndsWith("/launch"))
         {
             // Launch endpoint - reset and start new launch
             if (httpContext.Request.Cookies["token"] != null)

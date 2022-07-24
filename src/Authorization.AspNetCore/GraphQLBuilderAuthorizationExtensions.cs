@@ -38,7 +38,7 @@ public static class GraphQLBuilderAuthorizationExtensions
         else
             services.AddAuthorizationCore();
 
-        builder.AddValidationRule<AuthorizationValidationRule>();
+        builder.AddValidationRule<AuthorizationValidationRule>(true);
 
         return builder;
     }

@@ -1,29 +1,50 @@
-using Microsoft.AspNetCore.Http;
+using GraphQL.Server.Ui.SmartPlayground.Smart;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace GraphQL.Server.Ui.SmartPlayground;
 
 /// <summary>
-/// Options to customize <see cref="PlaygroundMiddleware"/>.
+/// Options to customize <see cref="SmartPlaygroundMiddleware"/>.
 /// </summary>
 public class SmartPlaygroundOptions
 {
-    /// <summary>
-    /// The GraphQL EndPoint.
-    /// </summary>
-    public PathString GraphQLEndPoint { get; set; } = "/graphql";
+    private readonly OAuth2Settings _settings;
+    private readonly ILogger _logger;
 
-    /// <summary>
-    /// Subscriptions EndPoint.
-    /// </summary>
-    public PathString SubscriptionsEndPoint { get; set; } = "/graphql";
+    public SmartPlaygroundOptions(ILoggerFactory loggerFactory, IOptions<OAuth2Settings> settings)
+    {
+        _logger = loggerFactory.CreateLogger<SmartPlaygroundOptions>();
+        _settings = settings?.Value ?? throw new InvalidDataException("Missing OAuth2 section in configuration!");
+    }
 
-    public Uri AuthorizeUrl { get; set; }
+    private T LogInformation<T>(string name, T value)
+    {
+        _logger.LogInformation($"{name}:{value}");
+        return value;
+    }
 
-    public Uri TokenUrl { get; set; }
+    private static Uri ChangeToWebSocketUrl(Uri url)
+    {
+        if (url.Scheme == "https")
+        {
+            return new Uri("wss://" + url.Host + ":" + url.Port + url.PathAndQuery);
+        }
+        else
+        {
+            return new Uri("ws://" + url.Host + ":" + url.Port + url.PathAndQuery);
+        }
+    }
 
-    /// <summary>
-    /// The GraphQL configuration.
-    /// </summary>
+    public Uri GraphQLEndPoint => LogInformation(nameof(GraphQLEndPoint), new Uri(_settings.SafeBaseUrl + "graphql"));
+
+    public Uri SubscriptionsEndPoint => LogInformation(nameof(SubscriptionsEndPoint), new Uri(ChangeToWebSocketUrl(_settings.SafeBaseUrl) + "graphql"));
+
+    public Uri RedirectUrl => LogInformation(nameof(RedirectUrl), new Uri(_settings.SafeBaseUrl + Constants.SmartPlaygroundPath));
+
+    public string ClientId { get; set; } = "dips-smart-graphql-playground";
+    public string Scope { get; set; } = "openid";
+
     public Dictionary<string, object>? GraphQLConfig { get; set; }
 
     /// <summary>
