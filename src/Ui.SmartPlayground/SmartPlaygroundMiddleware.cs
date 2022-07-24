@@ -12,7 +12,6 @@ public class SmartPlaygroundMiddleware
 {
     private readonly SmartPlaygroundOptions _options;
     private readonly Func<ISmartClient> _smartClientFactory;
-    private PlaygroundPageModel? _pageModel;
 
     public SmartPlaygroundMiddleware(RequestDelegate _, SmartPlaygroundOptions options, Func<ISmartClient> smartClientFactory)
     {
@@ -69,9 +68,9 @@ public class SmartPlaygroundMiddleware
             if (!string.IsNullOrEmpty(token))
             {
                 _options.Headers = new Dictionary<string, object> { { "Authorization", $"Bearer {token}" } };
-                _pageModel ??= new PlaygroundPageModel(_options);
 
-                byte[] data = Encoding.UTF8.GetBytes(_pageModel.Render());
+                var pageModel = new PlaygroundPageModel(_options);
+                byte[] data = Encoding.UTF8.GetBytes(pageModel.Render());
 
                 httpContext.Request.QueryString = new QueryString();
                 _ = httpContext.Response.Body.WriteAsync(data, 0, data.Length);
