@@ -10,6 +10,7 @@ namespace GraphQL.Server.Ui.SmartPlayground.Smart
 {
     public class SmartClient : OAuth2Client.OAuth2Client, ISmartClient
     {
+
         private readonly ILogger _logger;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly OAuth2Settings _settings;
@@ -29,6 +30,7 @@ namespace GraphQL.Server.Ui.SmartPlayground.Smart
 
         public async Task Launch()
         {
+
             var httpContext = _httpContextAccessor.HttpContext;
             if (httpContext == null)
             {
@@ -40,6 +42,7 @@ namespace GraphQL.Server.Ui.SmartPlayground.Smart
             var loginLinkUri = await GetLoginLinkUriAsync();
 
             _logger.LogInformation($"Launch - Redirecting to: {loginLinkUri}");
+
             httpContext.Response.Redirect(loginLinkUri);
         }
 
@@ -61,6 +64,7 @@ namespace GraphQL.Server.Ui.SmartPlayground.Smart
             }
 
             // Clear all parameters in URL
+
             var cleanUrl = _settings.SafeBaseUrl + Constants.SmartPlaygroundPath;
             _logger.LogInformation($"Redirect - Redirecting to: {cleanUrl}");
             httpContext.Response.Redirect(cleanUrl);
@@ -69,6 +73,7 @@ namespace GraphQL.Server.Ui.SmartPlayground.Smart
         }
 
         public override string Name => "SMART OAuth2 Client";
+
 
         protected override OAuth2Client.Endpoint AccessCodeServiceEndpoint => new OAuth2Client.Endpoint { BaseUri = _settings.SafeAuthorizeUrl.ToString() };
 

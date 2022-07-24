@@ -12,6 +12,7 @@ namespace GraphQL.Server.UI.SmartPlayground.Tests
     public class SmartPlaygroundMiddlewareTests
     {
         private readonly SmartPlaygroundMiddleware _smartPlaygroundMiddleware;
+
         private readonly Mock<Func<ISmartClient>> _smartClientFactoryMock;
         private readonly Mock<ISmartClient> _smartClientMock;
         private readonly Mock<ILogger<SmartPlaygroundMiddleware>> _loggerMock;
@@ -81,6 +82,7 @@ namespace GraphQL.Server.UI.SmartPlayground.Tests
             httpContextMock.Setup(c => c.Request).Returns(httpRequestMock.Object);
             httpContextMock.Setup(c => c.Response).Returns(httpResponseMock.Object);
 
+
             await _smartPlaygroundMiddleware.InvokeAsync(httpContextMock.Object);
 
             responseCookiesMock.Verify(c => c.Delete("token"), Times.Once());
@@ -98,6 +100,7 @@ namespace GraphQL.Server.UI.SmartPlayground.Tests
 
             var httpContextMock = new Mock<HttpContext>();
             httpContextMock.Setup(c => c.Request).Returns(httpRequestMock.Object);
+
 
             await _smartPlaygroundMiddleware.InvokeAsync(httpContextMock.Object);
 
@@ -125,6 +128,7 @@ namespace GraphQL.Server.UI.SmartPlayground.Tests
             var httpContextMock = new Mock<HttpContext>();
             httpContextMock.Setup(c => c.Request).Returns(httpRequestMock.Object);
             httpContextMock.Setup(c => c.Response).Returns(httpResponseMock.Object);
+
 
             await _smartPlaygroundMiddleware.InvokeAsync(httpContextMock.Object);
 

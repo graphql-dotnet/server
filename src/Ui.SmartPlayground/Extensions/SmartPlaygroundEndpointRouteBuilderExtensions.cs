@@ -3,10 +3,10 @@ using Microsoft.AspNetCore.Routing;
 
 namespace Microsoft.AspNetCore.Builder;
 
-/*
 /// <summary>
 /// Extensions for <see cref="IEndpointRouteBuilder"/> to add <see cref="SmartPlaygroundMiddleware"/> in the HTTP request pipeline.
 /// </summary>
+/*
 public static class SmartPlaygroundEndpointRouteBuilderExtensions
 {
     /// <summary>

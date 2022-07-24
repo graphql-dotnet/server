@@ -46,6 +46,7 @@
       Loading <span class="title">GraphQL Playground</span>
     </div>
   </div>
+
   <script>          
     window.addEventListener('load', function (event) {
       GraphQLPlayground.init(document.getElementById('root'),

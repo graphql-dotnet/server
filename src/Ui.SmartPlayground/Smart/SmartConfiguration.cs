@@ -5,6 +5,7 @@ namespace GraphQL.Server.Ui.SmartPlayground.Smart
         public Uri? Authorization { private set; get; }
         public Uri? Token { private set; get; }
         public string ClientId { private set; get; }
+
         public Uri? RedirectUri { private set; get; }
         public string Scope { private set; get; }
 

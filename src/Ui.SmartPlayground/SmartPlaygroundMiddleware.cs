@@ -12,7 +12,6 @@ public class SmartPlaygroundMiddleware
 {
     private readonly SmartPlaygroundOptions _options;
     private readonly Func<ISmartClient> _smartClientFactory;
-
     private PlaygroundPageModel? _pageModel;
 
     public SmartPlaygroundMiddleware(RequestDelegate _, SmartPlaygroundOptions options, Func<ISmartClient> smartClientFactory)

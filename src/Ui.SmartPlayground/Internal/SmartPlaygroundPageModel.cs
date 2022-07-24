@@ -44,6 +44,7 @@ internal sealed class PlaygroundPageModel
             }
 
             var builder = new StringBuilder(streamReader.ReadToEnd())
+
                 .Replace("@Model.GraphQLEndPoint", _options.GraphQLEndPoint.ToString())
                 .Replace("@Model.SubscriptionsEndPoint", _options.SubscriptionsEndPoint.ToString())
                 .Replace("@Model.GraphQLConfig", JsonSerializer.Serialize<object>(_options.GraphQLConfig!))
