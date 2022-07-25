@@ -104,7 +104,11 @@ public class StartupWithRouting
                 Headers = new Dictionary<string, string>
                 {
                     ["X-api-token"] = "130fh9823bd023hd892d0j238dh",
-                }
+                },
+                SubscriptionsPayload = new()
+                {
+                    ["hello"] = "world",
+                },
             });
 
             endpoints.MapGraphQLVoyager(options: new VoyagerOptions
