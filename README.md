@@ -30,7 +30,7 @@ You can install the latest stable versions via [NuGet](https://www.nuget.org/pac
 Also you can get all preview versions from [GitHub Packages](https://github.com/orgs/graphql-dotnet/packages?repo_name=server).
 Note that GitHub requires authentication to consume the feed. See more information [here](https://docs.github.com/en/free-pro-team@latest/packages/publishing-and-managing-packages/about-github-packages#authenticating-to-github-packages).
 
-| :warning: When upgrading from prior versions, please remove references to these deprecated packages :warning: |
+| :warning: When upgrading from prior versions, please remove references to these old packages :warning: |
 |-|
 | GraphQL.Server.Core |
 | GraphQL.Server.Transports.AspNetCore.NewtonsoftJson |
