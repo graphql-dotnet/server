@@ -84,7 +84,7 @@ public class StartupWithRouting
                 SchemaPollingEndpointFilter = "*localhost*",
                 SchemaPollingInterval = 5000,
 
-                Headers = new Dictionary<string, object>
+                Headers = new()
                 {
                     ["MyHeader1"] = "MyValue",
                     ["MyHeader2"] = 42,
@@ -93,7 +93,7 @@ public class StartupWithRouting
 
             endpoints.MapGraphQLGraphiQL(options: new GraphiQLOptions
             {
-                Headers = new Dictionary<string, string>
+                Headers = new()
                 {
                     ["X-api-token"] = "130fh9823bd023hd892d0j238dh",
                 }
@@ -101,7 +101,7 @@ public class StartupWithRouting
 
             endpoints.MapGraphQLAltair(options: new AltairOptions
             {
-                Headers = new Dictionary<string, string>
+                Headers = new()
                 {
                     ["X-api-token"] = "130fh9823bd023hd892d0j238dh",
                 },
@@ -113,7 +113,7 @@ public class StartupWithRouting
 
             endpoints.MapGraphQLVoyager(options: new VoyagerOptions
             {
-                Headers = new Dictionary<string, object>
+                Headers = new()
                 {
                     ["MyHeader1"] = "MyValue",
                     ["MyHeader2"] = 42,
