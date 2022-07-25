@@ -13,6 +13,7 @@ namespace GraphQL.Server.Ui.Altair
         public System.Func<GraphQL.Server.Ui.Altair.AltairOptions, System.IO.Stream> IndexStream { get; set; }
         public System.Func<GraphQL.Server.Ui.Altair.AltairOptions, string, string> PostConfigure { get; set; }
         public string SubscriptionsEndPoint { get; set; }
+        public System.Collections.Generic.Dictionary<string, object?>? SubscriptionsPayload { get; set; }
     }
 }
 namespace Microsoft.AspNetCore.Builder
