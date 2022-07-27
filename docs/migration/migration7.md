@@ -64,6 +64,7 @@
 - Supports relative URLs for graphql and subscription endpoints
 - Supports fully-qualified URLs for graphql and subscription endpoints
 - Supports configuring RequestCredentials for Altair and GraphiQL middleware
+- Altair UI middleware supports setting WebSocket connection payload
 
 #### Sample projects
 
