@@ -36,7 +36,8 @@ internal sealed class AltairPageModel
             var builder = new StringBuilder(streamReader.ReadToEnd())
                 .Replace("@Model.GraphQLEndPoint", StringEncode(_options.GraphQLEndPoint))
                 .Replace("@Model.SubscriptionsEndPoint", StringEncode(_options.SubscriptionsEndPoint))
-                .Replace("@Model.Headers", JsonSerialize(headers));
+                .Replace("@Model.Headers", JsonSerialize(headers))
+                .Replace("@Model.SubscriptionsPayload", JsonSerialize(_options.SubscriptionsPayload));
 
             // Here, fully-qualified, absolute and relative URLs are supported for both the
             // GraphQLEndPoint and SubscriptionsEndPoint.  Those paths can be passed unmodified
@@ -56,7 +57,7 @@ internal sealed class AltairPageModel
         .Replace("'", "\\'")    // encode  '  as  \'
         .Replace("\"", "\\\""); // encode  "  as  \"
 
-    private static string JsonSerialize(object value)
+    private static string JsonSerialize(object? value)
     {
 #if NETSTANDARD2_0
         return Newtonsoft.Json.JsonConvert.SerializeObject(value);

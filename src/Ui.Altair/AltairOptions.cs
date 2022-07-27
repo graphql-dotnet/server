@@ -21,6 +21,11 @@ public class AltairOptions
     public Dictionary<string, string>? Headers { get; set; }
 
     /// <summary>
+    /// Subscriptions payload.
+    /// </summary>
+    public Dictionary<string, object?>? SubscriptionsPayload { get; set; }
+
+    /// <summary>
     /// Gets or sets a Stream function for retrieving the Altair GraphQL UI page.
     /// </summary>
     public Func<AltairOptions, Stream> IndexStream { get; set; } = _ => typeof(AltairOptions).Assembly
