@@ -128,6 +128,19 @@ app.UseGraphQL("/graphql");
 
 Note that the call to `app.UseWebSockets()` is part of ASP.NET Core and is still required for WebSocket support.
 
+<details><summary>Migrating from older versions</summary><p>
+
+Be sure to also remove these NuGet references in your project:
+
+- GraphQL.Server.Core
+- GraphQL.Server.Transports.AspNetCore.SystemTextJson
+- GraphQL.Server.Transports.AspNetCore.NewtonsoftJson
+
+There will also be some additional changes necessary to your `Startup.cs` file.
+Please review sample projects for the current recommended configuration.
+
+</p></details>
+
 <details><summary>With derived middleware class</summary><p>
 
 There is no clear example for rewriting derived middleware classes, as most of the virtual methods' signatures have changed.
