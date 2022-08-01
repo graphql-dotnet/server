@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GraphQL.Server.Samples.Jwt.Controllers;
 
-public class AuthController : Controller
+public class OAuthController : Controller
 {
     // sample OAuth2-compatible authorization endpoint supporting the 'client credentials' flow
     [HttpGet]
