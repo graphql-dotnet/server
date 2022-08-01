@@ -11,22 +11,39 @@ builder.Services.AddGraphQL(b => b
     .AddAutoSchema<Chat.Query>(s => s
         .WithMutation<Chat.Mutation>()
         .WithSubscription<Chat.Subscription>())
+    .AddSystemTextJson()
+    // support authorization policies within the schema (although none are set in this sample)
     .AddAuthorizationRule()
-    .AddWebSocketAuthentication<JwtWebSocketAuthenticationService>()
-    .AddSystemTextJson());
+    // support WebSocket authentication via the payload of the initialization packet
+    .AddWebSocketAuthentication<JwtWebSocketAuthenticationService>());
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+// provide authentication for GET/POST requests via the 'Authorization' HTTP header;
+// will authenticate WebSocket requests as well, but browsers cannot set the
+// 'Authorization' HTTP header for WebSocket requests
+builder.Services.AddAuthentication(
+    opts =>
+    {
+        opts.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+        // configure custom authorization policies here
+    })
     .AddJwtBearer(opts => opts.TokenValidationParameters = JwtHelper.TokenValidationParameters);
 
 var app = builder.Build();
 app.UseDeveloperExceptionPage();
 app.UseWebSockets();
+// use ASP.Net Core authentication (again, for GET/POST requests mainly)
 app.UseAuthentication();
 // configure the graphql endpoint at "/graphql" for administrators only
-app.UseGraphQL("/graphql", opts => opts.AuthorizedRoles.Add("Administrator"));
+app.UseGraphQL("/graphql", opts =>
+{
+    // set a transport-level authorization policy; connections are refused if this policy is not met
+    // this means that anonymous access to the introspection query is not available
+    opts.AuthorizedRoles.Add("Administrator");
+});
 app.UseRouting();
+// enable Pages for the GraphiQL demonstration endpoint at /
 app.MapRazorPages();
-// the authorization endpoint will be at /token
+// the OAuth2 authorization endpoint will be at /token
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller}/{action}");
