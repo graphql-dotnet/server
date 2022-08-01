@@ -777,6 +777,7 @@ typical ASP.NET Core scenarios.
 | Controller      | .NET 6 Minimal           | MVC implementation; does not include WebSocket support |
 | Cors            | .NET 6 Minimal           | Demonstrates configuring a GraphQL endpoint to use a specified CORS policy |
 | EndpointRouting | .NET 6 Minimal           | Demonstrates configuring GraphQL through endpoint routing |
+| Jwt             | .NET 6 Minimal           | Demonstrates authenticating GraphQL requests with a JWT bearer token over HTTP POST and WebSocket connections |
 | MultipleSchemas | .NET 6 Minimal           | Demonstrates configuring multiple schemas within a single server |
 | Net48           | .NET Core 2.1 / .NET 4.8 | Demonstrates configuring GraphQL on .NET 4.8 / Core 2.1 |
 | Pages           | .NET 6 Minimal           | Demonstrates configuring GraphQL on top of a Razor Pages template |
