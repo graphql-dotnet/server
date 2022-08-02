@@ -59,10 +59,17 @@ public class EndToEndTests : IDisposable
     }
 
     [Fact]
-    public async Task GraphQLWebSocket_Authorized()
+    public async Task GraphQLWebSocket_Authorized_HttpHeader()
     {
         var token = await GetJwtToken();
-        await _testServer.VerifyGraphQLWebSocketsAsync(jwtToken: token);
+        await _testServer.VerifyGraphQLWebSocketsAsync(authHeaderJwtToken: token);
+    }
+
+    [Fact]
+    public async Task GraphQLWebSocket_Authorized_WebSocketPayload()
+    {
+        var token = await GetJwtToken();
+        await _testServer.VerifyGraphQLWebSocketsAsync(payloadJwtToken: token);
     }
 
     [Fact]

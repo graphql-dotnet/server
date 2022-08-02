@@ -71,12 +71,15 @@ public static class TestServerExtensions
         string query = "{count}",
         string expected = @"{""data"":{""count"":0}}",
         bool success = true,
-        string? jwtToken = null)
+        string? authHeaderJwtToken = null,
+        string? payloadJwtToken = null)
     {
         var webSocketClient = server.CreateWebSocketClient();
         webSocketClient.ConfigureRequest = request =>
         {
             request.Headers["Sec-WebSocket-Protocol"] = "graphql-transport-ws";
+            if (authHeaderJwtToken != null)
+                request.Headers["Authorization"] = "Bearer " + authHeaderJwtToken;
         };
         webSocketClient.SubProtocols.Add("graphql-transport-ws");
         using var webSocket = await webSocketClient.ConnectAsync(new Uri(server.BaseAddress, url), default);
@@ -85,7 +88,7 @@ public static class TestServerExtensions
         await webSocket.SendMessageAsync(new OperationMessage
         {
             Type = "connection_init",
-            Payload = jwtToken == null ? null : new { Authorization = "Bearer " + jwtToken },
+            Payload = payloadJwtToken == null ? null : new { Authorization = "Bearer " + payloadJwtToken },
         });
 
         // wait for CONNECTION_ACK
