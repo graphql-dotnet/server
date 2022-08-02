@@ -5,6 +5,9 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace GraphQL.Server.Samples.Jwt;
 
+/// <summary>
+/// Provides a method to create a signed token, and provides token validation parameters to validate those tokens.
+/// </summary>
 public static class JwtHelper
 {
     private static readonly SecurityKey _securityKey;
@@ -50,8 +53,14 @@ public static class JwtHelper
             };
     }
 
+    /// <summary>
+    /// Returns the <see cref="TokenValidationParameters"/> used to authenticate JWT bearer tokens.
+    /// </summary>
     public static TokenValidationParameters TokenValidationParameters { get; }
 
+    /// <summary>
+    /// Creates a signed JWT token containing the specified <see cref="Claim"/>s.
+    /// </summary>
     public static (TimeSpan ExpiresIn, string Token) CreateSignedToken(params Claim[] claims)
     {
         var now = DateTime.UtcNow;
