@@ -45,4 +45,19 @@ public static class WebSocketExtensions
             message.Payload = ((JsonElement)message.Payload).GetRawText();
         return message;
     }
+
+    public static async Task ReceiveCloseMessageAsync(this WebSocket socket)
+    {
+        using var cts = new CancellationTokenSource();
+        cts.CancelAfter(5000);
+        var mem = new MemoryStream();
+        ValueWebSocketReceiveResult response;
+        do
+        {
+            var buffer = new byte[1024];
+            response = await socket.ReceiveAsync(new MemoryBytes(buffer), cts.Token);
+            mem.Write(buffer, 0, response.Count);
+        } while (!response.EndOfMessage);
+        response.MessageType.ShouldBe(WebSocketMessageType.Close);
+    }
 }

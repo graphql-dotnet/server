@@ -26,27 +26,52 @@ public static class TestServerExtensions
         ret.ShouldContain("graphiql", Case.Insensitive);
     }
 
-    public static async Task VerifyGraphQLGetAsync(this TestServer server, string url = "/graphql", string query = "{count}", string expected = @"{""data"":{""count"":0}}", HttpStatusCode statusCode = HttpStatusCode.OK)
+    public static async Task VerifyGraphQLGetAsync(
+        this TestServer server,
+        string url = "/graphql",
+        string query = "{count}",
+        string expected = @"{""data"":{""count"":0}}",
+        HttpStatusCode statusCode = HttpStatusCode.OK,
+        string? jwtToken = null)
     {
         using var client = server.CreateClient();
-        using var response = await client.GetAsync(url + "?query=" + Uri.EscapeDataString(query));
+        var request = new HttpRequestMessage(HttpMethod.Get, url + "?query=" + Uri.EscapeDataString(query));
+        if (jwtToken != null)
+            request.Headers.Authorization = new("Bearer", jwtToken);
+        using var response = await client.SendAsync(request);
         response.StatusCode.ShouldBe(statusCode);
         var ret = await response.Content.ReadAsStringAsync();
         ret.ShouldBe(expected);
     }
 
-    public static async Task VerifyGraphQLPostAsync(this TestServer server, string url = "/graphql", string query = "{count}", string expected = @"{""data"":{""count"":0}}", HttpStatusCode statusCode = HttpStatusCode.OK)
+    public static async Task VerifyGraphQLPostAsync(
+        this TestServer server,
+        string url = "/graphql",
+        string query = "{count}",
+        string expected = @"{""data"":{""count"":0}}",
+        HttpStatusCode statusCode = HttpStatusCode.OK,
+        string? jwtToken = null)
     {
         using var client = server.CreateClient();
-        var request = System.Text.Json.JsonSerializer.Serialize(new { query });
-        var content = new StringContent(request, System.Text.Encoding.UTF8, "application/graphql+json");
-        using var response = await client.PostAsync(url, content);
+        var body = System.Text.Json.JsonSerializer.Serialize(new { query });
+        var content = new StringContent(body, System.Text.Encoding.UTF8, "application/graphql+json");
+        var request = new HttpRequestMessage(HttpMethod.Post, url);
+        request.Content = content;
+        if (jwtToken != null)
+            request.Headers.Authorization = new("Bearer", jwtToken);
+        using var response = await client.SendAsync(request);
         response.StatusCode.ShouldBe(statusCode);
         var ret = await response.Content.ReadAsStringAsync();
         ret.ShouldBe(expected);
     }
 
-    public static async Task VerifyGraphQLWebSocketsAsync(this TestServer server, string url = "/graphql", string query = "{count}", string expected = @"{""data"":{""count"":0}}", bool success = true)
+    public static async Task VerifyGraphQLWebSocketsAsync(
+        this TestServer server,
+        string url = "/graphql",
+        string query = "{count}",
+        string expected = @"{""data"":{""count"":0}}",
+        bool success = true,
+        string? jwtToken = null)
     {
         var webSocketClient = server.CreateWebSocketClient();
         webSocketClient.ConfigureRequest = request =>
@@ -59,7 +84,8 @@ public static class TestServerExtensions
         // send CONNECTION_INIT
         await webSocket.SendMessageAsync(new OperationMessage
         {
-            Type = "connection_init"
+            Type = "connection_init",
+            Payload = jwtToken == null ? null : new { Authorization = "Bearer " + jwtToken },
         });
 
         // wait for CONNECTION_ACK
