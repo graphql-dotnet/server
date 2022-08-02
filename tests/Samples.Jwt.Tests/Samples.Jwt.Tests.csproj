@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <TargetFramework>net6</TargetFramework>
-    <Description>End to end tests for the Samples.Pages project</Description>
+    <Description>End to end tests for the Samples.Jwt project</Description>
   </PropertyGroup>
 
   <ItemGroup>
