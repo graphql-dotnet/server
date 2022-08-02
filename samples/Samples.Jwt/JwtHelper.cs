@@ -89,7 +89,7 @@ public static class JwtHelper
     {
         // interpret the key as base64
         var keyBytes = Convert.FromBase64String(key);
-        // create a ECDsa key pair and import th key
+        // create a ECDsa key pair and import the key
         var ecdsa = ECDsa.Create();
         if (isPrivateKey)
             ecdsa.ImportECPrivateKey(keyBytes, out int _);
