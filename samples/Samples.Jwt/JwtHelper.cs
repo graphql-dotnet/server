@@ -13,21 +13,34 @@ public static class JwtHelper
     private static readonly SecurityKey _securityKey;
     private static readonly string _securityAlgorithm;
     private static readonly SigningCredentials _signingCredentials;
-    private static readonly string _issuer = "http://localhost/Samples.Jwt";
-    private static readonly string _audience = "Samples.Jwt.Audience";
+    private static readonly string _issuer = "http://localhost/Samples.Jwt";   // may be any arbitrary string
+    private static readonly string _audience = "Samples.Jwt.Audience";         // may be any arbitrary string
     private static readonly TimeSpan _expiresIn = TimeSpan.FromMinutes(5);
 
     static JwtHelper()
     {
-        // create a new random password (typically the password would be defined in an application secret)
-        var password = Guid.NewGuid().ToString();
-        // hash the password and use that to create a symmetric key for signing the JWT tokens
-        var passwordBytes = System.Text.Encoding.UTF8.GetBytes(password);
-        var keyBytes = SHA256.Create().ComputeHash(passwordBytes);
-        _securityKey = new SymmetricSecurityKey(keyBytes);
-        // define the algorithm and credentials
-        _securityAlgorithm = SecurityAlgorithms.HmacSha256;
+        // use a symmetric security key
+        {
+            // create a new random password (typically the password would be defined in an application secret)
+            var password = Guid.NewGuid().ToString();
+            // create a symmetric security key based on the password
+            (_securityKey, _securityAlgorithm) = CreateSymmetricSecurityKey(password);
+        }
+
+        /*
+        // use an asymmetric security key
+        {
+            // generate a new key pair (typically the public key is used for GraphQL servers while the private
+            // key is used by authentication servers)
+            var (publicKey, privateKey) = CreateAsymmetricKeyPair();
+            // create an asymmetric security key based on the private key
+            (_securityKey, _securityAlgorithm) = CreateAsymmetricSecurityKey(privateKey, true);
+        }
+        */
+
+        // prepare the signing credentials
         _signingCredentials = new(_securityKey, _securityAlgorithm);
+
         // set the token validation parameters
         TokenValidationParameters =
             new TokenValidationParameters
@@ -51,6 +64,51 @@ public static class JwtHelper
                 IssuerSigningKeys = new[] { _securityKey },
                 ValidAlgorithms = new[] { _securityAlgorithm },
             };
+    }
+
+    /// <summary>
+    /// Creates a symmetric security key based on a password
+    /// </summary>
+    private static (SecurityKey SecurityKey, string SecurityAlgorithm) CreateSymmetricSecurityKey(string password)
+    {
+        // hash the password and use that to create a symmetric key for signing the JWT tokens
+        var passwordBytes = System.Text.Encoding.UTF8.GetBytes(password);
+        var keyBytes = SHA256.Create().ComputeHash(passwordBytes);
+        var securityKey = new SymmetricSecurityKey(keyBytes);
+        // return the key
+        return (securityKey, SecurityAlgorithms.HmacSha256);
+    }
+
+    /// <summary>
+    /// Creates an asymmetric ECDsa security key based on a previously generated key pair.
+    /// </summary>
+    /// <remarks>
+    /// If loading a public key, new JWT tokens cannot be signed; only verification of JWT tokens is possible.
+    /// </remarks>
+    private static (SecurityKey SecurityKey, string SecurityAlgorithm) CreateAsymmetricSecurityKey(string key, bool isPrivateKey)
+    {
+        // interpret the key as base64
+        var keyBytes = Convert.FromBase64String(key);
+        // create a ECDsa key pair and import th key
+        var ecdsa = ECDsa.Create();
+        if (isPrivateKey)
+            ecdsa.ImportECPrivateKey(keyBytes, out int _);
+        else
+            ecdsa.ImportSubjectPublicKeyInfo(keyBytes, out _);
+        var securityKey = new ECDsaSecurityKey(ecdsa);
+        // return the key
+        return (securityKey, SecurityAlgorithms.EcdsaSha256);
+    }
+
+    /// <summary>
+    /// Creates an asymmetric ECDsa security key pair.
+    /// </summary>
+    private static (string PublicKey, string PrivateKey) CreateAsymmetricKeyPair()
+    {
+        var ecdsa = ECDsa.Create();
+        var privateKey = Convert.ToBase64String(ecdsa.ExportECPrivateKey());
+        var publicKey = Convert.ToBase64String(ecdsa.ExportSubjectPublicKeyInfo());
+        return (publicKey, privateKey);
     }
 
     /// <summary>
