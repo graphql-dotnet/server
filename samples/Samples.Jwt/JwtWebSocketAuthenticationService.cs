@@ -37,7 +37,7 @@ public class JwtWebSocketAuthenticationService : IWebSocketAuthenticationService
                 var token = authPayload.Authorization.Substring(7);
                 // parse the token in the same manner that the .NET AddJwtBearer() method does
                 var handler = new Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler();
-                var result = handler.ValidateToken(token, JwtHelper.TokenValidationParameters);
+                var result = handler.ValidateToken(token, JwtHelper.Instance.TokenValidationParameters);
                 if (result.IsValid)
                 {
                     // convert JWT tokens with "role" as the claim type (a JWT defined claim type) to the proper .NET claim type constant

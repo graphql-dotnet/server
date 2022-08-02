@@ -15,7 +15,7 @@ public class OAuthController : Controller
         if (grant_type == "client_credentials" && client_id == "sampleClientId" && client_secret == "sampleSecret")
         {
             // provide a signed JWT token with an 'Administrator' role claim
-            var token = JwtHelper.CreateSignedToken(new Claim("role", "Administrator"));
+            var token = JwtHelper.Instance.CreateSignedToken(new Claim("role", "Administrator"));
             return Json(new
             {
                 access_token = token.Token,

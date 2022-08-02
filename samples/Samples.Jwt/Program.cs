@@ -18,6 +18,13 @@ builder.Services.AddGraphQL(b => b
     // support WebSocket authentication via the payload of the initialization message
     .AddWebSocketAuthentication<JwtWebSocketAuthenticationService>());
 
+// initialize the JwtHelper.Instance property for use throughout the application
+// use a symmetric security key with a random password
+JwtHelper.Instance = new(Guid.NewGuid().ToString(), SecurityKeyType.SymmetricSecurityKey);
+// or: use an asymmetric security key with a new random key pair (typically would be pulled from application secrets)
+//var (_, privateKey) = JwtHelper.CreateNewAsymmetricKeyPair();
+//JwtHelper.Instance = new(privateKey, JwtKeyType.PrivateKey);
+
 // configure authentication for GET/POST requests via the 'Authorization' HTTP header;
 // will authenticate WebSocket requests as well, but browsers cannot set the
 // 'Authorization' HTTP header for WebSocket requests
@@ -27,7 +34,7 @@ builder.Services.AddAuthentication(
         opts.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
         // configure custom authorization policies here, if any
     })
-    .AddJwtBearer(opts => opts.TokenValidationParameters = JwtHelper.TokenValidationParameters);
+    .AddJwtBearer(opts => opts.TokenValidationParameters = JwtHelper.Instance.TokenValidationParameters);
 
 var app = builder.Build();
 app.UseDeveloperExceptionPage();

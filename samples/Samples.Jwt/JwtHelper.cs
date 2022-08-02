@@ -8,35 +8,37 @@ namespace GraphQL.Server.Samples.Jwt;
 /// <summary>
 /// Provides a method to create a signed token, and provides token validation parameters to validate those tokens.
 /// </summary>
-public static class JwtHelper
+public class JwtHelper
 {
-    private static readonly SecurityKey _securityKey;
-    private static readonly string _securityAlgorithm;
-    private static readonly SigningCredentials _signingCredentials;
-    private static readonly string _issuer = "http://localhost/Samples.Jwt";   // may be any arbitrary string
-    private static readonly string _audience = "Samples.Jwt.Audience";         // may be any arbitrary string
-    private static readonly TimeSpan _expiresIn = TimeSpan.FromMinutes(5);
+    /// <summary>
+    /// The shared instance for the application.
+    /// </summary>
+    public static JwtHelper Instance { get; set; } = null!;
 
-    static JwtHelper()
+    private readonly SecurityKey _securityKey;
+    private readonly string _securityAlgorithm;
+    private readonly SigningCredentials _signingCredentials;
+    private readonly string _issuer = "http://localhost/Samples.Jwt";   // may be any arbitrary string
+    private readonly string _audience = "Samples.Jwt.Audience";         // may be any arbitrary string
+    private readonly TimeSpan _expiresIn = TimeSpan.FromMinutes(5);
+
+    public JwtHelper(string key, SecurityKeyType keyType)
     {
-        // use a symmetric security key
+        // load the key
+        switch (keyType)
         {
-            // create a new random password (typically the password would be defined in an application secret)
-            var password = Guid.NewGuid().ToString();
-            // create a symmetric security key based on the password
-            (_securityKey, _securityAlgorithm) = CreateSymmetricSecurityKey(password);
+            case SecurityKeyType.SymmetricSecurityKey:
+                (_securityKey, _securityAlgorithm) = CreateSymmetricSecurityKey(key);
+                break;
+            case SecurityKeyType.PublicKey:
+                (_securityKey, _securityAlgorithm) = CreateAsymmetricSecurityKey(key, false);
+                break;
+            case SecurityKeyType.PrivateKey:
+                (_securityKey, _securityAlgorithm) = CreateAsymmetricSecurityKey(key, true);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(keyType));
         }
-
-        /*
-        // use an asymmetric security key
-        {
-            // generate a new key pair (typically the public key is used for GraphQL servers while the private
-            // key is used by authentication servers)
-            var (publicKey, privateKey) = CreateAsymmetricKeyPair();
-            // create an asymmetric security key based on the private key
-            (_securityKey, _securityAlgorithm) = CreateAsymmetricSecurityKey(privateKey, true);
-        }
-        */
 
         // prepare the signing credentials
         _signingCredentials = new(_securityKey, _securityAlgorithm);
@@ -103,7 +105,7 @@ public static class JwtHelper
     /// <summary>
     /// Creates an asymmetric ECDsa security key pair.
     /// </summary>
-    private static (string PublicKey, string PrivateKey) CreateAsymmetricKeyPair()
+    public static (string PublicKey, string PrivateKey) CreateNewAsymmetricKeyPair()
     {
         var ecdsa = ECDsa.Create();
         var privateKey = Convert.ToBase64String(ecdsa.ExportECPrivateKey());
@@ -114,12 +116,12 @@ public static class JwtHelper
     /// <summary>
     /// Returns the <see cref="TokenValidationParameters"/> used to authenticate JWT bearer tokens.
     /// </summary>
-    public static TokenValidationParameters TokenValidationParameters { get; }
+    public TokenValidationParameters TokenValidationParameters { get; }
 
     /// <summary>
     /// Creates a signed JWT token containing the specified <see cref="Claim"/>s.
     /// </summary>
-    public static (TimeSpan ExpiresIn, string Token) CreateSignedToken(params Claim[] claims)
+    public (TimeSpan ExpiresIn, string Token) CreateSignedToken(params Claim[] claims)
     {
         var now = DateTime.UtcNow;
 
