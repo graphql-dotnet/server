@@ -48,15 +48,12 @@ public static class WebSocketExtensions
 
     public static async Task ReceiveCloseMessageAsync(this WebSocket socket)
     {
-        using var cts = new CancellationTokenSource();
-        cts.CancelAfter(5000);
-        var mem = new MemoryStream();
+        using var cts = new CancellationTokenSource(5000);
+        var drainBuffer = new byte[1024];
         ValueWebSocketReceiveResult response;
         do
         {
-            var buffer = new byte[1024];
-            response = await socket.ReceiveAsync(new MemoryBytes(buffer), cts.Token);
-            mem.Write(buffer, 0, response.Count);
+            response = await socket.ReceiveAsync(new MemoryBytes(drainBuffer), cts.Token);
         } while (!response.EndOfMessage);
         response.MessageType.ShouldBe(WebSocketMessageType.Close);
     }
