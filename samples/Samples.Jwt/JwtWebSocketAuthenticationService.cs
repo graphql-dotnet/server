@@ -40,7 +40,7 @@ public class JwtWebSocketAuthenticationService : IWebSocketAuthenticationService
                 var result = handler.ValidateToken(token, JwtHelper.Instance.TokenValidationParameters);
                 if (result.IsValid)
                 {
-                    // convert JWT tokens with "role" as the claim type (a JWT defined claim type) to the proper .NET claim type constant
+                    // convert JWT tokens with "role" as the claim type (a JWT defined claim type) to the proper .NET claim type constant http://schemas.microsoft.com/ws/2008/06/identity/claims/role
                     // note this conversion automatically happens within the .NET AddJwtBearer() method when authenticating GET/POST requests
                     var claims = result.ClaimsIdentity.Claims.Select(claim => claim.Type == "role" ? new Claim(result.ClaimsIdentity.RoleClaimType, claim.Value) : claim);
                     var principal = new ClaimsPrincipal(new ClaimsIdentity(claims, JwtBearerDefaults.AuthenticationScheme));
