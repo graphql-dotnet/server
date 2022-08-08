@@ -55,7 +55,7 @@ app.UseGraphQL("/graphql", opts =>
 
     opts.AuthorizedRoles.Add("Administrator");
 });
-// enable ASP.Net Core routing for razor pages and MVC controllers
+// enable ASP.NET Core routing for razor pages and MVC controllers
 app.UseRouting();
 // enable Pages for the GraphiQL demonstration endpoint at /
 app.MapRazorPages();
