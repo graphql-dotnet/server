@@ -53,7 +53,7 @@ public class JwtWebSocketAuthenticationService : IWebSocketAuthenticationService
         catch
         {
             // no errors during authentication should throw an exception
-            // specifically, attempting to validate an invalid JWT token will result in an exception, which should be ignored
+            // specifically, attempting to validate an invalid JWT token will result in an exception, which may be logged or simply ignored to not generate an inordinate amount of logs without purpose
         }
 
         return Task.CompletedTask;
