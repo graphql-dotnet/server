@@ -121,13 +121,10 @@ public class FileUploadTests : IDisposable
             {
                 Name = "Query",
             };
-            query.Field<StringGraphType>(
-                "ConvertToBase64",
-                arguments: new QueryArguments(
-                    new QueryArgument(typeof(StringGraphType)) { Name = "prefix" },
-                    new QueryArgument(typeof(NonNullGraphType<FileGraphType>)) { Name = "file" }
-                ),
-                resolve: context =>
+            query.Field<StringGraphType>("ConvertToBase64")
+                .Argument<StringGraphType>("prefix")
+                .Argument<NonNullGraphType<FileGraphType>>("file")
+                .Resolve(context =>
                 {
                     var prefix = context.GetArgument<string?>("prefix");
                     var file = context.GetArgument<IFormFile>("file");
