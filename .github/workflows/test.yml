@@ -57,8 +57,12 @@ jobs:
         run: dotnet build --no-restore -c Release
       - name: Build solution [Debug]
         run: dotnet build --no-restore -c Debug
-      - name: Test solution [Debug]
+      - name: Test solution [Debug] with code coverage
+        if: ${{ startsWith(matrix.os, 'ubuntu') }}
         run: dotnet test --no-restore --no-build -p:CollectCoverage=true
+      - name: Test solution [Debug] without code coverage
+        if: ${{ startsWith(matrix.os, 'windows') }}
+        run: dotnet test --no-restore --no-build
       - name: Upload coverage to codecov
         if: ${{ startsWith(matrix.os, 'ubuntu') }}
         uses: codecov/codecov-action@v3
