@@ -6,10 +6,8 @@ public class WebSocketTests : IDisposable
 
     private void Configure(Action<GraphQLHttpMiddlewareOptions>? configureOptions = null, Action<IServiceCollection>? configureServices = null)
     {
-        if (configureOptions == null)
-            configureOptions = _ => { };
-        if (configureServices == null)
-            configureServices = _ => { };
+        configureOptions ??= _ => { };
+        configureServices ??= _ => { };
 
         var hostBuilder = new WebHostBuilder();
         hostBuilder.ConfigureServices(services =>
