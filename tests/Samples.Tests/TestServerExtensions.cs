@@ -35,7 +35,7 @@ public static class TestServerExtensions
         string? jwtToken = null)
     {
         using var client = server.CreateClient();
-        var request = new HttpRequestMessage(HttpMethod.Get, url + "?query=" + Uri.EscapeDataString(query));
+        using var request = new HttpRequestMessage(HttpMethod.Get, url + "?query=" + Uri.EscapeDataString(query));
         if (jwtToken != null)
             request.Headers.Authorization = new("Bearer", jwtToken);
         using var response = await client.SendAsync(request);
@@ -55,7 +55,7 @@ public static class TestServerExtensions
         using var client = server.CreateClient();
         var body = System.Text.Json.JsonSerializer.Serialize(new { query });
         var content = new StringContent(body, System.Text.Encoding.UTF8, "application/graphql+json");
-        var request = new HttpRequestMessage(HttpMethod.Post, url);
+        using var request = new HttpRequestMessage(HttpMethod.Post, url);
         request.Content = content;
         if (jwtToken != null)
             request.Headers.Authorization = new("Bearer", jwtToken);

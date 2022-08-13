@@ -75,7 +75,8 @@ public class JwtHelper
     {
         // hash the password and use that to create a symmetric key for signing the JWT tokens
         var passwordBytes = System.Text.Encoding.UTF8.GetBytes(password);
-        var keyBytes = SHA256.Create().ComputeHash(passwordBytes);
+        using var sha = SHA256.Create();
+        var keyBytes = sha.ComputeHash(passwordBytes);
         var securityKey = new SymmetricSecurityKey(keyBytes);
         // return the key
         return (securityKey, SecurityAlgorithms.HmacSha256);
@@ -92,7 +93,7 @@ public class JwtHelper
         // interpret the key as base64
         var keyBytes = Convert.FromBase64String(key);
         // create a ECDsa key pair and import the key
-        var ecdsa = ECDsa.Create();
+        using var ecdsa = ECDsa.Create();
         if (isPrivateKey)
             ecdsa.ImportECPrivateKey(keyBytes, out int _);
         else
@@ -107,7 +108,7 @@ public class JwtHelper
     /// </summary>
     public static (string PublicKey, string PrivateKey) CreateNewAsymmetricKeyPair()
     {
-        var ecdsa = ECDsa.Create();
+        using var ecdsa = ECDsa.Create();
         var privateKey = Convert.ToBase64String(ecdsa.ExportECPrivateKey());
         var publicKey = Convert.ToBase64String(ecdsa.ExportSubjectPublicKeyInfo());
         return (publicKey, privateKey);

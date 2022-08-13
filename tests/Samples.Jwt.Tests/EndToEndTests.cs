@@ -100,7 +100,7 @@ public class EndToEndTests : IDisposable
     [Fact]
     public async Task OAuth2_Post_UrlEncoded()
     {
-        var request = new HttpRequestMessage(HttpMethod.Post, "/token");
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/token");
         var content = new FormUrlEncodedContent(new KeyValuePair<string, string>[]
         {
             new("grant_type", "client_credentials"),
@@ -115,7 +115,7 @@ public class EndToEndTests : IDisposable
     [Fact]
     public async Task OAuth2_Post_MultipartFormData()
     {
-        var request = new HttpRequestMessage(HttpMethod.Post, "/token");
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/token");
         var content = new MultipartFormDataContent()
         {
             { new StringContent("client_credentials"), "grant_type" },
