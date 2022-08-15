@@ -15,4 +15,13 @@
     <AnalysisMode>Recommended</AnalysisMode>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(SignAssembly)' == 'true'">
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)graphql.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(IsTestProject)' != 'true'">
+    <InternalsVisibleTo Condition="'$(SignAssembly)' == 'true'" Include="$(AssemblyName).Tests, $(_FriendAssembliesPublicKey)"/>
+    <InternalsVisibleTo Condition="'$(SignAssembly)' != 'true'" Include="$(AssemblyName).Tests"/>
+  </ItemGroup>
 </Project>
