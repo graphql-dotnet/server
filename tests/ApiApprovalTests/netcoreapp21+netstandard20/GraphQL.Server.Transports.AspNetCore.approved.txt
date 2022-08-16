@@ -395,6 +395,13 @@ namespace GraphQL
             where TWebSocketAuthenticationService :  class, GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketAuthenticationService { }
     }
 }
+namespace GraphQL.Utilities.Federation
+{
+    public static class GraphQLHttpRequestExtensions
+    {
+        public static bool IsApolloFederatedTracingEnabled(this Microsoft.AspNetCore.Http.HttpRequest request) { }
+    }
+}
 namespace Microsoft.AspNetCore.Builder
 {
     public static class GraphQLHttpApplicationBuilderExtensions
