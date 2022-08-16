@@ -216,6 +216,7 @@ public class BuilderMethodTests
         await VerifyAsync(url);
     }
 
+    [Fact]
     public async Task EndpointRouting_Invalid()
     {
         _hostBuilder.ConfigureServices(services => services.AddRouting());

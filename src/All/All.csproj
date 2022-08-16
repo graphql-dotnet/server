@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Transports.AspNetCore\Transports.AspNetCore.csproj" />
+    <ProjectReference Include="..\Transports.AspNetCore\Transports.AspNetCore.csproj" PackageVersion="[$(Version),$(NextVersion))" />
     <ProjectReference Include="..\Ui.Altair\Ui.Altair.csproj" />
     <ProjectReference Include="..\Ui.GraphiQL\Ui.GraphiQL.csproj" />
     <ProjectReference Include="..\Ui.Playground\Ui.Playground.csproj" />

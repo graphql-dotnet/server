@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="GraphQL.DataLoader" Version="$(GraphQLVersion)" />
-    <PackageReference Include="Serilog.AspNetCore" Version="5.0.0" />
+    <PackageReference Include="Serilog.AspNetCore" Version="6.0.1" />
     <PackageReference Include="Serilog.Sinks.Console" Version="4.0.1" />
   </ItemGroup>
 

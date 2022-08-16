@@ -86,7 +86,7 @@ public class ChatTests : IDisposable
         str.ShouldBe("{\"data\":{\"allMessages\":[{\"id\":\"1\",\"message\":\"hello\"},{\"id\":\"2\",\"message\":\"hello\"}]}}");
     }
 
-    public async Task AddMessageInternal(int id, string name = "John Doe")
+    private async Task AddMessageInternal(int id, string name = "John Doe")
     {
         var str = await _app.ExecutePost(
             "/graphql",
@@ -109,7 +109,7 @@ public class ChatTests : IDisposable
         str.ShouldBe("{\"data\":{\"count\":1}}");
     }
 
-    public async Task DeleteMessageInternal(int id)
+    private async Task DeleteMessageInternal(int id)
     {
         var str = await _app.ExecutePost(
             "/graphql",
