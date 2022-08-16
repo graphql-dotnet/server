@@ -31,8 +31,8 @@ namespace GraphQL.Server.Authorization.AspNetCore
     public class DefaultAuthorizationErrorMessageBuilder : GraphQL.Server.Authorization.AspNetCore.IAuthorizationErrorMessageBuilder
     {
         public DefaultAuthorizationErrorMessageBuilder() { }
-        public virtual void AppendFailureHeader(System.Text.StringBuilder error, GraphQLParser.AST.OperationType? operationType) { }
-        public virtual void AppendFailureLine(System.Text.StringBuilder error, Microsoft.AspNetCore.Authorization.IAuthorizationRequirement authorizationRequirement) { }
+        public virtual void AppendFailureHeader(System.Text.StringBuilder errorBuilder, GraphQLParser.AST.OperationType? operationType) { }
+        public virtual void AppendFailureLine(System.Text.StringBuilder errorBuilder, Microsoft.AspNetCore.Authorization.IAuthorizationRequirement authorizationRequirement) { }
         public virtual string GenerateMessage(GraphQLParser.AST.OperationType? operationType, Microsoft.AspNetCore.Authorization.AuthorizationResult result) { }
     }
     [System.Obsolete("This class will be removed in v8; please override GraphQLHttpMiddleware.HandleAut" +
@@ -47,8 +47,8 @@ namespace GraphQL.Server.Authorization.AspNetCore
         "ed error messages.")]
     public interface IAuthorizationErrorMessageBuilder
     {
-        void AppendFailureHeader(System.Text.StringBuilder error, GraphQLParser.AST.OperationType? operationType);
-        void AppendFailureLine(System.Text.StringBuilder error, Microsoft.AspNetCore.Authorization.IAuthorizationRequirement authorizationRequirement);
+        void AppendFailureHeader(System.Text.StringBuilder errorBuilder, GraphQLParser.AST.OperationType? operationType);
+        void AppendFailureLine(System.Text.StringBuilder errorBuilder, Microsoft.AspNetCore.Authorization.IAuthorizationRequirement authorizationRequirement);
         string GenerateMessage(GraphQLParser.AST.OperationType? operationType, Microsoft.AspNetCore.Authorization.AuthorizationResult result);
     }
     [System.Obsolete("This class will be removed in v8; please override GraphQLHttpMiddleware.HandleAut" +
