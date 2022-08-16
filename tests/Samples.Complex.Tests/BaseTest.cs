@@ -1,4 +1,5 @@
 using System.Text;
+using GraphQL;
 using GraphQL.Samples.Complex;
 using GraphQL.Server;
 using GraphQL.Transport;
@@ -15,6 +16,14 @@ public abstract class BaseTest : IDisposable
     {
         Host = Program.CreateHostBuilder(Array.Empty<string>())
              .ConfigureWebHost(webBuilder => webBuilder.UseTestServer())
+             .ConfigureServices(services =>
+             {
+                 services.AddGraphQL(b => b.ConfigureExecution((options, next) =>
+                 {
+                     options.EnableMetrics = false;
+                     return next(options);
+                 }));
+             })
              .Start();
 
         Server = Host.GetTestServer();

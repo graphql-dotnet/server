@@ -99,6 +99,8 @@ public static class ServerGraphQLBuilderExtensions
                 options.UserContext = userContext;
             return await next(options);
         }
+
+        public float SortOrder => 100;
     }
 
     /// <summary>
