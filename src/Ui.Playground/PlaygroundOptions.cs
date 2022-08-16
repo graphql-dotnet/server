@@ -43,10 +43,13 @@ public class PlaygroundOptions
 
     /* typed settings below are just wrappers for PlaygroundSettings dictionary */
 
+    /// <summary>
+    /// Cursor shape.
+    /// </summary>
     public EditorCursorShape EditorCursorShape
     {
         get => (EditorCursorShape)Enum.Parse(typeof(EditorCursorShape), (string)PlaygroundSettings["editor.cursorShape"], ignoreCase: true);
-        set => PlaygroundSettings["editor.cursorShape"] = value.ToString().ToLower();
+        set => PlaygroundSettings["editor.cursorShape"] = value.ToString().ToLowerInvariant();
     }
 
     /// <summary>
@@ -58,6 +61,9 @@ public class PlaygroundOptions
         set => PlaygroundSettings["editor.fontFamily"] = value;
     }
 
+    /// <summary>
+    /// Editor font size.
+    /// </summary>
     public int EditorFontSize
     {
         get => (int)PlaygroundSettings["editor.fontSize"];
@@ -73,30 +79,45 @@ public class PlaygroundOptions
         set => PlaygroundSettings["editor.reuseHeaders"] = value;
     }
 
+    /// <summary>
+    /// Editor theme.
+    /// </summary>
     public EditorTheme EditorTheme
     {
         get => (EditorTheme)Enum.Parse(typeof(EditorTheme), (string)PlaygroundSettings["editor.theme"], ignoreCase: true);
-        set => PlaygroundSettings["editor.theme"] = value.ToString().ToLower();
+        set => PlaygroundSettings["editor.theme"] = value.ToString().ToLowerInvariant();
     }
 
+    /// <summary>
+    /// Enable beta updates.
+    /// </summary>
     public bool BetaUpdates
     {
         get => (bool)PlaygroundSettings["general.betaUpdates"];
         set => PlaygroundSettings["general.betaUpdates"] = value;
     }
 
+    /// <summary>
+    /// Print width setting.
+    /// </summary>
     public int PrettierPrintWidth
     {
         get => (int)PlaygroundSettings["prettier.printWidth"];
         set => PlaygroundSettings["prettier.printWidth"] = value;
     }
 
+    /// <summary>
+    /// Tab width setting.
+    /// </summary>
     public int PrettierTabWidth
     {
         get => (int)PlaygroundSettings["prettier.tabWidth"];
         set => PlaygroundSettings["prettier.tabWidth"] = value;
     }
 
+    /// <summary>
+    /// Use tabs.
+    /// </summary>
     public bool PrettierUseTabs
     {
         get => (bool)PlaygroundSettings["prettier.useTabs"];
@@ -155,12 +176,18 @@ public class PlaygroundOptions
         set => PlaygroundSettings["schema.polling.interval"] = value;
     }
 
+    /// <summary>
+    /// Disable comments.
+    /// </summary>
     public bool SchemaDisableComments
     {
         get => (bool)PlaygroundSettings["schema.disableComments"];
         set => PlaygroundSettings["schema.disableComments"] = value;
     }
 
+    /// <summary>
+    /// Hide tracing data in responses.
+    /// </summary>
     public bool HideTracingResponse
     {
         get => (bool)PlaygroundSettings["tracing.hideTracingResponse"];
@@ -168,15 +195,36 @@ public class PlaygroundOptions
     }
 }
 
+/// <summary>
+/// Available cursor shapes.
+/// </summary>
 public enum EditorCursorShape
 {
+    /// <summary>
+    /// Line.
+    /// </summary>
     Line,
+    /// <summary>
+    /// Block.
+    /// </summary>
     Block,
+    /// <summary>
+    /// Underline.
+    /// </summary>
     Underline
 }
 
+/// <summary>
+/// Available editor themes.
+/// </summary>
 public enum EditorTheme
 {
+    /// <summary>
+    /// Dark theme.
+    /// </summary>
     Dark,
+    /// <summary>
+    /// Light theme.
+    /// </summary>
     Light
 }

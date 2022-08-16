@@ -4,8 +4,13 @@
     <CoverletOutputFormat>opencover</CoverletOutputFormat>
     <CoverletOutput>$(MSBuildThisFileDirectory).coverage/$(AssemblyName)/</CoverletOutput>
     <Exclude>[GraphQL.Samples.Schemas.Chat]*,[GraphQL.Samples.Server]*</Exclude>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(OutputType)' == 'Exe'">
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  
   <PropertyGroup Condition="'$(IsPackable)' != 'true'">
     <NoWarn>$(NoWarn);CS1591;IDE1006;IDE0053;CS1998</NoWarn>
     <WarningsNotAsErrors>$(WarningsNotAsErrors);IDE0060</WarningsNotAsErrors>
@@ -19,6 +24,12 @@
   <PropertyGroup Condition="'$(SignAssembly)' == 'true'">
     <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)graphql.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
+
+  <ItemGroup Condition="'$(IsPackable)' == 'true'">
+    <None Include="..\..\assets\logo.64x64.png" Pack="true" PackagePath="\" />
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+  </ItemGroup>
 
   <ItemGroup Condition="'$(IsTestProject)' != 'true'">
     <InternalsVisibleTo Condition="'$(SignAssembly)' == 'true'" Include="$(AssemblyName).Tests, $(_FriendAssembliesPublicKey)"/>
