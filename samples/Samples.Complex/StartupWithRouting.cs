@@ -26,10 +26,10 @@ public class StartupWithRouting
         services
             .AddRouting()
             .AddSingleton<IChat, Chat>()
-            .Configure<ErrorInfoProviderOptions>(opt => opt.ExposeExceptionStackTrace = Environment.IsDevelopment());
+            .Configure<ErrorInfoProviderOptions>(opt => opt.ExposeExceptionDetails = Environment.IsDevelopment());
 
         services.AddGraphQL(builder => builder
-            .AddApolloTracing()
+            .UseApolloTracing()
             .AddSchema<ChatSchema>()
             .AddAutoClrMappings()
             .ConfigureExecutionOptions(options =>
