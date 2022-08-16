@@ -61,7 +61,7 @@ any policies or roles specified for input graph types, fields of input graph typ
 directives.  It skips validations for fields or fragments that are marked with the `@skip` or
 `@include` directives.
 
-See [migration notes](migration/migration7.md) for changes from version 6.x.
+See [migration notes](docs/migration/migration7.md) for changes from version 6.x.
 
 ## Configuration
 
