@@ -1,0 +1,38 @@
+namespace GraphQL.Server.Ui.Voyager
+{
+    public enum RequestCredentials
+    {
+        Omit = 0,
+        Include = 1,
+        SameOrigin = 2,
+    }
+    public class VoyagerMiddleware
+    {
+        public VoyagerMiddleware(Microsoft.AspNetCore.Http.RequestDelegate next, GraphQL.Server.Ui.Voyager.VoyagerOptions options) { }
+        public System.Threading.Tasks.Task Invoke(Microsoft.AspNetCore.Http.HttpContext httpContext) { }
+    }
+    public class VoyagerOptions
+    {
+        public VoyagerOptions() { }
+        public string GraphQLEndPoint { get; set; }
+        public System.Collections.Generic.Dictionary<string, object>? Headers { get; set; }
+        public System.Func<GraphQL.Server.Ui.Voyager.VoyagerOptions, System.IO.Stream> IndexStream { get; set; }
+        public System.Func<GraphQL.Server.Ui.Voyager.VoyagerOptions, string, string> PostConfigure { get; set; }
+        public GraphQL.Server.Ui.Voyager.RequestCredentials RequestCredentials { get; set; }
+    }
+}
+namespace Microsoft.AspNetCore.Builder
+{
+    public static class VoyagerApplicationBuilderExtensions
+    {
+        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQLVoyager(this Microsoft.AspNetCore.Builder.IApplicationBuilder app, string path = "/ui/voyager", GraphQL.Server.Ui.Voyager.VoyagerOptions? options = null) { }
+    }
+    public class VoyagerEndpointConventionBuilder : Microsoft.AspNetCore.Builder.IEndpointConventionBuilder
+    {
+        public void Add(System.Action<Microsoft.AspNetCore.Builder.EndpointBuilder> convention) { }
+    }
+    public static class VoyagerEndpointRouteBuilderExtensions
+    {
+        public static Microsoft.AspNetCore.Builder.VoyagerEndpointConventionBuilder MapGraphQLVoyager(this Microsoft.AspNetCore.Routing.IEndpointRouteBuilder endpoints, string pattern = "ui/voyager", GraphQL.Server.Ui.Voyager.VoyagerOptions? options = null) { }
+    }
+}

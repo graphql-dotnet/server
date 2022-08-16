@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFrameworks>net6;net5;netcoreapp3.1</TargetFrameworks>
+    <AssemblyName>GraphQL.Samples.Server</AssemblyName>
+    <RootNamespace>GraphQL.Samples.Server</RootNamespace>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="GraphQL.DataLoader" Version="$(GraphQLVersion)" />
+    <PackageReference Include="Serilog.AspNetCore" Version="6.0.1" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="4.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Transports.AspNetCore\Transports.AspNetCore.csproj" />
+    <ProjectReference Include="..\..\src\Ui.GraphiQL\Ui.GraphiQL.csproj" />
+    <ProjectReference Include="..\..\src\Ui.Playground\Ui.Playground.csproj" />
+    <ProjectReference Include="..\..\src\Ui.Altair\Ui.Altair.csproj" />
+    <ProjectReference Include="..\..\src\Ui.Voyager\Ui.Voyager.csproj" />
+    <ProjectReference Include="..\Samples.Schemas.Chat\Samples.Schemas.Chat.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Remove="System.Net.Http.Json" />
+  </ItemGroup>
+
+</Project>

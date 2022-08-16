@@ -7,7 +7,12 @@ on:
       - develop
     paths:
       - src/**
+      - tests/**
+      - samples/**
       - .github/workflows/**
+      - "*.props"
+      - "*.targets"
+      - "*.sln"
   # Upload code coverage results when PRs are merged
   push:
     branches:
@@ -15,7 +20,11 @@ on:
       - develop
     paths:
       - src/**
+      - tests/**
+      - samples/**
       - .github/workflows/**
+      - "*.props"
+      - "*.targets"
 
 env:
   DOTNET_NOLOGO: true
@@ -30,40 +39,35 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout source
-        uses: actions/checkout@v2
-      - name: Setup .NET Core 3.1 SDK
-        uses: actions/setup-dotnet@v1
+        uses: actions/checkout@v3
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v2
         with:
-          dotnet-version: '3.1.x'
-          source-url: https://nuget.pkg.github.com/graphql-dotnet/index.json
-        env:
-          NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
-      - name: Setup .NET Core 5.0 SDK
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: '5.0.x'
+          dotnet-version: |
+            2.1.x
+            3.1.x
+            5.0.x
+            6.0.x
           source-url: https://nuget.pkg.github.com/graphql-dotnet/index.json
         env:
           NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - name: Install dependencies
         run: dotnet restore
-      - name: Check formatting
-        if: ${{ startsWith(matrix.os, 'ubuntu') }}
-        run: |
-          dotnet tool install -g dotnet-format --version 6.0.* --add-source https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-tools/nuget/v3/index.json
-          dotnet format --check --fix-whitespace || (echo "Run 'dotnet format' to fix formatting issues" && exit 1)
-          dotnet format --check -v diag --fix-style warn --fix-analyzers warn || (echo "Run 'dotnet format' to fix formatting issues" && exit 1)
       - name: Build solution [Release]
         run: dotnet build --no-restore -c Release
       - name: Build solution [Debug]
         run: dotnet build --no-restore -c Debug
-      - name: Test solution [Debug]
+      - name: Test solution [Debug] with code coverage
+        if: ${{ startsWith(matrix.os, 'ubuntu') }}
         run: dotnet test --no-restore --no-build -p:CollectCoverage=true
+      - name: Test solution [Debug] without code coverage
+        if: ${{ startsWith(matrix.os, 'windows') }}
+        run: dotnet test --no-restore --no-build
       - name: Upload coverage to codecov
         if: ${{ startsWith(matrix.os, 'ubuntu') }}
-        uses: codecov/codecov-action@v1.2.1
+        uses: codecov/codecov-action@v3
         with:
-          files: .coverage/GraphQL.Server.Authorization.AspNetCore.Tests/coverage.net5.opencover.xml,.coverage/GraphQL.Server.Samples.Server.Tests/coverage.netcoreapp3.1.opencover.xml,.coverage/GraphQL.Server.Transports.Subscriptions.Abstractions.Tests/coverage.net5.opencover.xml,.coverage/GraphQL.Server.Transports.Subscriptions.WebSockets.Tests/coverage.net5.opencover.xml
+          files: .coverage/GraphQL.Server.Transports.AspNetCore.Tests/coverage.net6.opencover.xml,.coverage/GraphQL.Server.Transports.AspNetCore.Tests/coverage.netcoreapp2.1.opencover.xml,.coverage/GraphQL.Server.Samples.Server.Tests/coverage.net6.opencover.xml
 
   buildcheck:
     needs:

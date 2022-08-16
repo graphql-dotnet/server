@@ -1,37 +1,51 @@
-using System;
+using GraphQL.DI;
 using GraphQL.Server.Authorization.AspNetCore;
-using GraphQL.Validation;
+#if NETCOREAPP3_1_OR_GREATER
 using Microsoft.AspNetCore.Authorization;
+#endif
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace GraphQL.Server
+namespace GraphQL.Server;
+
+public static class GraphQLBuilderAuthorizationExtensions
 {
-    public static class GraphQLBuilderAuthorizationExtensions
+    /// <summary>
+    /// Adds the GraphQL authorization.
+    /// </summary>
+    /// <param name="builder">The GraphQL builder.</param>
+    /// <returns>Reference to the passed <paramref name="builder"/>.</returns>
+    [Obsolete("This extension method has been replaced with AddAuthorization and will be removed in v8.")]
+    public static IGraphQLBuilder AddGraphQLAuthorization(this IGraphQLBuilder builder)
+#if NETCOREAPP3_1_OR_GREATER
+        => builder.AddGraphQLAuthorization(_ => { });
+
+    /// <summary>
+    /// Adds the GraphQL authorization.
+    /// </summary>
+    /// <param name="builder">The GraphQL builder.</param>
+    /// <param name="configure">An action delegate to configure the provided <see cref="AuthorizationOptions"/>.</param>
+    /// <returns>Reference to the passed <paramref name="builder"/>.</returns>
+    [Obsolete("This extension method has been replaced with AddAuthorization and will be removed in v8.")]
+    public static IGraphQLBuilder AddGraphQLAuthorization(this IGraphQLBuilder builder, Action<AuthorizationOptions>? configure)
+#endif
     {
-        /// <summary>
-        /// Adds the GraphQL authorization.
-        /// </summary>
-        /// <param name="builder">The GraphQL builder.</param>
-        /// <returns>Reference to the passed <paramref name="builder"/>.</returns>
-        public static IGraphQLBuilder AddGraphQLAuthorization(this IGraphQLBuilder builder)
-            => builder.AddGraphQLAuthorization(options => { });
+        if (builder.Services is not IServiceCollection services)
+            throw new NotSupportedException("This method only supports the MicrosoftDI implementation of IGraphQLBuilder.");
 
-        /// <summary>
-        /// Adds the GraphQL authorization.
-        /// </summary>
-        /// <param name="builder">The GraphQL builder.</param>
-        /// <param name="options">An action delegate to configure the provided <see cref="AuthorizationOptions"/>.</param>
-        /// <returns>Reference to the passed <paramref name="builder"/>.</returns>
-        public static IGraphQLBuilder AddGraphQLAuthorization(this IGraphQLBuilder builder, Action<AuthorizationOptions> options)
-        {
-            builder.Services.TryAddTransient<IClaimsPrincipalAccessor, DefaultClaimsPrincipalAccessor>();
-            builder.Services
-                .AddHttpContextAccessor()
-                .AddTransient<IValidationRule, AuthorizationValidationRule>()
-                .AddAuthorizationCore(options);
+        services.TryAddTransient<IClaimsPrincipalAccessor, DefaultClaimsPrincipalAccessor>();
+        services.TryAddTransient<IAuthorizationErrorMessageBuilder, DefaultAuthorizationErrorMessageBuilder>();
+        services.AddHttpContextAccessor();
 
-            return builder;
-        }
+#if NETCOREAPP3_1_OR_GREATER
+        if (configure != null)
+            services.AddAuthorizationCore(configure);
+        else
+            services.AddAuthorizationCore();
+#endif
+
+        builder.AddValidationRule<AuthorizationValidationRule>(true);
+
+        return builder;
     }
 }

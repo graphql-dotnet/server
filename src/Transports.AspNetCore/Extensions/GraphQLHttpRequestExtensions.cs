@@ -1,7 +1,3 @@
-using System;
-using System.Linq;
-using Microsoft.AspNetCore.Http;
-
 namespace GraphQL.Federation.Instrumentation
 {
     /// <summary>
@@ -22,7 +18,7 @@ namespace GraphQL.Federation.Instrumentation
             var headers = request?.Headers;
             if (headers != null && headers.TryGetValue(HEADER_NAME, out var values))
             {
-                string value = values.FirstOrDefault();
+                var value = values.FirstOrDefault();
                 return HEADER_VALUE.Equals(value, StringComparison.OrdinalIgnoreCase);
             }
             return false;

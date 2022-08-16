@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../../Tests.props" />
+
+  <PropertyGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' != 'true'">
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' == 'true'">
+    <TargetFrameworks>net48;netcoreapp2.1</TargetFrameworks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(SingleTestPlatform)' == 'true'">
+    <TargetFrameworks>netcoreapp2.1</TargetFrameworks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <Description>End to end tests for the Samples.Net48 project</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\samples\Samples.Net48\Samples.Net48.csproj" />
+    <ProjectReference Include="..\Samples.Tests\Samples.Tests.csproj" />
+  </ItemGroup>
+
+</Project>

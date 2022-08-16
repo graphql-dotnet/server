@@ -2,23 +2,34 @@
   <Import Project="$(MSBuildThisFileDirectory)Tests.local.props" Condition="Exists('$(MSBuildThisFileDirectory)Tests.local.props')" />
 
   <PropertyGroup>
-    <NoWarn>$(NoWarn);1591;IDE1006</NoWarn>
     <SingleTestPlatform Condition="'$(SingleTestPlatform)' == ''">false</SingleTestPlatform>
+    <NoWarn>$(NoWarn);IDE0017</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="coverlet.msbuild" Version="3.0.3">
+    <PackageReference Include="coverlet.msbuild" Version="3.1.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.0" />
     <PackageReference Include="Shouldly" Version="4.0.3" />
-    <PackageReference Include="xunit" Version="2.4.1" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3" />
-    <PackageReference Include="Moq" Version="4.16.1" />
-    <PackageReference Include="NSubstitute" Version="4.2.2" />
-    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="3.1.13" Condition="'$(TargetFramework)' == 'netcoreapp3.1'" />
-    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="5.0.5" Condition="'$(TargetFramework)' == 'net5'" />
+    <PackageReference Include="xunit" Version="2.4.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3" Condition="'$(TargetFramework)' == 'netcoreapp2.1'" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5" Condition="'$(TargetFramework)' != 'netcoreapp2.1'" />
+    <PackageReference Include="Moq" Version="4.18.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="2.1.*" Condition="'$(TargetFramework)' == 'netcoreapp2.1' OR '$(TargetFramework)' == 'net48'" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="3.1.*" Condition="'$(TargetFramework)' == 'netcoreapp3.1'" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="5.0.*" Condition="'$(TargetFramework)' == 'net5'" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="6.0.*" Condition="'$(TargetFramework)' == 'net6'" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="2.1.*" Condition="'$(TargetFramework)' == 'netcoreapp2.1' OR '$(TargetFramework)' == 'net48'" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.*" Condition="'$(TargetFramework)' == 'netcoreapp3.1'" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.*" Condition="'$(TargetFramework)' == 'net5'" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.*" Condition="'$(TargetFramework)' == 'net6'" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Shouldly" />
+    <Using Include="Xunit" />
   </ItemGroup>
 
 </Project>

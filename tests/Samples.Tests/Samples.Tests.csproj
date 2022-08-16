@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../../Tests.props" />
+
+  <PropertyGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' != 'true'">
+    <TargetFrameworks>net6;netcoreapp2.1</TargetFrameworks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' == 'true'">
+    <TargetFrameworks>net6;netcoreapp2.1;net48</TargetFrameworks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <Description>End to end tests for sample projects</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="GraphQL.SystemTextJson" Version="$(GraphQLVersion)" />
+  </ItemGroup>
+
+</Project>
