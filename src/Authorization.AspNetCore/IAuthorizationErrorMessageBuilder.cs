@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 namespace GraphQL.Server.Authorization.AspNetCore;
 
 /// <summary>
-/// Error message builder for authorization errors
+/// Error message builder for authorization errors.
 /// </summary>
 [Obsolete("This class will be removed in v8 as revealing authorization requirements may be a security risk; please use ErrorInfoProvider if you require detailed access-denied error messages.")]
 public interface IAuthorizationErrorMessageBuilder
