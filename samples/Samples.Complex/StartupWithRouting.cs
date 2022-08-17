@@ -29,12 +29,10 @@ public class StartupWithRouting
             .Configure<ErrorInfoProviderOptions>(opt => opt.ExposeExceptionDetails = Environment.IsDevelopment());
 
         services.AddGraphQL(builder => builder
-            .UseApolloTracing()
             .AddSchema<ChatSchema>()
             .AddAutoClrMappings()
             .ConfigureExecutionOptions(options =>
             {
-                options.EnableMetrics = Environment.IsDevelopment();
                 var logger = options.RequestServices!.GetRequiredService<ILogger<Startup>>();
                 options.UnhandledExceptionDelegate = ctx =>
                 {
@@ -46,7 +44,8 @@ public class StartupWithRouting
             .AddErrorInfoProvider<CustomErrorInfoProvider>()
             .AddDataLoader()
             .AddUserContextBuilder(context => new Dictionary<string, object?> { { "user", context.User.Identity!.IsAuthenticated ? context.User : null } })
-            .AddGraphTypes(typeof(ChatSchema).Assembly));
+            .AddGraphTypes(typeof(ChatSchema).Assembly)
+            .UseApolloTracing(_ => Environment.IsDevelopment()));
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -9,7 +9,7 @@ public static class GraphQLHttpRequestExtensions
     private const string HEADER_VALUE = "ftv1";
 
     /// <summary>
-    /// Determines if federated tracing is enabled through HTTP headers.
+    /// Determines if federated tracing is <see href="https://www.apollographql.com/docs/federation/metrics/#how-tracing-data-is-exposed-from-a-subgraph">enabled</see> through HTTP headers.
     /// </summary>
     /// <returns><see langword="true"/> if the 'apollo-federation-include-trace' HTTP header has a value of 'ftv1'</returns>
     public static bool IsApolloFederatedTracingEnabled(this HttpRequest request)
