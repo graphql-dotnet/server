@@ -8,6 +8,9 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace GraphQL.Server;
 
+/// <summary>
+/// Extension methods for <see cref="IGraphQLBuilder"/> interface.
+/// </summary>
 public static class GraphQLBuilderAuthorizationExtensions
 {
     /// <summary>

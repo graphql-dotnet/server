@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace GraphQL.Server.Authorization.AspNetCore;
 
+/// <summary>
+/// Error message builder for authorization errors.
+/// </summary>
 [Obsolete("This class will be removed in v8 as revealing authorization requirements may be a security risk; please use ErrorInfoProvider if you require detailed access-denied error messages.")]
 public interface IAuthorizationErrorMessageBuilder
 {
@@ -18,14 +21,14 @@ public interface IAuthorizationErrorMessageBuilder
     /// <summary>
     /// Appends the error message header to the provided <see cref="StringBuilder"/>.
     /// </summary>
-    /// <param name="error">The error message <see cref="StringBuilder"/>.</param>
+    /// <param name="errorBuilder">The error message <see cref="StringBuilder"/>.</param>
     /// <param name="operationType">The GraphQL operation type.</param>
-    void AppendFailureHeader(StringBuilder error, OperationType? operationType);
+    void AppendFailureHeader(StringBuilder errorBuilder, OperationType? operationType);
 
     /// <summary>
     /// Appends a description of the failed <paramref name="authorizationRequirement"/> to the supplied <see cref="StringBuilder"/>.
     /// </summary>
-    /// <param name="error">The <see cref="StringBuilder"/> which is used to compose the error message.</param>
+    /// <param name="errorBuilder">The <see cref="StringBuilder"/> which is used to compose the error message.</param>
     /// <param name="authorizationRequirement">The failed <see cref="IAuthorizationRequirement"/>.</param>
-    void AppendFailureLine(StringBuilder error, IAuthorizationRequirement authorizationRequirement);
+    void AppendFailureLine(StringBuilder errorBuilder, IAuthorizationRequirement authorizationRequirement);
 }

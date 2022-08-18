@@ -5,6 +5,9 @@ using Microsoft.AspNetCore.Authorization.Infrastructure;
 
 namespace GraphQL.Server.Authorization.AspNetCore;
 
+/// <summary>
+/// Default error message builder implementation.
+/// </summary>
 [Obsolete("This class will be removed in v8 as revealing authorization requirements may be a security risk; please use ErrorInfoProvider if you require detailed access-denied error messages.")]
 public class DefaultAuthorizationErrorMessageBuilder : IAuthorizationErrorMessageBuilder
 {
@@ -40,71 +43,71 @@ public class DefaultAuthorizationErrorMessageBuilder : IAuthorizationErrorMessag
     }
 
     /// <inheritdoc />
-    public virtual void AppendFailureHeader(StringBuilder error, OperationType? operationType)
+    public virtual void AppendFailureHeader(StringBuilder errorBuilder, OperationType? operationType)
     {
-        error
+        errorBuilder
             .Append("You are not authorized to run this ")
             .Append(GetOperationType(operationType))
             .Append('.');
     }
 
     /// <inheritdoc />
-    public virtual void AppendFailureLine(StringBuilder error, IAuthorizationRequirement authorizationRequirement)
+    public virtual void AppendFailureLine(StringBuilder errorBuilder, IAuthorizationRequirement authorizationRequirement)
     {
-        error.AppendLine();
+        errorBuilder.AppendLine();
 
         switch (authorizationRequirement)
         {
             case ClaimsAuthorizationRequirement claimsAuthorizationRequirement:
-                error.Append("Required claim '");
-                error.Append(claimsAuthorizationRequirement.ClaimType);
+                errorBuilder.Append("Required claim '");
+                errorBuilder.Append(claimsAuthorizationRequirement.ClaimType);
                 if (claimsAuthorizationRequirement.AllowedValues == null || !claimsAuthorizationRequirement.AllowedValues.Any())
                 {
-                    error.Append("' is not present.");
+                    errorBuilder.Append("' is not present.");
                 }
                 else
                 {
-                    error.Append("' with any value of '");
-                    error.Append(string.Join(", ", claimsAuthorizationRequirement.AllowedValues));
-                    error.Append("' is not present.");
+                    errorBuilder.Append("' with any value of '");
+                    errorBuilder.Append(string.Join(", ", claimsAuthorizationRequirement.AllowedValues));
+                    errorBuilder.Append("' is not present.");
                 }
                 break;
 
             case DenyAnonymousAuthorizationRequirement _:
-                error.Append("The current user must be authenticated.");
+                errorBuilder.Append("The current user must be authenticated.");
                 break;
 
             case NameAuthorizationRequirement nameAuthorizationRequirement:
-                error.Append("The current user name must match the name '");
-                error.Append(nameAuthorizationRequirement.RequiredName);
-                error.Append("'.");
+                errorBuilder.Append("The current user name must match the name '");
+                errorBuilder.Append(nameAuthorizationRequirement.RequiredName);
+                errorBuilder.Append("'.");
                 break;
 
             case OperationAuthorizationRequirement operationAuthorizationRequirement:
-                error.Append("Required operation '");
-                error.Append(operationAuthorizationRequirement.Name);
-                error.Append("' was not present.");
+                errorBuilder.Append("Required operation '");
+                errorBuilder.Append(operationAuthorizationRequirement.Name);
+                errorBuilder.Append("' was not present.");
                 break;
 
             case RolesAuthorizationRequirement rolesAuthorizationRequirement:
                 if (rolesAuthorizationRequirement.AllowedRoles == null || !rolesAuthorizationRequirement.AllowedRoles.Any())
                 {
                     // This should never happen.
-                    error.Append("Required roles are not present.");
+                    errorBuilder.Append("Required roles are not present.");
                 }
                 else
                 {
-                    error.Append("Required roles '");
-                    error.Append(string.Join(", ", rolesAuthorizationRequirement.AllowedRoles));
-                    error.Append("' are not present.");
+                    errorBuilder.Append("Required roles '");
+                    errorBuilder.Append(string.Join(", ", rolesAuthorizationRequirement.AllowedRoles));
+                    errorBuilder.Append("' are not present.");
                 }
                 break;
 
             case AssertionRequirement _:
             default:
-                error.Append("Requirement '");
-                error.Append(authorizationRequirement.GetType().Name);
-                error.Append("' was not satisfied.");
+                errorBuilder.Append("Requirement '");
+                errorBuilder.Append(authorizationRequirement.GetType().Name);
+                errorBuilder.Append("' was not satisfied.");
                 break;
         }
     }

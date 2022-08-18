@@ -4,6 +4,7 @@
   <PropertyGroup>
     <SingleTestPlatform Condition="'$(SingleTestPlatform)' == ''">false</SingleTestPlatform>
     <NoWarn>$(NoWarn);IDE0017</NoWarn>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>

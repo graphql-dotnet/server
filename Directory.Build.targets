@@ -6,6 +6,10 @@
     <Exclude>[GraphQL.Samples.Schemas.Chat]*,[GraphQL.Samples.Server]*</Exclude>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(OutputType)' == 'Exe'">
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  
   <PropertyGroup Condition="'$(IsPackable)' != 'true'">
     <NoWarn>$(NoWarn);CS1591;IDE1006;IDE0053;CS1998</NoWarn>
     <WarningsNotAsErrors>$(WarningsNotAsErrors);IDE0060</WarningsNotAsErrors>
