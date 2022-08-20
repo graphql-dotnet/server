@@ -713,7 +713,7 @@ you will need to perform the following:
 There exists a few additional classes to support the above.  Please refer to the source code
 of `GraphQLWs.SubscriptionServer` if you are attempting to add support for another protocol.
 
-## Additional notes
+## Additional notes / FAQ
 
 ### Service scope
 
@@ -763,6 +763,29 @@ are rejected over HTTP GET connections.  Derive from `GraphQLHttpMiddleware` and
 `ExecuteRequestAsync` to prevent injection of the validation rules that enforce this behavior.
 
 As would be expected, subscription requests are only allowed over WebSocket channels.
+
+### File uploading/downloading
+
+A common question is how to upload or download files attached to GraphQL data.
+For instance, storing and retrieving photographs attached to product data.
+
+One common technique is to encode the data as Base64 and transmitting as a custom
+GraphQL scalar (encoded as a string value within the JSON transport).
+This may not be ideal, but works well for smaller files.  It can also couple with
+response compression (details listed above) to reduce the impact of the Base64
+encoding.
+
+Another technique is to get or store the data out-of-band.  For responses, this can
+be as simple as a Uri pointing to a location to retrieve the data, especially if
+the data are photographs used in a SPA client application.  This may have additional
+security complications, especially when used with JWT bearer authentication.
+This answer often works well for GraphQL queries, but may not be desired during
+uploads (mutations).
+
+An option for uploading is to upload file data alongside a mutation with the `multipart/form-data`
+content type.  Please see [Issue 307](https://github.com/graphql-dotnet/server/issues/307) and
+[FileUploadTests.cs](https://github.com/graphql-dotnet/server/blob/master/tests/Transports.AspNetCore.Tests/Middleware/FileUploadTests.cs)
+for discussion and demonstration of this capability.
 
 ## Samples
 
