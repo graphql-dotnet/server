@@ -769,22 +769,22 @@ As would be expected, subscription requests are only allowed over WebSocket chan
 A common question is how to upload or download files attached to GraphQL data.
 For instance, storing and retrieving photographs attached to product data.
 
-One common technique is to encode the data as base-64 and transmitting as a custom
+One common technique is to encode the data as Base64 and transmitting as a custom
 GraphQL scalar (encoded as a string value within the JSON transport).
 This may not be ideal, but works well for smaller files.  It can also couple with
-response compression (details listed above) to reduce the impact of the base-64
+response compression (details listed above) to reduce the impact of the Base64
 encoding.
 
 Another technique is to get or store the data out-of-band.  For responses, this can
 be as simple as a Uri pointing to a location to retrieve the data, especially if
 the data are photographs used in a SPA client application.  This may have additional
-security complications, espeically when used with JWT bearer authentication.
+security complications, especially when used with JWT bearer authentication.
 This answer often works well for GraphQL queries, but may not be desired during
 uploads (mutations).
 
 An option for uploading is to upload file data alongside a mutation with the `multipart/form-data`
 content type.  Please see [Issue 307](https://github.com/graphql-dotnet/server/issues/307) and
-[FileUploadTests.cs](https://github.com/graphql-dotnet/server/blob/develop/tests/Transports.AspNetCore.Tests/Middleware/FileUploadTests.cs)
+[FileUploadTests.cs](https://github.com/graphql-dotnet/server/blob/master/tests/Transports.AspNetCore.Tests/Middleware/FileUploadTests.cs)
 for discussion and demonstration of this capability.
 
 ## Samples
