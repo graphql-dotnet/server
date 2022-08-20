@@ -9,10 +9,10 @@ public class OAuthController : Controller
     [HttpGet]
     [HttpPost]
     [Route("token")]
-    public IActionResult Token(string grant_type, string client_id, string client_secret)
+    public IActionResult Token([Bind(Prefix = "grant_type")] string grantType, [Bind(Prefix = "client_id")] string clientId, [Bind(Prefix = "client_secret")] string clientSecret)
     {
         // validate the provided client id and client secret
-        if (grant_type == "client_credentials" && client_id == "sampleClientId" && client_secret == "sampleSecret")
+        if (grantType == "client_credentials" && clientId == "sampleClientId" && clientSecret == "sampleSecret")
         {
             // provide a signed JWT token with an 'Administrator' role claim
             var token = JwtHelper.Instance.CreateSignedToken(new Claim("role", "Administrator"));

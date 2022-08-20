@@ -1,6 +1,6 @@
 namespace Tests.WebSockets;
 
-public class ReusableMemoryReaderStreamTests
+public sealed class ReusableMemoryReaderStreamTests : IDisposable
 {
     private readonly byte[] _buffer = new byte[] { 1, 2, 3, 4, 5 };
     private readonly ReusableMemoryReaderStream _stream;
@@ -9,6 +9,8 @@ public class ReusableMemoryReaderStreamTests
     {
         _stream = new ReusableMemoryReaderStream(_buffer);
     }
+
+    public void Dispose() => _stream.Dispose();
 
     [Fact]
     public void Constructor()

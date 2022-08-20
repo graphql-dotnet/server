@@ -97,7 +97,7 @@ public class ValidationTestBase : IDisposable
         }).GetAwaiter().GetResult().validationResult;
     }
 
-    protected ClaimsPrincipal CreatePrincipal(string authenticationType = "Bearer", IDictionary<string, string> claims = null)
+    protected static ClaimsPrincipal CreatePrincipal(string authenticationType = "Bearer", IDictionary<string, string> claims = null)
     {
         var claimsList = new List<Claim>();
 

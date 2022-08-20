@@ -16,5 +16,5 @@ public class ValidationTestConfig
 
     public Inputs Variables { get; set; }
 
-    public Action<IValidationResult> ValidateResult = _ => { };
+    public Action<IValidationResult> ValidateResult { get; set; } = _ => { };
 }

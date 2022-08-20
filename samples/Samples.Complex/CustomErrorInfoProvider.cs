@@ -21,7 +21,7 @@ public class CustomErrorInfoProvider : ErrorInfoProvider
         return info;
     }
 
-    private string GetAuthorizationErrorMessage(AccessDeniedError error)
+    private static string GetAuthorizationErrorMessage(AccessDeniedError error)
     {
         var errorMessage = new StringBuilder();
         errorMessage.Append(error.Message);

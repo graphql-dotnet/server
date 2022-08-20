@@ -502,7 +502,7 @@ public class AuthorizationTests
         ret.IsValid.ShouldBeFalse();
     }
 
-    private void Apply(IProvideMetadata obj, Mode mode)
+    private static void Apply(IProvideMetadata obj, Mode mode)
     {
         switch (mode)
         {

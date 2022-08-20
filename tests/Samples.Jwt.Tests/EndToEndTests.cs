@@ -133,7 +133,7 @@ public class EndToEndTests : IDisposable
         return await ProcessOAuthResponseAsync(response);
     }
 
-    private async Task<string> ProcessOAuthResponseAsync(HttpResponseMessage response)
+    private static async Task<string> ProcessOAuthResponseAsync(HttpResponseMessage response)
     {
         response.EnsureSuccessStatusCode();
         var str = await response.Content.ReadAsStringAsync();

@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Tests.Middleware;
 
-public class AuthorizationTests
+public class AuthorizationTests : IDisposable
 {
     private GraphQLHttpMiddlewareOptions _options = null!;
     private bool _enableCustomErrorInfoProvider;
@@ -62,7 +62,9 @@ public class AuthorizationTests
         _server = new TestServer(hostBuilder);
     }
 
-    private string CreateJwtToken()
+    public void Dispose() => _server.Dispose();
+
+    private static string CreateJwtToken()
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var token = new JwtSecurityToken(issuer: "test", claims: new Claim[] {

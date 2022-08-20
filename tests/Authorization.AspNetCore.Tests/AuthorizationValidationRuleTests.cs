@@ -311,6 +311,7 @@ Required claim 'admin' is not present.");
     public class BasicQueryWithAttributesAndClassPolicy
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "for tests")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "for tests")]
         public string Post(string id) => "";
     }
 
@@ -319,6 +320,7 @@ Required claim 'admin' is not present.");
     {
         [Authorize("FieldPolicy")]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "for tests")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "for tests")]
         public string Post(string id) => "";
     }
 
@@ -329,7 +331,7 @@ Required claim 'admin' is not present.");
         public string Post { get; set; } = "";
     }
 
-    private ISchema NestedSchema()
+    private static ISchema NestedSchema()
     {
         string defs = @"
                 type Query {
@@ -354,10 +356,13 @@ Required claim 'admin' is not present.");
     public class NestedQueryWithAttributes
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "for tests")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "for tests")]
         public Post Post(string id) => null;
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "for tests")]
         public IEnumerable<Post> Posts() => null;
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "for tests")]
         public IEnumerable<Post> PostsNonNull() => null;
     }
 
@@ -380,7 +385,7 @@ Required claim 'admin' is not present.");
         public string Name { get; set; }
     }
 
-    private ISchema TypedSchema()
+    private static ISchema TypedSchema()
     {
         var query = new ObjectGraphType();
 

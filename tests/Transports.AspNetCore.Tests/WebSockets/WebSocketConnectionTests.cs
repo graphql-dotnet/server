@@ -326,7 +326,7 @@ public class WebSocketConnectionTests : IDisposable
         await _connection.ExecuteAsync(mockReceiveStream.Object);
     }
 
-    private byte[] DummyData(int length)
+    private static byte[] DummyData(int length)
     {
         var data = new byte[length];
         byte j = (byte)(length % 256);
@@ -651,7 +651,7 @@ public class WebSocketConnectionTests : IDisposable
         _mockWebSocket.Verify();
     }
 
-    private byte[] StreamToArray(Stream stream)
+    private static byte[] StreamToArray(Stream stream)
     {
         var s = new MemoryStream();
         stream.CopyTo(s);

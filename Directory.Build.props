@@ -11,6 +11,7 @@
     <Product>graphql-dotnet server</Product>
     <Company>graphql-dotnet</Company>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryType>git</RepositoryType>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <Deterministic>true</Deterministic>
@@ -22,8 +23,8 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisMode>Recommended</AnalysisMode>
     <Nullable>enable</Nullable>
-    <IsPackable>true</IsPackable>
     <NoWarn>$(NoWarn);IDE0056;IDE0057</NoWarn> <!-- Index/Range operators -->
 
     <AssemblyName>GraphQL.Server.$(MSBuildProjectName)</AssemblyName>

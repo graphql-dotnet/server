@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
-    <WarningsNotAsErrors>CS8618</WarningsNotAsErrors>
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);8618</WarningsNotAsErrors>
   </PropertyGroup>
 
   <ItemGroup>
