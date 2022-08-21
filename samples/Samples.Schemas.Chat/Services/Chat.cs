@@ -20,7 +20,7 @@ public class Chat : IChat
     public IEnumerable<Message> GetMessageFromUser(string from)
     {
         lock (_messages)
-            return _messages.Where(x => string.Equals(x.From, from, StringComparison.Ordinal)).ToList();
+            return _messages.Where(x => string.Equals(x.From, from, StringComparison.OrdinalIgnoreCase)).ToList();
     }
 
     public Message PostMessage(MessageInput message)
