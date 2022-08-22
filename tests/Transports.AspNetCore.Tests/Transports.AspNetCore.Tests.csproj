@@ -11,10 +11,6 @@
     <TargetFrameworks>net6</TargetFrameworks>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <NoWarn>$(NoWarn);CA1835</NoWarn>
-  </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="GraphQL.SystemTextJson" Version="$(GraphQLVersion)" />
   </ItemGroup>
