@@ -1,0 +1,13 @@
+<Project>
+
+  <PropertyGroup>
+    <NoWarn>$(NoWarn);CA1707;CA1848</NoWarn>
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);8618;CA1716</WarningsNotAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Using Include="GraphQL" />
+    <Using Include="GraphQL.Types" />
+  </ItemGroup>
+
+</Project>

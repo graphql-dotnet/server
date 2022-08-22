@@ -1,6 +1,5 @@
 using AuthorizationSample.Data;
 using AuthorizationSample.Schema;
-using GraphQL;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 

@@ -3,7 +3,6 @@
 using System.Diagnostics;
 using GraphQL.Server.Transports.AspNetCore;
 using GraphQL.Transport;
-using GraphQL.Types;
 
 namespace GraphQL.Samples.Complex;
 

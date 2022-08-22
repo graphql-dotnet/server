@@ -15,6 +15,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".Solution Items", ".Solutio
 		graphql.snk = graphql.snk
 		LICENSE.md = LICENSE.md
 		README.md = README.md
+		Samples.props = Samples.props
 		Tests.props = Tests.props
 	EndProjectSection
 EndProject

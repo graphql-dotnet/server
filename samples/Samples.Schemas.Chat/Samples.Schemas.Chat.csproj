@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../../Samples.props" />
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <WarningsNotAsErrors>$(WarningsNotAsErrors);8618;CA1716</WarningsNotAsErrors>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
@@ -12,9 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Using Include="GraphQL" />
     <Using Include="GraphQL.Samples.Schemas.Chat" />
-    <Using Include="GraphQL.Types" />
   </ItemGroup>
 
 </Project>
