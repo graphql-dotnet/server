@@ -329,7 +329,7 @@ Required claim 'admin' is not present.");
         public string Post { get; set; } = "";
     }
 
-    private static ISchema NestedSchema()
+    private ISchema NestedSchema()
     {
         string defs = @"
                 type Query {
@@ -380,7 +380,7 @@ Required claim 'admin' is not present.");
         public string Name { get; set; }
     }
 
-    private static ISchema TypedSchema()
+    private ISchema TypedSchema()
     {
         var query = new ObjectGraphType();
 

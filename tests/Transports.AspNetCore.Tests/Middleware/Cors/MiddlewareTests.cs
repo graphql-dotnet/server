@@ -5,7 +5,7 @@ namespace Tests.Middleware.Cors;
 
 public class MiddlewareTests
 {
-    public static async Task<CorsResponse> ExecuteMiddleware(
+    public async Task<CorsResponse> ExecuteMiddleware(
         HttpMethod method,
         Action<CorsPolicyBuilder>? configureCorsPolicy,
         Action<GraphQLHttpMiddlewareOptions> configureGraphQl,
