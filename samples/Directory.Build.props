@@ -3,8 +3,8 @@
   <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
 
   <PropertyGroup>
-    <NoWarn>$(NoWarn);IDE0053;1591;CA1707;CA1848</NoWarn>
-    <WarningsNotAsErrors>$(WarningsNotAsErrors);8618;CA1716</WarningsNotAsErrors>
+    <NoWarn>$(NoWarn);IDE0053;CS1591;CA1707;CA1848</NoWarn>
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);CS8618;CA1716</WarningsNotAsErrors>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 

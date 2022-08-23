@@ -68,7 +68,7 @@ public class AuthorizationHelperTests
         ret.ShouldBe(expected);
 
         bool ranHandler = false;
-        ret = await AuthorizationHelper.AuthorizeAsync(new AuthorizationParameters<object?>(mockContext.Object, options, _ => { ranHandler = true; return Task.CompletedTask; }, null, null), null);
+        ret = await AuthorizationHelper.AuthorizeAsync(new AuthorizationParameters<object?>(mockContext.Object, options, async _ => ranHandler = true, null, null), null);
         ret.ShouldBe(expected);
         ranHandler.ShouldBe(!expected);
     }
@@ -91,7 +91,7 @@ public class AuthorizationHelperTests
         ret.ShouldBe(expected);
 
         bool ranHandler = false;
-        ret = await AuthorizationHelper.AuthorizeAsync(new AuthorizationParameters<object?>(mockContext.Object, options, null, _ => { ranHandler = true; return Task.CompletedTask; }, null), null);
+        ret = await AuthorizationHelper.AuthorizeAsync(new AuthorizationParameters<object?>(mockContext.Object, options, null, async _ => ranHandler = true, null), null);
         ret.ShouldBe(expected);
         ranHandler.ShouldBe(!expected);
     }
@@ -118,7 +118,7 @@ public class AuthorizationHelperTests
         ret.ShouldBe(expected);
 
         bool ranHandler = false;
-        ret = await AuthorizationHelper.AuthorizeAsync(new AuthorizationParameters<object?>(mockContext.Object, options, null, null, (_, _) => { ranHandler = true; return Task.CompletedTask; }), null);
+        ret = await AuthorizationHelper.AuthorizeAsync(new AuthorizationParameters<object?>(mockContext.Object, options, null, null, async (_, _) => ranHandler = true), null);
         ret.ShouldBe(expected);
         ranHandler.ShouldBe(!expected);
     }
