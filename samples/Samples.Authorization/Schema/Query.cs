@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using GraphQL;
 
 namespace AuthorizationSample.Schema;
 

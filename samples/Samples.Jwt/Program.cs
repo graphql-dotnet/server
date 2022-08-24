@@ -1,3 +1,4 @@
+using GraphQL;
 using GraphQL.Server.Samples.Jwt;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Chat = GraphQL.Samples.Schemas.Chat;

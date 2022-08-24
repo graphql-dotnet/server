@@ -1,3 +1,5 @@
+using GraphQL.Types;
+
 namespace MultipleSchema.Dogs;
 
 public class DogsSchema : Schema

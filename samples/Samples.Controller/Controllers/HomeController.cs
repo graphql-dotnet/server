@@ -1,5 +1,7 @@
+using GraphQL;
 using GraphQL.Server.Transports.AspNetCore;
 using GraphQL.Transport;
+using GraphQL.Types;
 using GraphQL.Validation;
 using Microsoft.AspNetCore.Mvc;
 

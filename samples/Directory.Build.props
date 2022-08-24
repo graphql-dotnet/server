@@ -8,9 +8,4 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Using Include="GraphQL" />
-    <Using Include="GraphQL.Types" />
-  </ItemGroup>
-
 </Project>

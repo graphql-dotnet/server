@@ -1,3 +1,4 @@
+using GraphQL;
 using Chat = GraphQL.Samples.Schemas.Chat;
 
 var builder = WebApplication.CreateBuilder(args);
