@@ -496,7 +496,7 @@ This is because `Newtonsoft.Json` is the default serializer for ASP.NET Core 2.1
 rather `System.Text.Json`.  When using `GraphQL.NewtonsoftJson`, you will need to call
 `AddNewtonsoftJson()` rather than `AddSystemTextJson()` while configuring GraphQL.NET.
 
-<details><summary>Support policy</summary><p>
+<details><summary>Microsoft support policy</summary><p>
 
 Please note that .NET Core 2.1 is currently out of support by Microsoft.
 .NET Framework 4.8 is supported, and ASP.NET Core 2.1 is supported when run on
