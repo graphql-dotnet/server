@@ -77,7 +77,7 @@ public class GetTests : IDisposable
     [InlineData("application/*+json; charset=utf-8", "application/graphql-response+json; charset=utf-8")]
     [InlineData("application/pdf", "application/graphql-response+json; charset=utf-8")]
     [InlineData("application/json; charset=utf-7", "application/json; charset=utf-8")]
-    public async Task MediaTypeParsesCorrectly(string mediaType, string expected)
+    public async Task AcceptHeaderHonored(string mediaType, string expected)
     {
         var client = _server.CreateClient();
         using var request = new HttpRequestMessage(HttpMethod.Get, "/graphql?query={count}");
