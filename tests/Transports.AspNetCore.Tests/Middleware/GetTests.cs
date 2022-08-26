@@ -65,6 +65,24 @@ public class GetTests : IDisposable
         await response.ShouldBeAsync(@"{""data"":{""count"":0}}");
     }
 
+    [Theory]
+    [InlineData("application/graphql+json", "application/graphql+json; charset=utf-8")]
+    [InlineData("application/json", "application/json; charset=utf-8")]
+    [InlineData("application/json; charset=utf-8", "application/json; charset=utf-8")]
+    [InlineData("application/json; charset=UTF-8", "application/json; charset=utf-8")]
+    [InlineData("APPLICATION/JSON", "application/json; charset=utf-8")]
+    [InlineData("APPLICATION/JSON; CHARSET=\"UTF-8\" ", "application/graphql+json; charset=utf-8")]
+    public async Task MediaTypeParsesCorrectly(string mediaType, string expected)
+    {
+        var client = _server.CreateClient();
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/graphql?query={count}");
+        request.Headers.Add("Accept", mediaType);
+        using var response = await client.SendAsync(request);
+        response.Headers.TryGetValues("Content-Type", out var contentTypeHeader).ShouldBeTrue();
+        contentTypeHeader.ShouldHaveSingleItem().ShouldBe(expected);
+        await response.ShouldBeAsync(@"{""data"":{""count"":0}}");
+    }
+
     [Fact]
     public async Task NoUseWebSockets()
     {

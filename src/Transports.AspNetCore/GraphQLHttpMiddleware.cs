@@ -1,5 +1,7 @@
 #pragma warning disable CA1716 // Identifiers should not match keywords
 
+using Microsoft.AspNetCore.Http;
+
 namespace GraphQL.Server.Transports.AspNetCore;
 
 /// <inheritdoc/>
@@ -54,7 +56,9 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
     private const string MEDIATYPE_GRAPHQLJSON = "application/graphql+json";
     private const string MEDIATYPE_JSON = "application/json";
     private const string MEDIATYPE_GRAPHQL = "application/graphql";
+    internal const string CONTENTTYPE_JSON = "application/json; charset=utf-8";
     internal const string CONTENTTYPE_GRAPHQLJSON = "application/graphql+json; charset=utf-8";
+    internal const string CONTENTTYPE_GRAPHQLRESPONSEJSON = "application/graphql-response+json; charset=utf-8";
 
     /// <summary>
     /// Initializes a new instance.
@@ -444,6 +448,16 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
     ValueTask<IDictionary<string, object?>?> IUserContextBuilder.BuildUserContextAsync(HttpContext context, object? payload)
         => BuildUserContextAsync(context, payload);
 
+    private static readonly (string MediaType, string ResponseType)[] _validMediaTypes = new[]
+    {
+        ("application/graphql-response+json", CONTENTTYPE_GRAPHQLRESPONSEJSON),
+        ("application/json", CONTENTTYPE_JSON),
+        ("application/graphql+json", CONTENTTYPE_GRAPHQLJSON),
+        ("*/*", CONTENTTYPE_GRAPHQLRESPONSEJSON),
+        ("application/*", CONTENTTYPE_GRAPHQLRESPONSEJSON),
+        ("application/*+json", CONTENTTYPE_GRAPHQLRESPONSEJSON),
+    };
+
     /// <summary>
     /// Selects a response content type string based on the <see cref="HttpContext"/>.
     /// Defaults to <see cref="CONTENTTYPE_GRAPHQLJSON"/>.  Override this value for compatibility
@@ -454,7 +468,23 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
     /// <see cref="WriteJsonResponseAsync{TResult}(HttpContext, HttpStatusCode, TResult)"/>.
     /// </summary>
     protected virtual string SelectResponseContentType(HttpContext context)
-        => CONTENTTYPE_GRAPHQLJSON;
+    {
+        var acceptHeaders = context.Request.GetTypedHeaders().Accept;
+        if (acceptHeaders != null)
+        {
+            for (int i = 0; i < acceptHeaders.Count; i++)
+            {
+                for (int j = 0; j < _validMediaTypes.Length; j++)
+                {
+                    var (mediaType, responseType) = _validMediaTypes[j];
+                    if (acceptHeaders[i].MediaType.Equals(mediaType, StringComparison.OrdinalIgnoreCase))
+                        return responseType;
+                }
+            }
+        }
+
+        return CONTENTTYPE_GRAPHQLRESPONSEJSON;
+    }
 
     /// <summary>
     /// Writes the specified object (usually a GraphQL response represented as an instance of <see cref="ExecutionResult"/>) as JSON to the HTTP response stream.
