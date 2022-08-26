@@ -13,7 +13,7 @@ internal static class ShouldlyExtensions
     public static async Task ShouldBeAsync(this HttpResponseMessage message, HttpStatusCode httpStatusCode, string expectedResponse)
     {
         message.StatusCode.ShouldBe(httpStatusCode);
-        message.Content.Headers.ContentType?.MediaType.ShouldBe("application/graphql+json");
+        message.Content.Headers.ContentType?.MediaType.ShouldBe("application/graphql-response+json");
         message.Content.Headers.ContentType?.CharSet.ShouldBe("utf-8");
         var actualResponse = await message.Content.ReadAsStringAsync();
         actualResponse.ShouldBe(expectedResponse);
