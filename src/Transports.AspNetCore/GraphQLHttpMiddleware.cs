@@ -454,7 +454,7 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
     /// <see cref="WriteJsonResponseAsync{TResult}(HttpContext, HttpStatusCode, TResult)"/>.
     /// </summary>
     protected virtual string SelectResponseContentType(HttpContext context)
-        => CONTENTTYPE_GRAPHQLJSON;
+        => _options.ResponseContentType;
 
     /// <summary>
     /// Writes the specified object (usually a GraphQL response represented as an instance of <see cref="ExecutionResult"/>) as JSON to the HTTP response stream.

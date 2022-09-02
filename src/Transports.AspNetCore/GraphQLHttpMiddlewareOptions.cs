@@ -93,4 +93,9 @@ public class GraphQLHttpMiddlewareOptions : IAuthorizationOptions
     /// Returns an options class for WebSocket connections.
     /// </summary>
     public GraphQLWebSocketOptions WebSockets { get; set; } = new();
+
+    /// <summary>
+    /// The Content-Type to use for GraphQL responses
+    /// </summary>
+    public string ResponseContentType { get; set; } = GraphQLHttpMiddleware.CONTENTTYPE_GRAPHQLJSON;
 }
