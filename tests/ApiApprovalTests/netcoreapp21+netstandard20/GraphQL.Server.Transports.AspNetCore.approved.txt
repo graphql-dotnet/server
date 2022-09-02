@@ -116,6 +116,7 @@ namespace GraphQL.Server.Transports.AspNetCore
         public bool ReadExtensionsFromQueryString { get; set; }
         public bool ReadQueryStringOnPost { get; set; }
         public bool ReadVariablesFromQueryString { get; set; }
+        public string ResponseContentType { get; set; }
         public bool ValidationErrorsReturnBadRequest { get; set; }
         public GraphQL.Server.Transports.AspNetCore.WebSockets.GraphQLWebSocketOptions WebSockets { get; set; }
     }

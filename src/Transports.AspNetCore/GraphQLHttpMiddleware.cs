@@ -483,7 +483,7 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
             }
         }
 
-        return CONTENTTYPE_GRAPHQLRESPONSEJSON;
+        return _options.ResponseContentType;
     }
 
     /// <summary>
