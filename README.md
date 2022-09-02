@@ -458,14 +458,14 @@ follows:
 builder.Services.AddResponseCompression(options =>
 {
     options.EnableForHttps = true; // may lead to CRIME and BREACH attacks
-    options.MimeTypes = new[] { "application/json", "application/graphql+json" };
+    options.MimeTypes = new[] { "application/json", "application/graphql-response+json" };
 })
 
 // place this first/early in the pipeline
 app.UseResponseCompression();
 ```
 
-In order to compress GraphQL responses, the `application/graphql+json` content type must be
+In order to compress GraphQL responses, the `application/graphql-response+json` content type must be
 added to the `MimeTypes` option.  You may choose to enable other content types as well.
 
 Please note that enabling response compression over HTTPS can lead to CRIME and BREACH
@@ -672,7 +672,7 @@ A list of methods are as follows:
 | `HandleWebSocketSubProtocolNotSupportedAsync` | Writes a '400 Invalid WebSocket sub-protocol.' message to the output. |
 
 Below is a sample of custom middleware to change the response content type to `application/json`,
-rather than the default of `application/graphql+json`:
+rather than the default of `application/graphql-response+json`:
 
 ```csharp
 class MyMiddleware<TSchema> : GraphQLHttpMiddleware<TSchema>

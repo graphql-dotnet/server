@@ -15,7 +15,7 @@ internal static class TestServerExtensions
     {
         var client = server.CreateClient();
         var data = System.Text.Json.JsonSerializer.Serialize(new { query = query, variables = variables });
-        var content = new StringContent(data, Encoding.UTF8, "application/graphql+json");
+        using var content = new StringContent(data, Encoding.UTF8, "application/json");
         using var response = await client.PostAsync(url, content);
         response.EnsureSuccessStatusCode();
         var str = await response.Content.ReadAsStringAsync();
