@@ -101,6 +101,7 @@ namespace GraphQL.Server.Transports.AspNetCore
         public bool AuthorizationRequired { get; set; }
         public string? AuthorizedPolicy { get; set; }
         public System.Collections.Generic.List<string> AuthorizedRoles { get; set; }
+        public Microsoft.Net.Http.Headers.MediaTypeHeaderValue DefaultResponseContentType { get; set; }
         public bool EnableBatchedRequests { get; set; }
         public bool ExecuteBatchedRequestsInParallel { get; set; }
         public bool HandleGet { get; set; }
@@ -109,7 +110,6 @@ namespace GraphQL.Server.Transports.AspNetCore
         public bool ReadExtensionsFromQueryString { get; set; }
         public bool ReadQueryStringOnPost { get; set; }
         public bool ReadVariablesFromQueryString { get; set; }
-        public string ResponseContentType { get; set; }
         public bool ValidationErrorsReturnBadRequest { get; set; }
         public GraphQL.Server.Transports.AspNetCore.WebSockets.GraphQLWebSocketOptions WebSockets { get; set; }
     }
