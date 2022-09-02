@@ -478,43 +478,51 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
         if (acceptHeaders != null)
         {
             // enumerate through each content type and see if it matches a supported content type
-            for (int i = 0; i < acceptHeaders.Count; i++)
+            // give priority to specific types, then to types with wildcards
+            foreach (var acceptHeader in acceptHeaders.OrderBy(x => x.MatchesAllTypes ? 4 : x.MatchesAllSubTypes ? 3 : x.MatchesAllSubTypesWithoutSuffix ? 2 : 1))
             {
-                // pull the Accept header to be checked
-                var acceptHeader = acceptHeaders[i];
-
-                // strip quotes from charset
-                if (acceptHeader.Charset.Length > 0 && acceptHeader.Charset[0] == '\"' && acceptHeader.Charset[acceptHeader.Charset.Length - 1] == '\"')
-                {
-                    acceptHeader.Charset = acceptHeader.Charset.Substring(1, acceptHeader.Charset.Length - 2);
-                }
-
-                // check if this matches the default content type header
-                if (IsSubsetOf(_options.DefaultResponseContentType, acceptHeader))
-                    return _options.DefaultResponseContentType.ToString();
-
-                // if the default content type header does not contain a charset, test with utf-8 as the charset
-                if (_options.DefaultResponseContentType.Charset.Length == 0)
-                {
-                    var contentType2 = _options.DefaultResponseContentType.Copy();
-                    contentType2.Charset = "utf-8";
-                    if (IsSubsetOf(contentType2, acceptHeader))
-                        return contentType2.ToString();
-                }
-
-                // loop through the other supported media types, attempting to find a match
-                for (int j = 0; j < _validMediaTypes.Length; j++)
-                {
-                    var mediaType = _validMediaTypes[j];
-                    if (IsSubsetOf(mediaType, acceptHeader))
-                        // when a match is found, return the match
-                        return mediaType.ToString();
-                }
+                var response = CheckForMatch(acceptHeader);
+                if (response != null)
+                    return response;
             }
         }
 
         // return the default content type if no match is found, or if there is no 'Accept' header
         return _options.DefaultResponseContentType.ToString();
+
+        string? CheckForMatch(MediaTypeHeaderValueMs acceptHeader)
+        {
+            // strip quotes from charset
+            if (acceptHeader.Charset.Length > 0 && acceptHeader.Charset[0] == '\"' && acceptHeader.Charset[acceptHeader.Charset.Length - 1] == '\"')
+            {
+                acceptHeader.Charset = acceptHeader.Charset.Substring(1, acceptHeader.Charset.Length - 2);
+            }
+
+            // check if this matches the default content type header
+            if (IsSubsetOf(_options.DefaultResponseContentType, acceptHeader))
+                return _options.DefaultResponseContentType.ToString();
+
+            // if the default content type header does not contain a charset, test with utf-8 as the charset
+            if (_options.DefaultResponseContentType.Charset.Length == 0)
+            {
+                var contentType2 = _options.DefaultResponseContentType.Copy();
+                contentType2.Charset = "utf-8";
+                if (IsSubsetOf(contentType2, acceptHeader))
+                    return contentType2.ToString();
+            }
+
+            // loop through the other supported media types, attempting to find a match
+            for (int j = 0; j < _validMediaTypes.Length; j++)
+            {
+                var mediaType = _validMediaTypes[j];
+                if (IsSubsetOf(mediaType, acceptHeader))
+                    // when a match is found, return the match
+                    return mediaType.ToString();
+            }
+
+            // no match
+            return null;
+        }
 
         // --- note: the below functions were copied from ASP.NET Core 2.1 source ---
         // see https://github.com/dotnet/aspnetcore/blob/v2.1.33/src/Http/Headers/src/MediaTypeHeaderValue.cs
