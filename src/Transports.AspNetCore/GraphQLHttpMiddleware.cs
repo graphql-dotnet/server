@@ -54,11 +54,11 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
     private const string VARIABLES_KEY = "variables";
     private const string EXTENSIONS_KEY = "extensions";
     private const string OPERATION_NAME_KEY = "operationName";
-    private const string MEDIATYPE_GRAPHQLJSON = "application/graphql+json";
+    private const string MEDIATYPE_GRAPHQLJSON = "application/graphql+json"; // deprecated
     private const string MEDIATYPE_JSON = "application/json";
     private const string MEDIATYPE_GRAPHQL = "application/graphql";
     internal const string CONTENTTYPE_JSON = "application/json; charset=utf-8";
-    internal const string CONTENTTYPE_GRAPHQLJSON = "application/graphql+json; charset=utf-8";
+    internal const string CONTENTTYPE_GRAPHQLJSON = "application/graphql+json; charset=utf-8"; // deprecated
     internal const string CONTENTTYPE_GRAPHQLRESPONSEJSON = "application/graphql-response+json; charset=utf-8";
 
     /// <summary>
@@ -200,7 +200,7 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
 
         switch (mediaType?.ToLowerInvariant())
         {
-            case MEDIATYPE_GRAPHQLJSON:
+            case MEDIATYPE_GRAPHQLJSON: // deprecated
             case MEDIATYPE_JSON:
                 IList<GraphQLRequest?>? deserializationResult;
                 try
@@ -453,7 +453,7 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
     {
         MediaTypeHeaderValueMs.Parse(CONTENTTYPE_GRAPHQLRESPONSEJSON),
         MediaTypeHeaderValueMs.Parse(CONTENTTYPE_JSON),
-        MediaTypeHeaderValueMs.Parse(CONTENTTYPE_GRAPHQLJSON),
+        MediaTypeHeaderValueMs.Parse(CONTENTTYPE_GRAPHQLJSON), // deprecated
     };
 
     /// <summary>
