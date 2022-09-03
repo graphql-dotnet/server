@@ -537,6 +537,7 @@ methods allowing for different options for each configured endpoint.
 | `AuthorizationRequired`            | Requires `HttpContext.User` to represent an authenticated user. | False |
 | `AuthorizedPolicy`                 | If set, requires `HttpContext.User` to pass authorization of the specified policy. | |
 | `AuthorizedRoles`                  | If set, requires `HttpContext.User` to be a member of any one of a list of roles. | |
+| `DefaultResponseContentType`       | Sets the default response content type used within responses. | `application/graphql-response+json; charset=utf-8` |
 | `EnableBatchedRequests`            | Enables handling of batched GraphQL requests for POST requests when formatted as JSON. | True |
 | `ExecuteBatchedRequestsInParallel` | Enables parallel execution of batched GraphQL requests. | True |
 | `HandleGet`                        | Enables handling of GET requests. | True |
@@ -672,7 +673,7 @@ A list of methods are as follows:
 | `HandleWebSocketSubProtocolNotSupportedAsync` | Writes a '400 Invalid WebSocket sub-protocol.' message to the output. |
 
 Below is a sample of custom middleware to change the response content type to `application/json`,
-rather than the default of `application/graphql-response+json`:
+regardless of the value of the HTTP 'Accept' header or default value set in the options:
 
 ```csharp
 class MyMiddleware<TSchema> : GraphQLHttpMiddleware<TSchema>

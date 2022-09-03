@@ -6,7 +6,7 @@
 
 - Configuration simplified to a single line of code
 - Single middleware to support GET, POST and WebSocket connections (configurable)
-- Media type of 'application/graphql-response+json' is accepted and returned as recommended by the draft spec (configurable via virtual method)
+- Media type of 'application/graphql-response+json' is returned as recommended by the draft spec (configurable)
 - Batched requests will execute in parallel within separate service scopes (configurable)
 - Authorization rules can be set on endpoints, regardless of schema configuration
 - Mutation requests are disallowed over GET connections, as required by the spec
@@ -188,26 +188,16 @@ app.UseGraphQL<MySchema>("/graphqlsubscription", o => {
 <details><summary>To retain prior media type of `application/json`</summary><p>
 
 ```csharp
-class MyMiddleware<TSchema> : GraphQLHttpMiddleware<TSchema>
-    where TSchema : ISchema
-{
-    public MyMiddleware(
-        RequestDelegate next,
-        IGraphQLTextSerializer serializer,
-        IDocumentExecuter<TSchema> documentExecuter,
-        IServiceScopeFactory serviceScopeFactory,
-        GraphQLHttpMiddlewareOptions options,
-        IHostApplicationLifetime hostApplicationLifetime)
-        : base(next, serializer, documentExecuter, serviceScopeFactory, options, hostApplicationLifetime)
-    {
-    }
+// with no charset specified
+app.UseGraphQL("/graphql", o => o.DefaultResponseContentType = new("application/json"));
 
-    protected override string SelectResponseContentType(HttpContext context)
-        => "application/json";
-}
-
-app.UseGraphQL<MyMiddleware<ISchema>>("/graphql", new GraphQLHttpMiddlewareOptions());
+// with utf-8 charset specified
+app.UseGraphQL("/graphql", o => o.DefaultResponseContentType = new("application/json") { Charset = "utf-8" });
 ```
+
+Note that if a request is received with a specific supported media type such as `application/graphql-response+json`,
+then the supported media type will be returned rather than the default.  Override the `SelectResponseContentType`
+method within the middleware for more precise control of the Content-Type header in the response.
 
 </p></details>
 

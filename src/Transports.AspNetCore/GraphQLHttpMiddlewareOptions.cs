@@ -1,3 +1,5 @@
+using MediaTypeHeaderValueMs = Microsoft.Net.Http.Headers.MediaTypeHeaderValue;
+
 namespace GraphQL.Server.Transports.AspNetCore;
 
 /// <summary>
@@ -95,7 +97,8 @@ public class GraphQLHttpMiddlewareOptions : IAuthorizationOptions
     public GraphQLWebSocketOptions WebSockets { get; set; } = new();
 
     /// <summary>
-    /// The Content-Type to use for GraphQL responses
+    /// The Content-Type to use for GraphQL responses, if it matches the 'Accept'
+    /// HTTP request header. Defaults to "application/graphql-response+json; charset=utf-8".
     /// </summary>
-    public string ResponseContentType { get; set; } = GraphQLHttpMiddleware.CONTENTTYPE_GRAPHQLJSON;
+    public MediaTypeHeaderValueMs DefaultResponseContentType { get; set; } = MediaTypeHeaderValueMs.Parse(GraphQLHttpMiddleware.CONTENTTYPE_GRAPHQLRESPONSEJSON);
 }
