@@ -62,7 +62,7 @@ public class ExecutionResultActionResultTests : IDisposable
     public async Task AltContentType()
     {
         using var httpClient = _server.CreateClient();
-        var request = new HttpRequestMessage(HttpMethod.Get, "/graphql?query={count}&jsonType=true");
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/graphql?query={count}&jsonType=true");
         var response = await httpClient.SendAsync(request);
         response.EnsureSuccessStatusCode();
         var contentType = response.Content.Headers.ContentType;
