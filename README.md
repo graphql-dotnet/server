@@ -349,7 +349,7 @@ class MyAuthService : IWebSocketAuthenticationService
 {
     private readonly IGraphQLSerializer _serializer;
 
-    public MyWSAuthService(IGraphQLSerializer serializer)
+    public MyAuthService(IGraphQLSerializer serializer)
     {
         _serializer = serializer;
     }
