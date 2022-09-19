@@ -23,7 +23,7 @@ public sealed class ExecutionResultActionResult : IActionResult
     }
 
     /// <inheritdoc cref="HttpResponse.ContentType"/>
-    public string ContentType { get; set; } = GraphQLHttpMiddleware.CONTENTTYPE_GRAPHQLJSON;
+    public string ContentType { get; set; } = GraphQLHttpMiddleware.CONTENTTYPE_GRAPHQLRESPONSEJSON;
 
     /// <inheritdoc/>
     public async Task ExecuteResultAsync(ActionContext context)

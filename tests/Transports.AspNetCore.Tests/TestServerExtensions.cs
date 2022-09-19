@@ -7,6 +7,10 @@ internal static class TestServerExtensions
         var client = server.CreateClient();
         using var response = await client.GetAsync(url);
         response.EnsureSuccessStatusCode();
+        var contentType = response.Content.Headers.ContentType;
+        contentType.ShouldNotBeNull();
+        contentType.MediaType.ShouldBe("application/graphql-response+json");
+        contentType.CharSet.ShouldBe("utf-8");
         var str = await response.Content.ReadAsStringAsync();
         return str;
     }
@@ -18,6 +22,10 @@ internal static class TestServerExtensions
         using var content = new StringContent(data, Encoding.UTF8, "application/json");
         using var response = await client.PostAsync(url, content);
         response.EnsureSuccessStatusCode();
+        var contentType = response.Content.Headers.ContentType;
+        contentType.ShouldNotBeNull();
+        contentType.MediaType.ShouldBe("application/graphql-response+json");
+        contentType.CharSet.ShouldBe("utf-8");
         var str = await response.Content.ReadAsStringAsync();
         return str;
     }

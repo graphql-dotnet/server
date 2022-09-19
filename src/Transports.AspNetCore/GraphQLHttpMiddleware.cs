@@ -57,8 +57,8 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
     private const string MEDIATYPE_GRAPHQLJSON = "application/graphql+json"; // deprecated
     private const string MEDIATYPE_JSON = "application/json";
     private const string MEDIATYPE_GRAPHQL = "application/graphql";
-    internal const string CONTENTTYPE_JSON = "application/json; charset=utf-8";
-    internal const string CONTENTTYPE_GRAPHQLJSON = "application/graphql+json; charset=utf-8"; // deprecated
+    private const string CONTENTTYPE_JSON = "application/json; charset=utf-8";
+    private const string CONTENTTYPE_GRAPHQLJSON = "application/graphql+json; charset=utf-8"; // deprecated
     internal const string CONTENTTYPE_GRAPHQLRESPONSEJSON = "application/graphql-response+json; charset=utf-8";
 
     /// <summary>
