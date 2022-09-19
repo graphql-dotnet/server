@@ -96,9 +96,21 @@ public class GraphQLHttpMiddlewareOptions : IAuthorizationOptions
     /// </summary>
     public GraphQLWebSocketOptions WebSockets { get; set; } = new();
 
+    private MediaTypeHeaderValueMs _defaultResponseContentType = MediaTypeHeaderValueMs.Parse(GraphQLHttpMiddleware.CONTENTTYPE_GRAPHQLRESPONSEJSON);
+
     /// <summary>
     /// The Content-Type to use for GraphQL responses, if it matches the 'Accept'
     /// HTTP request header. Defaults to "application/graphql-response+json; charset=utf-8".
     /// </summary>
-    public MediaTypeHeaderValueMs DefaultResponseContentType { get; set; } = MediaTypeHeaderValueMs.Parse(GraphQLHttpMiddleware.CONTENTTYPE_GRAPHQLRESPONSEJSON);
+    public MediaTypeHeaderValueMs DefaultResponseContentType
+    {
+        get => _defaultResponseContentType;
+        set
+        {
+            _defaultResponseContentType = value;
+            DefaultResponseContentTypeString = value.ToString();
+        }
+    }
+
+    internal string DefaultResponseContentTypeString { get; set; } = GraphQLHttpMiddleware.CONTENTTYPE_GRAPHQLRESPONSEJSON;
 }

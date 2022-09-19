@@ -10,7 +10,7 @@ namespace GraphQL.Server.Transports.AspNetCore;
 /// Type of GraphQL schema that is used to validate and process requests.
 /// This may be a typed schema as well as <see cref="ISchema"/>.  In both cases registered schemas will be pulled from
 /// the dependency injection framework.  Note that when specifying <see cref="ISchema"/> the first schema registered via
-/// <see cref="global::GraphQL.GraphQLBuilderExtensions.AddSchema{TSchema}(DI.IGraphQLBuilder, DI.ServiceLifetime)">AddSchema</see>
+/// <see cref="GraphQLBuilderExtensions.AddSchema{TSchema}(DI.IGraphQLBuilder, DI.ServiceLifetime)">AddSchema</see>
 /// will be pulled (the "default" schema).
 /// </typeparam>
 public class GraphQLHttpMiddleware<TSchema> : GraphQLHttpMiddleware
@@ -428,7 +428,7 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
     /// <see cref="HttpContext"/>.
     /// <br/><br/>
     /// To tailor the user context individually for each request, call
-    /// <see cref="global::GraphQL.GraphQLBuilderExtensions.ConfigureExecutionOptions(DI.IGraphQLBuilder, Action{ExecutionOptions})"/>
+    /// <see cref="GraphQLBuilderExtensions.ConfigureExecutionOptions(DI.IGraphQLBuilder, Action{ExecutionOptions})"/>
     /// to set or modify the user context, pulling the HTTP context from
     /// <see cref="IHttpContextAccessor"/> via <see cref="ExecutionOptions.RequestServices"/>
     /// if needed.
@@ -473,9 +473,11 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
     protected virtual string SelectResponseContentType(HttpContext context)
     {
         // pull the Accept header, which may contain multiple content types
-        var acceptHeaders = context.Request.GetTypedHeaders().Accept;
+        var acceptHeaders = context.Request.Headers.ContainsKey(Microsoft.Net.Http.Headers.HeaderNames.Accept)
+            ? context.Request.GetTypedHeaders().Accept
+            : Array.Empty<MediaTypeHeaderValueMs>();
 
-        if (acceptHeaders != null)
+        if (acceptHeaders.Count > 0)
         {
             // enumerate through each content type and see if it matches a supported content type
             // give priority to specific types, then to types with wildcards
@@ -488,7 +490,7 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
         }
 
         // return the default content type if no match is found, or if there is no 'Accept' header
-        return _options.DefaultResponseContentType.ToString();
+        return _options.DefaultResponseContentTypeString;
 
         string? CheckForMatch(MediaTypeHeaderValueMs acceptHeader)
         {
@@ -500,7 +502,7 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
 
             // check if this matches the default content type header
             if (IsSubsetOf(_options.DefaultResponseContentType, acceptHeader))
-                return _options.DefaultResponseContentType.ToString();
+                return _options.DefaultResponseContentTypeString;
 
             // if the default content type header does not contain a charset, test with utf-8 as the charset
             if (_options.DefaultResponseContentType.Charset.Length == 0)
@@ -533,18 +535,18 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
 
         /*
          * Copyright (c) .NET Foundation. All rights reserved.
-         * 
+         *
          * Licensed under the Apache License, Version 2.0 (the "License"); you may not use
          * these files except in compliance with the License. You may obtain a copy of the
          * License at
-         * 
+         *
          * http://www.apache.org/licenses/LICENSE-2.0
-         * 
+         *
          * Unless required by applicable law or agreed to in writing, software distributed
          * under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
          * CONDITIONS OF ANY KIND, either express or implied. See the License for the
          * specific language governing permissions and limitations under the License.
-         * 
+         *
          */
 
         static bool IsSubsetOf(MediaTypeHeaderValueMs mediaType, MediaTypeHeaderValueMs otherMediaType)
@@ -647,7 +649,8 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
         return _serializer.WriteAsync(context.Response.Body, result, context.RequestAborted);
     }
 
-    private static readonly IEnumerable<string> _supportedSubProtocols = new List<string>(new[] {
+    private static readonly IEnumerable<string> _supportedSubProtocols = new List<string>(new[]
+    {
         WebSockets.GraphQLWs.SubscriptionServer.SubProtocol,
         WebSockets.SubscriptionsTransportWs.SubscriptionServer.SubProtocol,
     }).AsReadOnly();
