@@ -195,9 +195,9 @@ app.UseGraphQL("/graphql", o => o.DefaultResponseContentType = new("application/
 app.UseGraphQL("/graphql", o => o.DefaultResponseContentType = new("application/json") { Charset = "utf-8" });
 ```
 
-Note that if a request is received with a specific supported media type such as `application/graphql-response+json`,
+Note that if a request is received with a specific supported media type in the `Accept` header, such as `application/graphql-response+json`,
 then the supported media type will be returned rather than the default.  Override the `SelectResponseContentType`
-method within the middleware for more precise control of the Content-Type header in the response.
+method within the middleware for more precise control of the `Content-Type` header in the response.
 
 </p></details>
 
