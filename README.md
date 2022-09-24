@@ -349,7 +349,7 @@ class MyAuthService : IWebSocketAuthenticationService
 {
     private readonly IGraphQLSerializer _serializer;
 
-    public MyWSAuthService(IGraphQLSerializer serializer)
+    public MyAuthService(IGraphQLSerializer serializer)
     {
         _serializer = serializer;
     }
@@ -458,14 +458,14 @@ follows:
 builder.Services.AddResponseCompression(options =>
 {
     options.EnableForHttps = true; // may lead to CRIME and BREACH attacks
-    options.MimeTypes = new[] { "application/json", "application/graphql+json" };
+    options.MimeTypes = new[] { "application/json", "application/graphql-response+json" };
 })
 
 // place this first/early in the pipeline
 app.UseResponseCompression();
 ```
 
-In order to compress GraphQL responses, the `application/graphql+json` content type must be
+In order to compress GraphQL responses, the `application/graphql-response+json` content type must be
 added to the `MimeTypes` option.  You may choose to enable other content types as well.
 
 Please note that enabling response compression over HTTPS can lead to CRIME and BREACH
@@ -495,6 +495,17 @@ Please note that a serializer reference is not included for these projects withi
 This is because `Newtonsoft.Json` is the default serializer for ASP.NET Core 2.1
 rather `System.Text.Json`.  When using `GraphQL.NewtonsoftJson`, you will need to call
 `AddNewtonsoftJson()` rather than `AddSystemTextJson()` while configuring GraphQL.NET.
+
+<details><summary>Microsoft support policy</summary><p>
+
+Please note that .NET Core 2.1 is currently out of support by Microsoft.
+.NET Framework 4.8 is supported, and ASP.NET Core 2.1 is supported when run on
+.NET Framework 4.8.  Please see these links for more information:
+
+- https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-framework
+- https://dotnet.microsoft.com/en-us/platform/support/policy/aspnetcore-2.1
+
+</p></details>
 
 ## Advanced configuration
 
@@ -526,6 +537,7 @@ methods allowing for different options for each configured endpoint.
 | `AuthorizationRequired`            | Requires `HttpContext.User` to represent an authenticated user. | False |
 | `AuthorizedPolicy`                 | If set, requires `HttpContext.User` to pass authorization of the specified policy. | |
 | `AuthorizedRoles`                  | If set, requires `HttpContext.User` to be a member of any one of a list of roles. | |
+| `DefaultResponseContentType`       | Sets the default response content type used within responses. | `application/graphql-response+json; charset=utf-8` |
 | `EnableBatchedRequests`            | Enables handling of batched GraphQL requests for POST requests when formatted as JSON. | True |
 | `ExecuteBatchedRequestsInParallel` | Enables parallel execution of batched GraphQL requests. | True |
 | `HandleGet`                        | Enables handling of GET requests. | True |
@@ -661,7 +673,7 @@ A list of methods are as follows:
 | `HandleWebSocketSubProtocolNotSupportedAsync` | Writes a '400 Invalid WebSocket sub-protocol.' message to the output. |
 
 Below is a sample of custom middleware to change the response content type to `application/json`,
-rather than the default of `application/graphql+json`:
+regardless of the value of the HTTP 'Accept' header or default value set in the options:
 
 ```csharp
 class MyMiddleware<TSchema> : GraphQLHttpMiddleware<TSchema>

@@ -1,5 +1,8 @@
 #pragma warning disable CA1716 // Identifiers should not match keywords
 
+using Microsoft.Extensions.Primitives;
+using MediaTypeHeaderValueMs = Microsoft.Net.Http.Headers.MediaTypeHeaderValue;
+
 namespace GraphQL.Server.Transports.AspNetCore;
 
 /// <inheritdoc/>
@@ -7,7 +10,7 @@ namespace GraphQL.Server.Transports.AspNetCore;
 /// Type of GraphQL schema that is used to validate and process requests.
 /// This may be a typed schema as well as <see cref="ISchema"/>.  In both cases registered schemas will be pulled from
 /// the dependency injection framework.  Note that when specifying <see cref="ISchema"/> the first schema registered via
-/// <see cref="global::GraphQL.GraphQLBuilderExtensions.AddSchema{TSchema}(DI.IGraphQLBuilder, DI.ServiceLifetime)">AddSchema</see>
+/// <see cref="GraphQLBuilderExtensions.AddSchema{TSchema}(DI.IGraphQLBuilder, DI.ServiceLifetime)">AddSchema</see>
 /// will be pulled (the "default" schema).
 /// </typeparam>
 public class GraphQLHttpMiddleware<TSchema> : GraphQLHttpMiddleware
@@ -51,10 +54,12 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
     private const string VARIABLES_KEY = "variables";
     private const string EXTENSIONS_KEY = "extensions";
     private const string OPERATION_NAME_KEY = "operationName";
-    private const string MEDIATYPE_GRAPHQLJSON = "application/graphql+json";
+    private const string MEDIATYPE_GRAPHQLJSON = "application/graphql+json"; // deprecated
     private const string MEDIATYPE_JSON = "application/json";
     private const string MEDIATYPE_GRAPHQL = "application/graphql";
-    internal const string CONTENTTYPE_GRAPHQLJSON = "application/graphql+json; charset=utf-8";
+    private const string CONTENTTYPE_JSON = "application/json; charset=utf-8";
+    private const string CONTENTTYPE_GRAPHQLJSON = "application/graphql+json; charset=utf-8"; // deprecated
+    internal const string CONTENTTYPE_GRAPHQLRESPONSEJSON = "application/graphql-response+json; charset=utf-8";
 
     /// <summary>
     /// Initializes a new instance.
@@ -195,7 +200,7 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
 
         switch (mediaType?.ToLowerInvariant())
         {
-            case MEDIATYPE_GRAPHQLJSON:
+            case MEDIATYPE_GRAPHQLJSON: // deprecated
             case MEDIATYPE_JSON:
                 IList<GraphQLRequest?>? deserializationResult;
                 try
@@ -423,7 +428,7 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
     /// <see cref="HttpContext"/>.
     /// <br/><br/>
     /// To tailor the user context individually for each request, call
-    /// <see cref="global::GraphQL.GraphQLBuilderExtensions.ConfigureExecutionOptions(DI.IGraphQLBuilder, Action{ExecutionOptions})"/>
+    /// <see cref="GraphQLBuilderExtensions.ConfigureExecutionOptions(DI.IGraphQLBuilder, Action{ExecutionOptions})"/>
     /// to set or modify the user context, pulling the HTTP context from
     /// <see cref="IHttpContextAccessor"/> via <see cref="ExecutionOptions.RequestServices"/>
     /// if needed.
@@ -444,17 +449,194 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
     ValueTask<IDictionary<string, object?>?> IUserContextBuilder.BuildUserContextAsync(HttpContext context, object? payload)
         => BuildUserContextAsync(context, payload);
 
+    private static readonly MediaTypeHeaderValueMs[] _validMediaTypes = new[]
+    {
+        MediaTypeHeaderValueMs.Parse(CONTENTTYPE_GRAPHQLRESPONSEJSON),
+        MediaTypeHeaderValueMs.Parse(CONTENTTYPE_JSON),
+        MediaTypeHeaderValueMs.Parse(CONTENTTYPE_GRAPHQLJSON), // deprecated
+    };
+
     /// <summary>
     /// Selects a response content type string based on the <see cref="HttpContext"/>.
-    /// Defaults to <see cref="CONTENTTYPE_GRAPHQLJSON"/>.  Override this value for compatibility
-    /// with non-conforming GraphQL clients.
+    /// The default implementation attempts to match the content-type requested by the
+    /// client through the 'Accept' HTTP header to the default content type specified
+    /// within <see cref="GraphQLHttpMiddlewareOptions.DefaultResponseContentType"/>.
+    /// If matched, the specified content-type is returned; if not, supported
+    /// content-types are tested ("application/json", "application/graphql+json", and
+    /// "application/graphql-response+json") to see if they match the 'Accept' header.
     /// <br/><br/>
     /// Note that by default, the response will be written as UTF-8 encoded JSON, regardless
-    /// of the content-type value here.  For more complex behavior patterns, override
+    /// of the content-type value here, and this method's default implementation assumes as much.
+    /// For more complex behavior patterns, override
     /// <see cref="WriteJsonResponseAsync{TResult}(HttpContext, HttpStatusCode, TResult)"/>.
     /// </summary>
     protected virtual string SelectResponseContentType(HttpContext context)
-        => CONTENTTYPE_GRAPHQLJSON;
+    {
+        // pull the Accept header, which may contain multiple content types
+        var acceptHeaders = context.Request.Headers.ContainsKey(Microsoft.Net.Http.Headers.HeaderNames.Accept)
+            ? context.Request.GetTypedHeaders().Accept
+            : Array.Empty<MediaTypeHeaderValueMs>();
+
+        if (acceptHeaders.Count > 0)
+        {
+            // enumerate through each content type and see if it matches a supported content type
+            // give priority to specific types, then to types with wildcards
+            foreach (var acceptHeader in acceptHeaders.OrderBy(x => x.MatchesAllTypes ? 4 : x.MatchesAllSubTypes ? 3 : x.MatchesAllSubTypesWithoutSuffix ? 2 : 1))
+            {
+                var response = CheckForMatch(acceptHeader);
+                if (response != null)
+                    return response;
+            }
+        }
+
+        // return the default content type if no match is found, or if there is no 'Accept' header
+        return _options.DefaultResponseContentTypeString;
+
+        string? CheckForMatch(MediaTypeHeaderValueMs acceptHeader)
+        {
+            // strip quotes from charset
+            if (acceptHeader.Charset.Length > 0 && acceptHeader.Charset[0] == '\"' && acceptHeader.Charset[acceptHeader.Charset.Length - 1] == '\"')
+            {
+                acceptHeader.Charset = acceptHeader.Charset.Substring(1, acceptHeader.Charset.Length - 2);
+            }
+
+            // check if this matches the default content type header
+            if (IsSubsetOf(_options.DefaultResponseContentType, acceptHeader))
+                return _options.DefaultResponseContentTypeString;
+
+            // if the default content type header does not contain a charset, test with utf-8 as the charset
+            if (_options.DefaultResponseContentType.Charset.Length == 0)
+            {
+                var contentType2 = _options.DefaultResponseContentType.Copy();
+                contentType2.Charset = "utf-8";
+                if (IsSubsetOf(contentType2, acceptHeader))
+                    return contentType2.ToString();
+            }
+
+            // loop through the other supported media types, attempting to find a match
+            for (int j = 0; j < _validMediaTypes.Length; j++)
+            {
+                var mediaType = _validMediaTypes[j];
+                if (IsSubsetOf(mediaType, acceptHeader))
+                    // when a match is found, return the match
+                    return mediaType.ToString();
+            }
+
+            // no match
+            return null;
+        }
+
+        // --- note: the below functions were copied from ASP.NET Core 2.1 source ---
+        // see https://github.com/dotnet/aspnetcore/blob/v2.1.33/src/Http/Headers/src/MediaTypeHeaderValue.cs
+
+        // The ASP.NET Core 6.0 source contains logic that is not suitable -- it will consider
+        // "application/graphql-response+json" to match an 'Accept' header of "application/json",
+        // which can break client applications.
+
+        /*
+         * Copyright (c) .NET Foundation. All rights reserved.
+         *
+         * Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+         * these files except in compliance with the License. You may obtain a copy of the
+         * License at
+         *
+         * http://www.apache.org/licenses/LICENSE-2.0
+         *
+         * Unless required by applicable law or agreed to in writing, software distributed
+         * under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+         * CONDITIONS OF ANY KIND, either express or implied. See the License for the
+         * specific language governing permissions and limitations under the License.
+         *
+         */
+
+        static bool IsSubsetOf(MediaTypeHeaderValueMs mediaType, MediaTypeHeaderValueMs otherMediaType)
+        {
+            // "text/plain" is a subset of "text/plain", "text/*" and "*/*". "*/*" is a subset only of "*/*".
+            return MatchesType(mediaType, otherMediaType) &&
+                MatchesSubtype(mediaType, otherMediaType) &&
+                MatchesParameters(mediaType, otherMediaType);
+        }
+
+        static bool MatchesType(MediaTypeHeaderValueMs mediaType, MediaTypeHeaderValueMs set)
+        {
+            return set.MatchesAllTypes ||
+                set.Type.Equals(mediaType.Type, StringComparison.OrdinalIgnoreCase);
+        }
+
+        static bool MatchesSubtype(MediaTypeHeaderValueMs mediaType, MediaTypeHeaderValueMs set)
+        {
+            if (set.MatchesAllSubTypes)
+            {
+                return true;
+            }
+            if (set.Suffix.HasValue)
+            {
+                if (mediaType.Suffix.HasValue)
+                {
+                    return MatchesSubtypeWithoutSuffix(mediaType, set) && MatchesSubtypeSuffix(mediaType, set);
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return set.SubType.Equals(mediaType.SubType, StringComparison.OrdinalIgnoreCase);
+            }
+        }
+
+        static bool MatchesSubtypeWithoutSuffix(MediaTypeHeaderValueMs mediaType, MediaTypeHeaderValueMs set)
+        {
+            return set.MatchesAllSubTypesWithoutSuffix ||
+                set.SubTypeWithoutSuffix.Equals(mediaType.SubTypeWithoutSuffix, StringComparison.OrdinalIgnoreCase);
+        }
+
+        static bool MatchesParameters(MediaTypeHeaderValueMs mediaType, MediaTypeHeaderValueMs set)
+        {
+            if (set.Parameters.Count != 0)
+            {
+                // Make sure all parameters in the potential superset are included locally. Fine to have additional
+                // parameters locally; they make this one more specific.
+                foreach (var parameter in set.Parameters)
+                {
+                    if (parameter.Name.Equals("*", StringComparison.OrdinalIgnoreCase))
+                    {
+                        // A parameter named "*" has no effect on media type matching, as it is only used as an indication
+                        // that the entire media type string should be treated as a wildcard.
+                        continue;
+                    }
+
+                    if (parameter.Name.Equals("q", StringComparison.OrdinalIgnoreCase))
+                    {
+                        // "q" and later parameters are not involved in media type matching. Quoting the RFC: The first
+                        // "q" parameter (if any) separates the media-range parameter(s) from the accept-params.
+                        break;
+                    }
+
+                    var localParameter = Microsoft.Net.Http.Headers.NameValueHeaderValue.Find(mediaType.Parameters, parameter.Name);
+                    if (localParameter == null)
+                    {
+                        // Not found.
+                        return false;
+                    }
+
+                    if (!StringSegment.Equals(parameter.Value, localParameter.Value, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        static bool MatchesSubtypeSuffix(MediaTypeHeaderValueMs mediaType, MediaTypeHeaderValueMs set)
+            // We don't have support for wildcards on suffixes alone (e.g., "application/entity+*")
+            // because there's no clear use case for it.
+            => set.Suffix.Equals(mediaType.Suffix, StringComparison.OrdinalIgnoreCase);
+
+        // --- end of ASP.NET Core 2.1 copied functions ---
+    }
 
     /// <summary>
     /// Writes the specified object (usually a GraphQL response represented as an instance of <see cref="ExecutionResult"/>) as JSON to the HTTP response stream.
@@ -467,7 +649,8 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
         return _serializer.WriteAsync(context.Response.Body, result, context.RequestAborted);
     }
 
-    private static readonly IEnumerable<string> _supportedSubProtocols = new List<string>(new[] {
+    private static readonly IEnumerable<string> _supportedSubProtocols = new List<string>(new[]
+    {
         WebSockets.GraphQLWs.SubscriptionServer.SubProtocol,
         WebSockets.SubscriptionsTransportWs.SubscriptionServer.SubProtocol,
     }).AsReadOnly();

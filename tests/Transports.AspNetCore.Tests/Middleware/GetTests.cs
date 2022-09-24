@@ -65,6 +65,103 @@ public class GetTests : IDisposable
         await response.ShouldBeAsync(@"{""data"":{""count"":0}}");
     }
 
+    [Theory]
+    [InlineData(null, "application/graphql+json", "application/graphql+json; charset=utf-8")]
+    [InlineData(null, "application/json", "application/json; charset=utf-8")]
+    [InlineData(null, "application/json; charset=utf-8", "application/json; charset=utf-8")]
+    [InlineData(null, "application/json; charset=UTF-8", "application/json; charset=utf-8")]
+    [InlineData(null, "APPLICATION/JSON", "application/json; charset=utf-8")]
+    [InlineData(null, "APPLICATION/JSON; CHARSET=\"UTF-8\" ", "application/json; charset=utf-8")]
+    [InlineData(null, "*/*; CHARSET=\"UTF-8\" ", "application/graphql-response+json; charset=utf-8")]
+    [InlineData(null, "application/*; charset=utf-8", "application/graphql-response+json; charset=utf-8")]
+    [InlineData(null, "application/*+json; charset=utf-8", "application/graphql-response+json; charset=utf-8")]
+    [InlineData(null, "application/pdf", "application/graphql-response+json; charset=utf-8")]
+    [InlineData(null, "application/json; charset=utf-7", "application/graphql-response+json; charset=utf-8")]
+    [InlineData("application/graphql-response+json; charset=utf-8", "application/graphql+json", "application/graphql+json; charset=utf-8")]
+    [InlineData("application/graphql-response+json; charset=utf-8", "application/json", "application/json; charset=utf-8")]
+    [InlineData("application/graphql-response+json; charset=utf-8", "application/json; charset=utf-8", "application/json; charset=utf-8")]
+    [InlineData("application/graphql-response+json; charset=utf-8", "application/json; charset=UTF-8", "application/json; charset=utf-8")]
+    [InlineData("application/graphql-response+json; charset=utf-8", "APPLICATION/JSON", "application/json; charset=utf-8")]
+    [InlineData("application/graphql-response+json; charset=utf-8", "APPLICATION/JSON; CHARSET=\"UTF-8\" ", "application/json; charset=utf-8")]
+    [InlineData("application/graphql-response+json; charset=utf-8", "*/*; CHARSET=\"UTF-8\" ", "application/graphql-response+json; charset=utf-8")]
+    [InlineData("application/graphql-response+json; charset=utf-8", "application/*; charset=utf-8", "application/graphql-response+json; charset=utf-8")]
+    [InlineData("application/graphql-response+json; charset=utf-8", "application/*+json; charset=utf-8", "application/graphql-response+json; charset=utf-8")]
+    [InlineData("application/graphql-response+json; charset=utf-8", "application/pdf", "application/graphql-response+json; charset=utf-8")]
+    [InlineData("application/graphql-response+json; charset=utf-8", "application/json; charset=utf-7", "application/graphql-response+json; charset=utf-8")]
+    [InlineData("application/graphql+json; charset=utf-8", "application/graphql+json", "application/graphql+json; charset=utf-8")]
+    [InlineData("application/graphql+json; charset=utf-8", "application/json", "application/json; charset=utf-8")]
+    [InlineData("application/graphql+json; charset=utf-8", "application/json; charset=utf-8", "application/json; charset=utf-8")]
+    [InlineData("application/graphql+json; charset=utf-8", "application/json; charset=UTF-8", "application/json; charset=utf-8")]
+    [InlineData("application/graphql+json; charset=utf-8", "APPLICATION/JSON", "application/json; charset=utf-8")]
+    [InlineData("application/graphql+json; charset=utf-8", "APPLICATION/JSON; CHARSET=\"UTF-8\" ", "application/json; charset=utf-8")]
+    [InlineData("application/graphql+json; charset=utf-8", "*/*; CHARSET=\"UTF-8\" ", "application/graphql+json; charset=utf-8")]
+    [InlineData("application/graphql+json; charset=utf-8", "application/*; charset=utf-8", "application/graphql+json; charset=utf-8")]
+    [InlineData("application/graphql+json; charset=utf-8", "application/*+json; charset=utf-8", "application/graphql+json; charset=utf-8")]
+    [InlineData("application/graphql+json; charset=utf-8", "application/pdf", "application/graphql+json; charset=utf-8")]
+    [InlineData("application/graphql+json; charset=utf-8", "application/json; charset=utf-7", "application/graphql+json; charset=utf-8")]
+    [InlineData("application/json; charset=utf-8", "application/graphql+json", "application/graphql+json; charset=utf-8")]
+    [InlineData("application/json; charset=utf-8", "application/json", "application/json; charset=utf-8")]
+    [InlineData("application/json; charset=utf-8", "application/json; charset=utf-8", "application/json; charset=utf-8")]
+    [InlineData("application/json; charset=utf-8", "application/json; charset=UTF-8", "application/json; charset=utf-8")]
+    [InlineData("application/json; charset=utf-8", "APPLICATION/JSON", "application/json; charset=utf-8")]
+    [InlineData("application/json; charset=utf-8", "APPLICATION/JSON; CHARSET=\"UTF-8\" ", "application/json; charset=utf-8")]
+    [InlineData("application/json; charset=utf-8", "*/*; CHARSET=\"UTF-8\" ", "application/json; charset=utf-8")]
+    [InlineData("application/json; charset=utf-8", "application/*; charset=utf-8", "application/json; charset=utf-8")]
+    [InlineData("application/json; charset=utf-8", "application/*+json; charset=utf-8", "application/graphql-response+json; charset=utf-8")]
+    [InlineData("application/json; charset=utf-8", "application/pdf", "application/json; charset=utf-8")]
+    [InlineData("application/json; charset=utf-8", "application/json; charset=utf-7", "application/json; charset=utf-8")]
+    [InlineData("application/json", "application/graphql+json", "application/graphql+json; charset=utf-8")]
+    [InlineData("application/json", "application/json", "application/json")]
+    [InlineData("application/json", "application/json; charset=utf-8", "application/json; charset=utf-8")]
+    [InlineData("application/json", "application/json; charset=UTF-8", "application/json; charset=utf-8")]
+    [InlineData("application/json", "APPLICATION/JSON", "application/json")]
+    [InlineData("application/json", "APPLICATION/JSON; CHARSET=\"UTF-8\" ", "application/json; charset=utf-8")]
+    [InlineData("application/json", "*/*; CHARSET=\"UTF-8\" ", "application/json; charset=utf-8")]
+    [InlineData("application/json", "application/*; charset=utf-8", "application/json; charset=utf-8")]
+    [InlineData("application/json", "application/*+json; charset=utf-8", "application/graphql-response+json; charset=utf-8")]
+    [InlineData("application/json", "application/pdf", "application/json")]
+    [InlineData("application/json", "application/json; charset=utf-7", "application/json")]
+    [InlineData(null, "*/*, application/graphql-response+json", "application/graphql-response+json; charset=utf-8")]
+    [InlineData(null, "*/*, application/graphql+json", "application/graphql+json; charset=utf-8")]
+    [InlineData(null, "*/*, application/json", "application/json; charset=utf-8")]
+    [InlineData(null, "*/*, application/pdf", "application/graphql-response+json; charset=utf-8")]
+    [InlineData(null, "application/*, application/graphql-response+json", "application/graphql-response+json; charset=utf-8")]
+    [InlineData(null, "application/*, application/graphql+json", "application/graphql+json; charset=utf-8")]
+    [InlineData(null, "application/*, application/json", "application/json; charset=utf-8")]
+    [InlineData(null, "application/*, application/pdf", "application/graphql-response+json; charset=utf-8")]
+    [InlineData(null, "application/*+json, application/graphql-response+json", "application/graphql-response+json; charset=utf-8")]
+    [InlineData(null, "application/*+json, application/graphql+json", "application/graphql+json; charset=utf-8")]
+    [InlineData(null, "application/*+json, application/json", "application/json; charset=utf-8")]
+    [InlineData(null, "application/*+json, application/pdf", "application/graphql-response+json; charset=utf-8")]
+    [InlineData(null, "application/graphql+json, application/json", "application/graphql+json; charset=utf-8")]
+    [InlineData("application/json", "*/*, application/graphql-response+json", "application/graphql-response+json; charset=utf-8")]
+    [InlineData("application/json", "*/*, application/graphql+json", "application/graphql+json; charset=utf-8")]
+    [InlineData("application/json", "*/*, application/json", "application/json")]
+    [InlineData("application/json", "*/*, application/pdf", "application/json")]
+    [InlineData("application/json", "application/*, application/graphql-response+json", "application/graphql-response+json; charset=utf-8")]
+    [InlineData("application/json", "application/*, application/graphql+json", "application/graphql+json; charset=utf-8")]
+    [InlineData("application/json", "application/*, application/json", "application/json")]
+    [InlineData("application/json", "application/*, application/pdf", "application/json")]
+    [InlineData("application/json", "application/*+json, application/graphql-response+json", "application/graphql-response+json; charset=utf-8")]
+    [InlineData("application/json", "application/*+json, application/graphql+json", "application/graphql+json; charset=utf-8")]
+    [InlineData("application/json", "application/*+json, application/json", "application/json")]
+    [InlineData("application/json", "application/*+json, application/pdf", "application/graphql-response+json; charset=utf-8")]
+    [InlineData("application/json", "application/graphql+json, application/json", "application/graphql+json; charset=utf-8")]
+    public async Task AcceptHeaderHonored(string? defaultMediaType, string mediaType, string expected)
+    {
+        if (defaultMediaType != null)
+        {
+            _options.DefaultResponseContentType = Microsoft.Net.Http.Headers.MediaTypeHeaderValue.Parse(defaultMediaType);
+        }
+        var client = _server.CreateClient();
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/graphql?query={count}");
+        request.Headers.Add("Accept", mediaType);
+        using var response = await client.SendAsync(request);
+        var contentType = response.Content.Headers.ContentType?.ToString();
+        contentType.ShouldBe(expected);
+        (await response.Content.ReadAsStringAsync()).ShouldBe(@"{""data"":{""count"":0}}");
+    }
+
     [Fact]
     public async Task NoUseWebSockets()
     {

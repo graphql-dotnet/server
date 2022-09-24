@@ -54,7 +54,7 @@ public static class TestServerExtensions
     {
         using var client = server.CreateClient();
         var body = System.Text.Json.JsonSerializer.Serialize(new { query });
-        var content = new StringContent(body, System.Text.Encoding.UTF8, "application/graphql+json");
+        var content = new StringContent(body, System.Text.Encoding.UTF8, "application/json");
         using var request = new HttpRequestMessage(HttpMethod.Post, url);
         request.Content = content;
         if (jwtToken != null)
