@@ -1,5 +1,3 @@
-using GraphQL;
-
 namespace MultipleSchema.Dogs;
 
 public class Query

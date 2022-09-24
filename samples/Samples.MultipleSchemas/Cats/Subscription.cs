@@ -1,5 +1,3 @@
-using GraphQL;
-
 namespace MultipleSchema.Cats;
 
 public class Subscription

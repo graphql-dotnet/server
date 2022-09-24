@@ -1,5 +1,3 @@
-using GraphQL.Types;
-
 namespace MultipleSchema.Cats;
 
 public class CatsSchema : Schema

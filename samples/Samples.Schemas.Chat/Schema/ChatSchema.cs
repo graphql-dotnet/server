@@ -1,5 +1,3 @@
-using GraphQL.Types;
-
 namespace GraphQL.Samples.Schemas.Chat;
 
 public class ChatSchema : Schema
