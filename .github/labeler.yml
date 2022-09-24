@@ -13,6 +13,4 @@ code style:
 
 documentation:
   - README.md
-
-performance:
-  - src/Benchmarks/**/*
+  - docs/**/*
