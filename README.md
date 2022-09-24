@@ -817,12 +817,6 @@ typical ASP.NET Core scenarios.
 | Net48           | .NET Core 2.1 / .NET 4.8 | Demonstrates configuring GraphQL on .NET 4.8 / Core 2.1 |
 | Pages           | .NET 6 Minimal           | Demonstrates configuring GraphQL on top of a Razor Pages template |
 
-> :warning: Remember that these examples serve only as templates of your projects, and not as a production-ready code.
-> If you copy a sample project, do not forget to copy additional necessary configuration files located outside the project:
-> - [Directory.Build.props file from samples folder](samples/Directory.Build.props)
-> - [Root Directory.Build.props file](Directory.Build.props)
-> - [Root Directory.Build.targets file](Directory.Build.targets)
-
 Most of the above samples rely on a sample "Chat" schema.
 Below are some basic requests you can use to test the schema:
 
