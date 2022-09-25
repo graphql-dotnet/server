@@ -128,9 +128,9 @@ public class JwtHelper
 
         // create the security token as follows:
         var token = new JwtSecurityToken(
-            // issuer is an arbitary string, typically the name of the web server that issued the token
+            // issuer is an arbitrary string, typically the name of the web server that issued the token
             issuer: _issuer,
-            // audience is an arbitary string, typically representing valid recipients - typically 'Refresh' or 'Access' or a url for a subdomain
+            // audience is an arbitrary string, typically representing valid recipients - typically 'Refresh' or 'Access' or a url for a subdomain
             audience: _audience,
             // include a list of claims
             claims: claims,

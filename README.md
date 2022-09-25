@@ -47,7 +47,7 @@ serving GET, POST or WebSocket requests.  GET requests process requests from the
 POST requests can be in the form of JSON requests, form submissions, or raw GraphQL strings.
 WebSocket requests can use the `graphql-ws` or `graphql-transport-ws` WebSocket sub-protocol,
 as defined in the [apollographql/subscriptions-transport-ws](https://github.com/apollographql/subscriptions-transport-ws)
-and [enisdenjo/graphql-ws](https://github.com/enisdenjo/graphql-ws) respoitories, respectively.
+and [enisdenjo/graphql-ws](https://github.com/enisdenjo/graphql-ws) repositories, respectively.
 
 The middleware can be configured through the `IApplicationBuilder` or `IEndpointRouteBuilder`
 builder interfaces.  In addition, an `ExecutionResultActionResult` class is added for returning
