@@ -40,7 +40,7 @@ public abstract class BaseTest : IDisposable
     }
 
     /// <summary>
-    /// Sends a gql request to the server.
+    /// Sends a GraphQL request to the server.
     /// </summary>
     /// <param name="request">Request details.</param>
     /// <param name="requestType">Request type.</param>
