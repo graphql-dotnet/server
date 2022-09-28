@@ -297,7 +297,7 @@ or fragments skipped by `@skip` or `@include`.
 Please note that if you use interfaces, validation might be executed against the graph field
 or the interface field, depending on the structure of the query.  For instance:
 
-```gql
+```graphql
 {
   cat {
     # validates against Cat.Name

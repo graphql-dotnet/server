@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <WarningsNotAsErrors>CS8618</WarningsNotAsErrors>
+    <WarningsNotAsErrors>CS8618;CA1716</WarningsNotAsErrors>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 

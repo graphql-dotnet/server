@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace Tests.WebSockets;
 
 public class AsyncMessagePumpTests
@@ -14,7 +16,7 @@ public class AsyncMessagePumpTests
         var sb = new StringBuilder();
         var pump = new AsyncMessagePump<string>(t =>
         {
-            Thread.Sleep(int.Parse(t));
+            Thread.Sleep(int.Parse(t, CultureInfo.InvariantCulture));
             sb.Append(t + " ");
             return Task.CompletedTask;
         });
@@ -30,7 +32,7 @@ public class AsyncMessagePumpTests
         var sb = new StringBuilder();
         var pump = new AsyncMessagePump<string>(async t =>
         {
-            await Task.Delay(int.Parse(t));
+            await Task.Delay(int.Parse(t, CultureInfo.InvariantCulture));
             lock (sb)
                 sb.Append(t + " ");
             if (t == "1")
@@ -50,7 +52,7 @@ public class AsyncMessagePumpTests
         var sb = new StringBuilder();
         var pump = new AsyncMessagePump<string>(async t =>
         {
-            await Task.Delay(int.Parse(t));
+            await Task.Delay(int.Parse(t, CultureInfo.InvariantCulture));
             lock (sb)
                 sb.Append(t + " ");
             if (t == "1")
@@ -74,7 +76,7 @@ public class AsyncMessagePumpTests
         var sb = new StringBuilder();
         var pump = new AsyncMessagePump<string>(t =>
         {
-            int.Parse(t);
+            int.Parse(t, CultureInfo.InvariantCulture);
             sb.Append(t + " ");
         });
         pump.Post("1");
@@ -89,7 +91,7 @@ public class AsyncMessagePumpTests
         var sb = new StringBuilder();
         var pump = new DerivedAsyncMessagePump(t =>
         {
-            int.Parse(t);
+            int.Parse(t, CultureInfo.InvariantCulture);
             sb.Append(t + " ");
         }, sb);
         pump.Post("1");

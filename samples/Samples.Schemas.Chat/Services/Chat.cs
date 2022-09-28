@@ -20,7 +20,7 @@ public class Chat : IChat
     public IEnumerable<Message> GetMessageFromUser(string from)
     {
         lock (_messages)
-            return _messages.Where(x => string.Equals(x.From, from, StringComparison.InvariantCultureIgnoreCase)).ToList();
+            return _messages.Where(x => string.Equals(x.From, from, StringComparison.OrdinalIgnoreCase)).ToList();
     }
 
     public Message PostMessage(MessageInput message)
@@ -61,7 +61,7 @@ public class Chat : IChat
     public IObservable<Message> SubscribeAll() => _broadcaster.Where(x => x.Type == EventType.NewMessage).Select(x => x.Message!);
 
     public IObservable<Message> SubscribeFromUser(string from)
-        => SubscribeAll().Where(x => string.Equals(x.From, from, StringComparison.InvariantCultureIgnoreCase));
+        => SubscribeAll().Where(x => string.Equals(x.From, from, StringComparison.OrdinalIgnoreCase));
 
     public IObservable<Event> SubscribeEvents() => _broadcaster;
 

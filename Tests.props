@@ -3,7 +3,8 @@
 
   <PropertyGroup>
     <SingleTestPlatform Condition="'$(SingleTestPlatform)' == ''">false</SingleTestPlatform>
-    <NoWarn>$(NoWarn);IDE0017</NoWarn>
+    <NoWarn>$(NoWarn);CS1591;IDE0017;IDE0053;CA1707;CA1816;CA1822;CA1825;CA1835;CA2201</NoWarn>
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);CS1998</WarningsNotAsErrors>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 

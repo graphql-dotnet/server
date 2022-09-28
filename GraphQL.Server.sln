@@ -111,6 +111,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples.Jwt", "samples\Samp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples.Jwt.Tests", "tests\Samples.Jwt.Tests\Samples.Jwt.Tests.csproj", "{2B5A39E8-098F-458E-981C-BC9470CB94B0}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{7F5D8EE4-CD03-482E-A478-E3334F1D0439}"
+	ProjectSection(SolutionItems) = preProject
+		samples\Directory.Build.props = samples\Directory.Build.props
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -281,6 +286,7 @@ Global
 		{FF0810A0-3372-40ED-B3E3-D703BEF0F118} = {AB155A1E-CB5E-465E-BC29-A1A4A5D9D2B0}
 		{5A16B117-0FAD-4F91-A97C-E72B733B4E57} = {5C07AFA3-12F2-40EA-807D-7A1EEF29012B}
 		{2B5A39E8-098F-458E-981C-BC9470CB94B0} = {BBD07745-C962-4D2D-B302-6DA1BCC2FF43}
+		{7F5D8EE4-CD03-482E-A478-E3334F1D0439} = {382C5C04-A34D-4C81-83D7-584C85FB9356}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3FC7FA59-E938-453C-8C4A-9D5635A9489A}

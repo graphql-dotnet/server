@@ -83,6 +83,4 @@ public class WebSocketWriterStreamTests
         _stream.CanSeek.ShouldBeFalse();
         _stream.CanWrite.ShouldBeTrue();
     }
-
-
 }

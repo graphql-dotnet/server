@@ -7,7 +7,7 @@ namespace Tests.Middleware.Cors;
 
 public class EndpointTests
 {
-    public async Task<CorsResponse> ExecuteEndpoint(
+    private async Task<CorsResponse> ExecuteEndpoint(
         HttpMethod method,
         Action<CorsOptions> configureCors,
         Action<CorsPolicyBuilder>? configureCorsPolicy,

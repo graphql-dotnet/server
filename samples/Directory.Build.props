@@ -1,0 +1,11 @@
+<Project>
+  <!--https://docs.microsoft.com/en-us/visualstudio/msbuild/customize-your-build?view=vs-2019#use-case-multi-level-merging-->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+  <PropertyGroup>
+    <NoWarn>$(NoWarn);IDE0053;CS1591;CA1707;CA1848</NoWarn>
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);CS8618;CA1716</WarningsNotAsErrors>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+</Project>
