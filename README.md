@@ -321,7 +321,7 @@ fields are marked with `AllowAnonymous`.
 #### Custom authentication configuration for GET/POST requests
 
 To provide custom authentication code, bypassing ASP.NET Core's authentication, derive from the
-`GraphQLHttpMiddleware` class and override `HandleAuthorizeAsync`, setting `HttpContext.User`
+`GraphQLHttpMiddleware<T>` class and override `HandleAuthorizeAsync`, setting `HttpContext.User`
 to an appropriate `ClaimsPrincipal` instance.
 
 See 'Customizing middleware behavior' below for an example of deriving from `GraphQLHttpMiddleware`.
@@ -379,7 +379,7 @@ class MyAuthService : IWebSocketAuthenticationService
 ```
 
 To authorize based on information within the query string, it is recommended to
-derive from `GraphQLHttpMiddleware` and override `InvokeAsync`, setting
+derive from `GraphQLHttpMiddleware<T>` and override `InvokeAsync`, setting
 `HttpContext.User` based on the query string parameters, and then calling `base.InvokeAsync`.
 Alternatively you may override `HandleAuthorizeAsync` which will execute for GET/POST requests,
 and `HandleAuthorizeWebSocketConnectionAsync` for WebSocket requests.
@@ -697,6 +697,9 @@ class MyMiddleware<TSchema> : GraphQLHttpMiddleware<TSchema>
 app.UseGraphQL<MyMiddleware<ISchema>>("/graphql", new GraphQLHttpMiddlewareOptions());
 ```
 
+Be sure to derive from `GraphQLHttpMiddleware<TSchema>` rather than `GraphQLHttpMiddleware`
+as shown above for multi-schema compatibility.
+
 #### WebSocket handler classes
 
 The WebSocket handling code is organized as follows:
@@ -717,7 +720,7 @@ you will need to perform the following:
 
 1. Derive from either `SubscriptionServer` class, modifying functionality as needed, or to support
    a new protocol, derive from `BaseSubscriptionServer`.
-2. Derive from `GraphQLHttpMiddleware` and override `CreateMessageProcessor` and/or
+2. Derive from `GraphQLHttpMiddleware<T>` and override `CreateMessageProcessor` and/or
    `SupportedWebSocketSubProtocols` as needed.
 3. Change the `app.AddGraphQL()` call to use your custom middleware, being sure to include an instance
    of the options class that your middleware requires (typically `GraphQLHttpMiddlewareOptions`).
@@ -771,7 +774,7 @@ creating a service scope temporarily within your user context builder.
 ### Mutations within GET requests
 
 For security reasons and pursuant to current recommendations, mutation GraphQL requests
-are rejected over HTTP GET connections.  Derive from `GraphQLHttpMiddleware` and override
+are rejected over HTTP GET connections.  Derive from `GraphQLHttpMiddleware<T>` and override
 `ExecuteRequestAsync` to prevent injection of the validation rules that enforce this behavior.
 
 As would be expected, subscription requests are only allowed over WebSocket channels.
