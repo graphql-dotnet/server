@@ -7,7 +7,7 @@ public class Program
 {
     public static int Main(string[] args)
     {
-        Log.Logger = new LoggerConfiguration()
+        Log.Logger = new LoggerConfiguration(System.Globalization.CultureInfo.InvariantCulture)
             .MinimumLevel.Debug()
             .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
             .Enrich.FromLogContext()
