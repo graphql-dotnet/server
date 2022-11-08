@@ -10,6 +10,7 @@ public class WebSocketWriterStreamTests : IDisposable
     public WebSocketWriterStreamTests()
     {
         _stream = new(_mockWebSocket.Object);
+        _mockWebSocket.Setup(x => x.Dispose());
     }
 
     public void Dispose()
