@@ -7,11 +7,11 @@ public class Program
 {
     public static int Main(string[] args)
     {
-        Log.Logger = new LoggerConfiguration(System.Globalization.CultureInfo.InvariantCulture)
+        Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Debug()
             .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
             .Enrich.FromLogContext()
-            .WriteTo.Console()
+            .WriteTo.Console(formatProvider: System.Globalization.CultureInfo.InvariantCulture)
             .CreateLogger();
 
         try
