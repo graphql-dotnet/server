@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Tests;
 
-public class AuthorizationTests
+public class AuthorizationTests : IDisposable
 {
     private readonly Schema _schema = new();
     private readonly ObjectGraphType _query = new() { Name = "QueryType" };
@@ -27,6 +27,11 @@ public class AuthorizationTests
         _field.ResolvedType = _childGraph;
         _query.AddField(_field);
         _schema.Query = _query;
+    }
+
+    public void Dispose()
+    {
+        _schema.Dispose();
     }
 
     private void SetAuthorized()
