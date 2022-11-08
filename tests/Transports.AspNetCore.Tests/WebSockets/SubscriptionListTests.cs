@@ -1,6 +1,6 @@
 namespace Tests.WebSockets;
 
-public class SubscriptionListTests
+public class SubscriptionListTests : IDisposable
 {
     private readonly SubscriptionList _subList;
     private readonly Mock<IDisposable> _mockDisposable = new();
@@ -9,6 +9,11 @@ public class SubscriptionListTests
     public SubscriptionListTests()
     {
         _subList = new();
+    }
+
+    public void Dispose()
+    {
+        _subList.Dispose();
     }
 
     [Fact]
