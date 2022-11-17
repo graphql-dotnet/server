@@ -26,7 +26,7 @@
     <AnalysisMode>Recommended</AnalysisMode>
     <Nullable>enable</Nullable>
     <IsPackable>true</IsPackable>
-    <NoWarn>$(NoWarn);IDE0056;IDE0057</NoWarn> <!-- Index/Range operators -->
+    <NoWarn>$(NoWarn);IDE0056;IDE0057;ASP0014</NoWarn> <!-- Index/Range operators, UseRouting -->
 
     <AssemblyName>GraphQL.Server.$(MSBuildProjectName)</AssemblyName>
     <RootNamespace>GraphQL.Server.$(MSBuildProjectName)</RootNamespace>

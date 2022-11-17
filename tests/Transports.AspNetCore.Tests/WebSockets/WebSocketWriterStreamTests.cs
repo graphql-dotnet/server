@@ -2,7 +2,7 @@ using System.Net.WebSockets;
 
 namespace Tests.WebSockets;
 
-public class WebSocketWriterStreamTests
+public class WebSocketWriterStreamTests : IDisposable
 {
     private readonly Mock<WebSocket> _mockWebSocket = new(MockBehavior.Strict);
     private readonly WebSocketWriterStream _stream;
@@ -10,6 +10,12 @@ public class WebSocketWriterStreamTests
     public WebSocketWriterStreamTests()
     {
         _stream = new(_mockWebSocket.Object);
+        _mockWebSocket.Setup(x => x.Dispose());
+    }
+
+    public void Dispose()
+    {
+        _stream.Dispose();
     }
 
     [Fact]
