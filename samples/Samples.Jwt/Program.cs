@@ -20,7 +20,12 @@ builder.Services.AddGraphQL(b => b
 
 // initialize the JwtHelper.Instance property for use throughout the application
 // use a symmetric security key with a random password
-JwtHelper.Instance = new(Guid.NewGuid().ToString(), SecurityKeyType.SymmetricSecurityKey);
+// === IMPORTANT: PASSWORDS OF SYMMETRIC ALGORITHMS CAN BE BRUTE FORCED OFFLINE; BE SURE ===
+// ===   TO USE A PASSWORD WITH A HIGH ENTROPY, SUCH AS A PAIR OF RANDOM 128-BIT GUIDS   ===
+//var password = Guid.NewGuid().ToString() + Guid.NewGuid().ToString(); // 244-bit entropy
+var password = JwtHelper.CreateNewSymmetricKey(); // 256-bit entropy
+JwtHelper.Instance = new(password, SecurityKeyType.SymmetricSecurityKey);
+
 // or: use an asymmetric security key with a new random key pair (typically would be pulled from application secrets)
 //var (_, privateKey) = JwtHelper.CreateNewAsymmetricKeyPair();
 //JwtHelper.Instance = new(privateKey, JwtKeyType.PrivateKey);

@@ -22,6 +22,16 @@ public class JwtHelper
     private readonly string _audience = "Samples.Jwt.Audience";         // may be any arbitrary string
     private readonly TimeSpan _expiresIn = TimeSpan.FromMinutes(5);
 
+    /// <summary>
+    /// Initializes a new instance with the specified key and security key type.
+    /// </summary>
+    /// <param name="key">A password for symmetric algorithms; the exported key for asymmetric algorithms.</param>
+    /// <param name="keyType">The type of key; a symmetric key, a public asymmetric key, or a private asymmetric key.</param>
+    /// <remarks>
+    /// When using passwords with symmetric algoritms, be sure to use a password with a high entropy,
+    /// such as a pair of random GUIDs.
+    /// The provided <see cref="CreateNewSymmetricKey"/> method will provide a password with 256-bit entropy.
+    /// </remarks>
     public JwtHelper(string key, SecurityKeyType keyType)
     {
         // load the key
@@ -112,6 +122,17 @@ public class JwtHelper
         var privateKey = Convert.ToBase64String(ecdsa.ExportECPrivateKey());
         var publicKey = Convert.ToBase64String(ecdsa.ExportSubjectPublicKeyInfo());
         return (publicKey, privateKey);
+    }
+
+    /// <summary>
+    /// Creates a password for a symmetric security algorithm with a 256-bit entropy.
+    /// </summary>
+    public static string CreateNewSymmetricKey()
+    {
+        using var rng = RandomNumberGenerator.Create();
+        var bytes = new byte[32];
+        rng.GetBytes(bytes);
+        return Convert.ToBase64String(bytes);
     }
 
     /// <summary>
