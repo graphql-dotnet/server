@@ -26,8 +26,7 @@ public class JwtHelper
     /// Initializes a new instance with the specified key and security key type.
     /// </summary>
     /// <param name="key">A password for symmetric algorithms; the exported key for asymmetric algorithms.</param>
-    /// <param name="keyType"></param>
-    /// <exception cref="ArgumentOutOfRangeException"></exception>
+    /// <param name="keyType">The type of key; a symmetric key, a public asymmetric key, or a private asymmetric key.</param>
     /// <remarks>
     /// When using passwords with symmetric algoritms, be sure to use a password with a high entropy,
     /// such as a pair of random GUIDs.
