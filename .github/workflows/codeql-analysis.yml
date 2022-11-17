@@ -16,7 +16,7 @@ jobs:
     - name: Checkout source
       uses: actions/checkout@v3
 
-    - name: Setup .NET Core SDK
+    - name: Setup .NET SDK
       uses: actions/setup-dotnet@v3
       with:
          dotnet-version: 7.0.x

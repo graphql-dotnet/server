@@ -27,7 +27,7 @@ jobs:
           version="${github_ref:10}"
           echo version=$version
           echo "version=$version" >> $GITHUB_ENV
-      - name: Setup .NET Core SDK
+      - name: Setup .NET SDK
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: 7.0.x
