@@ -7,14 +7,14 @@ namespace GraphQL.Server.Ui.Playground;
 /// </summary>
 public class PlaygroundActionResult : IActionResult
 {
-    private readonly PlaygroundMiddleware _playgroundMiddleware;
+    private readonly PlaygroundMiddleware _middleware;
 
     /// <summary>
     /// Initializes the playground action result with the specified options.
     /// </summary>
     public PlaygroundActionResult(PlaygroundOptions options)
     {
-        _playgroundMiddleware = new(_ => Task.CompletedTask, options);
+        _middleware = new(_ => Task.CompletedTask, options);
     }
 
     /// <summary>
@@ -24,10 +24,10 @@ public class PlaygroundActionResult : IActionResult
     {
         var options = new PlaygroundOptions();
         configure?.Invoke(options);
-        _playgroundMiddleware = new(_ => Task.CompletedTask, options);
+        _middleware = new(_ => Task.CompletedTask, options);
     }
 
     /// <inheritdoc/>
     public Task ExecuteResultAsync(ActionContext context)
-        => _playgroundMiddleware.Invoke(context.HttpContext);
+        => _middleware.Invoke(context.HttpContext);
 }
