@@ -1,3 +1,5 @@
+#pragma warning disable IDE0060 // Remove unused parameter
+
 using GraphQL.Server.Transports.AspNetCore.AzureFunctions;
 using GraphQL.Server.Ui.Playground;
 using Microsoft.AspNetCore.Http;
@@ -12,21 +14,20 @@ public class GraphQL
 {
     [FunctionName("GraphQL")]
     public static IActionResult RunGraphQL(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest request,
         ILogger log)
     {
-        log.LogInformation("C# HTTP trigger function processed a request.");
+        log.LogInformation("C# HTTP trigger function processed a GraphQL request.");
 
-        return new AzureGraphQLActionResult(req);
+        return new AzureGraphQLActionResult(request);
     }
 
     [FunctionName("Playground")]
     public static IActionResult RunPlayground(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequest req,
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequest request,
         ILogger log)
     {
-        _ = req;
-        log.LogInformation("Getting Playground UI.");
+        log.LogInformation("C# HTTP trigger function processed a request for the GraphQL Playground UI.");
 
         return new PlaygroundActionResult(opts => opts.GraphQLEndPoint = "/api/graphql");
     }
