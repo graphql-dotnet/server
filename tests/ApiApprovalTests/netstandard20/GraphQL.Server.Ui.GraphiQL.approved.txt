@@ -1,5 +1,11 @@
 namespace GraphQL.Server.Ui.GraphiQL
 {
+    public class GraphiQLActionResult : Microsoft.AspNetCore.Mvc.IActionResult
+    {
+        public GraphiQLActionResult(GraphQL.Server.Ui.GraphiQL.GraphiQLOptions options) { }
+        public GraphiQLActionResult(System.Action<GraphQL.Server.Ui.GraphiQL.GraphiQLOptions>? configure = null) { }
+        public System.Threading.Tasks.Task ExecuteResultAsync(Microsoft.AspNetCore.Mvc.ActionContext context) { }
+    }
     public class GraphiQLMiddleware
     {
         public GraphiQLMiddleware(Microsoft.AspNetCore.Http.RequestDelegate next, GraphQL.Server.Ui.GraphiQL.GraphiQLOptions options) { }
