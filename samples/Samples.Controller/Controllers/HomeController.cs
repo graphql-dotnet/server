@@ -1,5 +1,6 @@
 using GraphQL;
 using GraphQL.Server.Transports.AspNetCore;
+using GraphQL.Server.Ui.GraphiQL;
 using GraphQL.Transport;
 using GraphQL.Types;
 using GraphQL.Validation;
@@ -21,7 +22,7 @@ public class HomeController : Controller
     }
 
     public IActionResult Index()
-        => View();
+        => new GraphiQLActionResult(opts => opts.GraphQLEndPoint = "/Home/graphql");
 
     [HttpGet]
     [ActionName("graphql")]
