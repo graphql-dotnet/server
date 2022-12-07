@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netcoreapp2.1;netcoreapp3.1;net5.0</TargetFrameworks>
@@ -26,14 +26,14 @@
     <Using Include="GraphQL" />
     <Using Include="GraphQL.DI" />
     <Using Include="GraphQL.Execution" />
-    <Using Include="GraphQL.Server.Transports.AspNetCore"/>
+    <Using Include="GraphQL.Server.Transports.AspNetCore" />
     <Using Include="GraphQL.Server.Transports.AspNetCore.Errors" />
     <Using Include="GraphQL.Server.Transports.AspNetCore.WebSockets" />
     <Using Include="GraphQL.Transport" />
     <Using Include="GraphQL.Types" />
     <Using Include="GraphQL.Validation" />
     <Using Include="GraphQLParser.AST" />
-    <Using Include="Microsoft.AspNetCore.Authorization"/>
+    <Using Include="Microsoft.AspNetCore.Authorization" />
     <Using Include="Microsoft.AspNetCore.Builder" />
     <Using Include="Microsoft.AspNetCore.Http" />
     <Using Include="Microsoft.AspNetCore.Mvc" />
@@ -44,8 +44,8 @@
     <Using Include="System.Net" />
     <Using Include="System.Net.Http.Headers" />
     <Using Include="System.Net.WebSockets" />
-    <Using Include="System.Security.Claims"/>
-    <Using Include="System.Security.Principal"/>
+    <Using Include="System.Security.Claims" />
+    <Using Include="System.Security.Principal" />
     <Using Include="System.Threading" />
     <Using Include="System.Threading.Tasks" />
   </ItemGroup>
