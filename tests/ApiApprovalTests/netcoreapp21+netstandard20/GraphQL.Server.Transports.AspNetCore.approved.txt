@@ -93,6 +93,7 @@ namespace GraphQL.Server.Transports.AspNetCore
         protected virtual System.Threading.Tasks.Task HandleWebSocketAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next) { }
         protected virtual System.Threading.Tasks.Task HandleWebSocketSubProtocolNotSupportedAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next) { }
         public virtual System.Threading.Tasks.Task InvokeAsync(Microsoft.AspNetCore.Http.HttpContext context) { }
+        protected virtual System.Threading.Tasks.Task InvokeAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next) { }
         [return: System.Runtime.CompilerServices.TupleElementNames(new string[] {
                 "SingleRequest",
                 "BatchRequest"})]
@@ -165,6 +166,32 @@ namespace GraphQL.Server.Transports.AspNetCore
         public UserContextBuilder(System.Func<Microsoft.AspNetCore.Http.HttpContext, object?, TUserContext> func) { }
         public System.Threading.Tasks.ValueTask<System.Collections.Generic.IDictionary<string, object?>?> BuildUserContextAsync(Microsoft.AspNetCore.Http.HttpContext context, object? payload) { }
     }
+}
+namespace GraphQL.Server.Transports.AspNetCore.AzureFunctions
+{
+    public class AzureGraphQLActionResult : GraphQL.Server.Transports.AspNetCore.AzureFunctions.AzureGraphQLActionResult<GraphQL.Types.ISchema>
+    {
+        public AzureGraphQLActionResult(Microsoft.AspNetCore.Http.HttpRequest httpRequest) { }
+    }
+    public class AzureGraphQLActionResult<TSchema> : Microsoft.AspNetCore.Mvc.IActionResult
+        where TSchema : GraphQL.Types.ISchema
+    {
+        public AzureGraphQLActionResult(Microsoft.AspNetCore.Http.HttpRequest httpRequest) { }
+        public virtual System.Threading.Tasks.Task ExecuteResultAsync(Microsoft.AspNetCore.Mvc.ActionContext context) { }
+    }
+    public class AzureGraphQLMiddleware<TSchema> : GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddleware<TSchema>, GraphQL.Server.Transports.AspNetCore.AzureFunctions.IAzureGraphQLMiddleware, GraphQL.Server.Transports.AspNetCore.AzureFunctions.IAzureGraphQLMiddleware<TSchema>
+        where TSchema : GraphQL.Types.ISchema
+    {
+        public AzureGraphQLMiddleware(GraphQL.IGraphQLTextSerializer serializer, GraphQL.IDocumentExecuter<TSchema> documentExecuter, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions options) { }
+        public override System.Threading.Tasks.Task InvokeAsync(Microsoft.AspNetCore.Http.HttpContext context) { }
+        public virtual System.Threading.Tasks.Task InvokeAsync(Microsoft.AspNetCore.Http.HttpRequest request, Microsoft.AspNetCore.Http.RequestDelegate next) { }
+    }
+    public interface IAzureGraphQLMiddleware
+    {
+        System.Threading.Tasks.Task InvokeAsync(Microsoft.AspNetCore.Http.HttpRequest request, Microsoft.AspNetCore.Http.RequestDelegate next);
+    }
+    public interface IAzureGraphQLMiddleware<TSchema> : GraphQL.Server.Transports.AspNetCore.AzureFunctions.IAzureGraphQLMiddleware
+        where TSchema : GraphQL.Types.ISchema { }
 }
 namespace GraphQL.Server.Transports.AspNetCore.Errors
 {
@@ -380,6 +407,9 @@ namespace GraphQL
     public static class ServerGraphQLBuilderExtensions
     {
         public static GraphQL.DI.IGraphQLBuilder AddAuthorizationRule(this GraphQL.DI.IGraphQLBuilder builder) { }
+        public static GraphQL.DI.IGraphQLBuilder AddAzureFunctionsMiddleware(this GraphQL.DI.IGraphQLBuilder builder, System.Action<GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions>? configure = null) { }
+        public static GraphQL.DI.IGraphQLBuilder AddAzureFunctionsMiddleware<TSchema>(this GraphQL.DI.IGraphQLBuilder builder, System.Action<GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions>? configure = null)
+            where TSchema : GraphQL.Types.ISchema { }
         public static GraphQL.DI.IGraphQLBuilder AddUserContextBuilder<TUserContextBuilder>(this GraphQL.DI.IGraphQLBuilder builder)
             where TUserContextBuilder :  class, GraphQL.Server.Transports.AspNetCore.IUserContextBuilder { }
         public static GraphQL.DI.IGraphQLBuilder AddUserContextBuilder<TUserContext>(this GraphQL.DI.IGraphQLBuilder builder, System.Func<Microsoft.AspNetCore.Http.HttpContext, System.Threading.Tasks.Task<TUserContext>> creator)
