@@ -10,7 +10,7 @@ public class GraphiQLActionResult : IActionResult
     private readonly GraphiQLMiddleware _middleware;
 
     /// <summary>
-    /// Initializes the playground action result with the specified options.
+    /// Initializes the GraphiQL action result with the specified options.
     /// </summary>
     public GraphiQLActionResult(GraphiQLOptions options)
     {
@@ -18,7 +18,7 @@ public class GraphiQLActionResult : IActionResult
     }
 
     /// <summary>
-    /// Initializes the playground action result with the specified optional configuration delegate.
+    /// Initializes the GraphiQL action result with the specified optional configuration delegate.
     /// </summary>
     public GraphiQLActionResult(Action<GraphiQLOptions>? configure = null)
     {

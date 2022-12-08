@@ -10,7 +10,7 @@ public class PlaygroundActionResult : IActionResult
     private readonly PlaygroundMiddleware _middleware;
 
     /// <summary>
-    /// Initializes the playground action result with the specified options.
+    /// Initializes the Playground action result with the specified options.
     /// </summary>
     public PlaygroundActionResult(PlaygroundOptions options)
     {
@@ -18,7 +18,7 @@ public class PlaygroundActionResult : IActionResult
     }
 
     /// <summary>
-    /// Initializes the playground action result with the specified optional configuration delegate.
+    /// Initializes the Playground action result with the specified optional configuration delegate.
     /// </summary>
     public PlaygroundActionResult(Action<PlaygroundOptions>? configure = null)
     {
