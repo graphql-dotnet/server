@@ -18,7 +18,7 @@ public class PlaygroundActionResult : IActionResult
     }
 
     /// <summary>
-    /// Initializes the playground action result with the specified option configuration delegate.
+    /// Initializes the playground action result with the specified optional configuration delegate.
     /// </summary>
     public PlaygroundActionResult(Action<PlaygroundOptions>? configure = null)
     {
