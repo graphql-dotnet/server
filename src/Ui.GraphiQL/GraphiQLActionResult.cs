@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace GraphQL.Server.Ui.GraphiQL;
 
 /// <summary>
-/// An action result that returns a GraphiQL user interface
+/// An action result that returns a GraphiQL user interface.
 /// </summary>
 public class GraphiQLActionResult : IActionResult
 {
