@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace GraphQL.Server.Ui.Playground;
 
 /// <summary>
-/// An action result that returns a Playground result
+/// An action result that returns a Playground user interface.
 /// </summary>
 public class PlaygroundActionResult : IActionResult
 {
