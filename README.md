@@ -196,6 +196,57 @@ public class HomeController : Controller
 }
 ```
 
+### Configuration with Azure Functions
+
+This project also supports hosting GraphQL endpoints within Azure Functions.
+You will need to complete the following steps:
+
+1. Configure the Azure Function to use Dependency Injection:
+   See https://learn.microsoft.com/en-us/azure/azure-functions/functions-dotnet-dependency-injection
+   for details.
+
+2. Configure GraphQL via `builder.Services.AddGraphQL()` the same as you would in a typical
+   ASP.NET Core application.
+
+3. Add a call to `.AddAzureFunctionsMiddleware()` within the `AddGraphQL` call.
+
+4. Add an HTTP function that returns an appropriate `ActionResult`:
+
+```csharp
+[FunctionName("GraphQL")]
+public static IActionResult RunGraphQL(
+    [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post"] HttpRequest req)
+{
+    return new AzureGraphQLActionResult(req);
+}
+```
+
+5. Optionally, add a UI package to the project and configure it:
+
+```csharp
+[FunctionName("Playground")]
+public static IActionResult RunGraphQL(
+    [HttpTrigger(AuthorizationLevel.Anonymous, "get"] HttpRequest req)
+{
+    return new PlaygroundActionResult(opts => opts.GraphQLEndPoint = "/api/graphql");
+}
+```
+
+Middleware can be configured by passing a configuration delegate to `.AddAzureFunctionsMiddleware()`.
+Multiple schemas are supported by the use of `AddAzureFunctionsMiddleware<TSchema>()`
+and `AzureGraphQLActionResult<TSchema>`.  However, there is no way to configure multiple
+endpoints for the same schema to have different configurations.  It is also not possible to
+configure subscription support, as Azure Functions do not support WebSockets since it is
+a serverless environment.
+
+See the `Samples.AzureFunctions` project for a complete sample based on the
+.NET template for Azure Functions.
+
+Please note that the GraphQL schema needs to be initialized for every call through
+Azure Functions, since it is a serverless environment.  This is done automatically
+but will come at a performance cost.  If you are using a schema that is expensive
+to initialize, you may want to consider using a different hosting environment.
+
 ### User context configuration
 
 To set the user context to be used during the execution of GraphQL requests,
