@@ -184,17 +184,4 @@ public static class ServerGraphQLBuilderExtensions
 
         return builder;
     }
-
-    private class AzureGraphQLMiddlewareMapper<TSchema> : IAzureGraphQLMiddleware
-        where TSchema : ISchema
-    {
-        private readonly IAzureGraphQLMiddleware<TSchema> _middleware;
-
-        public AzureGraphQLMiddlewareMapper(IAzureGraphQLMiddleware<TSchema> middleware)
-        {
-            _middleware = middleware;
-        }
-
-        public Task InvokeAsync(HttpRequest request, RequestDelegate next) => _middleware.InvokeAsync(request, next);
-    }
 }
