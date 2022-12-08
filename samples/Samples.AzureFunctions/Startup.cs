@@ -1,9 +1,10 @@
+using GraphQL;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using Chat = GraphQL.Samples.Schemas.Chat;
 
-[assembly: FunctionsStartup(typeof(GraphQL.Server.Samples.AzureFunctions.Startup))]
-namespace GraphQL.Server.Samples.AzureFunctions;
+[assembly: FunctionsStartup(typeof(Samples.AzureFunctions.Startup))]
+namespace Samples.AzureFunctions;
 
 public class Startup : FunctionsStartup
 {
