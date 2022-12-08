@@ -18,7 +18,7 @@ public class GraphiQLActionResult : IActionResult
     }
 
     /// <summary>
-    /// Initializes the playground action result with the specified option configuration delegate.
+    /// Initializes the playground action result with the specified optional configuration delegate.
     /// </summary>
     public GraphiQLActionResult(Action<GraphiQLOptions>? configure = null)
     {
