@@ -1,5 +1,3 @@
-#pragma warning disable IDE0060 // Remove unused parameter
-
 using GraphQL.Server.Transports.AspNetCore.AzureFunctions;
 using GraphQL.Server.Ui.Playground;
 using Microsoft.AspNetCore.Http;
