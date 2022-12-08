@@ -27,6 +27,6 @@ public class GraphQL
     {
         log.LogInformation("C# HTTP trigger function processed a request for the GraphQL Playground UI.");
 
-        return new PlaygroundActionResult(opts => opts.GraphQLEndPoint = "/api/graphql");
+        return new PlaygroundActionResult(opts => opts.GraphQLEndPoint = "/api/graphql"); // /api/graphql route will call RunGraphQL method
     }
 }
