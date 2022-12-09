@@ -3,7 +3,7 @@ namespace GraphQL.Server.Transports.AspNetCore;
 /// <summary>
 /// An <see cref="IActionResult"/> that executes a GraphQL request for the specified schema.
 /// </summary>
-public class AzureGraphQLActionResult<TSchema> : IActionResult
+public class GraphQLExecutionActionResult<TSchema> : IActionResult
     where TSchema : ISchema
 {
     private readonly GraphQLHttpMiddlewareOptions _options;
@@ -11,7 +11,7 @@ public class AzureGraphQLActionResult<TSchema> : IActionResult
     /// <summary>
     /// Initializes a new instance with an optional middleware configuration delegate.
     /// </summary>
-    public AzureGraphQLActionResult(Action<GraphQLHttpMiddlewareOptions>? configure = null)
+    public GraphQLExecutionActionResult(Action<GraphQLHttpMiddlewareOptions>? configure = null)
         : this(Configure(configure))
     {
     }
@@ -26,7 +26,7 @@ public class AzureGraphQLActionResult<TSchema> : IActionResult
     /// <summary>
     /// Initializes a new instance with the specified middleware options.
     /// </summary>
-    public AzureGraphQLActionResult(GraphQLHttpMiddlewareOptions options)
+    public GraphQLExecutionActionResult(GraphQLHttpMiddlewareOptions options)
     {
         _options = options;
     }
@@ -45,7 +45,7 @@ public class AzureGraphQLActionResult<TSchema> : IActionResult
             provider.GetRequiredService<IDocumentExecuter<TSchema>>(),
             provider.GetRequiredService<IServiceScopeFactory>(),
             _options,
-            NullHostApplicationLifetime.Instance);
+            provider.GetService<IHostApplicationLifetime>() ?? NullHostApplicationLifetime.Instance);
 
         return middleware.InvokeAsync(context.HttpContext);
     }
@@ -71,16 +71,16 @@ public class AzureGraphQLActionResult<TSchema> : IActionResult
 /// <summary>
 /// An <see cref="IActionResult"/> that executes a GraphQL request for the default schema.
 /// </summary>
-public class AzureGraphQLActionResult : AzureGraphQLActionResult<ISchema>
+public class GraphQLExecutionActionResult : GraphQLExecutionActionResult<ISchema>
 {
-    /// <inheritdoc cref="AzureGraphQLActionResult{TSchema}.AzureGraphQLActionResult(Action{GraphQLHttpMiddlewareOptions}?)"/>
-    public AzureGraphQLActionResult(Action<GraphQLHttpMiddlewareOptions>? configure = null)
+    /// <inheritdoc cref="GraphQLExecutionActionResult{TSchema}.GraphQLExecutionActionResult(Action{GraphQLHttpMiddlewareOptions}?)"/>
+    public GraphQLExecutionActionResult(Action<GraphQLHttpMiddlewareOptions>? configure = null)
         : base(configure)
     {
     }
 
-    /// <inheritdoc cref="AzureGraphQLActionResult{TSchema}.AzureGraphQLActionResult(GraphQLHttpMiddlewareOptions)"/>
-    public AzureGraphQLActionResult(GraphQLHttpMiddlewareOptions options)
+    /// <inheritdoc cref="GraphQLExecutionActionResult{TSchema}.GraphQLExecutionActionResult(GraphQLHttpMiddlewareOptions)"/>
+    public GraphQLExecutionActionResult(GraphQLHttpMiddlewareOptions options)
         : base(options)
     {
     }

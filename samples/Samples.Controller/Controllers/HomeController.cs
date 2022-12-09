@@ -12,21 +12,32 @@ public class HomeController : Controller
 {
     private readonly IDocumentExecuter<ISchema> _executer;
     private readonly IGraphQLTextSerializer _serializer;
-    private readonly IUserContextBuilder _websocketUserContextBuilder;
 
     public HomeController(IDocumentExecuter<ISchema> executer, IGraphQLTextSerializer serializer)
     {
         _executer = executer;
         _serializer = serializer;
-        _websocketUserContextBuilder = new UserContextBuilder<IDictionary<string, object?>>((_, _) => new Dictionary<string, object?>());
     }
 
+    /************ Display the GraphiQL interface *************/
     public IActionResult Index()
-        => new GraphiQLActionResult(opts => opts.GraphQLEndPoint = "/Home/graphql");
+        => new GraphiQLActionResult(opts =>
+        {
+            opts.GraphQLEndPoint = "/Home/graphql";
+            opts.SubscriptionsEndPoint = "/Home/graphql";
+        });
 
+    /******* Sample using GraphQLExecutionActionResult, letting the middleware handle the request ********/
     [HttpGet]
+    [HttpPost]
     [ActionName("graphql")]
-    public Task<IActionResult> GraphQLGetAsync(string query, string? operationName)
+    public IActionResult GraphQLAsync()
+        => new GraphQLExecutionActionResult();
+
+    /******* Sample with custom logic only using ExecutionResultActionResult to return the result ********/
+    [HttpGet]
+    [ActionName("graphql2")]
+    public Task<IActionResult> GraphQL2GetAsync(string query, string? operationName)
     {
         if (HttpContext.WebSockets.IsWebSocketRequest)
         {
@@ -39,8 +50,8 @@ public class HomeController : Controller
     }
 
     [HttpPost]
-    [ActionName("graphql")]
-    public async Task<IActionResult> GraphQLPostAsync()
+    [ActionName("graphql2")]
+    public async Task<IActionResult> GraphQL2PostAsync()
     {
         if (HttpContext.Request.HasFormContentType)
         {
