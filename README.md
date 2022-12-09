@@ -208,16 +208,14 @@ You will need to complete the following steps:
 2. Configure GraphQL via `builder.Services.AddGraphQL()` the same as you would in a typical
    ASP.NET Core application.
 
-3. Add a call to `.AddAzureFunctionsMiddleware()` within the `AddGraphQL` call.
-
-4. Add an HTTP function that returns an appropriate `ActionResult`:
+3. Add an HTTP function that returns an appropriate `ActionResult`:
 
 ```csharp
 [FunctionName("GraphQL")]
 public static IActionResult RunGraphQL(
     [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post"] HttpRequest req)
 {
-    return new AzureGraphQLActionResult(req);
+    return new AzureGraphQLActionResult();
 }
 ```
 
@@ -232,12 +230,10 @@ public static IActionResult RunGraphQL(
 }
 ```
 
-Middleware can be configured by passing a configuration delegate to `.AddAzureFunctionsMiddleware()`.
-Multiple schemas are supported by the use of `AddAzureFunctionsMiddleware<TSchema>()`
-and `AzureGraphQLActionResult<TSchema>`.  However, there is no way to configure multiple
-endpoints for the same schema to have different configurations.  It is also not possible to
-configure subscription support, as Azure Functions do not support WebSockets since it is
-a serverless environment.
+Middleware can be configured by passing a configuration delegate to `new AzureGraphQLActionResult()`.
+Multiple schemas are supported by the use of `AzureGraphQLActionResult<TSchema>()`.
+It is not possible to configure subscription support, as Azure Functions do not support WebSockets
+since it is a serverless environment.
 
 See the `Samples.AzureFunctions` project for a complete sample based on the
 .NET template for Azure Functions.

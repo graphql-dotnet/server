@@ -1,5 +1,3 @@
-using GraphQL.Server.Transports.AspNetCore.AzureFunctions;
-
 namespace GraphQL;
 
 /// <summary>
@@ -143,45 +141,6 @@ public static class ServerGraphQLBuilderExtensions
     public static IGraphQLBuilder AddAuthorizationRule(this IGraphQLBuilder builder)
     {
         builder.AddValidationRule<AuthorizationValidationRule>(true);
-        return builder;
-    }
-
-    /// <summary>
-    /// Registers <see cref="IAzureGraphQLMiddleware"/> and <see cref="IAzureGraphQLMiddleware">IAzureGraphQLMiddleware&lt;ISchema&gt;</see> within the dependency injection framework.
-    /// </summary>
-    public static IGraphQLBuilder AddAzureFunctionsMiddleware(this IGraphQLBuilder builder, Action<GraphQLHttpMiddlewareOptions>? configure = null)
-    {
-        builder.Services.Register<IAzureGraphQLMiddleware>(
-            provider => provider.GetRequiredService<IAzureGraphQLMiddleware<ISchema>>(),
-            DI.ServiceLifetime.Singleton);
-
-        return AddAzureFunctionsMiddleware<ISchema>(builder, configure);
-    }
-
-
-    /// <summary>
-    /// Registers <see cref="IAzureGraphQLMiddleware{TSchema}"/>, and <see cref="IAzureGraphQLMiddleware"/> if not already registered, within the dependency injection framework.
-    /// </summary>
-    public static IGraphQLBuilder AddAzureFunctionsMiddleware<TSchema>(this IGraphQLBuilder builder, Action<GraphQLHttpMiddlewareOptions>? configure = null)
-        where TSchema : ISchema
-    {
-        builder.Services.Register<IAzureGraphQLMiddleware<TSchema>>(
-            provider =>
-            {
-                var options = new GraphQLHttpMiddlewareOptions();
-                configure?.Invoke(options);
-                return new AzureGraphQLMiddleware<TSchema>(
-                    provider.GetRequiredService<IGraphQLTextSerializer>(),
-                    provider.GetRequiredService<IDocumentExecuter<TSchema>>(),
-                    provider.GetRequiredService<IServiceScopeFactory>(),
-                    options);
-            },
-            DI.ServiceLifetime.Singleton);
-
-        builder.Services.TryRegister<IAzureGraphQLMiddleware>(
-            provider => provider.GetRequiredService<IAzureGraphQLMiddleware<TSchema>>(),
-            DI.ServiceLifetime.Singleton);
-
         return builder;
     }
 }

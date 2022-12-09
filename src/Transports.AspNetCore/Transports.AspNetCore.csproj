@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="AzureFunctions\**" />
+    <EmbeddedResource Remove="AzureFunctions\**" />
+    <None Remove="AzureFunctions\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="GraphQL.MicrosoftDI" Version="$(GraphQLVersion)" />
   </ItemGroup>
 

@@ -41,10 +41,10 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
 {
     private readonly IDocumentExecuter _documentExecuter;
     private readonly IServiceScopeFactory _serviceScopeFactory;
-    private readonly IEnumerable<IValidationRule> _getValidationRules;
-    private readonly IEnumerable<IValidationRule> _getCachedDocumentValidationRules;
-    private readonly IEnumerable<IValidationRule> _postValidationRules;
-    private readonly IEnumerable<IValidationRule> _postCachedDocumentValidationRules;
+    private static readonly IEnumerable<IValidationRule> _getValidationRules;
+    private static readonly IEnumerable<IValidationRule> _getCachedDocumentValidationRules;
+    private static readonly IEnumerable<IValidationRule> _postValidationRules;
+    private static readonly IEnumerable<IValidationRule> _postCachedDocumentValidationRules;
     private readonly IGraphQLTextSerializer _serializer;
     private readonly RequestDelegate _next;
     private readonly IHostApplicationLifetime _hostApplicationLifetime;
@@ -61,6 +61,16 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
     private const string CONTENTTYPE_GRAPHQLJSON = "application/graphql+json; charset=utf-8"; // deprecated
     internal const string CONTENTTYPE_GRAPHQLRESPONSEJSON = "application/graphql-response+json; charset=utf-8";
 
+    static GraphQLHttpMiddleware()
+    {
+        var getRule = new HttpGetValidationRule();
+        _getValidationRules = DocumentValidator.CoreRules.Append(getRule).ToArray();
+        _getCachedDocumentValidationRules = new[] { getRule };
+        var postRule = new HttpPostValidationRule();
+        _postValidationRules = DocumentValidator.CoreRules.Append(postRule).ToArray();
+        _postCachedDocumentValidationRules = new[] { postRule };
+    }
+
     /// <summary>
     /// Initializes a new instance.
     /// </summary>
@@ -74,16 +84,10 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
     {
         _next = next ?? throw new ArgumentNullException(nameof(next));
         _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
-        _options = options ?? throw new ArgumentNullException(nameof(options));
-        _hostApplicationLifetime = hostApplicationLifetime ?? throw new ArgumentNullException(nameof(hostApplicationLifetime));
         _documentExecuter = documentExecuter ?? throw new ArgumentNullException(nameof(documentExecuter));
         _serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
-        var getRule = new HttpGetValidationRule();
-        _getValidationRules = DocumentValidator.CoreRules.Append(getRule).ToArray();
-        _getCachedDocumentValidationRules = new[] { getRule };
-        var postRule = new HttpPostValidationRule();
-        _postValidationRules = DocumentValidator.CoreRules.Append(postRule).ToArray();
-        _postCachedDocumentValidationRules = new[] { postRule };
+        _options = options ?? throw new ArgumentNullException(nameof(options));
+        _hostApplicationLifetime = hostApplicationLifetime ?? throw new ArgumentNullException(nameof(hostApplicationLifetime));
     }
 
     /// <inheritdoc cref="InvokeAsync(HttpContext, RequestDelegate)" />
