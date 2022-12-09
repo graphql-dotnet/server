@@ -1,5 +1,11 @@
 namespace GraphQL.Server.Ui.Altair
 {
+    public class AltairActionResult : Microsoft.AspNetCore.Mvc.IActionResult
+    {
+        public AltairActionResult(GraphQL.Server.Ui.Altair.AltairOptions options) { }
+        public AltairActionResult(System.Action<GraphQL.Server.Ui.Altair.AltairOptions>? configure = null) { }
+        public System.Threading.Tasks.Task ExecuteResultAsync(Microsoft.AspNetCore.Mvc.ActionContext context) { }
+    }
     public class AltairMiddleware
     {
         public AltairMiddleware(Microsoft.AspNetCore.Http.RequestDelegate next, GraphQL.Server.Ui.Altair.AltairOptions options) { }

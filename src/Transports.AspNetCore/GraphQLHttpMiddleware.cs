@@ -86,21 +86,25 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
         _postCachedDocumentValidationRules = new[] { postRule };
     }
 
-    /// <inheritdoc/>
-    public virtual async Task InvokeAsync(HttpContext context)
+    /// <inheritdoc cref="InvokeAsync(HttpContext, RequestDelegate)" />
+    public virtual Task InvokeAsync(HttpContext context)
+        => InvokeAsync(context, _next);
+
+    /// <inheritdoc cref="IMiddleware.InvokeAsync(HttpContext, RequestDelegate)" />
+    protected virtual async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
         if (context.WebSockets.IsWebSocketRequest)
         {
             if (_options.HandleWebSockets)
             {
-                if (await HandleAuthorizeWebSocketConnectionAsync(context, _next))
+                if (await HandleAuthorizeWebSocketConnectionAsync(context, next))
                     return;
 
-                await HandleWebSocketAsync(context, _next);
+                await HandleWebSocketAsync(context, next);
             }
             else
             {
-                await HandleInvalidHttpMethodErrorAsync(context, _next);
+                await HandleInvalidHttpMethodErrorAsync(context, next);
             }
             return;
         }
@@ -114,12 +118,12 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
         bool isPost = HttpMethods.IsPost(httpRequest.Method);
         if (isGet && !_options.HandleGet || isPost && !_options.HandlePost || !isGet && !isPost)
         {
-            await HandleInvalidHttpMethodErrorAsync(context, _next);
+            await HandleInvalidHttpMethodErrorAsync(context, next);
             return;
         }
 
         // Authenticate request if necessary
-        if (await HandleAuthorizeAsync(context, _next))
+        if (await HandleAuthorizeAsync(context, next))
             return;
 
         // Parse POST body
@@ -129,17 +133,17 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
         {
             if (!MediaTypeHeaderValue.TryParse(httpRequest.ContentType, out var mediaTypeHeader))
             {
-                await HandleContentTypeCouldNotBeParsedErrorAsync(context, _next);
+                await HandleContentTypeCouldNotBeParsedErrorAsync(context, next);
                 return;
             }
 
             if (!TryGetEncoding(mediaTypeHeader.CharSet, out var sourceEncoding))
             {
-                await HandleContentTypeCouldNotBeParsedErrorAsync(context, _next);
+                await HandleContentTypeCouldNotBeParsedErrorAsync(context, next);
                 return;
             }
 
-            var singleOrBatchRequest = await ReadPostContentAsync(context, _next, mediaTypeHeader.MediaType, sourceEncoding);
+            var singleOrBatchRequest = await ReadPostContentAsync(context, next, mediaTypeHeader.MediaType, sourceEncoding);
             if (singleOrBatchRequest.HasValue)
                 (bodyGQLRequest, bodyGQLBatchRequest) = singleOrBatchRequest.Value;
             else
@@ -160,7 +164,7 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
                 }
                 catch (Exception ex)
                 {
-                    if (!await HandleDeserializationErrorAsync(context, _next, ex))
+                    if (!await HandleDeserializationErrorAsync(context, next, ex))
                         throw;
                     return;
                 }
@@ -174,15 +178,15 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
                 OperationName = urlGQLRequest?.OperationName ?? bodyGQLRequest?.OperationName
             };
 
-            await HandleRequestAsync(context, _next, gqlRequest);
+            await HandleRequestAsync(context, next, gqlRequest);
         }
         else if (_options.EnableBatchedRequests)
         {
-            await HandleBatchRequestAsync(context, _next, bodyGQLBatchRequest);
+            await HandleBatchRequestAsync(context, next, bodyGQLBatchRequest);
         }
         else
         {
-            await HandleBatchedRequestsNotSupportedAsync(context, _next);
+            await HandleBatchedRequestsNotSupportedAsync(context, next);
         }
     }
 

@@ -6,6 +6,12 @@ namespace GraphQL.Server.Ui.Voyager
         Include = 1,
         SameOrigin = 2,
     }
+    public class VoyagerActionResult : Microsoft.AspNetCore.Mvc.IActionResult
+    {
+        public VoyagerActionResult(GraphQL.Server.Ui.Voyager.VoyagerOptions options) { }
+        public VoyagerActionResult(System.Action<GraphQL.Server.Ui.Voyager.VoyagerOptions>? configure = null) { }
+        public System.Threading.Tasks.Task ExecuteResultAsync(Microsoft.AspNetCore.Mvc.ActionContext context) { }
+    }
     public class VoyagerMiddleware
     {
         public VoyagerMiddleware(Microsoft.AspNetCore.Http.RequestDelegate next, GraphQL.Server.Ui.Voyager.VoyagerOptions options) { }
