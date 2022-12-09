@@ -28,7 +28,7 @@ public class GraphQLExecutionActionResult<TSchema> : IActionResult
     /// </summary>
     public GraphQLExecutionActionResult(GraphQLHttpMiddlewareOptions options)
     {
-        _options = options; 
+        _options = options;
     }
 
     /// <inheritdoc/>
