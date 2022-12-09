@@ -17,7 +17,7 @@ public class GraphQL
     {
         log.LogInformation("C# HTTP trigger function processed a GraphQL request.");
 
-        return new GraphQLActionResult();
+        return new GraphQLExecutionActionResult();
     }
 
     [FunctionName("Playground")]
