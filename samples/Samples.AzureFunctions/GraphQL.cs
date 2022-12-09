@@ -1,4 +1,4 @@
-using GraphQL.Server.Transports.AspNetCore.AzureFunctions;
+using GraphQL.Server.Transports.AspNetCore;
 using GraphQL.Server.Ui.Playground;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -17,7 +17,7 @@ public class GraphQL
     {
         log.LogInformation("C# HTTP trigger function processed a GraphQL request.");
 
-        return new AzureGraphQLActionResult(request);
+        return new GraphQLExecutionActionResult();
     }
 
     [FunctionName("Playground")]

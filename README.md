@@ -166,11 +166,37 @@ await app.RunAsync();
 
 Although not recommended, you may set up a controller action to execute GraphQL
 requests.  You will not need `UseGraphQL` or `MapGraphQL` in the application
-startup.  Below is a very basic sample; a much more complete sample can be found
-in the `Samples.Controller` project within this repository.  Although technically
-possible, the sample does not include support for WebSocket requests.
+startup.  You may use `GraphQLExecutionActionResult` to let the middleware
+handle the entire parsing and execution of the request, including subscription
+requests over WebSocket connections, or you can execute the request yourself,
+only using `ExecutionResultActionResult` to serialize the result.
 
-#### HomeController.cs
+You can also reference the UI projects to display a GraphQL user interface as shown below.
+
+#### Using `GraphQLExecutionActionResult`
+
+```csharp
+public class HomeController : Controller
+{
+    public IActionResult Index()
+        => new GraphiQLActionResult(opts =>
+        {
+            opts.GraphQLEndPoint = "/Home/graphql";
+            opts.SubscriptionsEndPoint = "/Home/graphql";
+        });
+
+    [HttpGet]
+    [HttpPost]
+    [ActionName("graphql")]
+    public IActionResult GraphQL()
+        => new GraphQLExecutionActionResult();
+}
+```
+
+#### Using `ExecutionResultActionResult`
+
+Note: this is very simplified; a much more complete sample can be found
+in the `Samples.Controller` project within this repository.
 
 ```csharp
 public class HomeController : Controller
@@ -208,16 +234,14 @@ You will need to complete the following steps:
 2. Configure GraphQL via `builder.Services.AddGraphQL()` the same as you would in a typical
    ASP.NET Core application.
 
-3. Add a call to `.AddAzureFunctionsMiddleware()` within the `AddGraphQL` call.
-
-4. Add an HTTP function that returns an appropriate `ActionResult`:
+3. Add an HTTP function that returns an appropriate `ActionResult`:
 
 ```csharp
 [FunctionName("GraphQL")]
 public static IActionResult RunGraphQL(
     [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post"] HttpRequest req)
 {
-    return new AzureGraphQLActionResult(req);
+    return new GraphQLExecutionActionResult();
 }
 ```
 
@@ -232,12 +256,10 @@ public static IActionResult RunGraphQL(
 }
 ```
 
-Middleware can be configured by passing a configuration delegate to `.AddAzureFunctionsMiddleware()`.
-Multiple schemas are supported by the use of `AddAzureFunctionsMiddleware<TSchema>()`
-and `AzureGraphQLActionResult<TSchema>`.  However, there is no way to configure multiple
-endpoints for the same schema to have different configurations.  It is also not possible to
-configure subscription support, as Azure Functions do not support WebSockets since it is
-a serverless environment.
+Middleware can be configured by passing a configuration delegate to `new GraphQLExecutionActionResult()`.
+Multiple schemas are supported by the use of `GraphQLExecutionActionResult<TSchema>()`.
+It is not possible to configure subscription support, as Azure Functions do not support WebSockets
+since it is a serverless environment.
 
 See the `Samples.AzureFunctions` project for a complete sample based on the
 .NET template for Azure Functions.

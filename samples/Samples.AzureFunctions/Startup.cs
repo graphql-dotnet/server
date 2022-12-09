@@ -16,7 +16,6 @@ public class Startup : FunctionsStartup
             .AddAutoSchema<Chat.Query>(s => s
                 .WithMutation<Chat.Mutation>()
                 .WithSubscription<Chat.Subscription>())
-            .AddSystemTextJson()
-            .AddAzureFunctionsMiddleware());
+            .AddSystemTextJson());
     }
 }
