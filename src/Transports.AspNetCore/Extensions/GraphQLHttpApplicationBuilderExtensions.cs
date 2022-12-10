@@ -89,4 +89,29 @@ public static class GraphQLHttpApplicationBuilderExtensions
             context => context.Request.Path.Equals(path),
             b => b.UseMiddleware<TMiddleware>(args));
     }
+
+    /// <summary>
+    /// Ignores <see cref="OperationCanceledException"/> exceptions when
+    /// <see cref="HttpContext.RequestAborted"/> is signaled.
+    /// </summary>
+    /// <remarks>
+    /// Place this immediately after exception handling or logging middleware, such as
+    /// <see cref="DeveloperExceptionPageExtensions.UseDeveloperExceptionPage(IApplicationBuilder)">UseDeveloperExceptionPage</see>.
+    /// </remarks>
+    public static IApplicationBuilder UseIgnoreDisconnections(this IApplicationBuilder builder)
+    {
+        return builder.Use(static next =>
+        {
+            return async context =>
+            {
+                try
+                {
+                    await next(context);
+                }
+                catch (OperationCanceledException) when (context.RequestAborted.IsCancellationRequested)
+                {
+                }
+            };
+        });
+    }
 }

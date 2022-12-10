@@ -430,5 +430,6 @@ namespace Microsoft.AspNetCore.Builder
             where TSchema : GraphQL.Types.ISchema { }
         public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQL<TMiddleware>(this Microsoft.AspNetCore.Builder.IApplicationBuilder builder, string path = "/graphql", params object[] args)
             where TMiddleware : GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddleware { }
+        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseIgnoreDisconnections(this Microsoft.AspNetCore.Builder.IApplicationBuilder builder) { }
     }
 }
