@@ -103,7 +103,7 @@ public class BuilderMethodTests
     [Fact]
     public async Task UseIgnoreDisconnections_Fail()
     {
-        var cts = new CancellationTokenSource();
+        using var cts = new CancellationTokenSource();
         RequestDelegate func = next => throw new OperationCanceledException();
         var builderMock = new Mock<IApplicationBuilder>();
         builderMock.Setup(x => x.Use(It.IsAny<Func<RequestDelegate, RequestDelegate>>())).Returns<Func<RequestDelegate, RequestDelegate>>(
