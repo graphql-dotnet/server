@@ -852,6 +852,26 @@ are rejected over HTTP GET connections.  Derive from `GraphQLHttpMiddleware<T>` 
 
 As would be expected, subscription requests are only allowed over WebSocket channels.
 
+### Excessive `OperationCanceledException`s
+
+When hosting a WebSockets endpoint, it may be common for clients to simply disconnect rather
+than gracefully terminating the connection — most specifically when the client is a web browser.
+If you log exceptions, you may notice an `OperationCanceledException` logged any time this occurs.
+
+In some scenarios you may wish to log these exceptions — for instance, when the GraphQL endpoint is
+used in server-to-server communications — but if you wish to ignore these exceptions, simply call
+`app.UseIgnoreDisconnections();` immediately after any exception handling or logging configuration calls.
+This will consume any `OperationCanceledException`s when `HttpContext.RequestAborted` is signaled — for
+a WebSocket request or any other request.
+
+```csharp
+var app = builder.Build();
+app.UseDeveloperExceptionPage();
+app.UseIgnoreDisconnections();
+app.UseWebSockets();
+app.UseGraphQL();
+```
+
 ### File uploading/downloading
 
 A common question is how to upload or download files attached to GraphQL data.

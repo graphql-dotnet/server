@@ -88,6 +88,44 @@ public class BuilderMethodTests
         await VerifyAsync(url);
     }
 
+    [Fact]
+    public async Task Basic_WithUseIgnoreDisconnections()
+    {
+        _hostBuilder.Configure(app =>
+        {
+            app.UseIgnoreDisconnections();
+            app.UseWebSockets();
+            app.UseGraphQL();
+        });
+        await VerifyAsync();
+    }
+
+    [Fact]
+    public async Task UseIgnoreDisconnections_Fail()
+    {
+        using var cts = new CancellationTokenSource();
+        RequestDelegate func = next => throw new OperationCanceledException();
+        var builderMock = new Mock<IApplicationBuilder>();
+        builderMock.Setup(x => x.Use(It.IsAny<Func<RequestDelegate, RequestDelegate>>())).Returns<Func<RequestDelegate, RequestDelegate>>(
+            d =>
+            {
+                func = d(func);
+                return builderMock.Object;
+            });
+        builderMock.Object.UseIgnoreDisconnections();
+        var context = new DefaultHttpContext()
+        {
+            RequestAborted = cts.Token,
+        };
+
+        // cts is not canceled here so OCE should pass through
+        await Should.ThrowAsync<OperationCanceledException>(() => func(context));
+
+        cts.Cancel();
+        // cts is canceled so OCE should be consumed
+        await func(context);
+    }
+
     [Theory]
     [InlineData("/graphql/")]
     [InlineData("/graphql/more")]
