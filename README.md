@@ -855,13 +855,13 @@ As would be expected, subscription requests are only allowed over WebSocket chan
 ### Excessive `OperationCanceledException`s
 
 When hosting a WebSockets endpoint, it may be common for clients to simply disconnect rather
-than gracefully terminating the connection -- most specifically when the client is a web browser.
+than gracefully terminating the connection — most specifically when the client is a web browser.
 If you log exceptions, you may notice an `OperationCanceledException` logged any time this occurs.
 
-In some scenarios you may wish to log these exceptions -- for instance, when the GraphQL endpoint is
-used in server-to-server communications -- but if you wish to ignore these exceptions, simply call
+In some scenarios you may wish to log these exceptions — for instance, when the GraphQL endpoint is
+used in server-to-server communications — but if you wish to ignore these exceptions, simply call
 `app.UseIgnoreDisconnections();` immediately after any exception handling or logging configuration calls.
-This will consume any `OperationCanceledException`s when `HttpContext.RequestAborted` is signaled -- for
+This will consume any `OperationCanceledException`s when `HttpContext.RequestAborted` is signaled — for
 a WebSocket request or any other request.
 
 ```csharp
