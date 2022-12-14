@@ -85,8 +85,7 @@ public class JwtHelper
     {
         // hash the password and use that to create a symmetric key for signing the JWT tokens
         var passwordBytes = System.Text.Encoding.UTF8.GetBytes(password);
-        using var sha = SHA256.Create();
-        var keyBytes = sha.ComputeHash(passwordBytes);
+        var keyBytes = SHA256.HashData(passwordBytes);
         var securityKey = new SymmetricSecurityKey(keyBytes);
         // return the key
         return (securityKey, SecurityAlgorithms.HmacSha256);
