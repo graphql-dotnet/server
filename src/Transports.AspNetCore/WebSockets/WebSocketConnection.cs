@@ -103,6 +103,10 @@ public class WebSocketConnection : IWebSocketConnection
                 {
                     result = await _webSocket.ReceiveAsync(bufferMemory, RequestAborted);
                 }
+                catch (OperationCanceledException) when (RequestAborted.IsCancellationRequested)
+                {
+                    throw;
+                }
                 catch (Exception ex) when (RequestAborted.IsCancellationRequested)
                 {
                     throw new OperationCanceledException(null, ex, RequestAborted);
