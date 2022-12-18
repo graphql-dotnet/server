@@ -493,7 +493,7 @@ public class WebSocketConnectionTests : IDisposable
     }
 
     [Fact]
-    public async Task ExecuteAsync_WebSocket_EatsWebSocketExceptions()
+    public async Task ExecuteAsync_WebSocket_WebSocketExceptions_Rethrows()
     {
         _mockConnection.CallBase = true;
         var mockReceiveStream = new Mock<IOperationMessageProcessor>(MockBehavior.Strict);
@@ -511,7 +511,29 @@ public class WebSocketConnectionTests : IDisposable
                 throw new WebSocketException();
             })
             .Verifiable();
-        await _connection.ExecuteAsync(mockReceiveStream.Object);
+        await Should.ThrowAsync<OperationCanceledException>(() => _connection.ExecuteAsync(mockReceiveStream.Object));
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_WebSocket_ObjectDisposedExceptions()
+    {
+        _mockConnection.CallBase = true;
+        var mockReceiveStream = new Mock<IOperationMessageProcessor>(MockBehavior.Strict);
+        mockReceiveStream.Setup(x => x.InitializeConnectionAsync()).Returns(Task.CompletedTask).Verifiable();
+        mockReceiveStream.Setup(x => x.Dispose());
+#if NET48
+        _mockWebSocket.Setup(x => x.ReceiveAsync(It.IsAny<ArraySegment<byte>>(), _token))
+            .Returns<ArraySegment<byte>, CancellationToken>((_, _) =>
+#else
+        _mockWebSocket.Setup(x => x.ReceiveAsync(It.IsAny<Memory<byte>>(), _token))
+            .Returns<Memory<byte>, CancellationToken>((_, _) =>
+#endif
+            {
+                _cts.Cancel();
+                throw new ObjectDisposedException("WebSocket");
+            })
+            .Verifiable();
+        await Should.ThrowAsync<OperationCanceledException>(() => _connection.ExecuteAsync(mockReceiveStream.Object));
     }
 
     [Fact]

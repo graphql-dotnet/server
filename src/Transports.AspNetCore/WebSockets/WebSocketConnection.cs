@@ -94,10 +94,23 @@ public class WebSocketConnection : IWebSocketConnection
                 // prep a Memory instance pointing to the free part of block
 #if NETSTANDARD2_0
                 var bufferMemory = new ArraySegment<byte>(buffer, bufferOffset, BUFFER_SIZE - bufferOffset);
+                WebSocketReceiveResult result;
 #else
                 var bufferMemory = new Memory<byte>(buffer, bufferOffset, BUFFER_SIZE - bufferOffset);
+                ValueWebSocketReceiveResult result;
 #endif
-                var result = await _webSocket.ReceiveAsync(bufferMemory, RequestAborted);
+                try
+                {
+                    result = await _webSocket.ReceiveAsync(bufferMemory, RequestAborted);
+                }
+                catch (OperationCanceledException) when (RequestAborted.IsCancellationRequested)
+                {
+                    throw;
+                }
+                catch (Exception ex) when (RequestAborted.IsCancellationRequested)
+                {
+                    throw new OperationCanceledException(null, ex, RequestAborted);
+                }
                 bufferOffset += result.Count;
                 if (result.MessageType == WebSocketMessageType.Close)
                 {
@@ -167,9 +180,6 @@ public class WebSocketConnection : IWebSocketConnection
                     bufferOffset = 0;
                 }
             }
-        }
-        catch (WebSocketException) when (RequestAborted.IsCancellationRequested)
-        {
         }
         finally
         {
