@@ -493,7 +493,7 @@ public class WebSocketConnectionTests : IDisposable
     }
 
     [Fact]
-    public async Task ExecuteAsync_WebSocket_EatsWebSocketExceptions()
+    public async Task ExecuteAsync_WebSocket_WebSocketExceptions_Rethrows()
     {
         _mockConnection.CallBase = true;
         var mockReceiveStream = new Mock<IOperationMessageProcessor>(MockBehavior.Strict);
@@ -515,7 +515,7 @@ public class WebSocketConnectionTests : IDisposable
     }
 
     [Fact]
-    public async Task ExecuteAsync_WebSocket_EatsObjectDisposedExceptions()
+    public async Task ExecuteAsync_WebSocket_ObjectDisposedExceptions()
     {
         _mockConnection.CallBase = true;
         var mockReceiveStream = new Mock<IOperationMessageProcessor>(MockBehavior.Strict);
