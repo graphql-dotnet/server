@@ -18,7 +18,7 @@
     <PackageReference Include="xunit" Version="2.4.2" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3" Condition="'$(TargetFramework)' == 'netcoreapp2.1'" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5" Condition="'$(TargetFramework)' != 'netcoreapp2.1'" />
-    <PackageReference Include="Moq" Version="4.18.3" />
+    <PackageReference Include="Moq" Version="4.18.4" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="2.1.*" Condition="'$(TargetFramework)' == 'netcoreapp2.1' OR '$(TargetFramework)' == 'net48'" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="3.1.*" Condition="'$(TargetFramework)' == 'netcoreapp3.1'" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="5.0.*" Condition="'$(TargetFramework)' == 'net5.0'" />
