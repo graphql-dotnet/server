@@ -38,7 +38,7 @@ internal static class TaskExtensions
                 }
                 else
                 {
-                    // was the cancellation token was signalled?
+                    // was the cancellation token was signaled?
                     cancellationToken.ThrowIfCancellationRequested();
                     // or did it timeout?
                     throw new TimeoutException();
