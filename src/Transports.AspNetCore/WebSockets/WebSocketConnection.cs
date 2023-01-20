@@ -123,9 +123,11 @@ public class WebSocketConnection : IWebSocketConnection
                         // queue the closure
                         _ = CloseAsync();
                         // wait until the close has been sent
-                        await Task.WhenAny(
-                            _outputClosed.Task,
-                            Task.Delay(_closeTimeout, RequestAborted));
+                        try
+                        {
+                            await _outputClosed.Task.WaitAsync(_closeTimeout, RequestAborted);
+                        }
+                        catch (TimeoutException) { }
                     }
                     // quit after the close request was fulfilled
                     return;
