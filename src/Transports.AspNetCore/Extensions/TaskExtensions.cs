@@ -5,7 +5,7 @@ internal static class TaskExtensions
 {
     /// <summary>
     /// Gets a <see cref="Task{TResult}"/> that will complete when this <see cref="Task{TResult}"/> completes,
-    /// when the specified timeout expires, or when the specified CancellationToken has cancellation requested.
+    /// when the specified timeout expires, or when the specified <see cref="CancellationToken"/> has cancellation requested.
     /// </summary>
     /// <exception cref="OperationCanceledException"></exception>
     /// <exception cref="TimeoutException"></exception>
