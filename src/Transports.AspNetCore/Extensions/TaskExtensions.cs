@@ -27,21 +27,19 @@ internal static class TaskExtensions
         {
             // the 'using' here ensures that the Task.Delay gets disposed if the task finishes before the delay
             using var timeoutCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            var completedTask = await Task.WhenAny(task, Task.Delay(millisecondsDelay, timeoutCancellationTokenSource.Token)).ConfigureAwait(false);
+            if (completedTask == task)
             {
-                var completedTask = await Task.WhenAny(task, Task.Delay(millisecondsDelay, timeoutCancellationTokenSource.Token)).ConfigureAwait(false);
-                if (completedTask == task)
-                {
-                    // discontinue the Task.Delay
-                    timeoutCancellationTokenSource.Cancel();
-                    return await task.ConfigureAwait(false);  // Very important in order to propagate exceptions
-                }
-                else
-                {
-                    // was the cancellation token was signaled?
-                    cancellationToken.ThrowIfCancellationRequested();
-                    // or did it timeout?
-                    throw new TimeoutException();
-                }
+                // discontinue the Task.Delay
+                timeoutCancellationTokenSource.Cancel();
+                return await task.ConfigureAwait(false);  // Very important in order to propagate exceptions
+            }
+            else
+            {
+                // was the cancellation token was signaled?
+                cancellationToken.ThrowIfCancellationRequested();
+                // or did it timeout?
+                throw new TimeoutException();
             }
         }
     }
