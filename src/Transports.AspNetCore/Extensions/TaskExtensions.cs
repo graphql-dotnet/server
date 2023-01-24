@@ -26,7 +26,7 @@ internal static class TaskExtensions
         static async Task<TResult> TimeoutAfter(Task<TResult> task, int millisecondsDelay, CancellationToken cancellationToken)
         {
             // the 'using' here ensures that the Task.Delay gets disposed if the task finishes before the delay
-            using (var timeoutCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
+            using var timeoutCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             {
                 var completedTask = await Task.WhenAny(task, Task.Delay(millisecondsDelay, timeoutCancellationTokenSource.Token)).ConfigureAwait(false);
                 if (completedTask == task)
