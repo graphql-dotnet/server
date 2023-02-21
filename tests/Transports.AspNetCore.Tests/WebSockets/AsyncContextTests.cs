@@ -33,6 +33,9 @@ public class AsyncContextTests
         using var server = new TestServer(new WebHostBuilder()
             .ConfigureServices(services =>
             {
+#if !NETCOREAPP3_1_OR_GREATER
+                services.AddHostApplicationLifetime();
+#endif
                 services.AddSingleton(replaySubject);
                 services.AddHttpContextAccessor();
                 services.AddSingleton<Class1Type>();
