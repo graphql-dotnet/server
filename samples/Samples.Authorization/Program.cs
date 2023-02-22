@@ -1,6 +1,7 @@
 using AuthorizationSample.Data;
 using AuthorizationSample.Schema;
 using GraphQL;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,7 +25,8 @@ builder.Services.AddDefaultIdentity<IdentityUser>(
     })
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
-builder.Services.AddAuthorization(c => c.AddPolicy("MyPolicy", cp => cp.RequireRole("User")));
+builder.Services.AddAuthorization(c => c.AddPolicy("MyPolicy", cp => cp.Requirements.Add(new TestRequirement())));
+builder.Services.AddTransient<IAuthorizationHandler, TestHandler>();
 builder.Services.AddRazorPages();
 
 // ---- added code for GraphQL --------
@@ -74,3 +76,25 @@ app.UseGraphQLPlayground(
 app.MapRazorPages();
 
 app.Run();
+
+#pragma warning disable CA1050 // Declare types in namespaces
+public class TestHandler : AuthorizationHandler<TestRequirement>
+{
+    protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, TestRequirement requirement)
+    {
+        if (context.User.IsInRole("User"))
+        {
+            context.Succeed(requirement);
+        }
+        else
+        {
+            context.Fail();
+        }
+        return Task.CompletedTask;
+    }
+}
+
+public class TestRequirement : IAuthorizationRequirement
+{
+}
+#pragma warning restore CA1050 // Declare types in namespaces
