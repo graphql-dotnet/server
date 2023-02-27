@@ -5,17 +5,18 @@ namespace Tests.WebSockets;
 public class AsyncContextTests
 {
     /*
-     * This demonstrates that because the GraphQL execution of subscription events
-     * occurs within the ExecutionContext of the sender of the subscription event,
-     * using IHttpContextAccessor and other ExecutionContext-bound services within
-     * the subscription event execution will not work as expected.
+     * This test ensures that the GraphQL execution of subscription events occurs
+     * within the ExecutionContext of the client, not the sender of the subscription
+     * event.  This is important because the resolvers may be using IHttpContextAccessor
+     * and/or other ExecutionContext-bound services within the subscription event, and
+     * if it was so, execution will not work as expected.
      * 
-     * Even worse, this means that IHttpContextAccessor.HttpContext may return the
+     * Even worse, it could mean that IHttpContextAccessor.HttpContext might return the
      * HttpContext of the sender of the event, rather than the one that initiated the
      * subscription, which can be unanticipated and very hard to diagnose.
      *
-     * This would ideally be fixed in a future version of GraphQL.NET, probably by
-     * capturing the ExecutionContext upon subscription and restoring it for data events.
+     * However, this was fixed within GraphQL.NET 7.3.0 by capturing the ExecutionContext
+     * upon subscription and restoring it for data events.
      *
      * Note that this issue has nothing to do with DI service scope, as DI service scope
      * is not used by AsyncLocal or HttpContextAccessor.
@@ -26,7 +27,7 @@ public class AsyncContextTests
      *
      */
     [Fact]
-    public async Task DemonstrateNoAsyncContextWithinSubscriptionResolvers()
+    public async Task EnsureCorrectAsyncContextWithinSubscriptionResolvers()
     {
         using var replaySubject = new ReplaySubject<Class1>();
 
@@ -112,7 +113,7 @@ public class AsyncContextTests
         // wait for a new message sent over this websocket
         message = await webSocket.ReceiveMessageAsync();
         message.Type.ShouldBe("next");
-        message.Payload.ShouldBe("""{"data":{"events":{"hasHttpContext":false}}}"""); // ideally this should be 'true'
+        message.Payload.ShouldBe("""{"data":{"events":{"hasHttpContext":true}}}""");
 
         // unsubscribe
         await webSocket.SendMessageAsync(new OperationMessage
@@ -151,8 +152,8 @@ public class AsyncContextTests
                 .Resolve(context =>
                 {
                     var accessor = context.RequestServices.ShouldNotBeNull().GetRequiredService<IHttpContextAccessor>();
-                    // here we can see that the http context is not accessible by field resolvers within a subscription data event
-                    return accessor.HttpContext != null; // currently returns false; ideally would return true
+                    // here we can see that the http context is accessible by field resolvers within a subscription data event
+                    return accessor.HttpContext != null; // returns true for GraphQL.NET 7.3.0+
                 });
         }
     }
