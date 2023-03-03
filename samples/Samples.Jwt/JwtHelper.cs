@@ -102,14 +102,20 @@ public class JwtHelper
         // interpret the key as base64
         var keyBytes = Convert.FromBase64String(key);
         // create a ECDsa key pair and import the key
-        using var ecdsa = ECDsa.Create();
+        var ecdsa = ECDsa.Create(); // do not dispose the instance (it is used by the security key)
         if (isPrivateKey)
             ecdsa.ImportECPrivateKey(keyBytes, out int _);
         else
             ecdsa.ImportSubjectPublicKeyInfo(keyBytes, out _);
         var securityKey = new ECDsaSecurityKey(ecdsa);
         // return the key
-        return (securityKey, SecurityAlgorithms.EcdsaSha256);
+        return (securityKey, securityKey.KeySize switch
+        {
+            256 => SecurityAlgorithms.EcdsaSha256,
+            384 => SecurityAlgorithms.EcdsaSha384,
+            521 => SecurityAlgorithms.EcdsaSha512,
+            _ => throw new InvalidOperationException("Invalid key size."),
+        });
     }
 
     /// <summary>
@@ -118,6 +124,7 @@ public class JwtHelper
     public static (string PublicKey, string PrivateKey) CreateNewAsymmetricKeyPair()
     {
         using var ecdsa = ECDsa.Create();
+        ecdsa.GenerateKey(ECCurve.NamedCurves.nistP256);
         var privateKey = Convert.ToBase64String(ecdsa.ExportECPrivateKey());
         var publicKey = Convert.ToBase64String(ecdsa.ExportSubjectPublicKeyInfo());
         return (publicKey, privateKey);

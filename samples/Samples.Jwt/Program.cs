@@ -28,7 +28,7 @@ JwtHelper.Instance = new(password, SecurityKeyType.SymmetricSecurityKey);
 
 // or: use an asymmetric security key with a new random key pair (typically would be pulled from application secrets)
 //var (_, privateKey) = JwtHelper.CreateNewAsymmetricKeyPair();
-//JwtHelper.Instance = new(privateKey, JwtKeyType.PrivateKey);
+//JwtHelper.Instance = new(privateKey, SecurityKeyType.PrivateKey);
 
 // configure authentication for GET/POST requests via the 'Authorization' HTTP header;
 // will authenticate WebSocket requests as well, but browsers cannot set the
