@@ -55,11 +55,11 @@ namespace GraphQL.Server.Transports.AspNetCore
         public readonly struct ValidationInfo : System.IEquatable<GraphQL.Server.Transports.AspNetCore.AuthorizationVisitorBase.ValidationInfo>
         {
             public ValidationInfo(GraphQL.Types.IProvideMetadata Obj, GraphQLParser.AST.ASTNode? Node, GraphQL.Types.IFieldType? ParentFieldType, GraphQL.Types.IGraphType? ParentGraphType, GraphQL.Validation.ValidationContext Context) { }
-            public GraphQL.Validation.ValidationContext Context { get; set; }
-            public GraphQLParser.AST.ASTNode? Node { get; set; }
-            public GraphQL.Types.IProvideMetadata Obj { get; set; }
-            public GraphQL.Types.IFieldType? ParentFieldType { get; set; }
-            public GraphQL.Types.IGraphType? ParentGraphType { get; set; }
+            public GraphQL.Validation.ValidationContext Context { get; init; }
+            public GraphQLParser.AST.ASTNode? Node { get; init; }
+            public GraphQL.Types.IProvideMetadata Obj { get; init; }
+            public GraphQL.Types.IFieldType? ParentFieldType { get; init; }
+            public GraphQL.Types.IGraphType? ParentGraphType { get; init; }
         }
     }
     public sealed class ExecutionResultActionResult : Microsoft.AspNetCore.Mvc.IActionResult
