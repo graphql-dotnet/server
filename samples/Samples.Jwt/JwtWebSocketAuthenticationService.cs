@@ -50,8 +50,9 @@ public class JwtWebSocketAuthenticationService : IWebSocketAuthenticationService
             {
                 // pull the token from the value
                 var token = authPayload.Authorization.Substring(7);
-                // parse the token in the same manner that the .NET AddJwtBearer() method does
-                // note that JwtSecurityTokenHandler maps the 'name' and 'role' claims to the 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name' and 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role' claims
+                // parse the token in the same manner that the .NET AddJwtBearer() method does:
+                // JwtSecurityTokenHandler maps the 'name' and 'role' claims to the 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'
+                // and 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role' claims;
                 // this mapping is not performed by Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler
                 var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
                 var tokenValidationParameters = _jwtBearerOptionsMonitor.Get(JwtBearerDefaults.AuthenticationScheme).TokenValidationParameters;
