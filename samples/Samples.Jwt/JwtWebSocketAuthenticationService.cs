@@ -21,7 +21,7 @@ namespace GraphQL.Server.Samples.Jwt;
 /// </item>
 /// <item>
 /// The expected format of the payload is <c>{"Authorization":"Bearer TOKEN"}</c> where TOKEN is the JSON Web Token (JWT),
-/// mirroring the format of a HTTP header.
+/// mirroring the format of the 'Authorization' HTTP header.
 /// </item>
 /// </list>
 /// </summary>
