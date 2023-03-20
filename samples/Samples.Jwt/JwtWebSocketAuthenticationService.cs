@@ -20,7 +20,8 @@ namespace GraphQL.Server.Samples.Jwt;
 /// by ASP.NET Core during the call to <see cref="JwtBearerExtensions.AddJwtBearer(Microsoft.AspNetCore.Authentication.AuthenticationBuilder, Action{JwtBearerOptions})">AddJwtBearer</see>.
 /// </item>
 /// <item>
-/// The expected format of the payload is <c>{"authorization":"Bearer TOKEN"}</c> where TOKEN is the JSON Web Token (JWT).
+/// The expected format of the payload is <c>{"Authorization":"Bearer TOKEN"}</c> where TOKEN is the JSON Web Token (JWT),
+/// mirroring the format of a HTTP header.
 /// </item>
 /// </list>
 /// </summary>
