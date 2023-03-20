@@ -74,7 +74,7 @@ public class JwtHelper
     }
 
     /// <summary>
-    /// Creates a symmetric security key based on a password
+    /// Creates a 256-bit symmetric security key based on a password
     /// </summary>
     private static (SecurityKey SecurityKey, string SecurityAlgorithm) CreateSymmetricSecurityKey(string password)
     {
@@ -114,7 +114,7 @@ public class JwtHelper
     }
 
     /// <summary>
-    /// Creates an asymmetric ECDsa security key pair.
+    /// Creates an asymmetric ECDsa 256-bit security key pair.
     /// </summary>
     public static (string PublicKey, string PrivateKey) CreateNewAsymmetricKeyPair()
     {
