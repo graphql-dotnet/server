@@ -10,11 +10,6 @@ namespace GraphQL.Server.Samples.Jwt;
 /// </summary>
 public class JwtHelper
 {
-    /// <summary>
-    /// The shared instance for the application.
-    /// </summary>
-    public static JwtHelper Instance { get; set; } = null!;
-
     private readonly SecurityKey _securityKey;
     private readonly string _securityAlgorithm;
     private readonly SigningCredentials _signingCredentials;
@@ -155,20 +150,25 @@ public class JwtHelper
 
         // create the security token as follows:
         var token = new JwtSecurityToken(
-            // issuer is an arbitrary string, typically the name of the web server that issued the token
-            issuer: _issuer,
-            // audience is an arbitrary string, typically representing valid recipients - typically 'Refresh' or 'Access' or a url for a subdomain
-            audience: _audience,
-            // include a list of claims
-            claims: claims,
-            // set the time this token becomes valid
-            notBefore: now,
-            // for access tokens, set a short timeout like 5 minutes, after which the access token will need to be refreshed
-            //   (the access token can be refreshed before or after the expiration, as refreshing it uses the refresh token)
-            // for refresh tokens, set a long timeout like 6 months, after which the refresh token will expire
-            expires: now.Add(_expiresIn),
             // set the digital signature algorithm and key
-            signingCredentials: _signingCredentials
+            new JwtHeader(_signingCredentials),
+            // set the payload
+            new JwtPayload(
+                // issuer is an arbitrary string, typically the name of the web server that issued the token
+                issuer: _issuer,
+                // audience is an arbitrary string, typically representing valid recipients - typically 'Refresh' or 'Access' or a url for a subdomain
+                audience: _audience,
+                // include a list of claims
+                claims: claims,
+                // set the time this token becomes valid
+                notBefore: now,
+                // set the issued-at time
+                issuedAt: now,
+                // for access tokens, set a short timeout like 5 minutes, after which the access token will need to be refreshed
+                //   (the access token can be refreshed before or after the expiration, as refreshing it uses the refresh token)
+                // for refresh tokens, set a long timeout like 6 months, after which the refresh token will expire
+                expires: now.Add(_expiresIn)
+            )
         );
 
         // return the token
