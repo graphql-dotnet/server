@@ -4,6 +4,7 @@ namespace GraphQL.Server.Transports.AspNetCore.WebSockets.GraphQLWs;
 public class SubscriptionServer : BaseSubscriptionServer
 {
     private readonly IWebSocketAuthenticationService? _authenticationService;
+    private readonly IOperationMessageListener[]? _listeners;
 
     /// <summary>
     /// The WebSocket sub-protocol used for this protocol.
@@ -51,6 +52,7 @@ public class SubscriptionServer : BaseSubscriptionServer
     /// <param name="serviceScopeFactory">A <see cref="IServiceScopeFactory"/> to create service scopes for execution of GraphQL requests.</param>
     /// <param name="userContextBuilder">The user context builder used during connection initialization.</param>
     /// <param name="authenticationService">An optional service to authenticate connections.</param>
+    /// <param name="listeners">An optional collection of message listeners.</param>
     public SubscriptionServer(
         IWebSocketConnection connection,
         GraphQLWebSocketOptions options,
@@ -59,7 +61,8 @@ public class SubscriptionServer : BaseSubscriptionServer
         IGraphQLSerializer serializer,
         IServiceScopeFactory serviceScopeFactory,
         IUserContextBuilder userContextBuilder,
-        IWebSocketAuthenticationService? authenticationService = null)
+        IWebSocketAuthenticationService? authenticationService = null,
+        IEnumerable<IOperationMessageListener>? listeners = null)
         : base(connection, options, authorizationOptions)
     {
         DocumentExecuter = executer ?? throw new ArgumentNullException(nameof(executer));
@@ -67,11 +70,16 @@ public class SubscriptionServer : BaseSubscriptionServer
         UserContextBuilder = userContextBuilder ?? throw new ArgumentNullException(nameof(userContextBuilder));
         Serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
         _authenticationService = authenticationService;
+        _listeners = listeners?.ToArray();
     }
 
     /// <inheritdoc/>
     public override async Task OnMessageReceivedAsync(OperationMessage message)
     {
+        if (_listeners != null)
+            foreach (var listener in _listeners)
+                await listener.ListenAsync(this, message);
+
         if (message.Type == MessageType.Ping)
         {
             await OnPingAsync(message);
@@ -196,10 +204,9 @@ public class SubscriptionServer : BaseSubscriptionServer
     /// <inheritdoc/>
     protected override async Task<ExecutionResult> ExecuteRequestAsync(OperationMessage message)
     {
-        var request = Serializer.ReadNode<GraphQLRequest>(message.Payload);
 #pragma warning disable CA2208 // Instantiate argument exceptions correctly
-        if (request == null)
-            throw new ArgumentNullException(nameof(message) + "." + nameof(OperationMessage.Payload));
+        var request = Serializer.ReadNode<GraphQLRequest>(message.Payload)
+            ?? throw new ArgumentNullException(nameof(message) + "." + nameof(OperationMessage.Payload));
 #pragma warning restore CA2208 // Instantiate argument exceptions correctly
         var scope = ServiceScopeFactory.CreateScope();
         try

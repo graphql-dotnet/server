@@ -147,6 +147,10 @@ namespace GraphQL.Server.Transports.AspNetCore
         string? AuthorizedPolicy { get; }
         System.Collections.Generic.IEnumerable<string> AuthorizedRoles { get; }
     }
+    public interface IOperationMessageListener
+    {
+        System.Threading.Tasks.ValueTask ListenAsync(GraphQL.Server.Transports.AspNetCore.WebSockets.BaseSubscriptionServer subscriptionServer, GraphQL.Transport.OperationMessage message);
+    }
     public interface IUserContextBuilder
     {
         System.Threading.Tasks.ValueTask<System.Collections.Generic.IDictionary<string, object?>?> BuildUserContextAsync(Microsoft.AspNetCore.Http.HttpContext context, object? payload);
@@ -312,7 +316,7 @@ namespace GraphQL.Server.Transports.AspNetCore.WebSockets.GraphQLWs
     }
     public class SubscriptionServer : GraphQL.Server.Transports.AspNetCore.WebSockets.BaseSubscriptionServer
     {
-        public SubscriptionServer(GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketConnection connection, GraphQL.Server.Transports.AspNetCore.WebSockets.GraphQLWebSocketOptions options, GraphQL.Server.Transports.AspNetCore.IAuthorizationOptions authorizationOptions, GraphQL.IDocumentExecuter executer, GraphQL.IGraphQLSerializer serializer, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, GraphQL.Server.Transports.AspNetCore.IUserContextBuilder userContextBuilder, GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketAuthenticationService? authenticationService = null) { }
+        public SubscriptionServer(GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketConnection connection, GraphQL.Server.Transports.AspNetCore.WebSockets.GraphQLWebSocketOptions options, GraphQL.Server.Transports.AspNetCore.IAuthorizationOptions authorizationOptions, GraphQL.IDocumentExecuter executer, GraphQL.IGraphQLSerializer serializer, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, GraphQL.Server.Transports.AspNetCore.IUserContextBuilder userContextBuilder, GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketAuthenticationService? authenticationService = null, System.Collections.Generic.IEnumerable<GraphQL.Server.Transports.AspNetCore.IOperationMessageListener>? listeners = null) { }
         protected GraphQL.IDocumentExecuter DocumentExecuter { get; }
         protected GraphQL.IGraphQLSerializer Serializer { get; }
         protected Microsoft.Extensions.DependencyInjection.IServiceScopeFactory ServiceScopeFactory { get; }
@@ -350,7 +354,7 @@ namespace GraphQL.Server.Transports.AspNetCore.WebSockets.SubscriptionsTransport
     }
     public class SubscriptionServer : GraphQL.Server.Transports.AspNetCore.WebSockets.BaseSubscriptionServer
     {
-        public SubscriptionServer(GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketConnection connection, GraphQL.Server.Transports.AspNetCore.WebSockets.GraphQLWebSocketOptions options, GraphQL.Server.Transports.AspNetCore.IAuthorizationOptions authorizationOptions, GraphQL.IDocumentExecuter executer, GraphQL.IGraphQLSerializer serializer, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, GraphQL.Server.Transports.AspNetCore.IUserContextBuilder userContextBuilder, GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketAuthenticationService? authenticationService = null) { }
+        public SubscriptionServer(GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketConnection connection, GraphQL.Server.Transports.AspNetCore.WebSockets.GraphQLWebSocketOptions options, GraphQL.Server.Transports.AspNetCore.IAuthorizationOptions authorizationOptions, GraphQL.IDocumentExecuter executer, GraphQL.IGraphQLSerializer serializer, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, GraphQL.Server.Transports.AspNetCore.IUserContextBuilder userContextBuilder, GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketAuthenticationService? authenticationService = null, System.Collections.Generic.IEnumerable<GraphQL.Server.Transports.AspNetCore.IOperationMessageListener>? listeners = null) { }
         protected GraphQL.IDocumentExecuter DocumentExecuter { get; }
         protected GraphQL.IGraphQLSerializer Serializer { get; }
         protected Microsoft.Extensions.DependencyInjection.IServiceScopeFactory ServiceScopeFactory { get; }
