@@ -16,7 +16,7 @@ namespace GraphQL.Server.Samples.Jwt;
 /// <item>This class is not used when authenticating over GET/POST.</item>
 /// <item>
 /// This class pulls the <see cref="TokenValidationParameters"/> instance from the instance of
-/// <see cref="IOptions{TOptions}">IOptions</see>&lt;<see cref="JwtBearerOptions"/>&gt; registered
+/// <see cref="IOptionsMonitor{TOptions}">IOptionsMonitor</see>&lt;<see cref="JwtBearerOptions"/>&gt; registered
 /// by ASP.NET Core during the call to <see cref="JwtBearerExtensions.AddJwtBearer(Microsoft.AspNetCore.Authentication.AuthenticationBuilder, Action{JwtBearerOptions})">AddJwtBearer</see>.
 /// </item>
 /// <item>
