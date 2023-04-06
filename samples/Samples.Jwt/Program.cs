@@ -24,11 +24,14 @@ builder.Services.AddGraphQL(b => b
 // ===   TO USE A PASSWORD WITH A HIGH ENTROPY, SUCH AS A PAIR OF RANDOM 128-BIT GUIDS   ===
 //var password = Guid.NewGuid().ToString() + Guid.NewGuid().ToString(); // 244-bit entropy
 var password = JwtHelper.CreateNewSymmetricKey(); // 256-bit entropy
-JwtHelper.Instance = new(password, SecurityKeyType.SymmetricSecurityKey);
+var jwtHelper = new JwtHelper(password, SecurityKeyType.SymmetricSecurityKey);
 
 // or: use an asymmetric security key with a new random key pair (typically would be pulled from application secrets)
 //var (_, privateKey) = JwtHelper.CreateNewAsymmetricKeyPair();
-//JwtHelper.Instance = new(privateKey, SecurityKeyType.PrivateKey);
+//var jwtHelper = new JwtHelper(privateKey, SecurityKeyType.PrivateKey);
+
+// register JwtHelper as a singleton so it can be used by OAuthController
+builder.Services.AddSingleton(jwtHelper);
 
 // configure authentication for GET/POST requests via the 'Authorization' HTTP header;
 // will authenticate WebSocket requests as well, but browsers cannot set the
@@ -39,7 +42,7 @@ builder.Services.AddAuthentication(
         opts.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
         // configure custom authorization policies here, if any
     })
-    .AddJwtBearer(opts => opts.TokenValidationParameters = JwtHelper.Instance.TokenValidationParameters);
+    .AddJwtBearer(opts => opts.TokenValidationParameters = jwtHelper.TokenValidationParameters);
 
 var app = builder.Build();
 app.UseDeveloperExceptionPage();
