@@ -10,7 +10,14 @@ public class Query
 
     [Authorize]
     [Description("Requires authentication, but no role membership or specific policy is enforced.")]
-    public static string HelloRegisteredUser => "Hello, Registered User!";
+    public static string HelloRegisteredUser
+    {
+        get
+        {
+            Console.WriteLine("=========== query requiring authentication was executed ===========");
+            return "Hello, Registered User!";
+        }
+    }
 
     [Authorize(Roles = "User")]
     [Description("Requires membership to the 'User' role.")]
