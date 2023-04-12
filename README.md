@@ -869,6 +869,11 @@ This functionality is activated by default to maintain backward compatibility, b
 setting the `ReadFormOnPost` value to `false`.  The next major version of GraphQL.NET Server will have this
 feature disabled by default, enhancing security measures.
 
+Keep in mind that CORS pre-flight requests are also not executed for GET requests, potentially presenting a
+security risk.  However, GraphQL query operations usually do not alter data, and mutations are refused.
+Additionally, the response is not expected to be readable in the browser (unless CORS checks are successful),
+which helps alleviate this concern.
+
 ### Excessive `OperationCanceledException`s
 
 When hosting a WebSockets endpoint, it may be common for clients to simply disconnect rather
