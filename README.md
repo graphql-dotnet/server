@@ -245,7 +245,7 @@ public static IActionResult RunGraphQL(
 }
 ```
 
-5. Optionally, add a UI package to the project and configure it:
+4. Optionally, add a UI package to the project and configure it:
 
 ```csharp
 [FunctionName("Playground")]
