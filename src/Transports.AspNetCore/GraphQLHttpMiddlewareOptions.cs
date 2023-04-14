@@ -58,6 +58,19 @@ public class GraphQLHttpMiddlewareOptions : IAuthorizationOptions
     public bool ReadQueryStringOnPost { get; set; } = true;
 
     /// <summary>
+    /// Enables parsing POST requests with the form content types such as <c>multipart-form/data</c>.
+    /// </summary>
+    /// <remarks>
+    /// There is a potential security vulnerability when employing cookie authentication
+    /// with the <c>multipart-form/data</c> content type because sending cookies
+    /// alongside the request does not initiate a pre-flight CORS request.
+    /// As a result, GraphQL.NET carries out the request and potentially modifies data,
+    /// even if the CORS policy forbids it, irrespective of the sender's ability to access
+    /// the response.
+    /// </remarks>
+    public bool ReadFormOnPost { get; set; } = true; // TODO: change to false for v9
+
+    /// <summary>
     /// Enables reading variables from the query string.
     /// Variables are interpreted as JSON and deserialized before being
     /// provided to the <see cref="IDocumentExecuter"/>.

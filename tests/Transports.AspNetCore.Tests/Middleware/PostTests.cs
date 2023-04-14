@@ -194,18 +194,35 @@ public class PostTests : IDisposable
     }
 
     [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public async Task UnknownContentType(bool badRequest)
+    [InlineData(false, true, "application/pdf")]
+    [InlineData(true, true, "application/pdf")]
+    [InlineData(false, false, "multipart-form/data")]
+    [InlineData(true, false, "multipart-form/data")]
+    [InlineData(false, false, "application/x-www-form-urlencoded")]
+    [InlineData(true, false, "application/x-www-form-urlencoded")]
+    public async Task UnknownContentType(bool badRequest, bool allowFormBody, string contentType)
     {
         _options.ValidationErrorsReturnBadRequest = badRequest;
+        _options.ReadFormOnPost = allowFormBody;
         var client = _server.CreateClient();
-        var content = new StringContent("{count}");
-        content.Headers.ContentType = new("application/pdf");
+        HttpContent content = contentType switch
+        {
+            "application/pdf" => new StringContent("{count}", null, contentType),
+            "multipart-form/data" => new MultipartFormDataContent { { new StringContent("{count}", null, "application/graphql"), "query" } },
+            "application/x-www-form-urlencoded" => new FormUrlEncodedContent(new[] { new KeyValuePair<string?, string?>("query", "{count}") }),
+            _ => throw new ArgumentOutOfRangeException(nameof(contentType))
+        };
         using var response = await client.PostAsync("/graphql", content);
         response.StatusCode.ShouldBe(HttpStatusCode.UnsupportedMediaType);
         var actual = await response.Content.ReadAsStringAsync();
-        actual.ShouldBe(@"{""errors"":[{""message"":""Invalid \u0027Content-Type\u0027 header: non-supported media type \u0027application/pdf\u0027. Must be \u0027application/json\u0027, \u0027application/graphql\u0027 or a form body."",""extensions"":{""code"":""INVALID_CONTENT_TYPE"",""codes"":[""INVALID_CONTENT_TYPE""]}}]}");
+        if (allowFormBody)
+        {
+            actual.ShouldBe($@"{{""errors"":[{{""message"":""Invalid \u0027Content-Type\u0027 header: non-supported media type \u0027{content.Headers.ContentType?.ToString().Replace("\"", "\\u0022")}\u0027. Must be \u0027application/json\u0027, \u0027application/graphql\u0027 or a form body."",""extensions"":{{""code"":""INVALID_CONTENT_TYPE"",""codes"":[""INVALID_CONTENT_TYPE""]}}}}]}}");
+        }
+        else
+        {
+            actual.ShouldBe($@"{{""errors"":[{{""message"":""Invalid \u0027Content-Type\u0027 header: non-supported media type \u0027{content.Headers.ContentType?.ToString().Replace("\"", "\\u0022")}\u0027. Must be \u0027application/json\u0027 or \u0027application/graphql\u0027."",""extensions"":{{""code"":""INVALID_CONTENT_TYPE"",""codes"":[""INVALID_CONTENT_TYPE""]}}}}]}}");
+        }
     }
 
     [Theory]

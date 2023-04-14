@@ -244,7 +244,7 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
                 return (await DeserializeFromGraphBodyAsync(httpRequest.Body, sourceEncoding), null);
 
             default:
-                if (httpRequest.HasFormContentType)
+                if (httpRequest.HasFormContentType && _options.ReadFormOnPost)
                 {
                     try
                     {
@@ -814,7 +814,13 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
     /// Writes a '415 Invalid Content-Type header: non-supported media type.' message to the output.
     /// </summary>
     protected virtual Task HandleInvalidContentTypeErrorAsync(HttpContext context, RequestDelegate next)
-        => WriteErrorResponseAsync(context, HttpStatusCode.UnsupportedMediaType, new InvalidContentTypeError($"non-supported media type '{context.Request.ContentType}'. Must be '{MEDIATYPE_JSON}', '{MEDIATYPE_GRAPHQL}' or a form body."));
+        => WriteErrorResponseAsync(
+            context,
+            HttpStatusCode.UnsupportedMediaType,
+            _options.ReadFormOnPost
+            ? new InvalidContentTypeError($"non-supported media type '{context.Request.ContentType}'. Must be '{MEDIATYPE_JSON}', '{MEDIATYPE_GRAPHQL}' or a form body.")
+            : new InvalidContentTypeError($"non-supported media type '{context.Request.ContentType}'. Must be '{MEDIATYPE_JSON}' or '{MEDIATYPE_GRAPHQL}'.")
+        );
 
     /// <summary>
     /// Indicates that an unsupported HTTP method was requested.

@@ -128,6 +128,7 @@ namespace GraphQL.Server.Transports.AspNetCore
         public bool HandlePost { get; set; }
         public bool HandleWebSockets { get; set; }
         public bool ReadExtensionsFromQueryString { get; set; }
+        public bool ReadFormOnPost { get; set; }
         public bool ReadQueryStringOnPost { get; set; }
         public bool ReadVariablesFromQueryString { get; set; }
         public bool ValidationErrorsReturnBadRequest { get; set; }

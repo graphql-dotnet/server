@@ -617,6 +617,7 @@ methods allowing for different options for each configured endpoint.
 | `HandlePost`                       | Enables handling of POST requests. | True |
 | `HandleWebSockets`                 | Enables handling of WebSockets requests. | True |
 | `ReadExtensionsFromQueryString`    | Enables reading extensions from the query string. | True |
+| `ReadFormOnPost`                   | Enables parsing of form data for POST requests (may have security implications). | True |
 | `ReadQueryStringOnPost`            | Enables parsing the query string on POST requests. | True |
 | `ReadVariablesFromQueryString`     | Enables reading variables from the query string. | True |
 | `ValidationErrorsReturnBadRequest` | When enabled, GraphQL requests with validation errors have the HTTP status code set to 400 Bad Request. | True |
@@ -851,6 +852,27 @@ are rejected over HTTP GET connections.  Derive from `GraphQLHttpMiddleware<T>` 
 `ExecuteRequestAsync` to prevent injection of the validation rules that enforce this behavior.
 
 As would be expected, subscription requests are only allowed over WebSocket channels.
+
+### Handling form data for POST requests
+
+The GraphQL over HTTP specification does not outline a procedure for transmitting GraphQL requests via
+HTTP POST connections using a `Content-Type` of `application/x-www-form-urlencoded` or `multipart/form-data`.
+Allowing the processing of such requests could be advantageous in avoiding CORS preflight requests when
+sending GraphQL queries from a web browser.  Nevertheless, enabling this feature may give rise to security
+risks when utilizing cookie authentication, since transmitting cookies with these requests does not trigger
+a pre-flight CORS check.  As a consequence, GraphQL.NET might execute a request and potentially modify data
+even when the CORS policy prohibits it, regardless of whether the sender has access to the response.
+This situation exposes the system to security vulnerabilities, which should be carefully evaluated and
+mitigated to ensure the safe handling of GraphQL requests and maintain the integrity of the data.
+
+This functionality is activated by default to maintain backward compatibility, but it can be turned off by
+setting the `ReadFormOnPost` value to `false`.  The next major version of GraphQL.NET Server will have this
+feature disabled by default, enhancing security measures.
+
+Keep in mind that CORS pre-flight requests are also not executed for GET requests, potentially presenting a
+security risk.  However, GraphQL query operations usually do not alter data, and mutations are refused.
+Additionally, the response is not expected to be readable in the browser (unless CORS checks are successful),
+which helps alleviate this concern.
 
 ### Excessive `OperationCanceledException`s
 
