@@ -7,25 +7,16 @@ using Samples.Tests;
 
 namespace Samples.Jwt.Tests;
 
-public class EndToEndTests : IDisposable
+public class EndToEndTests : IClassFixture<EndToEndTests.Fixture>
 {
-    private readonly WebApplicationFactory<Program> _applicationFactory;
     private readonly TestServer _testServer;
     private readonly HttpClient _testClient;
     private const string ACCESS_DENIED_RESPONSE = @"{""errors"":[{""message"":""Access denied for schema."",""extensions"":{""code"":""ACCESS_DENIED"",""codes"":[""ACCESS_DENIED""]}}]}";
 
-    public EndToEndTests()
+    public EndToEndTests(Fixture fixture)
     {
-        _applicationFactory = new WebApplicationFactory<Program>();
-        _testServer = _applicationFactory.Server;
-        _testClient = _testServer.CreateClient();
-    }
-
-    public void Dispose()
-    {
-        _testClient.Dispose();
-        _testServer.Dispose();
-        _applicationFactory.Dispose();
+        _testServer = fixture.TestServer;
+        _testClient = fixture.TestClient;
     }
 
     [Fact]
@@ -150,5 +141,28 @@ public class EndToEndTests : IDisposable
         public string? token_type { get; set; }
         public string? access_token { get; set; }
         public int? expires_in { get; set; }
+    }
+
+    public class Fixture : IDisposable
+    {
+        private readonly WebApplicationFactory<Program> _applicationFactory;
+
+        public Fixture()
+        {
+            _applicationFactory = new WebApplicationFactory<Program>();
+            TestServer = _applicationFactory.Server;
+            TestClient = TestServer.CreateClient();
+        }
+
+        public TestServer TestServer { get; }
+
+        public HttpClient TestClient { get; }
+
+        public void Dispose()
+        {
+            TestClient.Dispose();
+            TestServer.Dispose();
+            _applicationFactory.Dispose();
+        }
     }
 }

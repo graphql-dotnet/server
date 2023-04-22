@@ -5,20 +5,14 @@ using Samples.Tests;
 
 namespace Samples.Net48.Tests;
 
-public class EndToEndTests : IDisposable
+public class EndToEndTests : IClassFixture<EndToEndTests.Fixture>
 {
     private readonly TestServer _testServer;
 
-    public EndToEndTests()
+    public EndToEndTests(Fixture fixture)
     {
-        var builder = new WebHostBuilder()
-            .UseEnvironment("Development")
-            .UseStartup<Startup>();
-
-        _testServer = new TestServer(builder);
+        _testServer = fixture.TestServer;
     }
-
-    public void Dispose() => _testServer.Dispose();
 
     [Fact]
     public async Task RootRedirect()
@@ -45,4 +39,20 @@ public class EndToEndTests : IDisposable
     [Fact]
     public Task GraphQLWebSockets()
         => _testServer.VerifyGraphQLWebSocketsAsync();
+
+    public class Fixture : IDisposable
+    {
+        public Fixture()
+        {
+            var builder = new WebHostBuilder()
+                .UseEnvironment("Development")
+                .UseStartup<Startup>();
+
+            TestServer = new TestServer(builder);
+        }
+
+        public TestServer TestServer { get; }
+
+        public void Dispose() => TestServer.Dispose();
+    }
 }
