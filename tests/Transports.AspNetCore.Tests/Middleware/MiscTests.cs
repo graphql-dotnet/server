@@ -67,7 +67,7 @@ public class MiscTests
     {
         var err = new RequestError("test", new DivideByZeroException());
         var str = new GraphQLSerializer().Serialize(err);
-        str.ShouldBe(@"{""message"":""test"",""extensions"":{""code"":""REQUEST_ERROR"",""codes"":[""REQUEST_ERROR"",""DIVIDE_BY_ZERO""]}}");
+        str.ShouldBe("""{"message":"test","extensions":{"code":"REQUEST_ERROR","codes":["REQUEST_ERROR","DIVIDE_BY_ZERO"]}}""");
     }
 
     [Fact]
@@ -75,7 +75,7 @@ public class MiscTests
     {
         var err = new WebSocketSubProtocolNotSupportedError(new string[] { "test1", "test2" });
         var str = new GraphQLSerializer().Serialize(err);
-        str.ShouldBe(@"{""message"":""Invalid requested WebSocket sub-protocol(s): \u0027test1\u0027,\u0027test2\u0027"",""extensions"":{""code"":""WEB_SOCKET_SUB_PROTOCOL_NOT_SUPPORTED"",""codes"":[""WEB_SOCKET_SUB_PROTOCOL_NOT_SUPPORTED""]}}");
+        str.ShouldBe("""{"message":"Invalid requested WebSocket sub-protocol(s): \u0027test1\u0027,\u0027test2\u0027","extensions":{"code":"WEB_SOCKET_SUB_PROTOCOL_NOT_SUPPORTED","codes":["WEB_SOCKET_SUB_PROTOCOL_NOT_SUPPORTED"]}}""");
     }
 
     public class MyMiddleware : GraphQLHttpMiddleware<ISchema>

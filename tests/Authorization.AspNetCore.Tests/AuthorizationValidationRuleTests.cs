@@ -17,7 +17,7 @@ public class AuthorizationValidationRuleTests : ValidationTestBase
 
         ShouldPassRule(config =>
         {
-            config.Query = @"query { post }";
+            config.Query = "query { post }";
             config.Schema = BasicSchema<BasicQueryWithAttributesAndClassPolicy>().AuthorizeWithPolicy("SchemaPolicy");
             config.User = CreatePrincipal(claims: new Dictionary<string, string>
             {
@@ -39,7 +39,7 @@ public class AuthorizationValidationRuleTests : ValidationTestBase
 
         ShouldFailRule(config =>
         {
-            config.Query = @"query { post }";
+            config.Query = "query { post }";
             config.Schema = BasicSchema<BasicQueryWithAttributesAndClassPolicy>().AuthorizeWithPolicy("SchemaPolicy");
             config.User = CreatePrincipal(claims: new Dictionary<string, string>
             {
@@ -48,8 +48,10 @@ public class AuthorizationValidationRuleTests : ValidationTestBase
             config.ValidateResult = result =>
             {
                 result.Errors.Count.ShouldBe(1);
-                result.Errors[0].Message.ShouldBe(@"You are not authorized to run this query.
-Required claim 'some' is not present.");
+                result.Errors[0].Message.ShouldBe("""
+                    You are not authorized to run this query.
+                    Required claim 'some' is not present.
+                    """);
             };
         });
     }
@@ -61,7 +63,7 @@ Required claim 'some' is not present.");
 
         ShouldPassRule(config =>
         {
-            config.Query = @"query { post }";
+            config.Query = "query { post }";
             config.Schema = BasicSchema<BasicQueryWithAttributesAndClassPolicy>();
             config.User = CreatePrincipal(claims: new Dictionary<string, string>
             {
@@ -77,13 +79,15 @@ Required claim 'some' is not present.");
 
         ShouldFailRule(config =>
         {
-            config.Query = @"query { post }";
+            config.Query = "query { post }";
             config.Schema = BasicSchema<BasicQueryWithAttributesAndClassPolicy>();
             config.ValidateResult = result =>
             {
                 result.Errors.Count.ShouldBe(1);
-                result.Errors[0].Message.ShouldBe(@"You are not authorized to run this query.
-Required claim 'admin' is not present.");
+                result.Errors[0].Message.ShouldBe("""
+                    You are not authorized to run this query.
+                    Required claim 'admin' is not present.
+                    """);
             };
         });
     }
@@ -95,7 +99,7 @@ Required claim 'admin' is not present.");
 
         ShouldPassRule(config =>
         {
-            config.Query = @"query { post }";
+            config.Query = "query { post }";
             config.Schema = BasicSchema<BasicQueryWithAttributesAndMethodPolicy>();
             config.User = CreatePrincipal(claims: new Dictionary<string, string>
             {
@@ -111,7 +115,7 @@ Required claim 'admin' is not present.");
 
         ShouldPassRule(config =>
         {
-            config.Query = @"query { post }";
+            config.Query = "query { post }";
             config.Schema = BasicSchema<BasicQueryWithAttributesAndPropertyPolicy>();
             config.User = CreatePrincipal(claims: new Dictionary<string, string>
             {
@@ -127,13 +131,15 @@ Required claim 'admin' is not present.");
 
         ShouldFailRule(config =>
         {
-            config.Query = @"query { post }";
+            config.Query = "query { post }";
             config.Schema = BasicSchema<BasicQueryWithAttributesAndMethodPolicy>();
             config.ValidateResult = result =>
             {
                 result.Errors.Count.ShouldBe(1);
-                result.Errors[0].Message.ShouldBe(@"You are not authorized to run this query.
-Required claim 'admin' is not present.");
+                result.Errors[0].Message.ShouldBe("""
+                    You are not authorized to run this query.
+                    Required claim 'admin' is not present.
+                    """);
             };
         });
     }
@@ -145,13 +151,15 @@ Required claim 'admin' is not present.");
 
         ShouldFailRule(config =>
         {
-            config.Query = @"query { post }";
+            config.Query = "query { post }";
             config.Schema = BasicSchema<BasicQueryWithAttributesAndPropertyPolicy>();
             config.ValidateResult = result =>
             {
                 result.Errors.Count.ShouldBe(1);
-                result.Errors[0].Message.ShouldBe(@"You are not authorized to run this query.
-Required claim 'admin' is not present.");
+                result.Errors[0].Message.ShouldBe("""
+                    You are not authorized to run this query.
+                    Required claim 'admin' is not present.
+                    """);
             };
         });
     }
@@ -163,7 +171,7 @@ Required claim 'admin' is not present.");
 
         ShouldPassRule(config =>
         {
-            config.Query = @"query { post }";
+            config.Query = "query { post }";
             config.Schema = NestedSchema();
             config.User = CreatePrincipal(claims: new Dictionary<string, string>
             {
@@ -179,13 +187,15 @@ Required claim 'admin' is not present.");
 
         ShouldFailRule(config =>
         {
-            config.Query = @"query { post }";
+            config.Query = "query { post }";
             config.Schema = NestedSchema();
             config.ValidateResult = result =>
             {
                 result.Errors.Count.ShouldBe(1);
-                result.Errors[0].Message.ShouldBe(@"You are not authorized to run this query.
-Required claim 'admin' is not present.");
+                result.Errors[0].Message.ShouldBe("""
+                    You are not authorized to run this query.
+                    Required claim 'admin' is not present.
+                    """);
             };
         });
     }
@@ -197,7 +207,7 @@ Required claim 'admin' is not present.");
 
         ShouldPassRule(config =>
         {
-            config.Query = @"query { author(input: { name: ""Quinn"" }) }";
+            config.Query = """query { author(input: { name: "Quinn" }) }""";
             config.Schema = TypedSchema();
             config.User = CreatePrincipal(claims: new Dictionary<string, string>
             {
@@ -213,13 +223,15 @@ Required claim 'admin' is not present.");
 
         ShouldFailRule(config =>
         {
-            config.Query = @"query { posts }";
+            config.Query = "query { posts }";
             config.Schema = NestedSchema();
             config.ValidateResult = result =>
             {
                 result.Errors.Count.ShouldBe(1);
-                result.Errors[0].Message.ShouldBe(@"You are not authorized to run this query.
-Required claim 'admin' is not present.");
+                result.Errors[0].Message.ShouldBe("""
+                    You are not authorized to run this query.
+                    Required claim 'admin' is not present.
+                    """);
             };
         });
     }
@@ -231,13 +243,15 @@ Required claim 'admin' is not present.");
 
         ShouldFailRule(config =>
         {
-            config.Query = @"query { postsNonNull }";
+            config.Query = "query { postsNonNull }";
             config.Schema = NestedSchema();
             config.ValidateResult = result =>
             {
                 result.Errors.Count.ShouldBe(1);
-                result.Errors[0].Message.ShouldBe(@"You are not authorized to run this query.
-Required claim 'admin' is not present.");
+                result.Errors[0].Message.ShouldBe("""
+                    You are not authorized to run this query.
+                    Required claim 'admin' is not present.
+                    """);
             };
         });
     }
@@ -249,13 +263,15 @@ Required claim 'admin' is not present.");
 
         ShouldFailRule(config =>
         {
-            config.Query = @"query { author(input: { name: ""Quinn"" }) }";
+            config.Query = """query { author(input: { name: "Quinn" }) }""";
             config.Schema = TypedSchema();
             config.ValidateResult = result =>
             {
                 result.Errors.Count.ShouldBe(1);
-                result.Errors[0].Message.ShouldBe(@"You are not authorized to run this query.
-Required claim 'admin' is not present.");
+                result.Errors[0].Message.ShouldBe("""
+                    You are not authorized to run this query.
+                    Required claim 'admin' is not present.
+                    """);
             };
         });
     }
@@ -267,7 +283,7 @@ Required claim 'admin' is not present.");
 
         ShouldPassRule(config =>
         {
-            config.Query = @"query { posts { items { id } } }";
+            config.Query = "query { posts { items { id } } }";
             config.Schema = TypedSchema();
             config.User = CreatePrincipal(claims: new Dictionary<string, string>
             {
@@ -283,25 +299,27 @@ Required claim 'admin' is not present.");
 
         ShouldFailRule(config =>
         {
-            config.Query = @"query { posts { items { id } } }";
+            config.Query = "query { posts { items { id } } }";
             config.Schema = TypedSchema();
             config.User = CreatePrincipal();
             config.ValidateResult = result =>
             {
                 result.Errors.Count.ShouldBe(1);
-                result.Errors[0].Message.ShouldBe(@"You are not authorized to run this query.
-Required claim 'admin' is not present.");
+                result.Errors[0].Message.ShouldBe("""
+                    You are not authorized to run this query.
+                    Required claim 'admin' is not present.
+                    """);
             };
         });
     }
 
     private static ISchema BasicSchema<T>()
     {
-        string defs = @"
-                type Query {
-                    post(id: ID!): String
-                }
-            ";
+        string defs = """
+            type Query {
+                post(id: ID!): String
+            }
+        """;
 
         return Schema.For(defs, _ => _.Types.Include<T>());
     }
@@ -331,17 +349,17 @@ Required claim 'admin' is not present.");
 
     private ISchema NestedSchema()
     {
-        string defs = @"
-                type Query {
-                    post(id: ID!): Post
-                    posts: [Post]
-                    postsNonNull: [Post!]!
-                }
+        string defs = """
+            type Query {
+                post(id: ID!): Post
+                posts: [Post]
+                postsNonNull: [Post!]!
+            }
 
-                type Post {
-                    id: ID!
-                }
-            ";
+            type Post {
+                id: ID!
+            }
+        """;
 
         return Schema.For(defs, _ =>
         {

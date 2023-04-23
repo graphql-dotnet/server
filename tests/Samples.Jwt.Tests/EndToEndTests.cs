@@ -12,7 +12,7 @@ public class EndToEndTests : IDisposable
     private readonly WebApplicationFactory<Program> _applicationFactory;
     private readonly TestServer _testServer;
     private readonly HttpClient _testClient;
-    private const string ACCESS_DENIED_RESPONSE = @"{""errors"":[{""message"":""Access denied for schema."",""extensions"":{""code"":""ACCESS_DENIED"",""codes"":[""ACCESS_DENIED""]}}]}";
+    private const string ACCESS_DENIED_RESPONSE = """{"errors":[{"message":"Access denied for schema.","extensions":{"code":"ACCESS_DENIED","codes":["ACCESS_DENIED"]}}]}""";
 
     public EndToEndTests()
     {

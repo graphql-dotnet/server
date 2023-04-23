@@ -4,10 +4,10 @@ namespace Samples.MultipleSchemas.Tests;
 
 public class EndToEndTests
 {
-    private const string CAT_QUERY = @"{ cat(id:""1"") { name } }";
-    private const string CAT_RESPONSE = @"{""data"":{""cat"":{""name"":""Fluffy""}}}";
-    private const string DOG_QUERY = @"{ dog(id:""1"") { name } }";
-    private const string DOG_RESPONSE = @"{""data"":{""dog"":{""name"":""Shadow""}}}";
+    private const string CAT_QUERY = """{ cat(id:"1") { name } }""";
+    private const string CAT_RESPONSE = """{"data":{"cat":{"name":"Fluffy"}}}""";
+    private const string DOG_QUERY = """{ dog(id:"1") { name } }""";
+    private const string DOG_RESPONSE = """{"data":{"dog":{"name":"Shadow"}}}""";
 
     [Fact]
     public Task Cats_Playground()

@@ -12,7 +12,7 @@ public static class TestServerExtensions
         using var response = await client.GetAsync(url);
         response.EnsureSuccessStatusCode();
         var ret = await response.Content.ReadAsStringAsync();
-        ret.ShouldContain(@"<!DOCTYPE html>", Case.Insensitive);
+        ret.ShouldContain("<!DOCTYPE html>", Case.Insensitive);
         ret.ShouldContain("playground", Case.Insensitive);
     }
 
@@ -22,7 +22,7 @@ public static class TestServerExtensions
         using var response = await client.GetAsync(url);
         response.EnsureSuccessStatusCode();
         var ret = await response.Content.ReadAsStringAsync();
-        ret.ShouldContain(@"<!DOCTYPE html>", Case.Insensitive);
+        ret.ShouldContain("<!DOCTYPE html>", Case.Insensitive);
         ret.ShouldContain("graphiql", Case.Insensitive);
     }
 
@@ -30,7 +30,7 @@ public static class TestServerExtensions
         this TestServer server,
         string url = "/graphql",
         string query = "{count}",
-        string expected = @"{""data"":{""count"":0}}",
+        string expected = """{"data":{"count":0}}""",
         HttpStatusCode statusCode = HttpStatusCode.OK,
         string? jwtToken = null)
     {
@@ -48,7 +48,7 @@ public static class TestServerExtensions
         this TestServer server,
         string url = "/graphql",
         string query = "{count}",
-        string expected = @"{""data"":{""count"":0}}",
+        string expected = """{"data":{"count":0}}""",
         HttpStatusCode statusCode = HttpStatusCode.OK,
         string? jwtToken = null)
     {
@@ -69,7 +69,7 @@ public static class TestServerExtensions
         this TestServer server,
         string url = "/graphql",
         string query = "{count}",
-        string expected = @"{""data"":{""count"":0}}",
+        string expected = """{"data":{"count":0}}""",
         bool success = true,
         string? authHeaderJwtToken = null,
         string? payloadJwtToken = null)

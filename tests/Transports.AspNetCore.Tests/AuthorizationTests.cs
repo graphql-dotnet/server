@@ -88,7 +88,7 @@ public class AuthorizationTests : IDisposable
     [Fact]
     public void Simple()
     {
-        var ret = Validate(@"{ parent { child(arg: null) } }");
+        var ret = Validate("{ parent { child(arg: null) } }");
         ret.IsValid.ShouldBeTrue();
     }
 
@@ -97,7 +97,7 @@ public class AuthorizationTests : IDisposable
     {
         _principal = new ClaimsPrincipal(new ClaimsIdentity("Bearer"));
         Apply(_query, Mode.PolicyFailure);
-        var ret = Validate(@"{ parent { child } }");
+        var ret = Validate("{ parent { child } }");
         var err = ret.Errors.ShouldHaveSingleItem().ShouldBeOfType<AccessDeniedError>();
         err.PolicyRequired.ShouldBe("FailingPolicy");
         err.PolicyAuthorizationResult.ShouldNotBeNull();
@@ -110,7 +110,7 @@ public class AuthorizationTests : IDisposable
     {
         _principal = new ClaimsPrincipal(new ClaimsIdentity("Bearer"));
         Apply(_query, Mode.RoleFailure);
-        var ret = Validate(@"{ parent { child } }");
+        var ret = Validate("{ parent { child } }");
         var err = ret.Errors.ShouldHaveSingleItem().ShouldBeOfType<AccessDeniedError>();
         err.RolesRequired.ShouldBe(new string[] { "FailingRole" });
         err.PolicyAuthorizationResult.ShouldBeNull();
@@ -122,7 +122,7 @@ public class AuthorizationTests : IDisposable
     {
         _principal = new ClaimsPrincipal(new ClaimsIdentity("Bearer"));
         _query.AuthorizeWithRoles("Role1,Role2");
-        var ret = Validate(@"{ parent { child } }");
+        var ret = Validate("{ parent { child } }");
         var err = ret.Errors.ShouldHaveSingleItem().ShouldBeOfType<AccessDeniedError>();
         err.RolesRequired.ShouldBe(new string[] { "Role1", "Role2" });
         err.PolicyAuthorizationResult.ShouldBeNull();
@@ -148,23 +148,23 @@ public class AuthorizationTests : IDisposable
     [InlineData("query ($arg: Boolean = true) { parent @include(if: $arg) { child } test }", null, true, true)]
     [InlineData("query ($arg: Boolean = false) { parent @include(if: $arg) { child } test }", null, true, true)]
 
-    [InlineData("query ($arg: Boolean = false) { parent @skip(if: $arg) { child } test }", @"{ ""arg"": true }", false, true)]
-    [InlineData("query ($arg: Boolean = true) { parent @skip(if: $arg) { child } test }", @"{ ""arg"": false }", false, false)]
-    [InlineData("query ($arg: Boolean = false) { parent @skip(if: $arg) { child } test }", @"{ ""arg"": true }", true, true)]
-    [InlineData("query ($arg: Boolean = true) { parent @skip(if: $arg) { child } test }", @"{ ""arg"": false }", true, true)]
-    [InlineData("query ($arg: Boolean = false) { parent @include(if: $arg) { child } test }", @"{ ""arg"": true }", false, false)]
-    [InlineData("query ($arg: Boolean = true) { parent @include(if: $arg) { child } test }", @"{ ""arg"": false }", false, true)]
-    [InlineData("query ($arg: Boolean = false) { parent @include(if: $arg) { child } test }", @"{ ""arg"": true }", true, true)]
-    [InlineData("query ($arg: Boolean = true) { parent @include(if: $arg) { child } test }", @"{ ""arg"": false }", true, true)]
+    [InlineData("query ($arg: Boolean = false) { parent @skip(if: $arg) { child } test }", """{ "arg": true }""", false, true)]
+    [InlineData("query ($arg: Boolean = true) { parent @skip(if: $arg) { child } test }", """{ "arg": false }""", false, false)]
+    [InlineData("query ($arg: Boolean = false) { parent @skip(if: $arg) { child } test }", """{ "arg": true }""", true, true)]
+    [InlineData("query ($arg: Boolean = true) { parent @skip(if: $arg) { child } test }", """{ "arg": false }""", true, true)]
+    [InlineData("query ($arg: Boolean = false) { parent @include(if: $arg) { child } test }", """{ "arg": true }""", false, false)]
+    [InlineData("query ($arg: Boolean = true) { parent @include(if: $arg) { child } test }", """{ "arg": false }""", false, true)]
+    [InlineData("query ($arg: Boolean = false) { parent @include(if: $arg) { child } test }", """{ "arg": true }""", true, true)]
+    [InlineData("query ($arg: Boolean = true) { parent @include(if: $arg) { child } test }", """{ "arg": false }""", true, true)]
 
-    [InlineData("query ($arg: Boolean!) { parent @skip(if: $arg) { child } test }", @"{ ""arg"": true }", false, true)]
-    [InlineData("query ($arg: Boolean!) { parent @skip(if: $arg) { child } test }", @"{ ""arg"": false }", false, false)]
-    [InlineData("query ($arg: Boolean!) { parent @skip(if: $arg) { child } test }", @"{ ""arg"": true }", true, true)]
-    [InlineData("query ($arg: Boolean!) { parent @skip(if: $arg) { child } test }", @"{ ""arg"": false }", true, true)]
-    [InlineData("query ($arg: Boolean!) { parent @include(if: $arg) { child } test }", @"{ ""arg"": true }", false, false)]
-    [InlineData("query ($arg: Boolean!) { parent @include(if: $arg) { child } test }", @"{ ""arg"": false }", false, true)]
-    [InlineData("query ($arg: Boolean!) { parent @include(if: $arg) { child } test }", @"{ ""arg"": true }", true, true)]
-    [InlineData("query ($arg: Boolean!) { parent @include(if: $arg) { child } test }", @"{ ""arg"": false }", true, true)]
+    [InlineData("query ($arg: Boolean!) { parent @skip(if: $arg) { child } test }", """{ "arg": true }""", false, true)]
+    [InlineData("query ($arg: Boolean!) { parent @skip(if: $arg) { child } test }", """{ "arg": false }""", false, false)]
+    [InlineData("query ($arg: Boolean!) { parent @skip(if: $arg) { child } test }", """{ "arg": true }""", true, true)]
+    [InlineData("query ($arg: Boolean!) { parent @skip(if: $arg) { child } test }", """{ "arg": false }""", true, true)]
+    [InlineData("query ($arg: Boolean!) { parent @include(if: $arg) { child } test }", """{ "arg": true }""", false, false)]
+    [InlineData("query ($arg: Boolean!) { parent @include(if: $arg) { child } test }", """{ "arg": false }""", false, true)]
+    [InlineData("query ($arg: Boolean!) { parent @include(if: $arg) { child } test }", """{ "arg": true }""", true, true)]
+    [InlineData("query ($arg: Boolean!) { parent @include(if: $arg) { child } test }", """{ "arg": false }""", true, true)]
 
     [InlineData("{ ... @skip(if: true) { parent { child } } test }", null, false, true)]
     [InlineData("{ ... @skip(if: false) { parent { child } } test }", null, false, false)]
@@ -216,7 +216,7 @@ public class AuthorizationTests : IDisposable
         Apply(_childGraph, childMode);
         Apply(_childField, childFieldMode);
         Apply(_argument, argumentMode);
-        var ret = Validate(@"{ parent { child(arg: null) } }");
+        var ret = Validate("{ parent { child(arg: null) } }");
         ret.IsValid.ShouldBeFalse();
         ret.Errors.Count.ShouldBe(1);
         ret.Errors[0].Message.ShouldBe(message);
@@ -359,53 +359,53 @@ public class AuthorizationTests : IDisposable
             SetAuthorized();
 
         // simple test
-        var ret = Validate(@"{ parent { child(arg: null) } }");
+        var ret = Validate("{ parent { child(arg: null) } }");
         ret.IsValid.ShouldBe(isValid);
 
         // non-null test
         _field.ResolvedType = new NonNullGraphType(_childGraph);
-        ret = Validate(@"{ parent { child(arg: null) } }");
+        ret = Validate("{ parent { child(arg: null) } }");
         ret.IsValid.ShouldBe(isValid);
 
         // list test
         _field.ResolvedType = new ListGraphType(_childGraph);
-        ret = Validate(@"{ parent { child(arg: null) } }");
+        ret = Validate("{ parent { child(arg: null) } }");
         ret.IsValid.ShouldBe(isValid);
 
         // non-null list of non-null test
         _field.ResolvedType = new NonNullGraphType(new ListGraphType(new NonNullGraphType(_childGraph)));
-        ret = Validate(@"{ parent { child(arg: null) } }");
+        ret = Validate("{ parent { child(arg: null) } }");
         ret.IsValid.ShouldBe(isValid);
 
         //reset
         _field.ResolvedType = _childGraph;
 
         // inline fragment
-        ret = Validate(@"{ parent { ... on ChildType { child(arg: null) } } }");
+        ret = Validate("{ parent { ... on ChildType { child(arg: null) } } }");
         ret.IsValid.ShouldBe(isValid);
 
         // fragment prior to query
-        ret = Validate(@"fragment frag on ChildType { child(arg: null) } { parent { ...frag } }");
+        ret = Validate("fragment frag on ChildType { child(arg: null) } { parent { ...frag } }");
         ret.IsValid.ShouldBe(isValid);
 
         // fragment after query
-        ret = Validate(@"{ parent { ...frag } } fragment frag on ChildType { child(arg: null) }");
+        ret = Validate("{ parent { ...frag } } fragment frag on ChildType { child(arg: null) }");
         ret.IsValid.ShouldBe(isValid);
 
         // nested fragments prior to query
-        ret = Validate(@"fragment nestedFrag on ChildType { child(arg: null) } fragment frag on ChildType { ...nestedFrag } { parent { ...frag } }");
+        ret = Validate("fragment nestedFrag on ChildType { child(arg: null) } fragment frag on ChildType { ...nestedFrag } { parent { ...frag } }");
         ret.IsValid.ShouldBe(isValid);
 
         // nested fragments after query
-        ret = Validate(@"{ parent { ...frag } } fragment frag on ChildType { ...nestedFrag } fragment nestedFrag on ChildType { child(arg: null) }");
+        ret = Validate("{ parent { ...frag } } fragment frag on ChildType { ...nestedFrag } fragment nestedFrag on ChildType { child(arg: null) }");
         ret.IsValid.ShouldBe(isValid);
 
         // nested fragments around query 1
-        ret = Validate(@"fragment frag on ChildType { ...nestedFrag } { parent { ...frag } } fragment nestedFrag on ChildType { child(arg: null) }");
+        ret = Validate("fragment frag on ChildType { ...nestedFrag } { parent { ...frag } } fragment nestedFrag on ChildType { child(arg: null) }");
         ret.IsValid.ShouldBe(isValid);
 
         // nested fragments around query 2
-        ret = Validate(@"fragment nestedFrag on ChildType { child(arg: null) } { parent { ...frag } } fragment frag on ChildType { ...nestedFrag }");
+        ret = Validate("fragment nestedFrag on ChildType { child(arg: null) } { parent { ...frag } } fragment frag on ChildType { ...nestedFrag }");
         ret.IsValid.ShouldBe(isValid);
     }
 
@@ -423,16 +423,16 @@ public class AuthorizationTests : IDisposable
         if (authenticated)
             SetAuthorized();
 
-        var ret = Validate(@"{ __schema { types { name } } __typename }");
+        var ret = Validate("{ __schema { types { name } } __typename }");
         ret.IsValid.ShouldBe(isValid);
 
-        ret = Validate(@"{ __schema { types { name } } }");
+        ret = Validate("{ __schema { types { name } } }");
         ret.IsValid.ShouldBe(isValid);
 
-        ret = Validate(@"{ __type(name: ""QueryType"") { name } }");
+        ret = Validate("""{ __type(name: "QueryType") { name } }""");
         ret.IsValid.ShouldBe(isValid);
 
-        ret = Validate(@"{ __type(name: ""QueryType"") { name } __typename }");
+        ret = Validate("""{ __type(name: "QueryType") { name } __typename }""");
         ret.IsValid.ShouldBe(isValid);
     }
 
@@ -656,31 +656,31 @@ public class AuthorizationTests : IDisposable
     // if they pass or fail authorization, but we are testing them to be sure that
     // they do not cause a fatal exception
     [Theory]
-    [InlineData(@"{ test @skip }", null, false)]
-    [InlineData(@"{ test @include }", null, false)]
-    [InlineData(@"{ test @skip(if: HELLO) }", null, false)]
-    [InlineData(@"{ test @include(if: HELLO) }", null, false)]
-    [InlineData(@"{ test @skip(if: $arg) }", null, false)]
-    [InlineData(@"{ test @include(if: $arg) }", null, false)]
-    [InlineData(@"query ($arg2: String) { test @skip(if: $arg) }", null, false)]
-    [InlineData(@"query ($arg2: String) { test @include(if: $arg) }", null, false)]
-    [InlineData(@"query ($arg: String) { test @skip(if: $arg) }", null, false)]
-    [InlineData(@"query ($arg: String) { test @include(if: $arg) }", null, false)]
-    [InlineData(@"query ($arg: Boolean = TEST) { test @skip(if: $arg) }", null, false)]
-    [InlineData(@"query ($arg: Boolean = TEST) { test @include(if: $arg) }", null, false)]
-    [InlineData(@"query ($arg: Boolean) { test @skip(if: $arg) }", null, false)]
-    [InlineData(@"query ($arg: Boolean) { test @include(if: $arg) }", null, false)]
-    [InlineData(@"query ($arg: Boolean!) { test @skip(if: $arg) }", null, false)]
-    [InlineData(@"query ($arg: Boolean!) { test @include(if: $arg) }", null, false)]
-    [InlineData(@"query ($arg: Boolean!) { test @skip(if: $arg) }", @"{ ""arg"":""abc"" }", false)]
-    [InlineData(@"query ($arg: Boolean!) { test @include(if: $arg) }", @"{ ""arg"":""abc"" }", false)]
-    [InlineData(@"{ invalid }", null, true)]
-    [InlineData(@"{ invalid { child } }", null, true)]
-    [InlineData(@"{ test { child } }", null, false)]
-    [InlineData(@"{ parent { invalid } }", null, true)]
-    [InlineData(@"{ parent { child(invalid: true) } }", null, true)]
-    [InlineData(@"query { ...frag1 }", null, true)]
-    [InlineData(@"query { ...frag1 } fragment frag1 on QueryType { ...frag1 }", null, true)]
+    [InlineData("{ test @skip }", null, false)]
+    [InlineData("{ test @include }", null, false)]
+    [InlineData("{ test @skip(if: HELLO) }", null, false)]
+    [InlineData("{ test @include(if: HELLO) }", null, false)]
+    [InlineData("{ test @skip(if: $arg) }", null, false)]
+    [InlineData("{ test @include(if: $arg) }", null, false)]
+    [InlineData("query ($arg2: String) { test @skip(if: $arg) }", null, false)]
+    [InlineData("query ($arg2: String) { test @include(if: $arg) }", null, false)]
+    [InlineData("query ($arg: String) { test @skip(if: $arg) }", null, false)]
+    [InlineData("query ($arg: String) { test @include(if: $arg) }", null, false)]
+    [InlineData("query ($arg: Boolean = TEST) { test @skip(if: $arg) }", null, false)]
+    [InlineData("query ($arg: Boolean = TEST) { test @include(if: $arg) }", null, false)]
+    [InlineData("query ($arg: Boolean) { test @skip(if: $arg) }", null, false)]
+    [InlineData("query ($arg: Boolean) { test @include(if: $arg) }", null, false)]
+    [InlineData("query ($arg: Boolean!) { test @skip(if: $arg) }", null, false)]
+    [InlineData("query ($arg: Boolean!) { test @include(if: $arg) }", null, false)]
+    [InlineData("query ($arg: Boolean!) { test @skip(if: $arg) }", """{ "arg":"abc" }""", false)]
+    [InlineData("query ($arg: Boolean!) { test @include(if: $arg) }", """{ "arg":"abc" }""", false)]
+    [InlineData("{ invalid }", null, true)]
+    [InlineData("{ invalid { child } }", null, true)]
+    [InlineData("{ test { child } }", null, false)]
+    [InlineData("{ parent { invalid } }", null, true)]
+    [InlineData("{ parent { child(invalid: true) } }", null, true)]
+    [InlineData("query { ...frag1 }", null, true)]
+    [InlineData("query { ...frag1 } fragment frag1 on QueryType { ...frag1 }", null, true)]
     public void TestDefective(string query, string variables, bool expectedIsValid)
     {
         _query.AddField(new FieldType { Name = "test", Type = typeof(StringGraphType) }).Authorize();
@@ -712,7 +712,7 @@ public class AuthorizationTests : IDisposable
         var executer = provider.GetRequiredService<IDocumentExecuter<ISchema>>();
         var ret = await executer.ExecuteAsync(new ExecutionOptions
         {
-            Query = @"{ parent { child } }",
+            Query = "{ parent { child } }",
             RequestServices = provider,
             User = _principal,
         });
@@ -721,9 +721,9 @@ public class AuthorizationTests : IDisposable
         var actual = serializer.Serialize(ret);
 
         if (authenticated)
-            actual.ShouldBe(@"{""data"":{""parent"":null}}");
+            actual.ShouldBe("""{"data":{"parent":null}}""");
         else
-            actual.ShouldBe(@"{""errors"":[{""message"":""Access denied for field \u0027parent\u0027 on type \u0027QueryType\u0027."",""locations"":[{""line"":1,""column"":3}],""extensions"":{""code"":""ACCESS_DENIED"",""codes"":[""ACCESS_DENIED""]}}]}");
+            actual.ShouldBe("""{"errors":[{"message":"Access denied for field \u0027parent\u0027 on type \u0027QueryType\u0027.","locations":[{"line":1,"column":3}],"extensions":{"code":"ACCESS_DENIED","codes":["ACCESS_DENIED"]}}]}""");
     }
 
     [Theory]
@@ -769,9 +769,9 @@ public class AuthorizationTests : IDisposable
         var actual = await response.Content.ReadAsStringAsync();
 
         if (authenticated)
-            actual.ShouldBe(@"{""data"":{""parent"":null}}");
+            actual.ShouldBe("""{"data":{"parent":null}}""");
         else
-            actual.ShouldBe(@"{""errors"":[{""message"":""Access denied for field \u0027parent\u0027 on type \u0027QueryType\u0027."",""locations"":[{""line"":1,""column"":3}],""extensions"":{""code"":""ACCESS_DENIED"",""codes"":[""ACCESS_DENIED""]}}]}");
+            actual.ShouldBe("""{"errors":[{"message":"Access denied for field \u0027parent\u0027 on type \u0027QueryType\u0027.","locations":[{"line":1,"column":3}],"extensions":{"code":"ACCESS_DENIED","codes":["ACCESS_DENIED"]}}]}""");
     }
 
     public enum Mode

@@ -6,9 +6,9 @@ namespace Samples.Authorization.Tests;
 public class EndToEndTests
 {
     private const string SUCCESS_QUERY = "{hello}";
-    private const string SUCCESS_RESPONSE = @"{""data"":{""hello"":""Hello anybody.""}}";
+    private const string SUCCESS_RESPONSE = """{"data":{"hello":"Hello anybody."}}""";
     private const string ACCESS_DENIED_QUERY = "{helloUser}";
-    private const string ACCESS_DENIED_ERRORS = @"[{""message"":""Access denied for field \u0027helloUser\u0027 on type \u0027Query\u0027."",""locations"":[{""line"":1,""column"":2}],""extensions"":{""code"":""ACCESS_DENIED"",""codes"":[""ACCESS_DENIED""]}}]";
+    private const string ACCESS_DENIED_ERRORS = """[{"message":"Access denied for field \u0027helloUser\u0027 on type \u0027Query\u0027.","locations":[{"line":1,"column":2}],"extensions":{"code":"ACCESS_DENIED","codes":["ACCESS_DENIED"]}}]""";
     private const string ACCESS_DENIED_RESPONSE = @"{""errors"":" + ACCESS_DENIED_ERRORS + "}";
 
     [Fact]

@@ -89,7 +89,7 @@ internal static class TestServerExtensions
         // wait for a new message sent over this websocket
         message = await webSocket.ReceiveMessageAsync();
         message.Type.ShouldBe("next");
-        message.Payload.ShouldBe(@"{""data"":{""events"":{""type"":""NEW_MESSAGE"",""message"":{""id"":""1"",""message"":""hello"",""from"":""John Doe""}}}}");
+        message.Payload.ShouldBe("""{"data":{"events":{"type":"NEW_MESSAGE","message":{"id":"1","message":"hello","from":"John Doe"}}}}""");
 
         // unsubscribe
         await webSocket.SendMessageAsync(new OperationMessage

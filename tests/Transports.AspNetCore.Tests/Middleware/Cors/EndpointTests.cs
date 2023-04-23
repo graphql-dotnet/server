@@ -55,7 +55,7 @@ public class EndpointTests
         using var response = await client.SendAsync(request);
         if (method == HttpMethod.Post)
         {
-            (await response.Content.ReadAsStringAsync()).ShouldBe(@"{""data"":{""hello"":""world""}}");
+            (await response.Content.ReadAsStringAsync()).ShouldBe("""{"data":{"hello":"world"}}""");
         }
         response.EnsureSuccessStatusCode();
         return new CorsResponse

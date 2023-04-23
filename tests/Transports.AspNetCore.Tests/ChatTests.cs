@@ -201,7 +201,7 @@ public class ChatTests : IDisposable
             message = await webSocket.ReceiveMessageAsync();
             message.Id.ShouldBe("verify");
             message.Type.ShouldBe("data");
-            message.Payload.ShouldBe(@"{""data"":{""count"":0}}");
+            message.Payload.ShouldBe("""{"data":{"count":0}}""");
             // and the complete message
             message = await webSocket.ReceiveMessageAsync();
             message.Id.ShouldBe("verify");
@@ -214,7 +214,7 @@ public class ChatTests : IDisposable
         // wait for a new message sent over this websocket
         message = await webSocket.ReceiveMessageAsync();
         message.Type.ShouldBe(subProtocol == "graphql-ws" ? "data" : "next");
-        message.Payload.ShouldBe(@"{""data"":{""events"":{""type"":""NEW_MESSAGE"",""message"":{""id"":""1"",""message"":""hello"",""from"":""John Doe""}}}}");
+        message.Payload.ShouldBe("""{"data":{"events":{"type":"NEW_MESSAGE","message":{"id":"1","message":"hello","from":"John Doe"}}}}""");
 
         // clear messages
         _ = Task.Run(async () =>
@@ -225,7 +225,7 @@ public class ChatTests : IDisposable
         // wait for a clear message sent over this websocket
         message = await webSocket.ReceiveMessageAsync();
         message.Type.ShouldBe(subProtocol == "graphql-ws" ? "data" : "next");
-        message.Payload.ShouldBe(@"{""data"":{""events"":{""type"":""CLEAR_MESSAGES"",""message"":null}}}");
+        message.Payload.ShouldBe("""{"data":{"events":{"type":"CLEAR_MESSAGES","message":null}}}""");
 
         // post a new message on a separate thread
         _ = Task.Run(() => AddMessageInternal(2));
@@ -233,7 +233,7 @@ public class ChatTests : IDisposable
         // wait for a new message sent over this websocket
         message = await webSocket.ReceiveMessageAsync();
         message.Type.ShouldBe(subProtocol == "graphql-ws" ? "data" : "next");
-        message.Payload.ShouldBe(@"{""data"":{""events"":{""type"":""NEW_MESSAGE"",""message"":{""id"":""2"",""message"":""hello"",""from"":""John Doe""}}}}");
+        message.Payload.ShouldBe("""{"data":{"events":{"type":"NEW_MESSAGE","message":{"id":"2","message":"hello","from":"John Doe"}}}}""");
 
         // delete a message on a separate thread
         _ = Task.Run(() => DeleteMessageInternal(2));
@@ -241,7 +241,7 @@ public class ChatTests : IDisposable
         // wait for a delete message sent over this websocket
         message = await webSocket.ReceiveMessageAsync();
         message.Type.ShouldBe(subProtocol == "graphql-ws" ? "data" : "next");
-        message.Payload.ShouldBe(@"{""data"":{""events"":{""type"":""DELETE_MESSAGE"",""message"":{""id"":""2"",""message"":""hello"",""from"":""John Doe""}}}}");
+        message.Payload.ShouldBe("""{"data":{"events":{"type":"DELETE_MESSAGE","message":{"id":"2","message":"hello","from":"John Doe"}}}}""");
 
         // unsubscribe
         await webSocket.SendMessageAsync(new OperationMessage
@@ -342,7 +342,7 @@ public class ChatTests : IDisposable
             message = await webSocket.ReceiveMessageAsync();
             message.Id.ShouldBe("verify");
             message.Type.ShouldBe("data");
-            message.Payload.ShouldBe(@"{""data"":{""count"":0}}");
+            message.Payload.ShouldBe("""{"data":{"count":0}}""");
             // and the complete message
             message = await webSocket.ReceiveMessageAsync();
             message.Id.ShouldBe("verify");
@@ -358,14 +358,14 @@ public class ChatTests : IDisposable
             // wait for a new message sent over this websocket
             message = await webSocket.ReceiveMessageAsync();
             message.Type.ShouldBe(subProtocol == "graphql-ws" ? "data" : "next");
-            message.Payload.ShouldBe(@"{""data"":{""newMessages"":{""id"":""1"",""message"":""hello"",""from"":""John Doe""}}}");
+            message.Payload.ShouldBe("""{"data":{"newMessages":{"id":"1","message":"hello","from":"John Doe"}}}""");
         }
         if (from == "test" || from == null)
         {
             // wait for a new message sent over this websocket
             message = await webSocket.ReceiveMessageAsync();
             message.Type.ShouldBe(subProtocol == "graphql-ws" ? "data" : "next");
-            message.Payload.ShouldBe(@"{""data"":{""newMessages"":{""id"":""2"",""message"":""hello"",""from"":""test""}}}");
+            message.Payload.ShouldBe("""{"data":{"newMessages":{"id":"2","message":"hello","from":"test"}}}""");
         }
 
         // send a ping

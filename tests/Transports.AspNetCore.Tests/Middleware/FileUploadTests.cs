@@ -37,12 +37,12 @@ public class FileUploadTests : IDisposable
     {
         var client = _server.CreateClient();
         var content = new MultipartFormDataContent();
-        var queryContent = new StringContent(@"query($prefix: String, $file: File!) { convertToBase64(prefix: $prefix, file: $file) }");
+        var queryContent = new StringContent("query($prefix: String, $file: File!) { convertToBase64(prefix: $prefix, file: $file) }");
         queryContent.Headers.ContentType = new("application/graphql");
         content.Add(queryContent, "query");
         if (withOtherVariables)
         {
-            var variablesContent = new StringContent(@"{""prefix"":""pre-""}");
+            var variablesContent = new StringContent("""{"prefix":"pre-"}""");
             variablesContent.Headers.ContentType = new("application/json");
             content.Add(variablesContent, "variables");
         }
@@ -53,11 +53,11 @@ public class FileUploadTests : IDisposable
         using var response = await client.PostAsync("/graphql", content);
         if (withOtherVariables)
         {
-            await response.ShouldBeAsync(@"{""data"":{""convertToBase64"":""pre-filename.bin-YWJjZA==""}}");
+            await response.ShouldBeAsync("""{"data":{"convertToBase64":"pre-filename.bin-YWJjZA=="}}""");
         }
         else
         {
-            await response.ShouldBeAsync(@"{""data"":{""convertToBase64"":""filename.bin-YWJjZA==""}}");
+            await response.ShouldBeAsync("""{"data":{"convertToBase64":"filename.bin-YWJjZA=="}}""");
         }
     }
 

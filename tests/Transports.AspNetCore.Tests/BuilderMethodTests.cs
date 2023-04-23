@@ -293,7 +293,7 @@ public class BuilderMethodTests
         });
         using var server = new TestServer(_hostBuilder);
         using var client = server.CreateClient();
-        using var response = await client.PostAsync("/graphql", new StringContent(@"{""query"":""{count}""}", Encoding.UTF8, "application/json"));
+        using var response = await client.PostAsync("/graphql", new StringContent("""{"query":"{count}"}""", Encoding.UTF8, "application/json"));
         response.StatusCode.ShouldBe(System.Net.HttpStatusCode.OK);
         using var response2 = await client.GetAsync("/graphql");
         response2.StatusCode.ShouldBe(System.Net.HttpStatusCode.Accepted);
