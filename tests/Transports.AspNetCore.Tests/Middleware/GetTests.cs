@@ -62,7 +62,7 @@ public class GetTests : IDisposable
     {
         var client = _server.CreateClient();
         using var response = await client.GetAsync("/graphql?query={count}");
-        await response.ShouldBeAsync(@"{""data"":{""count"":0}}");
+        await response.ShouldBeAsync("""{"data":{"count":0}}""");
     }
 
     [Theory]
@@ -159,7 +159,7 @@ public class GetTests : IDisposable
         using var response = await client.SendAsync(request);
         var contentType = response.Content.Headers.ContentType?.ToString();
         contentType.ShouldBe(expected);
-        (await response.Content.ReadAsStringAsync()).ShouldBe(@"{""data"":{""count"":0}}");
+        (await response.Content.ReadAsStringAsync()).ShouldBe("""{"data":{"count":0}}""");
     }
 
     [Fact]
@@ -181,7 +181,7 @@ public class GetTests : IDisposable
 
         var client = server.CreateClient();
         using var response = await client.GetAsync("/graphql?query={count}");
-        await response.ShouldBeAsync(@"{""data"":{""count"":0}}");
+        await response.ShouldBeAsync("""{"data":{"count":0}}""");
     }
 
     [Theory]
@@ -192,7 +192,7 @@ public class GetTests : IDisposable
         _options.ValidationErrorsReturnBadRequest = badRequest;
         var client = _server.CreateClient();
         using var response = await client.GetAsync("/graphql?query={invalid}");
-        await response.ShouldBeAsync(badRequest, @"{""errors"":[{""message"":""Cannot query field \u0027invalid\u0027 on type \u0027Query\u0027."",""locations"":[{""line"":1,""column"":2}],""extensions"":{""code"":""FIELDS_ON_CORRECT_TYPE"",""codes"":[""FIELDS_ON_CORRECT_TYPE""],""number"":""5.3.1""}}]}");
+        await response.ShouldBeAsync(badRequest, """{"errors":[{"message":"Cannot query field \u0027invalid\u0027 on type \u0027Query\u0027.","locations":[{"line":1,"column":2}],"extensions":{"code":"FIELDS_ON_CORRECT_TYPE","codes":["FIELDS_ON_CORRECT_TYPE"],"number":"5.3.1"}}]}""");
     }
 
     [Fact]
@@ -212,7 +212,7 @@ public class GetTests : IDisposable
         _options.ValidationErrorsReturnBadRequest = badRequest;
         var client = _server.CreateClient();
         using var response = await client.GetAsync("/graphql?query={");
-        await response.ShouldBeAsync(badRequest, @"{""errors"":[{""message"":""Error parsing query: Expected Name, found EOF; for more information see http://spec.graphql.org/October2021/#Field"",""locations"":[{""line"":1,""column"":2}],""extensions"":{""code"":""SYNTAX_ERROR"",""codes"":[""SYNTAX_ERROR""]}}]}");
+        await response.ShouldBeAsync(badRequest, """{"errors":[{"message":"Error parsing query: Expected Name, found EOF; for more information see http://spec.graphql.org/October2021/#Field","locations":[{"line":1,"column":2}],"extensions":{"code":"SYNTAX_ERROR","codes":["SYNTAX_ERROR"]}}]}""");
     }
 
     [Theory]
@@ -223,7 +223,7 @@ public class GetTests : IDisposable
         _options.ValidationErrorsReturnBadRequest = badRequest;
         var client = _server.CreateClient();
         using var response = await client.GetAsync("/graphql");
-        await response.ShouldBeAsync(badRequest, @"{""errors"":[{""message"":""GraphQL query is missing."",""extensions"":{""code"":""QUERY_MISSING"",""codes"":[""QUERY_MISSING""]}}]}");
+        await response.ShouldBeAsync(badRequest, """{"errors":[{"message":"GraphQL query is missing.","extensions":{"code":"QUERY_MISSING","codes":["QUERY_MISSING"]}}]}""");
     }
 
     [Theory]
@@ -234,7 +234,7 @@ public class GetTests : IDisposable
         _options.ValidationErrorsReturnBadRequest = badRequest;
         var client = _server.CreateClient();
         using var response = await client.GetAsync("/graphql?query=");
-        await response.ShouldBeAsync(badRequest, @"{""errors"":[{""message"":""Document does not contain any operations."",""extensions"":{""code"":""NO_OPERATION"",""codes"":[""NO_OPERATION""]}}]}");
+        await response.ShouldBeAsync(badRequest, """{"errors":[{"message":"Document does not contain any operations.","extensions":{"code":"NO_OPERATION","codes":["NO_OPERATION"]}}]}""");
     }
 
     [Theory]
@@ -245,7 +245,7 @@ public class GetTests : IDisposable
         _options.ValidationErrorsReturnBadRequest = badRequest;
         var client = _server.CreateClient();
         using var response = await client.GetAsync("/graphql?query=mutation{clearMessages}");
-        await response.ShouldBeAsync(HttpStatusCode.MethodNotAllowed, @"{""errors"":[{""message"":""Only query operations allowed for GET requests."",""locations"":[{""line"":1,""column"":1}],""extensions"":{""code"":""HTTP_METHOD_VALIDATION"",""codes"":[""HTTP_METHOD_VALIDATION""]}}]}");
+        await response.ShouldBeAsync(HttpStatusCode.MethodNotAllowed, """{"errors":[{"message":"Only query operations allowed for GET requests.","locations":[{"line":1,"column":1}],"extensions":{"code":"HTTP_METHOD_VALIDATION","codes":["HTTP_METHOD_VALIDATION"]}}]}""");
     }
 
     [Theory]
@@ -256,7 +256,7 @@ public class GetTests : IDisposable
         _options.ValidationErrorsReturnBadRequest = badRequest;
         var client = _server.CreateClient();
         using var response = await client.GetAsync("/graphql?query=subscription{newMessages{id}}");
-        await response.ShouldBeAsync(HttpStatusCode.MethodNotAllowed, @"{""errors"":[{""message"":""Only query operations allowed for GET requests."",""locations"":[{""line"":1,""column"":1}],""extensions"":{""code"":""HTTP_METHOD_VALIDATION"",""codes"":[""HTTP_METHOD_VALIDATION""]}}]}");
+        await response.ShouldBeAsync(HttpStatusCode.MethodNotAllowed, """{"errors":[{"message":"Only query operations allowed for GET requests.","locations":[{"line":1,"column":1}],"extensions":{"code":"HTTP_METHOD_VALIDATION","codes":["HTTP_METHOD_VALIDATION"]}}]}""");
     }
 
     [Theory]
@@ -270,11 +270,11 @@ public class GetTests : IDisposable
         using var response = await client.GetAsync("/graphql?query=query($from:String!){allMessages(from:$from){id}}&variables={%22from%22:%22abc%22}");
         if (readVariablesFromQueryString)
         {
-            await response.ShouldBeAsync(@"{""data"":{""allMessages"":[]}}");
+            await response.ShouldBeAsync("""{"data":{"allMessages":[]}}""");
         }
         else
         {
-            await response.ShouldBeAsync(@"{""errors"":[{""message"":""Variable \u0027$from\u0027 is invalid. No value provided for a non-null variable."",""locations"":[{""line"":1,""column"":7}],""extensions"":{""code"":""INVALID_VALUE"",""codes"":[""INVALID_VALUE""],""number"":""5.8""}}]}");
+            await response.ShouldBeAsync("""{"errors":[{"message":"Variable \u0027$from\u0027 is invalid. No value provided for a non-null variable.","locations":[{"line":1,"column":7}],"extensions":{"code":"INVALID_VALUE","codes":["INVALID_VALUE"],"number":"5.8"}}]}""");
         }
     }
 
@@ -288,12 +288,12 @@ public class GetTests : IDisposable
         var client = _server.CreateClient();
         using var response = await client.GetAsync("/graphql?query=query($from:String!){allMessages(from:$from){id}}&variables={");
         // always returns BadRequest here
-        await response.ShouldBeAsync(true, @"{""errors"":[{""message"":""JSON body text could not be parsed. Expected depth to be zero at the end of the JSON payload. There is an open JSON object or array that should be closed. Path: $ | LineNumber: 0 | BytePositionInLine: 1."",""extensions"":{""code"":""JSON_INVALID"",""codes"":[""JSON_INVALID""]}}]}");
+        await response.ShouldBeAsync(true, """{"errors":[{"message":"JSON body text could not be parsed. Expected depth to be zero at the end of the JSON payload. There is an open JSON object or array that should be closed. Path: $ | LineNumber: 0 | BytePositionInLine: 1.","extensions":{"code":"JSON_INVALID","codes":["JSON_INVALID"]}}]}""");
     }
 
     [Theory]
-    [InlineData("test1", @"{""data"":{""count"":0}}")]
-    [InlineData("test2", @"{""data"":{""allMessages"":[]}}")]
+    [InlineData("test1", """{"data":{"count":0}}""")]
+    [InlineData("test2", """{"data":{"allMessages":[]}}""")]
     public async Task OperationName(string opName, string expected)
     {
         var client = _server.CreateClient();
@@ -302,8 +302,8 @@ public class GetTests : IDisposable
     }
 
     [Theory]
-    [InlineData(true, @"{""data"":{""ext"":""abc""}}")]
-    [InlineData(false, @"{""data"":{""ext"":null}}")]
+    [InlineData(true, """{"data":{"ext":"abc"}}""")]
+    [InlineData(false, """{"data":{"ext":null}}""")]
     public async Task Extensions(bool readExtensions, string expected)
     {
         _options2.ReadExtensionsFromQueryString = readExtensions;
@@ -322,6 +322,6 @@ public class GetTests : IDisposable
         var client = _server.CreateClient();
         using var response = await client.GetAsync("/graphql2?query={ext}&extensions={");
         // always returns BadRequest here
-        await response.ShouldBeAsync(true, @"{""errors"":[{""message"":""JSON body text could not be parsed. Expected depth to be zero at the end of the JSON payload. There is an open JSON object or array that should be closed. Path: $ | LineNumber: 0 | BytePositionInLine: 1."",""extensions"":{""code"":""JSON_INVALID"",""codes"":[""JSON_INVALID""]}}]}");
+        await response.ShouldBeAsync(true, """{"errors":[{"message":"JSON body text could not be parsed. Expected depth to be zero at the end of the JSON payload. There is an open JSON object or array that should be closed. Path: $ | LineNumber: 0 | BytePositionInLine: 1.","extensions":{"code":"JSON_INVALID","codes":["JSON_INVALID"]}}]}""");
     }
 }

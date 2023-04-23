@@ -55,7 +55,7 @@ public class ExecutionResultActionResultTests : IDisposable
     public async Task ForcedResultCode()
     {
         var str2 = await _server.ExecuteGet("/graphql?query={}&resultCode=200");
-        str2.ShouldBe(@"{""errors"":[{""message"":""Error parsing query: Expected Name, found }; for more information see http://spec.graphql.org/October2021/#Field"",""locations"":[{""line"":1,""column"":2}],""extensions"":{""code"":""SYNTAX_ERROR"",""codes"":[""SYNTAX_ERROR""]}}]}");
+        str2.ShouldBe("""{"errors":[{"message":"Error parsing query: Expected Name, found }; for more information see http://spec.graphql.org/October2021/#Field","locations":[{"line":1,"column":2}],"extensions":{"code":"SYNTAX_ERROR","codes":["SYNTAX_ERROR"]}}]}""");
     }
 
     [Fact]
@@ -80,7 +80,7 @@ public class ExecutionResultActionResultTests : IDisposable
         var response = await httpClient.SendAsync(request);
         response.StatusCode.ShouldBe(System.Net.HttpStatusCode.BadRequest);
         var str3 = await response.Content.ReadAsStringAsync();
-        str3.ShouldBe(@"{""errors"":[{""message"":""Error parsing query: Expected Name, found }; for more information see http://spec.graphql.org/October2021/#Field"",""locations"":[{""line"":1,""column"":2}],""extensions"":{""code"":""SYNTAX_ERROR"",""codes"":[""SYNTAX_ERROR""]}}]}");
+        str3.ShouldBe("""{"errors":[{"message":"Error parsing query: Expected Name, found }; for more information see http://spec.graphql.org/October2021/#Field","locations":[{"line":1,"column":2}],"extensions":{"code":"SYNTAX_ERROR","codes":["SYNTAX_ERROR"]}}]}""");
     }
 
     public void Dispose() => _server.Dispose();

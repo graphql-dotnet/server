@@ -91,7 +91,7 @@ public class AuthorizationTests : IDisposable
         using var response = await PostQueryAsync("{ __typename }", false);
         response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
         var actual = await response.Content.ReadAsStringAsync();
-        actual.ShouldBe(@"{""errors"":[{""message"":""Access denied for schema."",""extensions"":{""code"":""ACCESS_DENIED"",""codes"":[""ACCESS_DENIED""]}}]}");
+        actual.ShouldBe("""{"errors":[{"message":"Access denied for schema.","extensions":{"code":"ACCESS_DENIED","codes":["ACCESS_DENIED"]}}]}""");
     }
 
     [Fact]
@@ -102,7 +102,7 @@ public class AuthorizationTests : IDisposable
         using var response = await client.GetAsync("/graphql?query={ __typename }");
         response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
         var actual = await response.Content.ReadAsStringAsync();
-        actual.ShouldBe(@"{""errors"":[{""message"":""Access denied for schema."",""extensions"":{""code"":""ACCESS_DENIED"",""codes"":[""ACCESS_DENIED""]}}]}");
+        actual.ShouldBe("""{"errors":[{"message":"Access denied for schema.","extensions":{"code":"ACCESS_DENIED","codes":["ACCESS_DENIED"]}}]}""");
     }
 
     [Fact]
@@ -170,7 +170,7 @@ public class AuthorizationTests : IDisposable
         using var response = await PostQueryAsync("{ __typename }", false);
         response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
         var actual = await response.Content.ReadAsStringAsync();
-        actual.ShouldBe(@"{""errors"":[{""message"":""Access denied; authorization required."",""extensions"":{""code"":""ACCESS_DENIED"",""codes"":[""ACCESS_DENIED""]}}]}");
+        actual.ShouldBe("""{"errors":[{"message":"Access denied; authorization required.","extensions":{"code":"ACCESS_DENIED","codes":["ACCESS_DENIED"]}}]}""");
     }
 
     [Fact]
@@ -180,7 +180,7 @@ public class AuthorizationTests : IDisposable
         using var response = await PostQueryAsync("{ __typename }", true);
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
         var actual = await response.Content.ReadAsStringAsync();
-        actual.ShouldBe(@"{""data"":{""__typename"":""Query""}}");
+        actual.ShouldBe("""{"data":{"__typename":"Query"}}""");
     }
 
     [Theory]
@@ -193,7 +193,7 @@ public class AuthorizationTests : IDisposable
         using var response = await PostQueryAsync("{ __typename }", authenticated);
         response.StatusCode.ShouldBe(authenticated ? HttpStatusCode.Forbidden : HttpStatusCode.Unauthorized);
         var actual = await response.Content.ReadAsStringAsync();
-        actual.ShouldBe(@"{""errors"":[{""message"":""Access denied for schema."",""extensions"":{""code"":""ACCESS_DENIED"",""codes"":[""ACCESS_DENIED""]}}]}");
+        actual.ShouldBe("""{"errors":[{"message":"Access denied for schema.","extensions":{"code":"ACCESS_DENIED","codes":["ACCESS_DENIED"]}}]}""");
     }
 
     [Theory]
@@ -209,11 +209,11 @@ public class AuthorizationTests : IDisposable
         var actual = await response.Content.ReadAsStringAsync();
         if (authenticated)
         {
-            actual.ShouldBe(@"{""errors"":[{""message"":""Access denied; roles required \u0027AnotherRole\u0027/\u0027FailingRole\u0027."",""extensions"":{""code"":""ACCESS_DENIED"",""codes"":[""ACCESS_DENIED""]}}]}");
+            actual.ShouldBe("""{"errors":[{"message":"Access denied; roles required \u0027AnotherRole\u0027/\u0027FailingRole\u0027.","extensions":{"code":"ACCESS_DENIED","codes":["ACCESS_DENIED"]}}]}""");
         }
         else
         {
-            actual.ShouldBe(@"{""errors"":[{""message"":""Access denied; authorization required."",""extensions"":{""code"":""ACCESS_DENIED"",""codes"":[""ACCESS_DENIED""]}}]}");
+            actual.ShouldBe("""{"errors":[{"message":"Access denied; authorization required.","extensions":{"code":"ACCESS_DENIED","codes":["ACCESS_DENIED"]}}]}""");
         }
     }
 
@@ -225,7 +225,7 @@ public class AuthorizationTests : IDisposable
         using var response = await PostQueryAsync("{ __typename }", true);
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
         var actual = await response.Content.ReadAsStringAsync();
-        actual.ShouldBe(@"{""data"":{""__typename"":""Query""}}");
+        actual.ShouldBe("""{"data":{"__typename":"Query"}}""");
     }
 
     [Theory]
@@ -237,7 +237,7 @@ public class AuthorizationTests : IDisposable
         using var response = await PostQueryAsync("{ __typename }", authenticated);
         response.StatusCode.ShouldBe(authenticated ? HttpStatusCode.Forbidden : HttpStatusCode.Unauthorized);
         var actual = await response.Content.ReadAsStringAsync();
-        actual.ShouldBe(@"{""errors"":[{""message"":""Access denied for schema."",""extensions"":{""code"":""ACCESS_DENIED"",""codes"":[""ACCESS_DENIED""]}}]}");
+        actual.ShouldBe("""{"errors":[{"message":"Access denied for schema.","extensions":{"code":"ACCESS_DENIED","codes":["ACCESS_DENIED"]}}]}""");
     }
 
     [Theory]
@@ -252,11 +252,11 @@ public class AuthorizationTests : IDisposable
         var actual = await response.Content.ReadAsStringAsync();
         if (authenticated)
         {
-            actual.ShouldBe(@"{""errors"":[{""message"":""Access denied; policy required \u0027FailingPolicy\u0027."",""extensions"":{""code"":""ACCESS_DENIED"",""codes"":[""ACCESS_DENIED""]}}]}");
+            actual.ShouldBe("""{"errors":[{"message":"Access denied; policy required \u0027FailingPolicy\u0027.","extensions":{"code":"ACCESS_DENIED","codes":["ACCESS_DENIED"]}}]}""");
         }
         else
         {
-            actual.ShouldBe(@"{""errors"":[{""message"":""Access denied; authorization required."",""extensions"":{""code"":""ACCESS_DENIED"",""codes"":[""ACCESS_DENIED""]}}]}");
+            actual.ShouldBe("""{"errors":[{"message":"Access denied; authorization required.","extensions":{"code":"ACCESS_DENIED","codes":["ACCESS_DENIED"]}}]}""");
         }
     }
 
@@ -267,7 +267,7 @@ public class AuthorizationTests : IDisposable
         using var response = await PostQueryAsync("{ __typename }", true);
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
         var actual = await response.Content.ReadAsStringAsync();
-        actual.ShouldBe(@"{""data"":{""__typename"":""Query""}}");
+        actual.ShouldBe("""{"data":{"__typename":"Query"}}""");
     }
 
     private class CustomErrorInfoProvider : ErrorInfoProvider

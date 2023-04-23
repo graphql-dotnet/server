@@ -49,7 +49,7 @@ public class EndToEndTests
 
         statusCode.ShouldBe(200);
         contentType.ShouldBe("text/html");
-        body.ShouldContain(@"<!DOCTYPE html>", Case.Insensitive);
+        body.ShouldContain("<!DOCTYPE html>", Case.Insensitive);
         body.ShouldContain("playground", Case.Insensitive);
     }
 

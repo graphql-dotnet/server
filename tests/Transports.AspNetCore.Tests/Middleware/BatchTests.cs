@@ -79,14 +79,14 @@ public class BatchTests : IDisposable
     {
         _options.ExecuteBatchedRequestsInParallel = false;
         using var response = await PostBatchRequestAsync(new GraphQLRequest() { Query = "{count}" }, new GraphQLRequest() { Query = "{count}" });
-        await response.ShouldBeAsync(@"[{""data"":{""count"":0}},{""data"":{""count"":0}}]");
+        await response.ShouldBeAsync("""[{"data":{"count":0}},{"data":{"count":0}}]""");
     }
 
     [Fact]
     public async Task BasicTest()
     {
         using var response = await PostBatchRequestAsync(new GraphQLRequest() { Query = "{count}" });
-        await response.ShouldBeAsync(@"[{""data"":{""count"":0}}]");
+        await response.ShouldBeAsync("""[{"data":{"count":0}}]""");
     }
 
     [Theory]
@@ -97,7 +97,7 @@ public class BatchTests : IDisposable
         _options.ValidationErrorsReturnBadRequest = badRequest;
         using var response = await PostBatchRequestAsync(new GraphQLRequest() { Query = "{invalid}" });
         // validation errors do not return 400 within a batch request
-        await response.ShouldBeAsync(false, @"[{""errors"":[{""message"":""Cannot query field \u0027invalid\u0027 on type \u0027Query\u0027."",""locations"":[{""line"":1,""column"":2}],""extensions"":{""code"":""FIELDS_ON_CORRECT_TYPE"",""codes"":[""FIELDS_ON_CORRECT_TYPE""],""number"":""5.3.1""}}]}]");
+        await response.ShouldBeAsync(false, """[{"errors":[{"message":"Cannot query field \u0027invalid\u0027 on type \u0027Query\u0027.","locations":[{"line":1,"column":2}],"extensions":{"code":"FIELDS_ON_CORRECT_TYPE","codes":["FIELDS_ON_CORRECT_TYPE"],"number":"5.3.1"}}]}]""");
     }
 
     [Theory]
@@ -109,7 +109,7 @@ public class BatchTests : IDisposable
         _options.ValidationErrorsReturnBadRequest = badRequest;
         using var response = await PostBatchRequestAsync(new GraphQLRequest() { Query = "{count}" });
         // always returns BadRequest here
-        await response.ShouldBeAsync(true, @"{""errors"":[{""message"":""Batched requests are not supported."",""extensions"":{""code"":""BATCHED_REQUESTS_NOT_SUPPORTED"",""codes"":[""BATCHED_REQUESTS_NOT_SUPPORTED""]}}]}");
+        await response.ShouldBeAsync(true, """{"errors":[{"message":"Batched requests are not supported.","extensions":{"code":"BATCHED_REQUESTS_NOT_SUPPORTED","codes":["BATCHED_REQUESTS_NOT_SUPPORTED"]}}]}""");
     }
 
     [Theory]
@@ -120,7 +120,7 @@ public class BatchTests : IDisposable
         _options.ValidationErrorsReturnBadRequest = badRequest;
         using var response = await PostBatchRequestAsync(new GraphQLRequest() { Query = "{" });
         // validation errors do not return 400 within a batch request
-        await response.ShouldBeAsync(false, @"[{""errors"":[{""message"":""Error parsing query: Expected Name, found EOF; for more information see http://spec.graphql.org/October2021/#Field"",""locations"":[{""line"":1,""column"":2}],""extensions"":{""code"":""SYNTAX_ERROR"",""codes"":[""SYNTAX_ERROR""]}}]}]");
+        await response.ShouldBeAsync(false, """[{"errors":[{"message":"Error parsing query: Expected Name, found EOF; for more information see http://spec.graphql.org/October2021/#Field","locations":[{"line":1,"column":2}],"extensions":{"code":"SYNTAX_ERROR","codes":["SYNTAX_ERROR"]}}]}]""");
     }
 
     [Theory]
@@ -131,7 +131,7 @@ public class BatchTests : IDisposable
         _options.ValidationErrorsReturnBadRequest = badRequest;
         using var response = await PostJsonAsync("[{}]");
         // validation errors do not return 400 within a batch request
-        await response.ShouldBeAsync(false, @"[{""errors"":[{""message"":""GraphQL query is missing."",""extensions"":{""code"":""QUERY_MISSING"",""codes"":[""QUERY_MISSING""]}}]}]");
+        await response.ShouldBeAsync(false, """[{"errors":[{"message":"GraphQL query is missing.","extensions":{"code":"QUERY_MISSING","codes":["QUERY_MISSING"]}}]}]""");
     }
 
     [Theory]
@@ -142,7 +142,7 @@ public class BatchTests : IDisposable
         _options.ValidationErrorsReturnBadRequest = badRequest;
         using var response = await PostJsonAsync("[{},{}]");
         // validation errors do not return 400 within a batch request
-        await response.ShouldBeAsync(false, @"[{""errors"":[{""message"":""GraphQL query is missing."",""extensions"":{""code"":""QUERY_MISSING"",""codes"":[""QUERY_MISSING""]}}]},{""errors"":[{""message"":""GraphQL query is missing."",""extensions"":{""code"":""QUERY_MISSING"",""codes"":[""QUERY_MISSING""]}}]}]");
+        await response.ShouldBeAsync(false, """[{"errors":[{"message":"GraphQL query is missing.","extensions":{"code":"QUERY_MISSING","codes":["QUERY_MISSING"]}}]},{"errors":[{"message":"GraphQL query is missing.","extensions":{"code":"QUERY_MISSING","codes":["QUERY_MISSING"]}}]}]""");
     }
 
     [Theory]
@@ -153,7 +153,7 @@ public class BatchTests : IDisposable
         _options.ValidationErrorsReturnBadRequest = badRequest;
         using var response = await PostJsonAsync("[null]");
         // validation errors do not return 400 within a batch request
-        await response.ShouldBeAsync(false, @"[{""errors"":[{""message"":""GraphQL query is missing."",""extensions"":{""code"":""QUERY_MISSING"",""codes"":[""QUERY_MISSING""]}}]}]");
+        await response.ShouldBeAsync(false, """[{"errors":[{"message":"GraphQL query is missing.","extensions":{"code":"QUERY_MISSING","codes":["QUERY_MISSING"]}}]}]""");
     }
 
     [Theory]
@@ -164,14 +164,14 @@ public class BatchTests : IDisposable
         _options.ValidationErrorsReturnBadRequest = badRequest;
         using var response = await PostJsonAsync("[null,null]");
         // validation errors do not return 400 within a batch request
-        await response.ShouldBeAsync(false, @"[{""errors"":[{""message"":""GraphQL query is missing."",""extensions"":{""code"":""QUERY_MISSING"",""codes"":[""QUERY_MISSING""]}}]},{""errors"":[{""message"":""GraphQL query is missing."",""extensions"":{""code"":""QUERY_MISSING"",""codes"":[""QUERY_MISSING""]}}]}]");
+        await response.ShouldBeAsync(false, """[{"errors":[{"message":"GraphQL query is missing.","extensions":{"code":"QUERY_MISSING","codes":["QUERY_MISSING"]}}]},{"errors":[{"message":"GraphQL query is missing.","extensions":{"code":"QUERY_MISSING","codes":["QUERY_MISSING"]}}]}]""");
     }
 
     [Fact]
     public async Task Mutation()
     {
         using var response = await PostBatchRequestAsync(new GraphQLRequest { Query = "mutation{clearMessages}" });
-        await response.ShouldBeAsync(@"[{""data"":{""clearMessages"":0}}]");
+        await response.ShouldBeAsync("""[{"data":{"clearMessages":0}}]""");
     }
 
     [Theory]
@@ -182,7 +182,7 @@ public class BatchTests : IDisposable
         _options.ValidationErrorsReturnBadRequest = badRequest;
         using var response = await PostBatchRequestAsync(new GraphQLRequest() { Query = "subscription{newMessages{id}}" });
         // validation errors do not return 400 within a batch request
-        await response.ShouldBeAsync(false, @"[{""errors"":[{""message"":""Subscription operations are not supported for POST requests."",""locations"":[{""line"":1,""column"":1}],""extensions"":{""code"":""HTTP_METHOD_VALIDATION"",""codes"":[""HTTP_METHOD_VALIDATION""]}}]}]");
+        await response.ShouldBeAsync(false, """[{"errors":[{"message":"Subscription operations are not supported for POST requests.","locations":[{"line":1,"column":1}],"extensions":{"code":"HTTP_METHOD_VALIDATION","codes":["HTTP_METHOD_VALIDATION"]}}]}]""");
     }
 
     [Fact]
@@ -195,7 +195,7 @@ public class BatchTests : IDisposable
                 { "test", "abc" }
             }),
         });
-        await response.ShouldBeAsync(@"[{""data"":{""var"":""abc""}}]");
+        await response.ShouldBeAsync("""[{"data":{"var":"abc"}}]""");
     }
 
     [Theory]
@@ -204,14 +204,14 @@ public class BatchTests : IDisposable
     public async Task ParseError(bool badRequest)
     {
         _options.ValidationErrorsReturnBadRequest = badRequest;
-        using var response = await PostJsonAsync("/graphql2", @"[");
+        using var response = await PostJsonAsync("/graphql2", "[");
         // always returns BadRequest here
-        await response.ShouldBeAsync(true, @"{""errors"":[{""message"":""JSON body text could not be parsed. Expected depth to be zero at the end of the JSON payload. There is an open JSON object or array that should be closed. Path: $ | LineNumber: 0 | BytePositionInLine: 1."",""extensions"":{""code"":""JSON_INVALID"",""codes"":[""JSON_INVALID""]}}]}");
+        await response.ShouldBeAsync(true, """{"errors":[{"message":"JSON body text could not be parsed. Expected depth to be zero at the end of the JSON payload. There is an open JSON object or array that should be closed. Path: $ | LineNumber: 0 | BytePositionInLine: 1.","extensions":{"code":"JSON_INVALID","codes":["JSON_INVALID"]}}]}""");
     }
 
     [Theory]
-    [InlineData("test1", @"[{""data"":{""count"":0}}]")]
-    [InlineData("test2", @"[{""data"":{""allMessages"":[]}}]")]
+    [InlineData("test1", """[{"data":{"count":0}}]""")]
+    [InlineData("test2", """[{"data":{"allMessages":[]}}]""")]
     public async Task OperationName(string opName, string expected)
     {
         using var response = await PostBatchRequestAsync(new GraphQLRequest() { Query = "query test1{count} query test2{allMessages{id}}", OperationName = opName });
@@ -221,8 +221,8 @@ public class BatchTests : IDisposable
     [Fact]
     public async Task Extensions()
     {
-        using var response = await PostJsonAsync("/graphql2", @"[{""query"":""{ext}"",""extensions"":{""test"":""abc""}}]");
-        await response.ShouldBeAsync(@"[{""data"":{""ext"":""abc""}}]");
+        using var response = await PostJsonAsync("/graphql2", """[{"query":"{ext}","extensions":{"test":"abc"}}]""");
+        await response.ShouldBeAsync("""[{"data":{"ext":"abc"}}]""");
     }
 
     [Fact]
@@ -242,7 +242,7 @@ public class BatchTests : IDisposable
             OperationName = "op1",
         };
         using var response = await PostBatchRequestAsync(url, request);
-        await response.ShouldBeAsync(@"[{""data"":{""ext"":""postext"",""var"":""postvar""}}]");
+        await response.ShouldBeAsync("""[{"data":{"ext":"postext","var":"postvar"}}]""");
     }
 
 }

@@ -80,7 +80,7 @@ public class PostTests : IDisposable
     public async Task BasicTest()
     {
         using var response = await PostRequestAsync(new() { Query = "{count}" });
-        await response.ShouldBeAsync(@"{""data"":{""count"":0}}");
+        await response.ShouldBeAsync("""{"data":{"count":0}}""");
     }
 
 #if NET5_0_OR_GREATER
@@ -88,31 +88,31 @@ public class PostTests : IDisposable
     public async Task AltCharset()
     {
         var client = _server.CreateClient();
-        var content = new StringContent(@"{""query"":""{var(test:\""ë\"")}""}", Encoding.Latin1, "application/json");
+        var content = new StringContent("""{"query":"{var(test:\"ë\")}"}""", Encoding.Latin1, "application/json");
         using var response = await client.PostAsync("/graphql2", content);
-        await response.ShouldBeAsync(false, @"{""data"":{""var"":""\u00EB""}}");
+        await response.ShouldBeAsync(false, """{"data":{"var":"\u00EB"}}""");
     }
 
     [Fact]
     public async Task AltCharset_Quoted()
     {
         var client = _server.CreateClient();
-        var bytes = Encoding.UTF8.GetBytes(@"{""query"":""{var(test:\""ë\"")}""}");
+        var bytes = Encoding.UTF8.GetBytes("""{"query":"{var(test:\"ë\")}"}""");
         var content = new ByteArrayContent(bytes, 0, bytes.Length);
         content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json") { CharSet = "\"UTF-8\"" };
         using var response = await client.PostAsync("/graphql2", content);
-        await response.ShouldBeAsync(false, @"{""data"":{""var"":""\u00EB""}}");
+        await response.ShouldBeAsync(false, """{"data":{"var":"\u00EB"}}""");
     }
 
     [Fact]
     public async Task AltCharset_Invalid()
     {
         var client = _server.CreateClient();
-        var bytes = Encoding.UTF8.GetBytes(@"{""query"":""{var(test:\""ë\"")}""}");
+        var bytes = Encoding.UTF8.GetBytes("""{"query":"{var(test:\"ë\")"}""");
         var content = new ByteArrayContent(bytes, 0, bytes.Length);
         content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json") { CharSet = "unknown" };
         using var response = await client.PostAsync("/graphql2", content);
-        await response.ShouldBeAsync(HttpStatusCode.UnsupportedMediaType, @"{""errors"":[{""message"":""Invalid \u0027Content-Type\u0027 header: value \u0027application/json; charset=unknown\u0027 could not be parsed."",""extensions"":{""code"":""INVALID_CONTENT_TYPE"",""codes"":[""INVALID_CONTENT_TYPE""]}}]}");
+        await response.ShouldBeAsync(HttpStatusCode.UnsupportedMediaType, """{"errors":[{"message":"Invalid \u0027Content-Type\u0027 header: value \u0027application/json; charset=unknown\u0027 could not be parsed.","extensions":{"code":"INVALID_CONTENT_TYPE","codes":["INVALID_CONTENT_TYPE"]}}]}""");
     }
 #endif
 
@@ -121,11 +121,11 @@ public class PostTests : IDisposable
     {
         var client = _server.CreateClient();
         var content = new MultipartFormDataContent();
-        var queryContent = new StringContent(@"query op1{ext} query op2($test:String!){ext var(test:$test)}");
+        var queryContent = new StringContent("query op1{ext} query op2($test:String!){ext var(test:$test)}");
         queryContent.Headers.ContentType = new("application/graphql");
-        var variablesContent = new StringContent(@"{""test"":""1""}");
+        var variablesContent = new StringContent("""{"test":"1"}""");
         variablesContent.Headers.ContentType = new("application/json");
-        var extensionsContent = new StringContent(@"{""test"":""2""}");
+        var extensionsContent = new StringContent("""{"test":"2"}""");
         extensionsContent.Headers.ContentType = new("application/json");
         var operationNameContent = new StringContent("op2");
         operationNameContent.Headers.ContentType = new("text/text");
@@ -134,7 +134,7 @@ public class PostTests : IDisposable
         content.Add(extensionsContent, "extensions");
         content.Add(operationNameContent, "operationName");
         using var response = await client.PostAsync("/graphql2", content);
-        await response.ShouldBeAsync(@"{""data"":{""ext"":""2"",""var"":""1""}}");
+        await response.ShouldBeAsync("""{"data":{"ext":"2","var":"1"}}""");
     }
 
     [Fact]
@@ -142,13 +142,13 @@ public class PostTests : IDisposable
     {
         var client = _server.CreateClient();
         var content = new FormUrlEncodedContent(new[] {
-            new KeyValuePair<string?, string?>("query", @"query op1{ext} query op2($test:String!){ext var(test:$test)}"),
-            new KeyValuePair<string?, string?>("variables", @"{""test"":""1""}"),
-            new KeyValuePair<string?, string?>("extensions", @"{""test"":""2""}"),
-            new KeyValuePair<string?, string?>("operationName", @"op2"),
+            new KeyValuePair<string?, string?>("query", "query op1{ext} query op2($test:String!){ext var(test:$test)}"),
+            new KeyValuePair<string?, string?>("variables", """{"test":"1"}"""),
+            new KeyValuePair<string?, string?>("extensions", """{"test":"2"}"""),
+            new KeyValuePair<string?, string?>("operationName", "op2"),
         });
         using var response = await client.PostAsync("/graphql2", content);
-        await response.ShouldBeAsync(@"{""data"":{""ext"":""2"",""var"":""1""}}");
+        await response.ShouldBeAsync("""{"data":{"ext":"2","var":"1"}}""");
     }
 
     [Theory]
@@ -159,12 +159,12 @@ public class PostTests : IDisposable
         _options.ValidationErrorsReturnBadRequest = badRequest;
         var client = _server.CreateClient();
         var content = new FormUrlEncodedContent(new[] {
-            new KeyValuePair<string?, string?>("query", @"{ext}"),
-            new KeyValuePair<string?, string?>("variables", @"{"),
+            new KeyValuePair<string?, string?>("query", "{ext}"),
+            new KeyValuePair<string?, string?>("variables", "{"),
         });
         using var response = await client.PostAsync("/graphql2", content);
         // always returns BadRequest here
-        await response.ShouldBeAsync(true, @"{""errors"":[{""message"":""JSON body text could not be parsed. Expected depth to be zero at the end of the JSON payload. There is an open JSON object or array that should be closed. Path: $ | LineNumber: 0 | BytePositionInLine: 1."",""extensions"":{""code"":""JSON_INVALID"",""codes"":[""JSON_INVALID""]}}]}");
+        await response.ShouldBeAsync(true, """{"errors":[{"message":"JSON body text could not be parsed. Expected depth to be zero at the end of the JSON payload. There is an open JSON object or array that should be closed. Path: $ | LineNumber: 0 | BytePositionInLine: 1.","extensions":{"code":"JSON_INVALID","codes":["JSON_INVALID"]}}]}""");
     }
 
     [Theory]
@@ -176,7 +176,7 @@ public class PostTests : IDisposable
         var content = new StringContent("{count}");
         content.Headers.ContentType = new(contentType);
         using var response = await client.PostAsync("/graphql", content);
-        await response.ShouldBeAsync(@"{""data"":{""count"":0}}");
+        await response.ShouldBeAsync("""{"data":{"count":0}}""");
     }
 
     [Theory]
@@ -187,10 +187,10 @@ public class PostTests : IDisposable
     public async Task ContentType_GraphQLJson(string contentType)
     {
         var client = _server.CreateClient();
-        var content = new StringContent(@"{""query"":""{count}""}");
+        var content = new StringContent("""{"query":"{count}"}""");
         content.Headers.ContentType = new(contentType);
         using var response = await client.PostAsync("/graphql", content);
-        await response.ShouldBeAsync(@"{""data"":{""count"":0}}");
+        await response.ShouldBeAsync("""{"data":{"count":0}}""");
     }
 
     [Theory]
@@ -238,7 +238,7 @@ public class PostTests : IDisposable
         // always returns unsupported media type
         response.StatusCode.ShouldBe(HttpStatusCode.UnsupportedMediaType);
         var ret = await response.Content.ReadAsStringAsync();
-        ret.ShouldBe(@"{""errors"":[{""message"":""Invalid \u0027Content-Type\u0027 header: value \u0027\u0027 could not be parsed."",""extensions"":{""code"":""INVALID_CONTENT_TYPE"",""codes"":[""INVALID_CONTENT_TYPE""]}}]}");
+        ret.ShouldBe("""{"errors":[{"message":"Invalid \u0027Content-Type\u0027 header: value \u0027\u0027 could not be parsed.","extensions":{"code":"INVALID_CONTENT_TYPE","codes":["INVALID_CONTENT_TYPE"]}}]}""");
     }
 
     [Theory]
@@ -248,7 +248,7 @@ public class PostTests : IDisposable
     {
         _options.ValidationErrorsReturnBadRequest = badRequest;
         using var response = await PostRequestAsync(new() { Query = "{invalid}" });
-        await response.ShouldBeAsync(badRequest, @"{""errors"":[{""message"":""Cannot query field \u0027invalid\u0027 on type \u0027Query\u0027."",""locations"":[{""line"":1,""column"":2}],""extensions"":{""code"":""FIELDS_ON_CORRECT_TYPE"",""codes"":[""FIELDS_ON_CORRECT_TYPE""],""number"":""5.3.1""}}]}");
+        await response.ShouldBeAsync(badRequest, """{"errors":[{"message":"Cannot query field \u0027invalid\u0027 on type \u0027Query\u0027.","locations":[{"line":1,"column":2}],"extensions":{"code":"FIELDS_ON_CORRECT_TYPE","codes":["FIELDS_ON_CORRECT_TYPE"],"number":"5.3.1"}}]}""");
     }
 
     [Fact]
@@ -266,7 +266,7 @@ public class PostTests : IDisposable
     {
         _options.ValidationErrorsReturnBadRequest = badRequest;
         using var response = await PostRequestAsync(new() { Query = "{" });
-        await response.ShouldBeAsync(badRequest, @"{""errors"":[{""message"":""Error parsing query: Expected Name, found EOF; for more information see http://spec.graphql.org/October2021/#Field"",""locations"":[{""line"":1,""column"":2}],""extensions"":{""code"":""SYNTAX_ERROR"",""codes"":[""SYNTAX_ERROR""]}}]}");
+        await response.ShouldBeAsync(badRequest, """{"errors":[{"message":"Error parsing query: Expected Name, found EOF; for more information see http://spec.graphql.org/October2021/#Field","locations":[{"line":1,"column":2}],"extensions":{"code":"SYNTAX_ERROR","codes":["SYNTAX_ERROR"]}}]}""");
     }
 
     [Theory]
@@ -276,7 +276,7 @@ public class PostTests : IDisposable
     {
         _options.ValidationErrorsReturnBadRequest = badRequest;
         using var response = await PostJsonAsync("{}");
-        await response.ShouldBeAsync(badRequest, @"{""errors"":[{""message"":""GraphQL query is missing."",""extensions"":{""code"":""QUERY_MISSING"",""codes"":[""QUERY_MISSING""]}}]}");
+        await response.ShouldBeAsync(badRequest, """{"errors":[{"message":"GraphQL query is missing.","extensions":{"code":"QUERY_MISSING","codes":["QUERY_MISSING"]}}]}""");
     }
 
     [Theory]
@@ -286,14 +286,14 @@ public class PostTests : IDisposable
     {
         _options.ValidationErrorsReturnBadRequest = badRequest;
         using var response = await PostJsonAsync("null");
-        await response.ShouldBeAsync(badRequest, @"{""errors"":[{""message"":""GraphQL query is missing."",""extensions"":{""code"":""QUERY_MISSING"",""codes"":[""QUERY_MISSING""]}}]}");
+        await response.ShouldBeAsync(badRequest, """{"errors":[{"message":"GraphQL query is missing.","extensions":{"code":"QUERY_MISSING","codes":["QUERY_MISSING"]}}]}""");
     }
 
     [Fact]
     public async Task Mutation()
     {
         using var response = await PostRequestAsync(new() { Query = "mutation{clearMessages}" });
-        await response.ShouldBeAsync(@"{""data"":{""clearMessages"":0}}");
+        await response.ShouldBeAsync("""{"data":{"clearMessages":0}}""");
     }
 
     [Theory]
@@ -303,7 +303,7 @@ public class PostTests : IDisposable
     {
         _options.ValidationErrorsReturnBadRequest = badRequest;
         using var response = await PostRequestAsync(new() { Query = "subscription{newMessages{id}}" });
-        await response.ShouldBeAsync(HttpStatusCode.MethodNotAllowed, @"{""errors"":[{""message"":""Subscription operations are not supported for POST requests."",""locations"":[{""line"":1,""column"":1}],""extensions"":{""code"":""HTTP_METHOD_VALIDATION"",""codes"":[""HTTP_METHOD_VALIDATION""]}}]}");
+        await response.ShouldBeAsync(HttpStatusCode.MethodNotAllowed, """{"errors":[{"message":"Subscription operations are not supported for POST requests.","locations":[{"line":1,"column":1}],"extensions":{"code":"HTTP_METHOD_VALIDATION","codes":["HTTP_METHOD_VALIDATION"]}}]}""");
     }
 
     [Fact]
@@ -316,7 +316,7 @@ public class PostTests : IDisposable
                 { "test", "abc" }
             }),
         });
-        await response.ShouldBeAsync(@"{""data"":{""var"":""abc""}}");
+        await response.ShouldBeAsync("""{"data":{"var":"abc"}}""");
     }
 
     [Theory]
@@ -325,14 +325,14 @@ public class PostTests : IDisposable
     public async Task ParseError(bool badRequest)
     {
         _options.ValidationErrorsReturnBadRequest = badRequest;
-        using var response = await PostJsonAsync("/graphql2", @"{");
+        using var response = await PostJsonAsync("/graphql2", "{");
         // always returns BadRequest here
-        await response.ShouldBeAsync(true, @"{""errors"":[{""message"":""JSON body text could not be parsed. Expected depth to be zero at the end of the JSON payload. There is an open JSON object or array that should be closed. Path: $ | LineNumber: 0 | BytePositionInLine: 1."",""extensions"":{""code"":""JSON_INVALID"",""codes"":[""JSON_INVALID""]}}]}");
+        await response.ShouldBeAsync(true, """{"errors":[{"message":"JSON body text could not be parsed. Expected depth to be zero at the end of the JSON payload. There is an open JSON object or array that should be closed. Path: $ | LineNumber: 0 | BytePositionInLine: 1.","extensions":{"code":"JSON_INVALID","codes":["JSON_INVALID"]}}]}""");
     }
 
     [Theory]
-    [InlineData("test1", @"{""data"":{""count"":0}}")]
-    [InlineData("test2", @"{""data"":{""allMessages"":[]}}")]
+    [InlineData("test1", """{"data":{"count":0}}""")]
+    [InlineData("test2", """{"data":{"allMessages":[]}}""")]
     public async Task OperationName(string opName, string expected)
     {
         using var response = await PostRequestAsync(new() { Query = "query test1{count} query test2{allMessages{id}}", OperationName = opName });
@@ -342,16 +342,16 @@ public class PostTests : IDisposable
     [Fact]
     public async Task Extensions()
     {
-        using var response = await PostJsonAsync("/graphql2", @"{""query"":""{ext}"",""extensions"":{""test"":""abc""}}");
-        await response.ShouldBeAsync(@"{""data"":{""ext"":""abc""}}");
+        using var response = await PostJsonAsync("/graphql2", """{"query":"{ext}","extensions":{"test":"abc"}}""");
+        await response.ShouldBeAsync("""{"data":{"ext":"abc"}}""");
     }
 
     [Theory]
-    [InlineData(false, false, false, @"{""data"":{""ext"":""postext"",""var"":""postvar""}}")]
-    [InlineData(true, false, false, @"{""data"":{""var"":""postvar"",""altext"":""postext""}}")]
-    [InlineData(true, true, false, @"{""data"":{""var"":""urlvar"",""altext"":""postext""}}")]
-    [InlineData(true, false, true, @"{""data"":{""var"":""postvar"",""altext"":""urlext""}}")]
-    [InlineData(true, true, true, @"{""data"":{""var"":""urlvar"",""altext"":""urlext""}}")]
+    [InlineData(false, false, false, """{"data":{"ext":"postext","var":"postvar"}}""")]
+    [InlineData(true, false, false, """{"data":{"var":"postvar","altext":"postext"}}""")]
+    [InlineData(true, true, false, """{"data":{"var":"urlvar","altext":"postext"}}""")]
+    [InlineData(true, false, true, """{"data":{"var":"postvar","altext":"urlext"}}""")]
+    [InlineData(true, true, true, """{"data":{"var":"urlvar","altext":"urlext"}}""")]
     public async Task ReadAlsoFromQueryString(bool readFromQueryString, bool readVariablesFromQueryString, bool readExtensionsFromQueryString, string expected)
     {
         _options2.ReadQueryStringOnPost = readFromQueryString;
