@@ -9,7 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Transports.AspNetCore\Transports.AspNetCore.csproj" />
     <ProjectReference Include="..\..\src\Ui.Playground\Ui.Playground.csproj" />
-    <PackageReference Include="System.Reactive" Version="5.0.0" />
+    <PackageReference Include="System.Reactive" Version="6.0.0" />
     <Using Include="GraphQL" />
     <Using Include="GraphQL.Types" />
   </ItemGroup>
