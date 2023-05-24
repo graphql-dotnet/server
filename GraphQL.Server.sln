@@ -45,8 +45,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{
 	ProjectSection(SolutionItems) = preProject
 		.github\workflows\build.yml = .github\workflows\build.yml
 		.github\workflows\codeql-analysis.yml = .github\workflows\codeql-analysis.yml
-		.github\workflows\formatting.yml = .github\workflows\formatting.yml
 		.github\workflows\label.yml = .github\workflows\label.yml
+		.github\workflows\format.yml = .github\workflows\format.yml
 		.github\workflows\publish.yml = .github\workflows\publish.yml
 		.github\workflows\test.yml = .github\workflows\test.yml
 		.github\workflows\wipcheck.yml = .github\workflows\wipcheck.yml
@@ -118,7 +118,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{7F5D
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples.AzureFunctions", "samples\Samples.AzureFunctions\Samples.AzureFunctions.csproj", "{FD93A9D8-4663-4FF0-8082-DE9E006956FD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Samples.AzureFunctions.Tests", "tests\Samples.AzureFunctions.Tests\Samples.AzureFunctions.Tests.csproj", "{A204E359-05E8-4CEE-891C-4CCA6570FA52}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples.AzureFunctions.Tests", "tests\Samples.AzureFunctions.Tests\Samples.AzureFunctions.Tests.csproj", "{A204E359-05E8-4CEE-891C-4CCA6570FA52}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
