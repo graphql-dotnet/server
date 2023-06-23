@@ -174,10 +174,9 @@ public class SubscriptionServer : BaseSubscriptionServer
     /// <inheritdoc/>
     protected override async Task<ExecutionResult> ExecuteRequestAsync(OperationMessage message)
     {
-        var request = Serializer.ReadNode<GraphQLRequest>(message.Payload);
 #pragma warning disable CA2208 // Instantiate argument exceptions correctly
-        if (request == null)
-            throw new ArgumentNullException(nameof(message) + "." + nameof(OperationMessage.Payload));
+        var request = Serializer.ReadNode<GraphQLRequest>(message.Payload)
+            ?? throw new ArgumentNullException(nameof(message) + "." + nameof(OperationMessage.Payload));
 #pragma warning restore CA2208 // Instantiate argument exceptions correctly
         var scope = ServiceScopeFactory.CreateScope();
         try
