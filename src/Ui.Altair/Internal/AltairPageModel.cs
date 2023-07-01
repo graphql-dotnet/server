@@ -37,7 +37,8 @@ internal sealed class AltairPageModel
                 .Replace("@Model.GraphQLEndPoint", StringEncode(_options.GraphQLEndPoint))
                 .Replace("@Model.SubscriptionsEndPoint", StringEncode(_options.SubscriptionsEndPoint))
                 .Replace("@Model.Headers", JsonSerialize(headers))
-                .Replace("@Model.SubscriptionsPayload", JsonSerialize(_options.SubscriptionsPayload));
+                .Replace("@Model.SubscriptionsPayload", JsonSerialize(_options.SubscriptionsPayload))
+                .Replace("@Model.Settings", JsonSerialize(_options.Settings));
 
             // Here, fully-qualified, absolute and relative URLs are supported for both the
             // GraphQLEndPoint and SubscriptionsEndPoint.  Those paths can be passed unmodified
