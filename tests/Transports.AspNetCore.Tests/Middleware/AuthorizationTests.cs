@@ -354,6 +354,18 @@ public class AuthorizationTests : IDisposable
         validatedUser.ShouldBeTrue();
     }
 
+    [Fact]
+    public void SecurityHelperTests()
+    {
+        SecurityHelper.MergeUserPrincipal(null, null).ShouldNotBeNull().Identity.ShouldBeNull(); // Note that ASP.NET Core does not return null for anonymous user
+        var principal1 = new ClaimsPrincipal(new ClaimsIdentity()); // empty identity for primary identity (default for ASP.NET Core)
+        SecurityHelper.MergeUserPrincipal(null, principal1).ShouldBe(principal1);
+        var principal2 = new ClaimsPrincipal(new ClaimsIdentity("test1")); // non-empty identity for secondary identity
+        SecurityHelper.MergeUserPrincipal(principal1, principal2).Identities.ShouldHaveSingleItem().AuthenticationType.ShouldBe("test1");
+        var principal3 = new ClaimsPrincipal(new ClaimsIdentity("test2")); // merge two non-empty identities together
+        SecurityHelper.MergeUserPrincipal(principal2, principal3).Identities.Select(x => x.AuthenticationType).ShouldBe(new[] { "test2", "test1" }); // last one wins
+    }
+
     private class CustomErrorInfoProvider : ErrorInfoProvider
     {
         private readonly AuthorizationTests _authorizationTests;
