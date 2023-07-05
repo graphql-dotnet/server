@@ -271,7 +271,7 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
     /// </summary>
     protected virtual async ValueTask<bool> HandleAuthorizeAsync(HttpContext context, RequestDelegate next)
     {
-        await SetHttpContextUser(context);
+        await SetHttpContextUserAsync(context);
 
         var success = await AuthorizationHelper.AuthorizeAsync(
             new AuthorizationParameters<(GraphQLHttpMiddleware Middleware, HttpContext Context, RequestDelegate Next)>(
@@ -288,7 +288,7 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
     /// <summary>
     /// If any authentication schemes are defined, set the HttpContext.User property.
     /// </summary>
-    private async ValueTask SetHttpContextUser(HttpContext context)
+    private async ValueTask SetHttpContextUserAsync(HttpContext context)
     {
         if (_options.AuthenticationSchemes.Count > 0)
         {
@@ -316,7 +316,7 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
     /// </summary>
     protected virtual async ValueTask<bool> HandleAuthorizeWebSocketConnectionAsync(HttpContext context, RequestDelegate next)
     {
-        await SetHttpContextUser(context);
+        await SetHttpContextUserAsync(context);
         return false;
     }
 
