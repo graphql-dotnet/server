@@ -26,6 +26,12 @@ public class AltairOptions
     public Dictionary<string, object?>? SubscriptionsPayload { get; set; }
 
     /// <summary>
+    /// Altair UI settings.
+    /// <a href="https://altairgraphql.dev/docs/features/settings-pane.html">Available settings</a>
+    /// </summary>
+    public Dictionary<string, object?>? Settings { get; set; }
+
+    /// <summary>
     /// Gets or sets a Stream function for retrieving the Altair GraphQL UI page.
     /// </summary>
     public Func<AltairOptions, Stream> IndexStream { get; set; } = _ => typeof(AltairOptions).Assembly
