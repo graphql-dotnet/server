@@ -19,10 +19,10 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3" Condition="'$(TargetFramework)' == 'netcoreapp2.1'" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5" Condition="'$(TargetFramework)' != 'netcoreapp2.1'" />
     <PackageReference Include="Moq" Version="4.18.4" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="2.1.*" Condition="'$(TargetFramework)' == 'netcoreapp2.1' OR '$(TargetFramework)' == 'net48'" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="3.1.*" Condition="'$(TargetFramework)' == 'netcoreapp3.1'" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="5.0.*" Condition="'$(TargetFramework)' == 'net5.0'" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="6.0.*" Condition="'$(TargetFramework)' == 'net6.0'" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="7.0.*" Condition="'$(TargetFramework)' == 'netcoreapp2.1' OR '$(TargetFramework)' == 'net48'" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="7.0.*" Condition="'$(TargetFramework)' == 'netcoreapp3.1'" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="7.0.*" Condition="'$(TargetFramework)' == 'net5.0'" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="7.0.*" Condition="'$(TargetFramework)' == 'net6.0'" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="7.0.*" Condition="'$(TargetFramework)' == 'net7.0'" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="2.1.*" Condition="'$(TargetFramework)' == 'netcoreapp2.1' OR '$(TargetFramework)' == 'net48'" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.*" Condition="'$(TargetFramework)' == 'netcoreapp3.1'" />
