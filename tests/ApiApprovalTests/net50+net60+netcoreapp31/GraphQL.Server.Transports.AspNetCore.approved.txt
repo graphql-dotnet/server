@@ -111,6 +111,7 @@ namespace GraphQL.Server.Transports.AspNetCore
     public class GraphQLHttpMiddlewareOptions : GraphQL.Server.Transports.AspNetCore.IAuthorizationOptions
     {
         public GraphQLHttpMiddlewareOptions() { }
+        public System.Collections.Generic.List<string> AuthenticationSchemes { get; set; }
         public bool AuthorizationRequired { get; set; }
         public string? AuthorizedPolicy { get; set; }
         public System.Collections.Generic.List<string> AuthorizedRoles { get; set; }

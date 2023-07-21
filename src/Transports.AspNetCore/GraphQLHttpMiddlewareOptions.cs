@@ -84,6 +84,12 @@ public class GraphQLHttpMiddlewareOptions : IAuthorizationOptions
     /// </summary>
     public bool ReadExtensionsFromQueryString { get; set; } = true;
 
+    /// <summary>
+    /// Gets or sets a list of the authentication schemes the authentication requirements are evaluated against.
+    /// When no schemes are specified, the default authentication scheme is used.
+    /// </summary>
+    public List<string> AuthenticationSchemes { get; set; } = new();
+
     /// <inheritdoc/>
     /// <remarks>
     /// HTTP requests return <c>401 Forbidden</c> when the request is not authenticated.

@@ -482,6 +482,28 @@ Note that `InvokeAsync` will execute even if the protocol is disabled in the opt
 disabling `HandleGet` or similar; `HandleAuthorizeAsync` and `HandleAuthorizeWebSocketConnectionAsync`
 will not.
 
+#### Authentication schemes
+
+By default the role and policy requirements are validated against the current user as defined by
+`HttpContext.User`.  This is typically set by ASP.NET Core's authentication middleware and is based
+on the default authentication scheme set during the call to `AddAuthentication` in `Startup.cs`.
+You may override this behavior by specifying a different authentication scheme via the `AuthenticationSchemes`
+option.  For instance, if you wish to authenticate using JWT authentication when Cookie authentication is
+the default, you may specify the scheme as follows:
+
+```csharp
+app.UseGraphQL("/graphql", config =>
+{
+    // specify a specific authentication scheme to use
+    config.AuthenticationSchemes.Add(JwtBearerDefaults.AuthenticationScheme);
+});
+```
+
+This will overwrite the `HttpContext.User` property when handling GraphQL requests, which will in turn
+set the `IResolveFieldContext.User` property to the same value (unless being overridden via an
+`IWebSocketAuthenticationService` implementation as shown above).  So both endpoint authorization and
+field authorization will perform role and policy checks against the same authentication scheme.
+
 ### UI configuration
 
 There are four UI middleware projects included; Altair, GraphiQL, Playground and Voyager.
