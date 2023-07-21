@@ -3,6 +3,7 @@ using System.Net;
 using System.Security.Claims;
 using GraphQL.Execution;
 using GraphQL.Server.Transports.AspNetCore.Errors;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Tests.Middleware;
@@ -11,9 +12,14 @@ public class AuthorizationTests : IDisposable
 {
     private GraphQLHttpMiddlewareOptions _options = null!;
     private bool _enableCustomErrorInfoProvider;
-    private readonly TestServer _server;
+    private TestServer _server;
 
     public AuthorizationTests()
+    {
+        _server = CreateServer();
+    }
+
+    private TestServer CreateServer(Action<IServiceCollection>? configureServices = null)
     {
         var hostBuilder = new WebHostBuilder();
         hostBuilder.ConfigureServices(services =>
@@ -46,6 +52,7 @@ public class AuthorizationTests : IDisposable
 #if NETCOREAPP2_1 || NET48
             services.AddHostApplicationLifetime();
 #endif
+            configureServices?.Invoke(services);
         });
         hostBuilder.Configure(app =>
         {
@@ -59,7 +66,7 @@ public class AuthorizationTests : IDisposable
                 _options = opts;
             });
         });
-        _server = new TestServer(hostBuilder);
+        return new TestServer(hostBuilder);
     }
 
     public void Dispose() => _server.Dispose();
@@ -268,6 +275,95 @@ public class AuthorizationTests : IDisposable
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
         var actual = await response.Content.ReadAsStringAsync();
         actual.ShouldBe("""{"data":{"__typename":"Query"}}""");
+    }
+
+    [Fact]
+    public async Task NotAuthorized_WrongScheme()
+    {
+        _server.Dispose();
+        _server = CreateServer(services =>
+        {
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme); // change default scheme to Cookie authentication
+        });
+        _options.AuthorizationRequired = true;
+        using var response = await PostQueryAsync("{ __typename }", true); // send an authenticated request (with JWT bearer scheme)
+        response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+        var actual = await response.Content.ReadAsStringAsync();
+        actual.ShouldBe(@"{""errors"":[{""message"":""Access denied for schema."",""extensions"":{""code"":""ACCESS_DENIED"",""codes"":[""ACCESS_DENIED""]}}]}");
+    }
+
+    [Fact]
+    public async Task NotAuthorized_WrongScheme_2()
+    {
+        _server.Dispose();
+        _server = CreateServer(services =>
+        {
+            services.AddAuthentication().AddCookie(); // add Cookie authentication
+        });
+        _options.AuthorizationRequired = true;
+        _options.AuthenticationSchemes.Add(CookieAuthenticationDefaults.AuthenticationScheme); // change authentication scheme for GraphQL requests to Cookie (which is not used by the test client)
+        using var response = await PostQueryAsync("{ __typename }", true); // send an authenticated request (with JWT bearer scheme)
+        response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+        var actual = await response.Content.ReadAsStringAsync();
+        actual.ShouldBe(@"{""errors"":[{""message"":""Access denied for schema."",""extensions"":{""code"":""ACCESS_DENIED"",""codes"":[""ACCESS_DENIED""]}}]}");
+    }
+
+    [Fact]
+    public async Task NotAuthorized_WrongScheme_VerifyUser()
+    {
+        bool validatedUser = false;
+        _server.Dispose();
+        _server = CreateServer(services =>
+        {
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme); // change default scheme to Cookie authentication
+            services.AddGraphQL(b => b
+                .ConfigureExecutionOptions(opts =>
+                {
+                    opts.User.ShouldNotBeNull().Identity.ShouldNotBeNull().IsAuthenticated.ShouldBeFalse();
+                    validatedUser = true;
+                }));
+        });
+        _options.AuthorizationRequired = false; // disable authorization requirements; we just want to verify that an anonymous user is passed to the execution options
+        using var response = await PostQueryAsync("{ __typename }", true); // send an authenticated request (with JWT bearer scheme)
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var actual = await response.Content.ReadAsStringAsync();
+        actual.ShouldBe(@"{""data"":{""__typename"":""Query""}}");
+        validatedUser.ShouldBeTrue();
+    }
+
+    [Fact]
+    public async Task Authorized_DifferentScheme()
+    {
+        bool validatedUser = false;
+        _server.Dispose();
+        _server = CreateServer(services =>
+        {
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme); // change default scheme to Cookie authentication
+            services.AddGraphQL(b => b.ConfigureExecutionOptions(opts =>
+            {
+                opts.User.ShouldNotBeNull().Identity.ShouldNotBeNull().IsAuthenticated.ShouldBeTrue();
+                validatedUser = true;
+            }));
+        });
+        _options.AuthorizationRequired = true;
+        _options.AuthenticationSchemes.Add(JwtBearerDefaults.AuthenticationScheme);
+        using var response = await PostQueryAsync("{ __typename }", true);
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var actual = await response.Content.ReadAsStringAsync();
+        actual.ShouldBe(@"{""data"":{""__typename"":""Query""}}");
+        validatedUser.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void SecurityHelperTests()
+    {
+        SecurityHelper.MergeUserPrincipal(null, null).ShouldNotBeNull().Identity.ShouldBeNull(); // Note that ASP.NET Core does not return null for anonymous user
+        var principal1 = new ClaimsPrincipal(new ClaimsIdentity()); // empty identity for primary identity (default for ASP.NET Core)
+        SecurityHelper.MergeUserPrincipal(null, principal1).ShouldBe(principal1);
+        var principal2 = new ClaimsPrincipal(new ClaimsIdentity("test1")); // non-empty identity for secondary identity
+        SecurityHelper.MergeUserPrincipal(principal1, principal2).Identities.ShouldHaveSingleItem().AuthenticationType.ShouldBe("test1");
+        var principal3 = new ClaimsPrincipal(new ClaimsIdentity("test2")); // merge two non-empty identities together
+        SecurityHelper.MergeUserPrincipal(principal2, principal3).Identities.Select(x => x.AuthenticationType).ShouldBe(new[] { "test2", "test1" }); // last one wins
     }
 
     private class CustomErrorInfoProvider : ErrorInfoProvider
