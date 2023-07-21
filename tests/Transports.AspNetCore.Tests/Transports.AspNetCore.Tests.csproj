@@ -15,7 +15,7 @@
 
   <ItemGroup>
     <PackageReference Include="GraphQL.SystemTextJson" Version="$(GraphQLVersion)" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.1.*" Condition="'$(TargetFramework)' == 'net48' OR '$(TargetFramework)' == 'netcoreapp2.1'" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.2.*" Condition="'$(TargetFramework)' == 'net48' OR '$(TargetFramework)' == 'netcoreapp2.1'" />
   </ItemGroup>
 
   <ItemGroup>
