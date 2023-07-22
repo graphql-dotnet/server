@@ -13,6 +13,8 @@ updates:
     - dependency-name: "GraphQL.NewtonsoftJson"
     - dependency-name: "GraphQL.SystemTextJson"
     - dependency-name: "GraphQL.SystemReactive"
+    - dependency-name: "Microsoft.AspNetCore.*"
+      update-types: ["version-update:semver-major", "version-update:semver-minor"]
 
 - package-ecosystem: "github-actions"
   directory: "/"
