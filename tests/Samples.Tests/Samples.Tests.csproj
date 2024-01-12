@@ -17,4 +17,8 @@
     <PackageReference Include="GraphQL.SystemTextJson" Version="$(GraphQLVersion)" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Using Include="System.Net.Http"/>
+  </ItemGroup>
+
 </Project>
