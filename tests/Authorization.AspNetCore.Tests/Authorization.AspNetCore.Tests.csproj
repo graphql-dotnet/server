@@ -10,6 +10,7 @@
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <ProjectReference Include="..\..\src\Authorization.AspNetCore\Authorization.AspNetCore.csproj" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.*" Condition="'$(TargetFramework)' == 'net8.0'" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.*" Condition="'$(TargetFramework)' == 'net7.0'" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.*" Condition="'$(TargetFramework)' == 'net6.0'" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.*" Condition="'$(TargetFramework)' == 'net5.0'" />
