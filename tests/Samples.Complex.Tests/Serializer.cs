@@ -15,11 +15,9 @@ internal static class Serializer
     internal static string ToJson(GraphQLRequest[] requests)
         => ToJson(Array.ConvertAll(requests, r => r.ToDictionary()));
 
+    private static readonly JsonSerializerOptions _jsonSerializerOptions = new() { DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull };
     public static string ToJson(object obj)
-        => JsonSerializer.Serialize(obj, new JsonSerializerOptions
-        {
-            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
-        });
+        => JsonSerializer.Serialize(obj, _jsonSerializerOptions);
 
     internal static FormUrlEncodedContent ToFormUrlEncodedContent(GraphQLRequest request)
     {

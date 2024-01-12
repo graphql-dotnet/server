@@ -11,7 +11,7 @@ namespace Tests;
 
 public static class WebSocketExtensions
 {
-    private static readonly IGraphQLTextSerializer _serializer = new GraphQLSerializer();
+    private static readonly GraphQLSerializer _serializer = new GraphQLSerializer();
 
     public static Task SendMessageAsync(this WebSocket socket, OperationMessage message)
         => SendStringAsync(socket, _serializer.Serialize(message));

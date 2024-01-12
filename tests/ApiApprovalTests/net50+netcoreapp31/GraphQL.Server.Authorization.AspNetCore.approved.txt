@@ -16,7 +16,7 @@ namespace GraphQL.Server.Authorization.AspNetCore
         protected virtual void AddValidationError(GraphQLParser.AST.ASTNode? node, GraphQL.Validation.ValidationContext context, GraphQLParser.AST.OperationType? operationType, Microsoft.AspNetCore.Authorization.AuthorizationResult result) { }
         public System.Threading.Tasks.ValueTask<GraphQL.Validation.INodeVisitor?> ValidateAsync(GraphQL.Validation.ValidationContext context) { }
         [System.Obsolete("This class has been replaced by GraphQL.Server.Transports.AspNetCore.Authorizatio" +
-            "nValidationRule.AuthorizationVisitor and will be removed in v8.")]
+            "nVisitor and will be removed in v8.")]
         public class AuthorizationVisitor : GraphQL.Server.Transports.AspNetCore.AuthorizationVisitor
         {
             public AuthorizationVisitor(GraphQL.Validation.ValidationContext context, System.Security.Claims.ClaimsPrincipal claimsPrincipal, Microsoft.AspNetCore.Authorization.IAuthorizationService authorizationService, GraphQL.Server.Authorization.AspNetCore.IAuthorizationErrorMessageBuilder authorizationErrorMessageBuilder, GraphQL.Server.Authorization.AspNetCore.AuthorizationValidationRule authorizationValidationRule) { }
