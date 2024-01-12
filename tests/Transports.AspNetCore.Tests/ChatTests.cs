@@ -12,7 +12,7 @@ public class ChatTests : IDisposable
         _app = new(ConfigureBuilder());
     }
 
-    private IWebHostBuilder ConfigureBuilder()
+    private WebHostBuilder ConfigureBuilder()
     {
         var hostBuilder = new WebHostBuilder();
         hostBuilder.ConfigureServices(services =>

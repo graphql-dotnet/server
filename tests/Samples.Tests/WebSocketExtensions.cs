@@ -1,7 +1,6 @@
 using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
-using GraphQL;
 using GraphQL.SystemTextJson;
 using GraphQL.Transport;
 #if NET48
@@ -15,7 +14,7 @@ namespace Samples.Tests;
 
 public static class WebSocketExtensions
 {
-    private static readonly IGraphQLTextSerializer _serializer = new GraphQLSerializer();
+    private static readonly GraphQLSerializer _serializer = new();
 
     public static Task SendMessageAsync(this WebSocket socket, OperationMessage message)
         => SendStringAsync(socket, _serializer.Serialize(message));

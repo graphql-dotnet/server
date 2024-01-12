@@ -29,14 +29,14 @@ public class ValidationTestBase : IDisposable
         config.Rules.Add(Rule);
         configure(config);
 
-        config.Rules.Any().ShouldBeTrue("Must provide at least one rule to validate against.");
+        config.Rules.ShouldNotBeEmpty("Must provide at least one rule to validate against.");
 
         config.Schema.Initialize();
 
         var result = Validate(config);
 
         string message = "";
-        if (result.Errors?.Any() == true)
+        if (result.Errors?.Count > 0)
         {
             message = string.Join(", ", result.Errors.Select(x => x.Message));
         }
@@ -51,7 +51,7 @@ public class ValidationTestBase : IDisposable
         config.User = CreatePrincipal();
         configure(config);
 
-        config.Rules.Any().ShouldBeTrue("Must provide at least one rule to validate against.");
+        config.Rules.ShouldNotBeEmpty("Must provide at least one rule to validate against.");
 
         config.Schema.Initialize();
 

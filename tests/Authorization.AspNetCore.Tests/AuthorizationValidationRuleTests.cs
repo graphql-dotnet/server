@@ -313,7 +313,7 @@ public class AuthorizationValidationRuleTests : ValidationTestBase
         });
     }
 
-    private static ISchema BasicSchema<T>()
+    private static Schema BasicSchema<T>()
     {
         string defs = """
             type Query {
@@ -347,7 +347,7 @@ public class AuthorizationValidationRuleTests : ValidationTestBase
         public string Post { get; set; } = "";
     }
 
-    private ISchema NestedSchema()
+    private Schema NestedSchema()
     {
         string defs = """
             type Query {
@@ -398,7 +398,7 @@ public class AuthorizationValidationRuleTests : ValidationTestBase
         public string Name { get; set; }
     }
 
-    private ISchema TypedSchema()
+    private Schema TypedSchema()
     {
         var query = new ObjectGraphType();
 
