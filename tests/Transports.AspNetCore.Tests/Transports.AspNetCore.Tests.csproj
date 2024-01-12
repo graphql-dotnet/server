@@ -43,6 +43,7 @@
     <Using Include="Moq" />
     <Using Include="Moq.Protected" />
     <Using Include="Shouldly" />
+    <Using Include="System.Net.Http"/>
     <Using Include="System.Text" />
     <Using Include="System.Threading" />
     <Using Include="System.Threading.Tasks" />
