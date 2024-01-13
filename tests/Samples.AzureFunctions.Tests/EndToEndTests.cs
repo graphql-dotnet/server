@@ -17,7 +17,7 @@ public class EndToEndTests
         {
             request.Method = "GET";
             request.QueryString = new QueryString("?query={count}");
-        }, GraphQL.RunGraphQL).ConfigureAwait(false);
+        }, GraphQL.RunGraphQL);
 
         statusCode.ShouldBe(200);
         contentType.ShouldBe("application/graphql-response+json; charset=utf-8");
@@ -32,7 +32,7 @@ public class EndToEndTests
             request.Method = "POST";
             request.ContentType = "application/json";
             request.Body = new MemoryStream(Encoding.UTF8.GetBytes("""{"query":"{count}"}"""));
-        }, GraphQL.RunGraphQL).ConfigureAwait(false);
+        }, GraphQL.RunGraphQL);
 
         statusCode.ShouldBe(200);
         contentType.ShouldBe("application/graphql-response+json; charset=utf-8");
@@ -45,7 +45,7 @@ public class EndToEndTests
         var (statusCode, contentType, body) = await ExecuteRequest(request =>
         {
             request.Method = "GET";
-        }, GraphQL.RunPlayground).ConfigureAwait(false);
+        }, GraphQL.RunPlayground);
 
         statusCode.ShouldBe(200);
         contentType.ShouldBe("text/html");

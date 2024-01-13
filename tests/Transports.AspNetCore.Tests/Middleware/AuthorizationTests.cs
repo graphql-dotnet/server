@@ -29,6 +29,7 @@ public class AuthorizationTests : IDisposable
                 .AddAutoSchema<Chat.Query>()
                 .AddErrorInfoProvider(new CustomErrorInfoProvider(this))
                 .AddSystemTextJson());
+            services.AddRouting();
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {

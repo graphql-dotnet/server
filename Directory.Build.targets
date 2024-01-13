@@ -10,6 +10,10 @@
     <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)graphql.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp2.1'">
+    <RuntimeFrameworkVersion>2.1.30</RuntimeFrameworkVersion>
+  </PropertyGroup>
+
   <ItemGroup Condition="'$(IsTestProject)' != 'true'">
     <InternalsVisibleTo Condition="'$(SignAssembly)' == 'true'" Include="$(AssemblyName).Tests, $(_FriendAssembliesPublicKey)"/>
     <InternalsVisibleTo Condition="'$(SignAssembly)' != 'true'" Include="$(AssemblyName).Tests"/>

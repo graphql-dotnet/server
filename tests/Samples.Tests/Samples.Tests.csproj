@@ -2,11 +2,11 @@
   <Import Project="../../Tests.props" />
 
   <PropertyGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' != 'true'">
-    <TargetFrameworks>net7.0;netcoreapp2.1</TargetFrameworks>
+    <TargetFrameworks>net8.0;net6.0;netcoreapp2.1</TargetFrameworks>
     <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
   </PropertyGroup>
   <PropertyGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' == 'true'">
-    <TargetFrameworks>net7.0;netcoreapp2.1;net48</TargetFrameworks>
+    <TargetFrameworks>net8.0;net6.0;netcoreapp2.1;net48</TargetFrameworks>
     <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
   </PropertyGroup>
   <PropertyGroup>
@@ -15,6 +15,10 @@
 
   <ItemGroup>
     <PackageReference Include="GraphQL.SystemTextJson" Version="$(GraphQLVersion)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="System.Net.Http"/>
   </ItemGroup>
 
 </Project>

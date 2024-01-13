@@ -8,7 +8,7 @@ namespace GraphQL.Server.Authorization.AspNetCore;
 public partial class AuthorizationValidationRule
 {
     /// <inheritdoc/>
-    [Obsolete("This class has been replaced by GraphQL.Server.Transports.AspNetCore.AuthorizationValidationRule.AuthorizationVisitor and will be removed in v8.")]
+    [Obsolete("This class has been replaced by GraphQL.Server.Transports.AspNetCore.AuthorizationVisitor and will be removed in v8.")]
     public class AuthorizationVisitor : Transports.AspNetCore.AuthorizationVisitor
     {
         private readonly IAuthorizationErrorMessageBuilder _messageBuilder;
