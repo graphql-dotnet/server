@@ -71,15 +71,15 @@ public partial class AuthorizationVisitorBase
     /// </summary>
     protected virtual async ValueTask<bool> ValidateAsync(ValidationInfo info)
     {
-        bool requiresAuthorization = info.Obj.IsAuthorizationRequired();
-        if (!requiresAuthorization)
-            return true;
-
-        var authorized = _userIsAuthorized ??= IsAuthenticated;
-        if (!authorized)
+        //note: in v7 currently: IsAuthorizationRequired returns true if authorization is required, or if policies or roles are set
+        if (info.Obj.GetMetadata(AuthorizationExtensions.AUTHORIZE_KEY, false) /* info.Obj.IsAuthorizationRequired() */)
         {
-            HandleNodeNotAuthorized(info);
-            return false;
+            var authorized = _userIsAuthorized ??= IsAuthenticated;
+            if (!authorized)
+            {
+                HandleNodeNotAuthorized(info);
+                return false;
+            }
         }
 
         var policies = info.Obj.GetPolicies();

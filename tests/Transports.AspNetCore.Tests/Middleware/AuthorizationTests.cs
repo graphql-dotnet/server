@@ -198,7 +198,7 @@ public class AuthorizationTests : IDisposable
         _options.AuthorizedRoles.Add("AnotherRole");
         _options.AuthorizedRoles.Add("FailingRole");
         using var response = await PostQueryAsync("{ __typename }", authenticated);
-        response.StatusCode.ShouldBe(authenticated ? HttpStatusCode.Forbidden : HttpStatusCode.Unauthorized);
+        response.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
         var actual = await response.Content.ReadAsStringAsync();
         actual.ShouldBe("""{"errors":[{"message":"Access denied for schema.","extensions":{"code":"ACCESS_DENIED","codes":["ACCESS_DENIED"]}}]}""");
     }
@@ -212,16 +212,9 @@ public class AuthorizationTests : IDisposable
         _options.AuthorizedRoles.Add("FailingRole");
         _enableCustomErrorInfoProvider = true;
         using var response = await PostQueryAsync("{ __typename }", authenticated);
-        response.StatusCode.ShouldBe(authenticated ? HttpStatusCode.Forbidden : HttpStatusCode.Unauthorized);
+        response.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
         var actual = await response.Content.ReadAsStringAsync();
-        if (authenticated)
-        {
-            actual.ShouldBe("""{"errors":[{"message":"Access denied; roles required \u0027AnotherRole\u0027/\u0027FailingRole\u0027.","extensions":{"code":"ACCESS_DENIED","codes":["ACCESS_DENIED"]}}]}""");
-        }
-        else
-        {
-            actual.ShouldBe("""{"errors":[{"message":"Access denied; authorization required.","extensions":{"code":"ACCESS_DENIED","codes":["ACCESS_DENIED"]}}]}""");
-        }
+        actual.ShouldBe("""{"errors":[{"message":"Access denied; roles required \u0027AnotherRole\u0027/\u0027FailingRole\u0027.","extensions":{"code":"ACCESS_DENIED","codes":["ACCESS_DENIED"]}}]}""");
     }
 
     [Fact]
@@ -242,7 +235,7 @@ public class AuthorizationTests : IDisposable
     {
         _options.AuthorizedPolicy = "FailingPolicy";
         using var response = await PostQueryAsync("{ __typename }", authenticated);
-        response.StatusCode.ShouldBe(authenticated ? HttpStatusCode.Forbidden : HttpStatusCode.Unauthorized);
+        response.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
         var actual = await response.Content.ReadAsStringAsync();
         actual.ShouldBe("""{"errors":[{"message":"Access denied for schema.","extensions":{"code":"ACCESS_DENIED","codes":["ACCESS_DENIED"]}}]}""");
     }
@@ -255,16 +248,9 @@ public class AuthorizationTests : IDisposable
         _options.AuthorizedPolicy = "FailingPolicy";
         _enableCustomErrorInfoProvider = true;
         using var response = await PostQueryAsync("{ __typename }", authenticated);
-        response.StatusCode.ShouldBe(authenticated ? HttpStatusCode.Forbidden : HttpStatusCode.Unauthorized);
+        response.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
         var actual = await response.Content.ReadAsStringAsync();
-        if (authenticated)
-        {
-            actual.ShouldBe("""{"errors":[{"message":"Access denied; policy required \u0027FailingPolicy\u0027.","extensions":{"code":"ACCESS_DENIED","codes":["ACCESS_DENIED"]}}]}""");
-        }
-        else
-        {
-            actual.ShouldBe("""{"errors":[{"message":"Access denied; authorization required.","extensions":{"code":"ACCESS_DENIED","codes":["ACCESS_DENIED"]}}]}""");
-        }
+        actual.ShouldBe("""{"errors":[{"message":"Access denied; policy required \u0027FailingPolicy\u0027.","extensions":{"code":"ACCESS_DENIED","codes":["ACCESS_DENIED"]}}]}""");
     }
 
     [Fact]

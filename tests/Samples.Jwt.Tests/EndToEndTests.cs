@@ -42,7 +42,7 @@ public class EndToEndTests : IDisposable
     [Fact]
     public async Task GraphQLGet_Unauthorized()
     {
-        await _testServer.VerifyGraphQLGetAsync(expected: ACCESS_DENIED_RESPONSE, statusCode: HttpStatusCode.Unauthorized);
+        await _testServer.VerifyGraphQLGetAsync(expected: ACCESS_DENIED_RESPONSE, statusCode: HttpStatusCode.Forbidden);
     }
 
     [Fact]
@@ -55,7 +55,7 @@ public class EndToEndTests : IDisposable
     [Fact]
     public async Task GraphQLPost_Unauthorized()
     {
-        await _testServer.VerifyGraphQLPostAsync(expected: ACCESS_DENIED_RESPONSE, statusCode: HttpStatusCode.Unauthorized);
+        await _testServer.VerifyGraphQLPostAsync(expected: ACCESS_DENIED_RESPONSE, statusCode: HttpStatusCode.Forbidden);
     }
 
     [Fact]
