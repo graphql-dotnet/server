@@ -591,7 +591,7 @@ public class AuthorizationTests : IDisposable
     }
 
     [Fact]
-    public void NullIdentity()
+    public async Task NullIdentity()
     {
         var mockAuthorizationService = new Mock<IAuthorizationService>(MockBehavior.Strict);
         var mockServices = new Mock<IServiceProvider>(MockBehavior.Strict);
@@ -600,7 +600,7 @@ public class AuthorizationTests : IDisposable
         var validator = new DocumentValidator();
         _schema.Authorize();
 
-        var (result, _) = validator.ValidateAsync(new ValidationOptions
+        var (result, _) = await validator.ValidateAsync(new ValidationOptions
         {
             Document = document,
             Extensions = Inputs.Empty,
@@ -611,7 +611,7 @@ public class AuthorizationTests : IDisposable
             Variables = Inputs.Empty,
             RequestServices = mockServices.Object,
             User = new ClaimsPrincipal(),
-        }).GetAwaiter().GetResult(); // there is no async code being tested
+        });
 
         result.Errors.ShouldHaveSingleItem().ShouldBeOfType<AccessDeniedError>().Message.ShouldBe("Access denied for schema.");
     }
@@ -681,7 +681,7 @@ public class AuthorizationTests : IDisposable
     [InlineData("{ parent { child(invalid: true) } }", null, true)]
     [InlineData("query { ...frag1 }", null, true)]
     [InlineData("query { ...frag1 } fragment frag1 on QueryType { ...frag1 }", null, true)]
-    public void TestDefective(string query, string variables, bool expectedIsValid)
+    public void TestDefective(string query, string? variables, bool expectedIsValid)
     {
         _query.AddField(new FieldType { Name = "test", Type = typeof(StringGraphType) }).Authorize();
 

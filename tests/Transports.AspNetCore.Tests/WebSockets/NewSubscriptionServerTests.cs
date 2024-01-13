@@ -232,7 +232,7 @@ public class NewSubscriptionServerTests : IDisposable
     [InlineData("abc")]
     [InlineData("")]
     [InlineData(null)]
-    public async Task OnSubscribe(string id)
+    public async Task OnSubscribe(string? id)
     {
         var message = new OperationMessage() { Id = id };
         _mockServer.Protected().Setup<Task>("OnSubscribeAsync", message).CallBase().Verifiable();
@@ -248,7 +248,7 @@ public class NewSubscriptionServerTests : IDisposable
     [InlineData("abc")]
     [InlineData("")]
     [InlineData(null)]
-    public async Task OnComplete(string id)
+    public async Task OnComplete(string? id)
     {
         var message = new OperationMessage() { Id = id };
         _mockServer.Protected().Setup<Task>("OnCompleteAsync", message).CallBase().Verifiable();
