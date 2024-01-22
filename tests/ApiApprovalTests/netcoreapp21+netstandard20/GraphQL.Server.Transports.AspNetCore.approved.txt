@@ -69,6 +69,15 @@ namespace GraphQL.Server.Transports.AspNetCore
         public string ContentType { get; set; }
         public System.Threading.Tasks.Task ExecuteResultAsync(Microsoft.AspNetCore.Mvc.ActionContext context) { }
     }
+    public class FormFileGraphType : GraphQL.Types.ScalarGraphType
+    {
+        public FormFileGraphType() { }
+        public override bool CanParseLiteral(GraphQLParser.AST.GraphQLValue value) { }
+        public override bool CanParseValue(object? value) { }
+        public override object? ParseLiteral(GraphQLParser.AST.GraphQLValue value) { }
+        public override object? ParseValue(object? value) { }
+        public override object? Serialize(object? value) { }
+    }
     public class GraphQLExecutionActionResult : GraphQL.Server.Transports.AspNetCore.GraphQLExecutionActionResult<GraphQL.Types.ISchema>
     {
         public GraphQLExecutionActionResult(GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions options) { }
@@ -416,6 +425,7 @@ namespace GraphQL
     public static class ServerGraphQLBuilderExtensions
     {
         public static GraphQL.DI.IGraphQLBuilder AddAuthorizationRule(this GraphQL.DI.IGraphQLBuilder builder) { }
+        public static GraphQL.DI.IGraphQLBuilder AddFormFileGraphType(this GraphQL.DI.IGraphQLBuilder builder) { }
         public static GraphQL.DI.IGraphQLBuilder AddUserContextBuilder<TUserContextBuilder>(this GraphQL.DI.IGraphQLBuilder builder)
             where TUserContextBuilder :  class, GraphQL.Server.Transports.AspNetCore.IUserContextBuilder { }
         public static GraphQL.DI.IGraphQLBuilder AddUserContextBuilder<TUserContext>(this GraphQL.DI.IGraphQLBuilder builder, System.Func<Microsoft.AspNetCore.Http.HttpContext, System.Threading.Tasks.Task<TUserContext>> creator)
