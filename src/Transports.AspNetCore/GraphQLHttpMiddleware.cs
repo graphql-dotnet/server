@@ -1,7 +1,6 @@
 #pragma warning disable CA1716 // Identifiers should not match keywords
 
 using System.Collections;
-using System.ComponentModel.Design.Serialization;
 using System.Globalization;
 using System.Text;
 using Microsoft.AspNetCore.Authentication;
