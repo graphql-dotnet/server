@@ -64,9 +64,11 @@ public class PostTests : IDisposable
         public static IEnumerable<MyFile> File2(IEnumerable<IFormFile> files) => files.Select(x => new MyFile(x));
         public static MyFile File3(MyFileInput arg) => new(arg.File);
         public static IEnumerable<MyFile> File4(IEnumerable<MyFileInput> args) => args.Select(x => new MyFile(x.File));
+        public static IEnumerable<MyFile> File5(MyFileInput2 args) => args.Files.Select(x => new MyFile(x));
     }
 
     private record MyFileInput(IFormFile File);
+    private record MyFileInput2(IEnumerable<IFormFile> Files);
 
     private class MyFile
     {
@@ -211,8 +213,14 @@ public class PostTests : IDisposable
         200, "{\"data\":{\"file4\":[{\"content\":\"test1\"}]}}")]
 
     // failing queries
+    // invalid index for request (string not integer)
+    [InlineData(null, "{\"file0\":[\"abc.variables.arg\"]}", true, false,
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Could not parse the request index.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+    // invalid index for request
+    [InlineData(null, "{\"file0\":[\"1.variables.arg\"]}", true, false,
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Invalid request index.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
     // already set variable
-    [InlineData("{\"query\":\"query($arg:FormFile){file(file:$arg){name contentType content}}\",\"variables\":{\"arg\":\"hello\"}}", "{\"file0\":[\"variables.arg\"]}", true, false,
+    [InlineData("{\"query\":\"query($arg:FormFile){file(file:$arg){content}}\",\"variables\":{\"arg\":\"hello\"}}", "{\"file0\":[\"variables.arg\"]}", true, false,
         400, "{\"errors\":[{\"message\":\"Invalid map path. Child property \\u0027arg\\u0027 must refer to a null object.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
     // invalid 'operations' json
     [InlineData("{", null, false, false,
@@ -300,6 +308,17 @@ public class PostTests : IDisposable
     // already set variable
     [InlineData("{\"query\":\"query($arg:MyFileInput!){file3(arg:$arg){content}}\",\"variables\":{\"arg\":{\"file\":\"test\"}}}", "{\"file0\":[\"variables.arg.file\"]}", true, false,
         400, "{\"errors\":[{\"message\":\"Invalid map path. Child property \\u0027file\\u0027 must refer to a null object.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+    // file4 tests
+    // parent not an integer
+    [InlineData("{\"query\":\"query($arg:[MyFileInput!]!){file4(args:$arg){content}}\",\"variables\":{\"arg\":[{\"file\":null}]}}", "{\"file0\":[\"variables.arg.test.file\"]}", true, false,
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Child index \\u0027test\\u0027 is not an integer.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+    // parent not valid
+    [InlineData("{\"query\":\"query($arg:[MyFileInput!]!){file4(args:$arg){content}}\",\"variables\":{\"arg\":[{\"file\":null}]}}", "{\"file0\":[\"variables.arg.1.file\"]}", true, false,
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Index \\u00271\\u0027 is out of bounds.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+    // file5 tests
+    // parent not valid
+    [InlineData("{\"query\":\"query($arg:MyFileInput2!){file5(arg:$arg){content}}\",\"variables\":{\"arg\":{\"files\":[null]}}}", "{\"file0\":[\"variables.arg.dummy.0\"]}", true, false,
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Child property \\u0027dummy\\u0027 does not exist.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
     [Theory]
     public async Task FormMultipart_Upload_Matrix(string? operations, string? map, bool file0, bool file1, int expectedStatusCode, string expectedResponse)
     {
