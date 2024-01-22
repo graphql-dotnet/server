@@ -45,8 +45,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{
 	ProjectSection(SolutionItems) = preProject
 		.github\workflows\build.yml = .github\workflows\build.yml
 		.github\workflows\codeql-analysis.yml = .github\workflows\codeql-analysis.yml
-		.github\workflows\label.yml = .github\workflows\label.yml
 		.github\workflows\format.yml = .github\workflows\format.yml
+		.github\workflows\label.yml = .github\workflows\label.yml
 		.github\workflows\publish.yml = .github\workflows\publish.yml
 		.github\workflows\test.yml = .github\workflows\test.yml
 		.github\workflows\wipcheck.yml = .github\workflows\wipcheck.yml
@@ -119,6 +119,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples.AzureFunctions", "samples\Samples.AzureFunctions\Samples.AzureFunctions.csproj", "{FD93A9D8-4663-4FF0-8082-DE9E006956FD}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples.AzureFunctions.Tests", "tests\Samples.AzureFunctions.Tests\Samples.AzureFunctions.Tests.csproj", "{A204E359-05E8-4CEE-891C-4CCA6570FA52}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Samples.Upload", "samples\Samples.Upload\Samples.Upload.csproj", "{33E2CDF5-F854-4F1A-80D5-DBF0BDF8EEA8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples.Upload.Tests", "tests\Samples.Upload.Tests\Samples.Upload.Tests.csproj", "{DE3059F4-B548-4091-BFC0-5879246A2DF9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -262,6 +266,14 @@ Global
 		{A204E359-05E8-4CEE-891C-4CCA6570FA52}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A204E359-05E8-4CEE-891C-4CCA6570FA52}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A204E359-05E8-4CEE-891C-4CCA6570FA52}.Release|Any CPU.Build.0 = Release|Any CPU
+		{33E2CDF5-F854-4F1A-80D5-DBF0BDF8EEA8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{33E2CDF5-F854-4F1A-80D5-DBF0BDF8EEA8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{33E2CDF5-F854-4F1A-80D5-DBF0BDF8EEA8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{33E2CDF5-F854-4F1A-80D5-DBF0BDF8EEA8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE3059F4-B548-4091-BFC0-5879246A2DF9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE3059F4-B548-4091-BFC0-5879246A2DF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE3059F4-B548-4091-BFC0-5879246A2DF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE3059F4-B548-4091-BFC0-5879246A2DF9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -301,6 +313,8 @@ Global
 		{7F5D8EE4-CD03-482E-A478-E3334F1D0439} = {382C5C04-A34D-4C81-83D7-584C85FB9356}
 		{FD93A9D8-4663-4FF0-8082-DE9E006956FD} = {5C07AFA3-12F2-40EA-807D-7A1EEF29012B}
 		{A204E359-05E8-4CEE-891C-4CCA6570FA52} = {BBD07745-C962-4D2D-B302-6DA1BCC2FF43}
+		{33E2CDF5-F854-4F1A-80D5-DBF0BDF8EEA8} = {5C07AFA3-12F2-40EA-807D-7A1EEF29012B}
+		{DE3059F4-B548-4091-BFC0-5879246A2DF9} = {BBD07745-C962-4D2D-B302-6DA1BCC2FF43}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3FC7FA59-E938-453C-8C4A-9D5635A9489A}

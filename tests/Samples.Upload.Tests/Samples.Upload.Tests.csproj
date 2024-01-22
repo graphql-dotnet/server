@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../../Tests.props" />
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Description>End to end tests for the Samples.Upload project</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\samples\Samples.Upload\Samples.Upload.csproj" />
+  </ItemGroup>
+
+</Project>
