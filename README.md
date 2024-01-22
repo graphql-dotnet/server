@@ -1007,16 +1007,17 @@ typical ASP.NET Core scenarios.
 
 | Name            | Framework                | Description |
 |-----------------|--------------------------|-------------|
-| Authorization   | .NET 6 Minimal           | Based on the VS template, demonstrates authorization functionality with cookie-based authentication |
-| Basic           | .NET 6 Minimal           | Demonstrates simplest possible implementation |
-| Complex         | .NET 3.1 / 5 / 6         | Demonstrates older Program/Startup files and various configuration options, and multiple UI endpoints |
-| Controller      | .NET 6 Minimal           | MVC implementation; does not include WebSocket support |
-| Cors            | .NET 6 Minimal           | Demonstrates configuring a GraphQL endpoint to use a specified CORS policy |
-| EndpointRouting | .NET 6 Minimal           | Demonstrates configuring GraphQL through endpoint routing |
-| Jwt             | .NET 6 Minimal           | Demonstrates authenticating GraphQL requests with a JWT bearer token over HTTP POST and WebSocket connections |
-| MultipleSchemas | .NET 6 Minimal           | Demonstrates configuring multiple schemas within a single server |
+| Authorization   | .NET 8 Minimal           | Based on the VS template, demonstrates authorization functionality with cookie-based authentication |
+| Basic           | .NET 8 Minimal           | Demonstrates simplest possible implementation |
+| Complex         | .NET 3.1 / 6 / 8         | Demonstrates older Program/Startup files and various configuration options, and multiple UI endpoints |
+| Controller      | .NET 8 Minimal           | MVC implementation; does not include WebSocket support |
+| Cors            | .NET 8 Minimal           | Demonstrates configuring a GraphQL endpoint to use a specified CORS policy |
+| EndpointRouting | .NET 8 Minimal           | Demonstrates configuring GraphQL through endpoint routing |
+| Jwt             | .NET 8 Minimal           | Demonstrates authenticating GraphQL requests with a JWT bearer token over HTTP POST and WebSocket connections |
+| MultipleSchemas | .NET 8 Minimal           | Demonstrates configuring multiple schemas within a single server |
 | Net48           | .NET Core 2.1 / .NET 4.8 | Demonstrates configuring GraphQL on .NET 4.8 / Core 2.1 |
-| Pages           | .NET 6 Minimal           | Demonstrates configuring GraphQL on top of a Razor Pages template |
+| Pages           | .NET 8 Minimal           | Demonstrates configuring GraphQL on top of a Razor Pages template |
+| Upload          | .NET 8 Minimal           | Demonstrates uploading files via the `multipart/form-data` content type |
 
 Most of the above samples rely on a sample "Chat" schema.
 Below are some basic requests you can use to test the schema:
