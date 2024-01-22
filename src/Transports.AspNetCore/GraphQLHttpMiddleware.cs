@@ -1,6 +1,7 @@
 #pragma warning disable CA1716 // Identifiers should not match keywords
 
 using System.Collections;
+using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 using Microsoft.AspNetCore.Authentication;
@@ -326,28 +327,21 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
                     throw new FileSizeExceededError();
             }
 
-            try
+            foreach (var entry in map)
             {
-                foreach (var entry in map)
+                // validate entry key
+                if (entry.Key == "" || entry.Key == "query" || entry.Key == "operationName" || entry.Key == "variables" || entry.Key == "extensions" || entry.Key == "operations" || entry.Key == "map")
+                    throw new InvalidMapError("Map key cannot be query, operationName, variables, extensions, operations or map.");
+                // locate file
+                var file = form.Files[entry.Key]
+                    ?? throw new InvalidMapError("Map key does not refer to an uploaded file.");
+                // apply file to each target
+                foreach (var target in entry.Value)
                 {
-                    // validate entry key
-                    if (entry.Key == "" || entry.Key == "query" || entry.Key == "operationName" || entry.Key == "variables" || entry.Key == "extensions" || entry.Key == "operations" || entry.Key == "map")
-                        throw new InvalidMapError("Map key cannot be query, operationName, variables, extensions, operations or map.");
-                    // locate file
-                    var file = form.Files[entry.Key]
-                        ?? throw new InvalidMapError("Map key does not refer to an uploaded file.");
-                    // apply file to each target
-                    foreach (var target in entry.Value)
-                    {
-                        if (target != null)
-                            ApplyFileToRequests(file, target, requests);
-                    }
+                    if (target == null)
+                        throw new InvalidMapError("Map target cannot be null.");
+                    ApplyFileToRequests(file, target, requests);
                 }
-            }
-            // catch unanticipated exceptions, although this should never happen
-            catch (Exception ex) when (ex is not ExecutionError)
-            {
-                throw new InvalidMapError(ex);
             }
         }
 
@@ -436,9 +430,9 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
                 prop = location;
             }
 
-            // Verify that the target is valid
-            if (prop == null || prop.Length == 0)
-                throw new InvalidMapError("No map path provided.");
+            // Verify that the target is valid (should not be possible)
+            Debug.Assert(prop != null);
+            Debug.Assert(prop!.Length > 0);
 
             // Resolve the segment, and set it to the form file
 
