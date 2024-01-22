@@ -74,9 +74,11 @@ namespace GraphQL.Server.Transports.AspNetCore
         public FormFileGraphType() { }
         public override bool CanParseLiteral(GraphQLParser.AST.GraphQLValue value) { }
         public override bool CanParseValue(object? value) { }
+        public override bool IsValidDefault(object value) { }
         public override object? ParseLiteral(GraphQLParser.AST.GraphQLValue value) { }
         public override object? ParseValue(object? value) { }
         public override object? Serialize(object? value) { }
+        public override GraphQLParser.AST.GraphQLValue ToAST(object? value) { }
     }
     public class GraphQLExecutionActionResult : GraphQL.Server.Transports.AspNetCore.GraphQLExecutionActionResult<GraphQL.Types.ISchema>
     {
