@@ -172,7 +172,7 @@ public class PostTests : IDisposable
     public async Task FormMultipart_Upload()
     {
         var client = _server.CreateClient();
-        var content = new MultipartFormDataContent();
+        using var content = new MultipartFormDataContent();
         var jsonContent = new StringContent("""
             {
                 "query": "query op1{ext} query op2($test:String!){ext var(test:$test)}",
