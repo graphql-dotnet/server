@@ -324,7 +324,7 @@ public class PostTests : IDisposable
     {
         operations ??= "{\"query\":\"query($arg:FormFile){file(file:$arg){content}}\",\"variables\":{\"arg\":null}}";
         var client = _server.CreateClient();
-        var content = new MultipartFormDataContent();
+        using var content = new MultipartFormDataContent();
         if (operations != null)
             content.Add(new StringContent(operations, Encoding.UTF8, "application/json"), "operations");
         if (map != null)
@@ -347,7 +347,7 @@ public class PostTests : IDisposable
         var client = _server.CreateClient();
         _options2.MaximumFileCount = maxFileCount;
         _options2.MaximumFileSize = maxFileLength;
-        var content = new MultipartFormDataContent
+        using var content = new MultipartFormDataContent
         {
             { new StringContent(operations, Encoding.UTF8, "application/json"), "operations" },
             { new StringContent(map, Encoding.UTF8, "application/json"), "map" },
@@ -355,7 +355,7 @@ public class PostTests : IDisposable
             { new StringContent("test2", Encoding.UTF8, "text/html"), "file1", "example2.html" }
         };
         using var response = await client.PostAsync("/graphql2", content);
-        await response.ShouldBeAsync((HttpStatusCode)expectedStatusCode, expectedResponse);
+        await response.ShouldBeAsync(expectedStatusCode, expectedResponse);
     }
 
     [Fact]
