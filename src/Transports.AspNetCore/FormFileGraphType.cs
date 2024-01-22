@@ -25,6 +25,13 @@ public class FormFileGraphType : ScalarGraphType
     };
 
     /// <inheritdoc/>
-    public override object? Serialize(object? value)
-        => throw new InvalidOperationException("The FormFile scalar graph type cannot be used to return information from a GraphQL endpoint.");
+    public override object? Serialize(object? value) => value is null ? null :
+        throw new InvalidOperationException("The FormFile scalar graph type cannot be used to return information from a GraphQL endpoint.");
+
+    /// <inheritdoc/>
+    public override bool IsValidDefault(object value) => false;
+
+    /// <inheritdoc/>
+    public override GraphQLValue ToAST(object? value) => value is null ? new GraphQLNullValue() :
+        throw new InvalidOperationException("FormFile values cannot be converted to an AST node.");
 }

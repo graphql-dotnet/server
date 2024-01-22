@@ -275,11 +275,14 @@ public class PostTests : IDisposable
     // no variables in request
     [InlineData(51, "{}", "{\"file0\":[\"0.variables.arg\"]}", true, false,
         400, "{\"errors\":[{\"message\":\"Invalid map path. No variables defined for this request.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+    // no variables in request
+    [InlineData(52, "[null]", "{\"file0\":[\"0.variables.arg\"]}", true, false,
+        400, "{\"errors\":[{\"message\":\"Invalid map path. No variables defined for this request.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
     // variables present but not the one referenced
-    [InlineData(52, null, "{\"file0\":[\"0.variables.arg2\"]}", true, false,
+    [InlineData(53, null, "{\"file0\":[\"0.variables.arg2\"]}", true, false,
         400, "{\"errors\":[{\"message\":\"Invalid map path. Child property \\u0027arg2\\u0027 does not exist.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
     // invalid variable path
-    [InlineData(53, null, "{\"file0\":[\"0.variables.arg.child\"]}", true, false,
+    [InlineData(54, null, "{\"file0\":[\"0.variables.arg.child\"]}", true, false,
         400, "{\"errors\":[{\"message\":\"Invalid map path. Child property \\u0027arg\\u0027 refers to a null object.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
     // file2 tests
     // missing index in variable path
