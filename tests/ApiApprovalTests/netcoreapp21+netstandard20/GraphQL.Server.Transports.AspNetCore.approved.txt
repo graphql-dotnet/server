@@ -231,7 +231,6 @@ namespace GraphQL.Server.Transports.AspNetCore.Errors
     }
     public class InvalidMapError : GraphQL.Execution.RequestError
     {
-        public InvalidMapError(System.Exception? innerException = null) { }
         public InvalidMapError(string message, System.Exception? innerException = null) { }
     }
     public class JsonInvalidError : GraphQL.Execution.RequestError

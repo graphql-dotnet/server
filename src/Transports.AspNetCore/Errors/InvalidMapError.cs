@@ -8,14 +8,6 @@ public class InvalidMapError : RequestError
     /// <summary>
     /// Initializes a new instance of the <see cref="InvalidMapError"/> class.
     /// </summary>
-    public InvalidMapError(Exception? innerException = null)
-        : base("Invalid map path." + (innerException != null ? " " + innerException.Message : null), innerException)
-    {
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="InvalidMapError"/> class.
-    /// </summary>
     public InvalidMapError(string message, Exception? innerException = null)
         : base("Invalid map path. " + message, innerException)
     {
