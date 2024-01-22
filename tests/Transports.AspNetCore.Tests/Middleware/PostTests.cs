@@ -318,6 +318,27 @@ public class PostTests : IDisposable
         await response.ShouldBeAsync((HttpStatusCode)expectedStatusCode, expectedResponse);
     }
 
+    [InlineData(1, null, HttpStatusCode.RequestEntityTooLarge, "{\"errors\":[{\"message\":\"File uploads exceeded.\",\"extensions\":{\"code\":\"FILE_COUNT_EXCEEDED\",\"codes\":[\"FILE_COUNT_EXCEEDED\"]}}]}")]
+    [InlineData(null, 1, HttpStatusCode.RequestEntityTooLarge, "{\"errors\":[{\"message\":\"File size limit exceeded.\",\"extensions\":{\"code\":\"FILE_SIZE_EXCEEDED\",\"codes\":[\"FILE_SIZE_EXCEEDED\"]}}]}")]
+    [Theory]
+    public async Task FormMultipart_Upload_Validation(int? maxFileCount, int? maxFileLength, HttpStatusCode expectedStatusCode, string expectedResponse)
+    {
+        var operations = "{\"query\":\"query($arg1:FormFile,$arg2:FormFile){file0:file(file:$arg1){content},file1:file(file:$arg2){content}}\",\"variables\":{\"arg1\":null,\"arg2\":null}}";
+        var map = "{\"file0\":[\"0.variables.arg1\"],\"file1\":[\"0.variables.arg2\"]}";
+        var client = _server.CreateClient();
+        _options2.MaximumFileCount = maxFileCount;
+        _options2.MaximumFileSize = maxFileLength;
+        var content = new MultipartFormDataContent
+        {
+            { new StringContent(operations, Encoding.UTF8, "application/json"), "operations" },
+            { new StringContent(map, Encoding.UTF8, "application/json"), "map" },
+            { new StringContent("test1", Encoding.UTF8, "text/text"), "file0", "example1.txt" },
+            { new StringContent("test2", Encoding.UTF8, "text/html"), "file1", "example2.html" }
+        };
+        using var response = await client.PostAsync("/graphql2", content);
+        await response.ShouldBeAsync((HttpStatusCode)expectedStatusCode, expectedResponse);
+    }
+
     [Fact]
     public async Task FormUrlEncoded()
     {
