@@ -1,6 +1,7 @@
 #pragma warning disable CA1716 // Identifiers should not match keywords
 
 using System.Collections;
+using System.ComponentModel.Design.Serialization;
 using System.Globalization;
 using System.Text;
 using Microsoft.AspNetCore.Authentication;
@@ -414,7 +415,7 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
                     // Parse the index, ensure it is within bounds, and get the child object.
                     if (!int.TryParse(prop, NumberStyles.Integer, CultureInfo.InvariantCulture, out var index))
                         throw new InvalidMapError($"Child index '{prop}' is not an integer.");
-                    if (list.Count < (index + 1))
+                    if (list.Count < (index + 1) || index < 0)
                         throw new InvalidMapError($"Index '{index}' is out of bounds.");
                     parent = list[index] ?? throw new InvalidMapError($"Child index '{index}' refers to a null object.");
                 }
@@ -448,7 +449,7 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
                 // Parse the index, ensure it is within bounds, and set the child object.
                 if (!int.TryParse(prop, NumberStyles.Integer, CultureInfo.InvariantCulture, out var index))
                     throw new InvalidMapError($"Child index '{prop}' is not an integer.");
-                if (list2.Count < (index + 1))
+                if (list2.Count < (index + 1) || index < 0)
                     throw new InvalidMapError($"Index '{index}' is out of bounds.");
                 if (list2[index] != null)
                     throw new InvalidMapError($"Index '{index}' must refer to a null variable.");
