@@ -1,0 +1,64 @@
+@page
+@model GraphQL.Server.Samples.Upload.Pages.IndexModel
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Image Upload</title>
+</head>
+<body>
+    <h1>Rotate JPEG images</h1>
+    <ol>
+        <li>Select a JPEG image</li>
+        <li>Click the "Upload Image" button</li>
+        <li>Wait for the image to be rotated</li>
+    </ol>
+    <p><input type="file" id="imageInput" accept="image/jpeg,image/jpg"></p>
+    <p><button id="uploadButton">Upload Image</button></p>
+    <p>
+      <img id="resultImage" alt="Uploaded Image" style="display:none;" />
+    </p>
+
+    <script>
+        document.getElementById('uploadButton').addEventListener('click', function () {
+            const input = document.getElementById('imageInput');
+            if (!input.files[0]) {
+                alert("Please select a file first!");
+                return;
+            }
+
+            const file = input.files[0];
+            const formData = new FormData();
+            const operations = {
+                query: "mutation ($img: FormFile!) { rotate(file: $img) }",
+                variables: { img: null }
+            };
+            const map = {
+                "file1": ["variables.img"]
+            }
+            formData.append('operations', JSON.stringify(operations));
+            formData.append('map', JSON.stringify(map));
+            formData.append('file1', file);
+
+            fetch('/graphql', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.data && data.data.rotate) {
+                        const img = document.getElementById('resultImage');
+                        img.src = 'data:image/jpeg;base64,' + data.data.rotate;
+                        img.style.display = 'block';
+                    } else {
+                        throw new Error('Invalid response format');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert("An error occurred while uploading the image.");
+                });
+        });
+    </script>
+</body>
+</html>

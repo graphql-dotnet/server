@@ -20,6 +20,8 @@ public class PostTests : IDisposable
                     .WithMutation<Chat.Mutation>()
                     .WithSubscription<Chat.Subscription>())
                 .AddSchema<Schema2>()
+                .AddAutoClrMappings()
+                .AddFormFileGraphType()
                 .AddSystemTextJson()
                 .ConfigureExecutionOptions(o => _configureExecution(o)));
 #if NETCOREAPP2_1 || NET48
@@ -43,7 +45,8 @@ public class PostTests : IDisposable
 
     private class Schema2 : Schema
     {
-        public Schema2()
+        public Schema2(IServiceProvider serviceProvider)
+            : base(serviceProvider)
         {
             Query = new AutoRegisteringObjectGraphType<Query2>();
         }
@@ -55,6 +58,34 @@ public class PostTests : IDisposable
 
         public static string? Ext(IResolveFieldContext context)
             => context.InputExtensions.TryGetValue("test", out var value) ? value?.ToString() : null;
+
+        public static MyFile? File(IFormFile? file) => file == null ? null : new(file);
+
+        public static IEnumerable<MyFile> File2(IEnumerable<IFormFile> files) => files.Select(x => new MyFile(x));
+        public static MyFile File3(MyFileInput arg) => new(arg.File);
+        public static IEnumerable<MyFile> File4(IEnumerable<MyFileInput> args) => args.Select(x => new MyFile(x.File));
+        public static IEnumerable<MyFile> File5(MyFileInput2 args) => args.Files.Select(x => new MyFile(x));
+    }
+
+    private record MyFileInput(IFormFile File);
+    private record MyFileInput2(IEnumerable<IFormFile> Files);
+
+    private class MyFile
+    {
+        private readonly IFormFile _file;
+        public MyFile(IFormFile file)
+        {
+            _file = file;
+        }
+
+        public string Name => _file.Name;
+        public string ContentType => _file.ContentType;
+        public string Content()
+        {
+            using var stream = _file.OpenReadStream();
+            using var reader = new StreamReader(stream, Encoding.UTF8);
+            return reader.ReadToEnd();
+        }
     }
 
     public void Dispose() => _server.Dispose();
@@ -117,7 +148,7 @@ public class PostTests : IDisposable
 #endif
 
     [Fact]
-    public async Task FormMultipart()
+    public async Task FormMultipart_Legacy()
     {
         var client = _server.CreateClient();
         var content = new MultipartFormDataContent();
@@ -135,6 +166,208 @@ public class PostTests : IDisposable
         content.Add(operationNameContent, "operationName");
         using var response = await client.PostAsync("/graphql2", content);
         await response.ShouldBeAsync("""{"data":{"ext":"2","var":"1"}}""");
+    }
+
+    [Fact]
+    public async Task FormMultipart_Upload()
+    {
+        var client = _server.CreateClient();
+        using var content = new MultipartFormDataContent();
+        var jsonContent = new StringContent("""
+            {
+                "query": "query op1{ext} query op2($test:String!){ext var(test:$test)}",
+                "operationName": "op2",
+                "variables": { "test": "1" },
+                "extensions": { "test": "2"}
+            }
+            """, Encoding.UTF8, "application/json");
+        content.Add(jsonContent, "operations");
+        using var response = await client.PostAsync("/graphql2", content);
+        await response.ShouldBeAsync("""{"data":{"ext":"2","var":"1"}}""");
+    }
+
+    // successful queries
+    // typical, single file
+    [InlineData(1, "{\"query\":\"query($arg:FormFile){file(file:$arg){name contentType content}}\",\"variables\":{\"arg\":null}}", "{\"file0\":[\"variables.arg\"]}", true, false,
+        200, "{\"data\":{\"file\":{\"name\":\"file0\",\"contentType\":\"text/text; charset=utf-8\",\"content\":\"test1\"}}}")]
+    // single file with map specified as 0.variables
+    [InlineData(2, "{\"query\":\"query($arg:FormFile){file(file:$arg){content}}\",\"variables\":{\"arg\":null}}", "{\"file0\":[\"0.variables.arg\"]}", true, false,
+        200, "{\"data\":{\"file\":{\"content\":\"test1\"}}}")]
+    // two files
+    [InlineData(3, "{\"query\":\"query($arg1:FormFile,$arg2:FormFile){file0:file(file:$arg1){content},file1:file(file:$arg2){content}}\",\"variables\":{\"arg1\":null,\"arg2\":null}}", "{\"file0\":[\"0.variables.arg1\"],\"file1\":[\"0.variables.arg2\"]}", true, true,
+        200, "{\"data\":{\"file0\":{\"content\":\"test1\"},\"file1\":{\"content\":\"test2\"}}}")]
+    // batch query of two requests
+    [InlineData(4, "[{\"query\":\"query($arg:FormFile){file(file:$arg){content}}\",\"variables\":{\"arg\":null}},{\"query\":\"query($arg:FormFile){file(file:$arg){content}}\",\"variables\":{\"arg\":null}}]", "{\"file0\":[\"0.variables.arg\"],\"file1\":[\"1.variables.arg\"]}", true, true,
+        200, "[{\"data\":{\"file\":{\"content\":\"test1\"}}},{\"data\":{\"file\":{\"content\":\"test2\"}}}]")]
+    // batch query of one request
+    [InlineData(5, "[{\"query\":\"query($arg:FormFile){file(file:$arg){content}}\",\"variables\":{\"arg\":null}}]", "{\"file0\":[\"variables.arg\"]}", true, false,
+        200, "[{\"data\":{\"file\":{\"content\":\"test1\"}}}]")]
+    // referencing a variable's child by index
+    [InlineData(6, "{\"query\":\"query($arg:[FormFile!]!){file2(files:$arg){content}}\",\"variables\":{\"arg\":[null]}}", "{\"file0\":[\"variables.arg.0\"]}", true, false,
+        200, "{\"data\":{\"file2\":[{\"content\":\"test1\"}]}}")]
+    // referencing a variable's child by property name
+    [InlineData(7, "{\"query\":\"query($arg:MyFileInput!){file3(arg:$arg){content}}\",\"variables\":{\"arg\":{\"file\":null}}}", "{\"file0\":[\"variables.arg.file\"]}", true, false,
+        200, "{\"data\":{\"file3\":{\"content\":\"test1\"}}}")]
+    // referencing a variable's child by index by property name
+    [InlineData(8, "{\"query\":\"query($arg:[MyFileInput!]!){file4(args:$arg){content}}\",\"variables\":{\"arg\":[{\"file\":null}]}}", "{\"file0\":[\"variables.arg.0.file\"]}", true, false,
+        200, "{\"data\":{\"file4\":[{\"content\":\"test1\"}]}}")]
+
+    // failing queries
+    // invalid index for request (no requests)
+    [InlineData(20, "[]", "{\"file0\":[\"variables.arg\"]}", true, false,
+        400, "{\"errors\":[{\"message\":\"Invalid map path. No request specified.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+    // invalid index for request (string not integer)
+    [InlineData(21, null, "{\"file0\":[\"abc.variables.arg\"]}", true, false,
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Could not parse the request index.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+    // invalid index for request
+    [InlineData(22, null, "{\"file0\":[\"1.variables.arg\"]}", true, false,
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Invalid request index.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+    // already set variable
+    [InlineData(23, "{\"query\":\"query($arg:FormFile){file(file:$arg){content}}\",\"variables\":{\"arg\":\"hello\"}}", "{\"file0\":[\"variables.arg\"]}", true, false,
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Child property \\u0027arg\\u0027 must refer to a null object.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+    // invalid 'operations' json
+    [InlineData(24, "{", null, false, false,
+        400, "{\"errors\":[{\"message\":\"JSON body text could not be parsed. Expected depth to be zero at the end of the JSON payload. There is an open JSON object or array that should be closed. Path: $ | LineNumber: 0 | BytePositionInLine: 1.\",\"extensions\":{\"code\":\"JSON_INVALID\",\"codes\":[\"JSON_INVALID\"]}}]}")]
+    // invalid 'map' json
+    [InlineData(25, null, "{", false, false,
+        400, "{\"errors\":[{\"message\":\"JSON body text could not be parsed. Expected depth to be zero at the end of the JSON payload. There is an open JSON object or array that should be closed. Path: $ | LineNumber: 0 | BytePositionInLine: 1.\",\"extensions\":{\"code\":\"JSON_INVALID\",\"codes\":[\"JSON_INVALID\"]}}]}")]
+    // invalid map path: invalid prefix
+    [InlineData(30, null, "{\"file0\":[\"abc\"]}", true, false,
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Map path must start with \\u0027variables.\\u0027 or the index of the request followed by \\u0027.variables.\\u0027.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+    [InlineData(31, null, "{\"file0\":[\"0.abc\"]}", true, false,
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Map path must start with \\u0027variables.\\u0027 or the index of the request followed by \\u0027.variables.\\u0027.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+    [InlineData(32, null, "{\"file0\":[\"variables\"]}", true, false,
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Map path must start with \\u0027variables.\\u0027 or the index of the request followed by \\u0027.variables.\\u0027.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+    [InlineData(33, null, "{\"file0\":[\"0.variables\"]}", true, false,
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Map path must start with \\u0027variables.\\u0027 or the index of the request followed by \\u0027.variables.\\u0027.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+    // invalid map path: missing property name
+    [InlineData(34, null, "{\"file0\":[\"variables.\"]}", true, false,
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Empty property name.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+    [InlineData(35, null, "{\"file0\":[\"0.variables.\"]}", true, false,
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Empty property name.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+    // invalid map path: child of null specified
+    [InlineData(36, null, "{\"file0\":[\"variables.arg.file\"]}", true, false,
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Child property \\u0027arg\\u0027 refers to a null object.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+    // invalid map path: child of string specified
+    [InlineData(37, "{\"query\":\"query($arg:FormFile){file(file:$arg){name contentType content}}\",\"variables\":{\"arg\":\"hello\"}}", "{\"file0\":[\"variables.arg.file\"]}", true, false,
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Cannot refer to child property \\u0027file\\u0027 of a string or number.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+    [InlineData(38, "{\"query\":\"query($arg:FormFile){file(file:$arg){name contentType content}}\",\"variables\":{\"arg\":\"hello\"}}", "{\"file0\":[\"variables.arg.file.dummy\"]}", true, false,
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Cannot refer to child property \\u0027file\\u0027 of a string or number.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+    // map target is null
+    [InlineData(39, null, "{\"file0\":[null]}", true, false,
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Map target cannot be null.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+    // invalid map keys
+    [InlineData(40, null, "{\"\":[\"0.variables.arg\"]}", false, false,
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Map key cannot be query, operationName, variables, extensions, operations or map.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+    [InlineData(41, null, "{\"query\":[\"0.variables.arg\"]}", false, false,
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Map key cannot be query, operationName, variables, extensions, operations or map.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+    [InlineData(42, null, "{\"variables\":[\"0.variables.arg\"]}", false, false,
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Map key cannot be query, operationName, variables, extensions, operations or map.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+    [InlineData(43, null, "{\"extensions\":[\"0.variables.arg\"]}", false, false,
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Map key cannot be query, operationName, variables, extensions, operations or map.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+    [InlineData(44, null, "{\"operationName\":[\"0.variables.arg\"]}", false, false,
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Map key cannot be query, operationName, variables, extensions, operations or map.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+    [InlineData(45, null, "{\"map\":[\"0.variables.arg\"]}", false, false,
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Map key cannot be query, operationName, variables, extensions, operations or map.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+    // missing referenced file
+    [InlineData(50, null, "{\"file0\":[\"0.variables.arg\"]}", false, false,
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Map key does not refer to an uploaded file.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+    // no variables in request
+    [InlineData(51, "{}", "{\"file0\":[\"0.variables.arg\"]}", true, false,
+        400, "{\"errors\":[{\"message\":\"Invalid map path. No variables defined for this request.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+    // no variables in request
+    [InlineData(52, "[null]", "{\"file0\":[\"0.variables.arg\"]}", true, false,
+        400, "{\"errors\":[{\"message\":\"Invalid map path. No variables defined for this request.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+    // variables present but not the one referenced
+    [InlineData(53, null, "{\"file0\":[\"0.variables.arg2\"]}", true, false,
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Child property \\u0027arg2\\u0027 does not exist.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+    // invalid variable path
+    [InlineData(54, null, "{\"file0\":[\"0.variables.arg.child\"]}", true, false,
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Child property \\u0027arg\\u0027 refers to a null object.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+    // file2 tests
+    // missing index in variable path
+    [InlineData(60, "{\"query\":\"query($arg:[FormFile!]!){file2(files:$arg){content}}\",\"variables\":{\"arg\":[null]}}", "{\"file0\":[\"variables.arg\"]}", true, false,
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Child property \\u0027arg\\u0027 must refer to a null object.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+    // invalid index in variable path
+    [InlineData(61, "{\"query\":\"query($arg:[FormFile!]!){file2(files:$arg){content}}\",\"variables\":{\"arg\":[null]}}", "{\"file0\":[\"variables.arg.1\"]}", true, false,
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Index \\u00271\\u0027 is out of bounds.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+    // name instead of index in variable path
+    [InlineData(62, "{\"query\":\"query($arg:[FormFile!]!){file2(files:$arg){content}}\",\"variables\":{\"arg\":[null]}}", "{\"file0\":[\"variables.arg.abc\"]}", true, false,
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Child index \\u0027abc\\u0027 is not an integer.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+    // suffix in variable path
+    [InlineData(63, "{\"query\":\"query($arg:[FormFile!]!){file2(files:$arg){content}}\",\"variables\":{\"arg\":[null]}}", "{\"file0\":[\"variables.arg.0.abc\"]}", true, false,
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Child index \\u00270\\u0027 refers to a null object.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+    // suffix in variable path for string
+    [InlineData(64, "{\"query\":\"query($arg:[FormFile!]!){file2(files:$arg){content}}\",\"variables\":{\"arg\":[\"test\"]}}", "{\"file0\":[\"variables.arg.0.abc\"]}", true, false,
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Cannot refer to child property \\u0027abc\\u0027 of a string or number.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+    // already set variable
+    [InlineData(65, "{\"query\":\"query($arg:[FormFile!]!){file2(files:$arg){content}}\",\"variables\":{\"arg\":[\"test\"]}}", "{\"file0\":[\"variables.arg.0\"]}", true, false,
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Index \\u00270\\u0027 must refer to a null variable.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+    // file3 tests
+    // missing prop in variable path
+    [InlineData(70, "{\"query\":\"query($arg:[FormFile!]!){file3(arg:$arg){content}}\",\"variables\":{\"arg\":{\"file\":null}}}", "{\"file0\":[\"variables.arg\"]}", true, false,
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Child property \\u0027arg\\u0027 must refer to a null object.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+    // invalid prop in variable path
+    [InlineData(71, "{\"query\":\"query($arg:MyFileInput!){file3(arg:$arg){content}}\",\"variables\":{\"arg\":{\"file\":null}}}", "{\"file0\":[\"variables.arg.1\"]}", true, false,
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Child property \\u00271\\u0027 does not exist.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+    // suffix in variable path
+    [InlineData(72, "{\"query\":\"query($arg:MyFileInput!){file3(arg:$arg){content}}\",\"variables\":{\"arg\":{\"file\":null}}}", "{\"file0\":[\"variables.arg.file.abc\"]}", true, false,
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Child property \\u0027file\\u0027 refers to a null object.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+    // suffix in variable path for string
+    [InlineData(73, "{\"query\":\"query($arg:MyFileInput!){file3(arg:$arg){content}}\",\"variables\":{\"arg\":{\"file\":\"test\"}}}", "{\"file0\":[\"variables.arg.file.abc\"]}", true, false,
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Cannot refer to child property \\u0027abc\\u0027 of a string or number.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+    // already set variable
+    [InlineData(74, "{\"query\":\"query($arg:MyFileInput!){file3(arg:$arg){content}}\",\"variables\":{\"arg\":{\"file\":\"test\"}}}", "{\"file0\":[\"variables.arg.file\"]}", true, false,
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Child property \\u0027file\\u0027 must refer to a null object.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+    // file4 tests
+    // parent not an integer
+    [InlineData(80, "{\"query\":\"query($arg:[MyFileInput!]!){file4(args:$arg){content}}\",\"variables\":{\"arg\":[{\"file\":null}]}}", "{\"file0\":[\"variables.arg.test.file\"]}", true, false,
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Child index \\u0027test\\u0027 is not an integer.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+    // parent not valid
+    [InlineData(81, "{\"query\":\"query($arg:[MyFileInput!]!){file4(args:$arg){content}}\",\"variables\":{\"arg\":[{\"file\":null}]}}", "{\"file0\":[\"variables.arg.1.file\"]}", true, false,
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Index \\u00271\\u0027 is out of bounds.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+    // file5 tests
+    // parent not valid
+    [InlineData(90, "{\"query\":\"query($arg:MyFileInput2!){file5(arg:$arg){content}}\",\"variables\":{\"arg\":{\"files\":[null]}}}", "{\"file0\":[\"variables.arg.dummy.0\"]}", true, false,
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Child property \\u0027dummy\\u0027 does not exist.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+    [Theory]
+    public async Task FormMultipart_Upload_Matrix(int testIndex, string? operations, string? map, bool file0, bool file1, int expectedStatusCode, string expectedResponse)
+    {
+        _ = testIndex;
+        operations ??= "{\"query\":\"query($arg:FormFile){file(file:$arg){content}}\",\"variables\":{\"arg\":null}}";
+        var client = _server.CreateClient();
+        using var content = new MultipartFormDataContent();
+        if (operations != null)
+            content.Add(new StringContent(operations, Encoding.UTF8, "application/json"), "operations");
+        if (map != null)
+            content.Add(new StringContent(map, Encoding.UTF8, "application/json"), "map");
+        if (file0)
+            content.Add(new StringContent("test1", Encoding.UTF8, "text/text"), "file0", "example1.txt");
+        if (file1)
+            content.Add(new StringContent("test2", Encoding.UTF8, "text/html"), "file1", "example2.html");
+        using var response = await client.PostAsync("/graphql2", content);
+        await response.ShouldBeAsync((HttpStatusCode)expectedStatusCode, expectedResponse);
+    }
+
+    [InlineData(1, null, HttpStatusCode.RequestEntityTooLarge, "{\"errors\":[{\"message\":\"File uploads exceeded.\",\"extensions\":{\"code\":\"FILE_COUNT_EXCEEDED\",\"codes\":[\"FILE_COUNT_EXCEEDED\"]}}]}")]
+    [InlineData(null, 1, HttpStatusCode.RequestEntityTooLarge, "{\"errors\":[{\"message\":\"File size limit exceeded.\",\"extensions\":{\"code\":\"FILE_SIZE_EXCEEDED\",\"codes\":[\"FILE_SIZE_EXCEEDED\"]}}]}")]
+    [Theory]
+    public async Task FormMultipart_Upload_Validation(int? maxFileCount, int? maxFileLength, HttpStatusCode expectedStatusCode, string expectedResponse)
+    {
+        var operations = "{\"query\":\"query($arg1:FormFile,$arg2:FormFile){file0:file(file:$arg1){content},file1:file(file:$arg2){content}}\",\"variables\":{\"arg1\":null,\"arg2\":null}}";
+        var map = "{\"file0\":[\"0.variables.arg1\"],\"file1\":[\"0.variables.arg2\"]}";
+        var client = _server.CreateClient();
+        _options2.MaximumFileCount = maxFileCount;
+        _options2.MaximumFileSize = maxFileLength;
+        using var content = new MultipartFormDataContent
+        {
+            { new StringContent(operations, Encoding.UTF8, "application/json"), "operations" },
+            { new StringContent(map, Encoding.UTF8, "application/json"), "map" },
+            { new StringContent("test1", Encoding.UTF8, "text/text"), "file0", "example1.txt" },
+            { new StringContent("test2", Encoding.UTF8, "text/html"), "file1", "example2.html" }
+        };
+        using var response = await client.PostAsync("/graphql2", content);
+        await response.ShouldBeAsync(expectedStatusCode, expectedResponse);
     }
 
     [Fact]

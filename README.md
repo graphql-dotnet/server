@@ -45,6 +45,9 @@ This package is designed for ASP.NET Core (2.1 through 6.0) to facilitate easy s
 over HTTP.  The code is designed to be used as middleware within the ASP.NET Core pipeline,
 serving GET, POST or WebSocket requests.  GET requests process requests from the query string.
 POST requests can be in the form of JSON requests, form submissions, or raw GraphQL strings.
+Form submissions either accepts `query`, `operationName`, `variables` and `extensions` parameters,
+or `operations` and `map` parameters along with file uploads as defined in the
+[GraphQL multipart request spec](https://github.com/jaydenseric/graphql-multipart-request-spec).
 WebSocket requests can use the `graphql-ws` or `graphql-transport-ws` WebSocket sub-protocol,
 as defined in the [apollographql/subscriptions-transport-ws](https://github.com/apollographql/subscriptions-transport-ws)
 and [enisdenjo/graphql-ws](https://github.com/enisdenjo/graphql-ws) repositories, respectively.
@@ -660,6 +663,8 @@ methods allowing for different options for each configured endpoint.
 | `HandleGet`                        | Enables handling of GET requests. | True |
 | `HandlePost`                       | Enables handling of POST requests. | True |
 | `HandleWebSockets`                 | Enables handling of WebSockets requests. | True |
+| `MaximumFileSize`                  | Sets the maximum file size allowed for GraphQL multipart requests. | unlimited |
+| `MaximumFileCount`                 | Sets the maximum number of files allowed for GraphQL multipart requests. | unlimited |
 | `ReadExtensionsFromQueryString`    | Enables reading extensions from the query string. | True |
 | `ReadFormOnPost`                   | Enables parsing of form data for POST requests (may have security implications). | True |
 | `ReadQueryStringOnPost`            | Enables parsing the query string on POST requests. | True |
@@ -918,6 +923,24 @@ security risk.  However, GraphQL query operations usually do not alter data, and
 Additionally, the response is not expected to be readable in the browser (unless CORS checks are successful),
 which helps alleviate this concern.
 
+GraphQL.NET Server supports two formats of `application/x-www-form-urlencoded` or `multipart/form-data` requests:
+
+1. The following keys are read from the form data and used to populate the GraphQL request:
+   - `query`: The GraphQL query string.
+   - `operationName`: The name of the operation to execute.
+   - `variables`: A JSON-encoded object containing the variables for the operation.
+   - `extensions`: A JSON-encoded object containing the extensions for the operation.
+
+2. The following keys are read from the form data and used to populate the GraphQL request:
+   - `operations`: A JSON-encoded object containing the GraphQL request, in the same format as typical
+     requests sent via `application/json`.  This can be a single object or an array of objects if batching
+     is enabled.
+   - `map`: An optional JSON-encoded map of file keys to file objects.  This is used to map attached files
+     into the GraphQL request's variables property.  See the section below titled 'File uploading/downloading' and the
+     [GraphQL multipart request specification](https://github.com/jaydenseric/graphql-multipart-request-spec)
+     for additional details.  Since `application/x-www-form-urlencoded` cannot transmit files, this feature
+     is only available for `multipart/form-data` requests.
+
 ### Excessive `OperationCanceledException`s
 
 When hosting a WebSockets endpoint, it may be common for clients to simply disconnect rather
@@ -956,10 +979,26 @@ security complications, especially when used with JWT bearer authentication.
 This answer often works well for GraphQL queries, but may not be desired during
 uploads (mutations).
 
-An option for uploading is to upload file data alongside a mutation with the `multipart/form-data`
-content type.  Please see [Issue 307](https://github.com/graphql-dotnet/server/issues/307) and
-[FileUploadTests.cs](https://github.com/graphql-dotnet/server/blob/master/tests/Transports.AspNetCore.Tests/Middleware/FileUploadTests.cs)
-for discussion and demonstration of this capability.
+An option for uploading is to upload file data alongside a mutation with the
+`multipart/form-data` content type as described by the
+[GraphQL multipart request specification](https://github.com/jaydenseric/graphql-multipart-request-spec).
+Uploaded files are mapped into the GraphQL request's variables as `IFormFile` objects.
+You can use the provided `FormFileGraphType` scalar graph type in your GraphQL schema
+to access these files.  The `AddFormFileGraphType()` builder extension method adds this scalar
+to the DI container and configures a CLR type mapping for it to be used for `IFormFile` objects.
+
+```csharp
+services.AddGraphQL(b => b
+    .AddAutoSchema<Query>()
+    .AddFormFileGraphType()
+    .AddSystemTextJson());
+```
+
+Please see the 'Upload' sample for a demonstration of this technique.  Note that
+using the `FormFileGraphType` scalar requires that the uploaded files be sent only
+via the `multipart/form-data` content type as attached files.  If you wish to also
+allow clients to send files as base-64 encoded strings, you can write a custom scalar
+better suited to your needs.
 
 ## Samples
 
@@ -968,16 +1007,17 @@ typical ASP.NET Core scenarios.
 
 | Name            | Framework                | Description |
 |-----------------|--------------------------|-------------|
-| Authorization   | .NET 6 Minimal           | Based on the VS template, demonstrates authorization functionality with cookie-based authentication |
-| Basic           | .NET 6 Minimal           | Demonstrates simplest possible implementation |
-| Complex         | .NET 3.1 / 5 / 6         | Demonstrates older Program/Startup files and various configuration options, and multiple UI endpoints |
-| Controller      | .NET 6 Minimal           | MVC implementation; does not include WebSocket support |
-| Cors            | .NET 6 Minimal           | Demonstrates configuring a GraphQL endpoint to use a specified CORS policy |
-| EndpointRouting | .NET 6 Minimal           | Demonstrates configuring GraphQL through endpoint routing |
-| Jwt             | .NET 6 Minimal           | Demonstrates authenticating GraphQL requests with a JWT bearer token over HTTP POST and WebSocket connections |
-| MultipleSchemas | .NET 6 Minimal           | Demonstrates configuring multiple schemas within a single server |
+| Authorization   | .NET 8 Minimal           | Based on the VS template, demonstrates authorization functionality with cookie-based authentication |
+| Basic           | .NET 8 Minimal           | Demonstrates simplest possible implementation |
+| Complex         | .NET 3.1 / 6 / 8         | Demonstrates older Program/Startup files and various configuration options, and multiple UI endpoints |
+| Controller      | .NET 8 Minimal           | MVC implementation; does not include WebSocket support |
+| Cors            | .NET 8 Minimal           | Demonstrates configuring a GraphQL endpoint to use a specified CORS policy |
+| EndpointRouting | .NET 8 Minimal           | Demonstrates configuring GraphQL through endpoint routing |
+| Jwt             | .NET 8 Minimal           | Demonstrates authenticating GraphQL requests with a JWT bearer token over HTTP POST and WebSocket connections |
+| MultipleSchemas | .NET 8 Minimal           | Demonstrates configuring multiple schemas within a single server |
 | Net48           | .NET Core 2.1 / .NET 4.8 | Demonstrates configuring GraphQL on .NET 4.8 / Core 2.1 |
-| Pages           | .NET 6 Minimal           | Demonstrates configuring GraphQL on top of a Razor Pages template |
+| Pages           | .NET 8 Minimal           | Demonstrates configuring GraphQL on top of a Razor Pages template |
+| Upload          | .NET 8 Minimal           | Demonstrates uploading files via the `multipart/form-data` content type |
 
 Most of the above samples rely on a sample "Chat" schema.
 Below are some basic requests you can use to test the schema:

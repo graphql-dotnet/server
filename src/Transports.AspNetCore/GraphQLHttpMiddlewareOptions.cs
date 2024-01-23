@@ -111,6 +111,20 @@ public class GraphQLHttpMiddlewareOptions : IAuthorizationOptions
     public string? AuthorizedPolicy { get; set; }
 
     /// <summary>
+    /// The maximum allowed file size in bytes for each file uploaded pursuant to the
+    /// specification at <see href="https://github.com/jaydenseric/graphql-multipart-request-spec"/>.
+    /// Null indicates no limit.
+    /// </summary>
+    public long? MaximumFileSize { get; set; }
+
+    /// <summary>
+    /// The maximum allowed number of files uploaded pursuant to the specification at
+    /// <see href="https://github.com/jaydenseric/graphql-multipart-request-spec"/>.
+    /// Null indicates no limit.
+    /// </summary>
+    public int? MaximumFileCount { get; set; }
+
+    /// <summary>
     /// Returns an options class for WebSocket connections.
     /// </summary>
     public GraphQLWebSocketOptions WebSockets { get; set; } = new();

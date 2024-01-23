@@ -1,5 +1,9 @@
 #pragma warning disable CA1716 // Identifiers should not match keywords
 
+using System.Collections;
+using System.Diagnostics;
+using System.Globalization;
+using System.Text;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Primitives;
 using MediaTypeHeaderValueMs = Microsoft.Net.Http.Headers.MediaTypeHeaderValue;
@@ -55,6 +59,8 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
     private const string VARIABLES_KEY = "variables";
     private const string EXTENSIONS_KEY = "extensions";
     private const string OPERATION_NAME_KEY = "operationName";
+    private const string OPERATIONS_KEY = "operations"; // used for multipart/form-data requests per https://github.com/jaydenseric/graphql-multipart-request-spec
+    private const string MAP_KEY = "map"; // used for multipart/form-data requests per https://github.com/jaydenseric/graphql-multipart-request-spec
     private const string MEDIATYPE_GRAPHQLJSON = "application/graphql+json"; // deprecated
     private const string MEDIATYPE_JSON = "application/json";
     private const string MEDIATYPE_GRAPHQL = "application/graphql";
@@ -203,7 +209,7 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
     /// and return <see langword="null"/>.
     /// </summary>
     protected virtual async Task<(GraphQLRequest? SingleRequest, IList<GraphQLRequest?>? BatchRequest)?> ReadPostContentAsync(
-        HttpContext context, RequestDelegate next, string? mediaType, System.Text.Encoding? sourceEncoding)
+        HttpContext context, RequestDelegate next, string? mediaType, Encoding? sourceEncoding)
     {
         var httpRequest = context.Request;
 
@@ -250,9 +256,14 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
                     try
                     {
                         var formCollection = await httpRequest.ReadFormAsync(context.RequestAborted);
-                        return (DeserializeFromFormBody(formCollection), null);
+                        return ReadFormContent(formCollection);
                     }
-                    catch (Exception ex)
+                    catch (ExecutionError ex) // catches FileCountExceededError, FileSizeExceededError, InvalidMapError
+                    {
+                        await WriteErrorResponseAsync(context, ex is IHasPreferredStatusCode sc ? sc.PreferredStatusCode : HttpStatusCode.BadRequest, ex);
+                        return null;
+                    }
+                    catch (Exception ex) // catches JSON deserialization exceptions
                     {
                         if (!await HandleDeserializationErrorAsync(context, _next, ex))
                             throw;
@@ -261,6 +272,205 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
                 }
                 await HandleInvalidContentTypeErrorAsync(context, _next);
                 return null;
+        }
+    }
+
+    /// <summary>
+    /// This method looks for an 'operations' key with a JSON value representing the GraphQL request(s)
+    /// and a 'map' key with a JSON object value mapping file keys to variables in the request(s).
+    /// See: <see href="https://github.com/jaydenseric/graphql-multipart-request-spec"/>.
+    /// <para>
+    /// If no 'operations' key exists, then falls back to looking for 'query', 'operationName', 'variables' and 'extensions' keys.
+    /// </para>
+    /// </summary>
+    /// <remarks>
+    /// Note that 'operations' and 'map' keys are searched for even with application/x-www-form-urlencoded requests, but
+    /// this should not be a problem.  Also, JSON deserialization may throw an exception by the JSON serialization engine in use.
+    /// </remarks>
+    /// <exception cref="FileCountExceededError"></exception>
+    /// <exception cref="FileSizeExceededError"></exception>
+    /// <exception cref="InvalidMapError"></exception>
+    private (GraphQLRequest? SingleRequest, IList<GraphQLRequest?>? BatchRequest)? ReadFormContent(IFormCollection formCollection)
+    {
+        var operationsString = formCollection.TryGetValue(OPERATIONS_KEY, out var operationsValue) ? operationsValue[0] : null;
+        var deserializationResult = _serializer.Deserialize<IList<GraphQLRequest?>>(operationsString)
+            ?? new GraphQLRequest[] { DeserializeFromFormBody(formCollection) };
+
+        var mapString = formCollection.TryGetValue(MAP_KEY, out var mapValue) ? mapValue[0] : null;
+        var map = _serializer.Deserialize<Dictionary<string, string?[]>>(mapString);
+        if (map != null)
+            ApplyMapToRequests(map, formCollection, deserializationResult);
+
+        // GraphQL serializers will deserialize a single request object as an array of a single request,
+        // and an array of requests as a List<T> of requests, so we can identify which way it was encoded,
+        // which is important for the response format.
+        if (deserializationResult is GraphQLRequest[] array && array.Length == 1)
+            return (deserializationResult[0], null);
+        else
+            return (null, deserializationResult);
+
+        // Applies uploaded files onto request variables based on a provided map.
+        // Validates file count and size.
+        // Expected map format: { "abc": ["variables.file"] } where abc is the form field name of the uploaded file.
+        // Also supports batch requests: { "abc": ["0.variables.file"] }
+        // Also supports mapping one file to multiple variables: { "abc": ["variables.file1", "variables.file2"] }
+        void ApplyMapToRequests(Dictionary<string, string?[]> map, IFormCollection form, IList<GraphQLRequest?> requests)
+        {
+            // validate file count
+            if (_options.MaximumFileCount.HasValue && form.Files.Count > _options.MaximumFileCount.Value)
+                throw new FileCountExceededError();
+
+            // validate each file's size
+            foreach (var file in form.Files)
+            {
+                if (_options.MaximumFileSize.HasValue && _options.MaximumFileSize.Value < file.Length)
+                    throw new FileSizeExceededError();
+            }
+
+            foreach (var entry in map)
+            {
+                // validate entry key
+                if (entry.Key == "" || entry.Key == "query" || entry.Key == "operationName" || entry.Key == "variables" || entry.Key == "extensions" || entry.Key == "operations" || entry.Key == "map")
+                    throw new InvalidMapError("Map key cannot be query, operationName, variables, extensions, operations or map.");
+                // locate file
+                var file = form.Files[entry.Key]
+                    ?? throw new InvalidMapError("Map key does not refer to an uploaded file.");
+                // apply file to each target
+                foreach (var target in entry.Value)
+                {
+                    if (target == null)
+                        throw new InvalidMapError("Map target cannot be null.");
+                    ApplyFileToRequests(file, target, requests);
+                }
+            }
+        }
+
+        // Applies an uploaded file to a specific target property within a list of requests.
+        // Expects a target string in the format of "variables.foo.bar" or "0.variables.foo.bar".
+        static void ApplyFileToRequests(IFormFile file, string target, IList<GraphQLRequest?> requests)
+        {
+            if (target.StartsWith("variables.", StringComparison.Ordinal))
+            {
+                if (requests.Count < 1)
+                    throw new InvalidMapError("No request specified.");
+                ApplyFileToRequest(file, target.Substring(10), requests[0]);
+                return;
+            }
+            var i = target.IndexOf('.');
+
+#if NETCOREAPP3_1_OR_GREATER
+            if (i == -1 || target.Length < 10 + i + 1 || !target.AsSpan(i + 1, 10).Equals("variables.", StringComparison.Ordinal))
+#else
+            if (i == -1 || target.Length < 10 + i + 1 || !string.Equals(target.Substring(i + 1, 10), "variables.", StringComparison.Ordinal))
+#endif
+                throw new InvalidMapError("Map path must start with 'variables.' or the index of the request followed by '.variables.'.");
+
+#if NETCOREAPP3_1_OR_GREATER
+            if (!int.TryParse(target.AsSpan(0, i), NumberStyles.Integer, CultureInfo.InvariantCulture, out var index))
+#else
+            if (!int.TryParse(target.Substring(0, i), NumberStyles.Integer, CultureInfo.InvariantCulture, out var index))
+#endif
+                throw new InvalidMapError("Could not parse the request index.");
+
+            if (requests.Count < (index + 1))
+                throw new InvalidMapError("Invalid request index.");
+
+            ApplyFileToRequest(file, target.Substring(10 + i + 1), requests[index]);
+        }
+
+        // Applies an uploaded file to a specific target property within a GraphQLRequest.
+        // Expects a target string in the format of "foo.bar".
+        static void ApplyFileToRequest(IFormFile file, string target, GraphQLRequest? request)
+        {
+            // Ensure request's Variables are not null, else throw an error.
+            var variables = request?.Variables ?? throw new InvalidMapError("No variables defined for this request.");
+
+            // Define the parent object and pointer to index or child key within 
+            object parent = variables;
+            string? prop = null;
+            // Iterate over each segment of the target path
+            foreach (var location in target.Split('.'))
+            {
+                if (location == "")
+                    throw new InvalidMapError("Empty property name.");
+                // If this is the first segment, it is the property name.
+                if (prop == null)
+                {
+                    prop = location;
+                    continue;
+                }
+
+                // First, resolve the prior segment to an object
+
+                // Handle lists
+                if (parent is IList list)
+                {
+                    // Parse the index, ensure it is within bounds, and get the child object.
+                    if (!int.TryParse(prop, NumberStyles.Integer, CultureInfo.InvariantCulture, out var index))
+                        throw new InvalidMapError($"Child index '{prop}' is not an integer.");
+                    if (list.Count < (index + 1) || index < 0)
+                        throw new InvalidMapError($"Index '{index}' is out of bounds.");
+                    parent = list[index] ?? throw new InvalidMapError($"Child index '{index}' refers to a null object.");
+                }
+                // Handle objects
+                else if (parent is IReadOnlyDictionary<string, object?> dic)
+                {
+                    // Ensure the child property exists and get the child object.
+                    if (!dic.TryGetValue(prop, out var value))
+                        throw new InvalidMapError($"Child property '{prop}' does not exist.");
+                    parent = value ??
+                        throw new InvalidMapError($"Child property '{prop}' refers to a null object.");
+                }
+                else
+                {
+                    throw new InvalidMapError($"Cannot refer to child property '{prop}' of a string or number.");
+                }
+
+                // Then, set the child property key or index
+                prop = location;
+            }
+
+            // Verify that the target is valid (should not be possible)
+            Debug.Assert(prop != null);
+            Debug.Assert(prop!.Length > 0);
+
+            // Resolve the segment, and set it to the form file
+
+            // Handle lists
+            if (parent is IList list2)
+            {
+                // Parse the index, ensure it is within bounds, and set the child object.
+                if (!int.TryParse(prop, NumberStyles.Integer, CultureInfo.InvariantCulture, out var index))
+                    throw new InvalidMapError($"Child index '{prop}' is not an integer.");
+                if (list2.Count < (index + 1) || index < 0)
+                    throw new InvalidMapError($"Index '{index}' is out of bounds.");
+                if (list2[index] != null)
+                    throw new InvalidMapError($"Index '{index}' must refer to a null variable.");
+                list2[index] = file;
+            }
+            // Handle objects
+            else if (parent is IDictionary<string, object?> dic)
+            {
+                // Ensure the child property exists and set the child object.
+                if (!dic.TryGetValue(prop, out var value))
+                    throw new InvalidMapError($"Child property '{prop}' does not exist.");
+                else if (value != null)
+                    throw new InvalidMapError($"Child property '{prop}' must refer to a null object.");
+                if (parent == variables)
+                {
+                    // unfortunate design due to Inputs being readonly
+                    request.Variables = new Inputs(new Dictionary<string, object?>(variables)
+                    {
+                        [prop] = file
+                    });
+                }
+                else
+                    dic[prop] = file;
+            }
+            else
+            {
+                throw new InvalidMapError($"Cannot refer to child property '{prop}' of a string or number.");
+            }
         }
     }
 
