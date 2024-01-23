@@ -12,7 +12,7 @@ public partial class AuthorizationVisitorBase
     /// <summary>
     /// Validate a node that is current within the context.
     /// </summary>
-    private ValueTask<bool> ValidateAsync(IProvideMetadata obj, ASTNode? node, ValidationContext context)
+    private ValueTask<bool> ValidateAsync(IMetadataReader obj, ASTNode? node, ValidationContext context)
         => ValidateAsync(BuildValidationInfo(node, obj, context));
 
     /// <summary>
@@ -21,7 +21,7 @@ public partial class AuthorizationVisitorBase
     /// <param name="node">The specified <see cref="ASTNode"/>.</param>
     /// <param name="obj">The <see cref="IGraphType"/>, <see cref="IFieldType"/> or <see cref="QueryArgument"/> which has been matched to the node specified in <paramref name="node"/>.</param>
     /// <param name="context">The validation context.</param>
-    private static ValidationInfo BuildValidationInfo(ASTNode? node, IProvideMetadata obj, ValidationContext context)
+    private static ValidationInfo BuildValidationInfo(ASTNode? node, IMetadataReader obj, ValidationContext context)
     {
         IFieldType? parentFieldType = null;
         IGraphType? parentGraphType = null;
@@ -52,7 +52,7 @@ public partial class AuthorizationVisitorBase
     /// <param name="ParentFieldType">For graph types other than operations, the field where this type was referenced; for query arguments, the field to which this argument belongs.</param>
     /// <param name="ParentGraphType">For graph types, the graph type for the field where this type was referenced; for field types, the graph type to which this field belongs; for query arguments, the graph type for the field to which this argument belongs.</param>
     public readonly record struct ValidationInfo(
-        IProvideMetadata Obj,
+        IMetadataReader Obj,
         ASTNode? Node,
         IFieldType? ParentFieldType,
         IGraphType? ParentGraphType,
@@ -65,7 +65,7 @@ public partial class AuthorizationVisitorBase
 
     /// <summary>
     /// Validates authorization rules for the specified schema, graph, field or query argument.
-    /// Does not consider <see cref="AuthorizationExtensions.IsAnonymousAllowed(IProvideMetadata)"/>
+    /// Does not consider <see cref="AuthorizationExtensions.IsAnonymousAllowed(IMetadataReader)"/>
     /// as this is handled elsewhere.
     /// Returns a value indicating if validation was successful for this node.
     /// </summary>
