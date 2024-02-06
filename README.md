@@ -894,6 +894,10 @@ are long-lived, using scoped services within a user context builder will result 
 scoped services having a matching long lifetime.  You may wish to alleviate this by
 creating a service scope temporarily within your user context builder.
 
+For applications that service multiple schemas, you may register `IUserContextBuilder<TSchema>`
+to create a user context for a specific schema.  This is useful when you need to create
+a user context that is specific to a particular schema.
+
 ### Mutations within GET requests
 
 For security reasons and pursuant to current recommendations, mutation GraphQL requests

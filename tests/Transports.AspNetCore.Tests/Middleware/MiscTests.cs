@@ -33,6 +33,37 @@ public class MiscTests
     }
 
     [Fact]
+    public async Task SchemaSpecificBuilders()
+    {
+        var middleware = new MyMiddleware<Schema>(
+            Mock.Of<RequestDelegate>(MockBehavior.Strict),
+            Mock.Of<IGraphQLTextSerializer>(MockBehavior.Strict),
+            Mock.Of<IDocumentExecuter<Schema>>(MockBehavior.Strict),
+            Mock.Of<IServiceScopeFactory>(MockBehavior.Strict),
+            new GraphQLHttpMiddlewareOptions(),
+            Mock.Of<IHostApplicationLifetime>(MockBehavior.Strict));
+        var builder = new Mock<IUserContextBuilder<Schema>>(MockBehavior.Strict);
+        var d = new Dictionary<string, object?> { { "test", "test" } };
+        builder.Setup(x => x.BuildUserContextAsync(It.IsAny<HttpContext>(), It.IsAny<object?>())).ReturnsAsync(d);
+        var serviceProviderMock = new Mock<IServiceProvider>(MockBehavior.Strict);
+        serviceProviderMock.Setup(x => x.GetService(typeof(IUserContextBuilder<Schema>))).Returns(builder.Object);
+        var contextMock = new Mock<HttpContext>(MockBehavior.Strict);
+        contextMock.Setup(x => x.RequestServices).Returns(serviceProviderMock.Object);
+        (await middleware.MyBuildUserContextAsync(contextMock.Object, null)).ShouldBe(d);
+    }
+
+    private class MyMiddleware<TSchema> : GraphQLHttpMiddleware<TSchema>
+        where TSchema : ISchema
+    {
+        public MyMiddleware(RequestDelegate next, IGraphQLTextSerializer serializer, IDocumentExecuter<TSchema> executer, IServiceScopeFactory scopeFactory, GraphQLHttpMiddlewareOptions options, IHostApplicationLifetime hostApplicationLifetime)
+            : base(next, serializer, executer, scopeFactory, options, hostApplicationLifetime)
+        {
+        }
+
+        public ValueTask<IDictionary<string, object?>?> MyBuildUserContextAsync(HttpContext context, object? payload) => base.BuildUserContextAsync(context, payload);
+    }
+
+    [Fact]
     public async Task WriteErrorResponseString()
     {
         var mockMiddleware = new Mock<MyMiddleware>(MockBehavior.Strict);

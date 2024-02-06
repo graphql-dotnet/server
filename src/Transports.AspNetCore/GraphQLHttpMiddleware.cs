@@ -36,6 +36,15 @@ public class GraphQLHttpMiddleware<TSchema> : GraphQLHttpMiddleware
         : base(next, serializer, documentExecuter, serviceScopeFactory, options, hostApplicationLifetime)
     {
     }
+
+    /// <inheritdoc/>
+    protected override ValueTask<IDictionary<string, object?>?> BuildUserContextAsync(HttpContext context, object? payload)
+    {
+        var userContextBuilder = context.RequestServices.GetService<IUserContextBuilder<TSchema>>();
+        return userContextBuilder == null
+            ? base.BuildUserContextAsync(context, payload)
+            : userContextBuilder.BuildUserContextAsync(context, payload);
+    }
 }
 
 /// <summary>
@@ -677,17 +686,18 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
     /// <see cref="IHttpContextAccessor"/> via <see cref="ExecutionOptions.RequestServices"/>
     /// if needed.
     /// <br/><br/>
-    /// By default this method pulls the registered <see cref="IUserContextBuilder"/>,
-    /// if any, within the service scope and executes it to build the user context.
+    /// By default this method pulls the registered <see cref="IUserContextBuilder{TSchema}"/>
+    /// or <see cref="IUserContextBuilder"/> instance, if any, within the service scope
+    /// and executes it to build the user context.
     /// In this manner, both scoped and singleton <see cref="IUserContextBuilder"/>
     /// instances are supported, although singleton instances are recommended.
     /// </summary>
-    protected virtual async ValueTask<IDictionary<string, object?>?> BuildUserContextAsync(HttpContext context, object? payload)
+    protected virtual ValueTask<IDictionary<string, object?>?> BuildUserContextAsync(HttpContext context, object? payload)
     {
         var userContextBuilder = context.RequestServices.GetService<IUserContextBuilder>();
         return userContextBuilder == null
-            ? null
-            : await userContextBuilder.BuildUserContextAsync(context, payload);
+            ? default // successful result of null
+            : userContextBuilder.BuildUserContextAsync(context, payload);
     }
 
     ValueTask<IDictionary<string, object?>?> IUserContextBuilder.BuildUserContextAsync(HttpContext context, object? payload)
