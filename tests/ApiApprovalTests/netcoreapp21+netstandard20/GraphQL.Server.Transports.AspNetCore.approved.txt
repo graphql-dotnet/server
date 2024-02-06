@@ -152,6 +152,7 @@ namespace GraphQL.Server.Transports.AspNetCore
         where TSchema : GraphQL.Types.ISchema
     {
         public GraphQLHttpMiddleware(Microsoft.AspNetCore.Http.RequestDelegate next, GraphQL.IGraphQLTextSerializer serializer, GraphQL.IDocumentExecuter<TSchema> documentExecuter, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions options, GraphQL.Server.Transports.AspNetCore.IHostApplicationLifetime hostApplicationLifetime) { }
+        protected override System.Threading.Tasks.ValueTask<System.Collections.Generic.IDictionary<string, object?>?> BuildUserContextAsync(Microsoft.AspNetCore.Http.HttpContext context, object? payload) { }
     }
     public class HostApplicationLifetime : GraphQL.Server.Transports.AspNetCore.IHostApplicationLifetime, Microsoft.Extensions.Hosting.IHostedService
     {
@@ -184,6 +185,8 @@ namespace GraphQL.Server.Transports.AspNetCore
     {
         System.Threading.Tasks.ValueTask<System.Collections.Generic.IDictionary<string, object?>?> BuildUserContextAsync(Microsoft.AspNetCore.Http.HttpContext context, object? payload);
     }
+    public interface IUserContextBuilder<TSchema> : GraphQL.Server.Transports.AspNetCore.IUserContextBuilder
+        where TSchema : GraphQL.Types.ISchema { }
     public class UserContextBuilder<TUserContext> : GraphQL.Server.Transports.AspNetCore.IUserContextBuilder
         where TUserContext : System.Collections.Generic.IDictionary<string, object?>
     {

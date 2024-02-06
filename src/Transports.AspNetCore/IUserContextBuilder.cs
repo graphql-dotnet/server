@@ -24,3 +24,9 @@ public interface IUserContextBuilder
     /// <returns>Dictionary object representing user context. Return <see langword="null"/> to use default user context.</returns>
     ValueTask<IDictionary<string, object?>?> BuildUserContextAsync(HttpContext context, object? payload);
 }
+
+/// <inheritdoc cref="IUserContextBuilder"/>
+public interface IUserContextBuilder<TSchema> : IUserContextBuilder
+    where TSchema : ISchema
+{
+}
