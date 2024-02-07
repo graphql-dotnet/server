@@ -926,6 +926,7 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
     protected virtual IOperationMessageProcessor CreateMessageProcessor(IWebSocketConnection webSocketConnection, string subProtocol)
     {
         var authService = webSocketConnection.HttpContext.RequestServices.GetService<IWebSocketAuthenticationService>();
+        var listeners = webSocketConnection.HttpContext.RequestServices.GetServices<IOperationMessageListener>();
 
         if (subProtocol == WebSockets.GraphQLWs.SubscriptionServer.SubProtocol)
         {
@@ -937,7 +938,8 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
                 _serializer,
                 _serviceScopeFactory,
                 this,
-                authService);
+                authService,
+                listeners);
         }
         else if (subProtocol == WebSockets.SubscriptionsTransportWs.SubscriptionServer.SubProtocol)
         {
@@ -949,7 +951,8 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
                 _serializer,
                 _serviceScopeFactory,
                 this,
-                authService);
+                authService,
+                listeners);
         }
 
         throw new ArgumentOutOfRangeException(nameof(subProtocol));
