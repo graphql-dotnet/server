@@ -39,7 +39,7 @@ public class PlaygroundMiddleware
         httpContext.Response.ContentType = "text/html";
         httpContext.Response.StatusCode = 200;
 
-        _pageModel ??= new PlaygroundPageModel(_options);
+        _pageModel ??= new PlaygroundPageModel(_options, httpContext.RequestServices);
 
         byte[] data = Encoding.UTF8.GetBytes(_pageModel.Render());
         return httpContext.Response.Body.WriteAsync(data, 0, data.Length);

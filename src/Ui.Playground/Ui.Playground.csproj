@@ -10,6 +10,10 @@
     <EmbeddedResource Include="Internal\playground.cshtml" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="GraphQL" Version="$(GraphQLVersion)" />
+  </ItemGroup>
+
   <ItemGroup Condition="'$(TargetFramework)' != 'netstandard2.0'">
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>

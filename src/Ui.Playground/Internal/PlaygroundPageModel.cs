@@ -8,10 +8,12 @@ internal sealed class PlaygroundPageModel
     private string? _playgroundCSHtml;
 
     private readonly PlaygroundOptions _options;
+    private readonly IServiceProvider _services;
 
-    public PlaygroundPageModel(PlaygroundOptions options)
+    public PlaygroundPageModel(PlaygroundOptions options, IServiceProvider services)
     {
         _options = options;
+        _services = services;
     }
 
     public string Render()
@@ -60,19 +62,30 @@ internal sealed class PlaygroundPageModel
         return _playgroundCSHtml;
     }
 
-    // https://html.spec.whatwg.org/multipage/scripting.html#restrictions-for-contents-of-script-elements
-    private static string StringEncode(string value) => value
-        .Replace("\\", "\\\\")  // encode  \  as  \\
-        .Replace("<", "\\x3C")  // encode  <  as  \x3C   -- so "<!--", "<script" and "</script" are handled correctly
-        .Replace("'", "\\'")    // encode  '  as  \'
-        .Replace("\"", "\\\""); // encode  "  as  \"
-
-    private static string JsonSerialize(object value)
+    private string JsonSerialize(object value)
     {
+        if (_services.GetService(typeof(IGraphQLSerializer)) is IGraphQLSerializer serializer)
+        {
+            using var stream = new MemoryStream();
+            serializer.WriteAsync(stream, value).Wait();
+
+            stream.Position = 0;
+
+            using var reader = new StreamReader(stream, Encoding.UTF8);
+            return reader.ReadToEnd();
+        }
+
 #if NETSTANDARD2_0
         return Newtonsoft.Json.JsonConvert.SerializeObject(value);
 #else
         return System.Text.Json.JsonSerializer.Serialize(value);
 #endif
     }
+
+    // https://html.spec.whatwg.org/multipage/scripting.html#restrictions-for-contents-of-script-elements
+    private static string StringEncode(string value) => value
+        .Replace("\\", "\\\\")  // encode  \  as  \\
+        .Replace("<", "\\x3C")  // encode  <  as  \x3C   -- so "<!--", "<script" and "</script" are handled correctly
+        .Replace("'", "\\'")    // encode  '  as  \'
+        .Replace("\"", "\\\""); // encode  "  as  \"
 }
