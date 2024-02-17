@@ -112,8 +112,7 @@ public static class ServerGraphQLBuilderExtensions
     /// as a singleton of type <see cref="IWebSocketAuthenticationService"/>.
     /// </summary>
     public static IGraphQLBuilder AddWebSocketAuthentication<
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
-        TWebSocketAuthenticationService>(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TWebSocketAuthenticationService>(
         this IGraphQLBuilder builder)
         where TWebSocketAuthenticationService : class, IWebSocketAuthenticationService
     {
