@@ -1004,6 +1004,15 @@ via the `multipart/form-data` content type as attached files.  If you wish to al
 allow clients to send files as base-64 encoded strings, you can write a custom scalar
 better suited to your needs.
 
+### Native AOT support
+
+GraphQL.NET Server fully supports Native AOT publishing with .NET 8.0 and later.
+See [ASP.NET Core support for Native AOT](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/native-aot)
+for a list of features supported by .NET 8.0.  However, GraphQL.NET only provides limited
+support for Native AOT publishing due to its extensive use of reflection.  Please see
+[GraphQL.NET Ahead-of-time compilation](https://github.com/graphql-dotnet/graphql-dotnet?tab=readme-ov-file#ahead-of-time-compilation)
+for more information.
+
 ## Samples
 
 The following samples are provided to show how to integrate this project with various

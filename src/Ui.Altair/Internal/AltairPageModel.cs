@@ -1,4 +1,7 @@
 using System.Text;
+#if NET7_0_OR_GREATER
+using System.Text.Json.Serialization;
+#endif
 
 namespace GraphQL.Server.Ui.Altair.Internal;
 
@@ -58,12 +61,26 @@ internal sealed class AltairPageModel
         .Replace("'", "\\'")    // encode  '  as  \'
         .Replace("\"", "\\\""); // encode  "  as  \"
 
-    private static string JsonSerialize(object? value)
+#nullable disable
+    private static string JsonSerialize(Dictionary<string, object> value)
+#nullable restore
     {
 #if NETSTANDARD2_0
         return Newtonsoft.Json.JsonConvert.SerializeObject(value);
+#elif NET7_0_OR_GREATER
+        return System.Text.Json.JsonSerializer.Serialize(value, SourceGenerationContext.Default.DictionaryStringObject);
 #else
         return System.Text.Json.JsonSerializer.Serialize(value);
 #endif
     }
 }
+
+#if NET7_0_OR_GREATER
+[JsonSerializable(typeof(Dictionary<string, object>))]
+[JsonSerializable(typeof(bool))]
+[JsonSerializable(typeof(int))]
+[JsonSerializable(typeof(string))]
+internal partial class SourceGenerationContext : JsonSerializerContext
+{
+}
+#endif
