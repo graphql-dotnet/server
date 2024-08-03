@@ -1,8 +1,9 @@
 # Migrating from v7 to v8
 
-## Major changes and new features
+## New features
 
-None
+- When using `FormFileGraphType` with type-first schemas, you may specify the allowed media
+  types for the file by using the new `[MediaType]` attribute on the argument or input object field.
 
 ## Breaking changes
 
