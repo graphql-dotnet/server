@@ -59,7 +59,7 @@ public class MediaTypeAttribute : GraphQLAttribute
             Validate(obj, _lists);
         }
 
-        public void Validate(object? obj, int lists)
+        private void Validate(object? obj, int lists)
         {
             if (obj == null)
                 return;
@@ -83,7 +83,7 @@ public class MediaTypeAttribute : GraphQLAttribute
             }
         }
 
-        public void ValidateMediaType(IFormFile? file)
+        private void ValidateMediaType(IFormFile? file)
         {
             if (file == null)
                 return;
@@ -99,6 +99,7 @@ public class MediaTypeAttribute : GraphQLAttribute
             throw new InvalidOperationException($"Invalid media type '{mediaType}'.");
         }
     }
+
     private static int CountNestedLists(Type type)
     {
         if (!type.IsGenericType)
