@@ -18,8 +18,7 @@ Provides the following packages:
 
 | Package                                              | Downloads                                                                                                                                                                             | Version                                                                                                                                                                              | Description |
 |------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------|
-| GraphQL.Server.All                                   | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.All)](https://www.nuget.org/packages/GraphQL.Server.All)                                                                     | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.All)](https://www.nuget.org/packages/GraphQL.Server.All)                                                                     | Includes all the packages below, excluding the legacy authorization package, plus the `GraphQL.DataLoader` and `GraphQL.MemoryCache` packages |
-| GraphQL.Server.Authorization.AspNetCore (deprecated) | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Authorization.AspNetCore)](https://www.nuget.org/packages/GraphQL.Server.Authorization.AspNetCore)                           | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.Authorization.AspNetCore)](https://www.nuget.org/packages/GraphQL.Server.Authorization.AspNetCore)                           | Provides legacy authorization rule support (deprecated; please use GraphQL.Server.Transports.AspNetCore) |
+| GraphQL.Server.All                                   | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.All)](https://www.nuget.org/packages/GraphQL.Server.All)                                                                     | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.All)](https://www.nuget.org/packages/GraphQL.Server.All)                                                                     | Includes all the packages below, plus the `GraphQL.DataLoader` and `GraphQL.MemoryCache` packages |
 | GraphQL.Server.Transports.AspNetCore                 | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Transports.AspNetCore)](https://www.nuget.org/packages/GraphQL.Server.Transports.AspNetCore)                                 | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.Transports.AspNetCore)](https://www.nuget.org/packages/GraphQL.Server.Transports.AspNetCore)                                 | Provides GraphQL over HTTP/WebSocket server support on top of ASP.NET Core, plus authorization rule support |
 | GraphQL.Server.Ui.Altair                             | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Ui.Altair)](https://www.nuget.org/packages/GraphQL.Server.Ui.Altair)                                                         | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.Ui.Altair)](https://www.nuget.org/packages/GraphQL.Server.Ui.Altair)                                                         | Provides Altair UI middleware |
 | GraphQL.Server.Ui.Playground                         | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Ui.Playground)](https://www.nuget.org/packages/GraphQL.Server.Ui.Playground)                                                 | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.Ui.Playground)](https://www.nuget.org/packages/GraphQL.Server.Ui.Playground)                                                 | Provides Playground UI middleware |
@@ -33,6 +32,7 @@ Note that GitHub requires authentication to consume the feed. See more informati
 | :warning: When upgrading from prior versions, please remove references to these old packages :warning: |
 |-|
 | GraphQL.Server.Core |
+| GraphQL.Server.Authentication.AspNetCore |
 | GraphQL.Server.Transports.AspNetCore.NewtonsoftJson |
 | GraphQL.Server.Transports.AspNetCore.SystemTextJson |
 | GraphQL.Server.Transports.Subscriptions.Abstractions |
@@ -64,7 +64,10 @@ any policies or roles specified for input graph types, fields of input graph typ
 directives.  It skips validations for fields or fragments that are marked with the `@skip` or
 `@include` directives.
 
-See [migration notes](docs/migration/migration7.md) for changes from version 6.x.
+### Migration from older version
+
+- [v7 to v8 migration notes](docs/migration/migration8.md)
+- [v6 to v7 migration notes](docs/migration/migration7.md)
 
 ## Configuration
 
