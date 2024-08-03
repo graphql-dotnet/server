@@ -40,7 +40,7 @@ public class MediaTypeAttribute : GraphQLAttribute
             ? CountNestedLists(queryArgument.Type)
             : CountNestedLists(queryArgument.ResolvedType
                 ?? throw new InvalidOperationException($"No graph type set on field '{queryArgument.Name}'."));
-        queryArgument.Validate(new Validator(lists, _mimeTypes).Validate);
+        queryArgument.Validator += new Validator(lists, _mimeTypes).Validate;
     }
 
     private class Validator
