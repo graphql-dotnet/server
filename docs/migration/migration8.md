@@ -14,4 +14,4 @@
 
 ## Other changes
 
-- GraphiQL has been bumped from 1.5.1 to 3.2.0
+- GraphiQL has been bumped from 1.5.1 to 3.2.0.
