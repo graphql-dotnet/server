@@ -67,6 +67,7 @@ public class EndToEndTests
         form.Add(triangleContent, "file0", "hello-world.txt");
         using var request = new HttpRequestMessage(HttpMethod.Post, "/graphql");
         request.Content = form;
+        request.Headers.Add("GraphQL-Require-Preflight", "true");
         using var response = await client.SendAsync(request);
         response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
         var ret = await response.Content.ReadAsStringAsync();
