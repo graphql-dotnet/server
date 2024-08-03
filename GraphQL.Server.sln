@@ -101,6 +101,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Migration", "Migration", "{FF0810A0-3372-40ED-B3E3-D703BEF0F118}"
 	ProjectSection(SolutionItems) = preProject
 		docs\migration\migration7.md = docs\migration\migration7.md
+		docs\migration\migration8.md = docs\migration\migration8.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples.Jwt", "samples\Samples.Jwt\Samples.Jwt.csproj", "{5A16B117-0FAD-4F91-A97C-E72B733B4E57}"
@@ -116,7 +117,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples.AzureFunctions", "s
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples.AzureFunctions.Tests", "tests\Samples.AzureFunctions.Tests\Samples.AzureFunctions.Tests.csproj", "{A204E359-05E8-4CEE-891C-4CCA6570FA52}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Samples.Upload", "samples\Samples.Upload\Samples.Upload.csproj", "{33E2CDF5-F854-4F1A-80D5-DBF0BDF8EEA8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples.Upload", "samples\Samples.Upload\Samples.Upload.csproj", "{33E2CDF5-F854-4F1A-80D5-DBF0BDF8EEA8}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples.Upload.Tests", "tests\Samples.Upload.Tests\Samples.Upload.Tests.csproj", "{DE3059F4-B548-4091-BFC0-5879246A2DF9}"
 EndProject
