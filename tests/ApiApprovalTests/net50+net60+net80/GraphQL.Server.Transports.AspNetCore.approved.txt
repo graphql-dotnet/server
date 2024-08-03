@@ -15,10 +15,10 @@ namespace GraphQL.Server.Transports.AspNetCore
         public System.Func<TState, Microsoft.AspNetCore.Authorization.AuthorizationResult, System.Threading.Tasks.Task>? OnNotAuthorizedPolicy { get; }
         public System.Func<TState, System.Threading.Tasks.Task>? OnNotAuthorizedRole { get; }
     }
-    public class AuthorizationValidationRule : GraphQL.Validation.IValidationRule
+    public class AuthorizationValidationRule : GraphQL.Validation.ValidationRuleBase
     {
         public AuthorizationValidationRule() { }
-        public virtual System.Threading.Tasks.ValueTask<GraphQL.Validation.INodeVisitor?> ValidateAsync(GraphQL.Validation.ValidationContext context) { }
+        public override System.Threading.Tasks.ValueTask<GraphQL.Validation.INodeVisitor?> GetPreNodeVisitorAsync(GraphQL.Validation.ValidationContext context) { }
     }
     public class AuthorizationVisitor : GraphQL.Server.Transports.AspNetCore.AuthorizationVisitorBase
     {
@@ -47,10 +47,10 @@ namespace GraphQL.Server.Transports.AspNetCore
         public virtual System.Threading.Tasks.ValueTask<bool> ValidateSchemaAsync(GraphQL.Validation.ValidationContext context) { }
         public readonly struct ValidationInfo : System.IEquatable<GraphQL.Server.Transports.AspNetCore.AuthorizationVisitorBase.ValidationInfo>
         {
-            public ValidationInfo(GraphQL.Types.IProvideMetadata Obj, GraphQLParser.AST.ASTNode? Node, GraphQL.Types.IFieldType? ParentFieldType, GraphQL.Types.IGraphType? ParentGraphType, GraphQL.Validation.ValidationContext Context) { }
+            public ValidationInfo(GraphQL.Types.IMetadataReader Obj, GraphQLParser.AST.ASTNode? Node, GraphQL.Types.IFieldType? ParentFieldType, GraphQL.Types.IGraphType? ParentGraphType, GraphQL.Validation.ValidationContext Context) { }
             public GraphQL.Validation.ValidationContext Context { get; init; }
             public GraphQLParser.AST.ASTNode? Node { get; init; }
-            public GraphQL.Types.IProvideMetadata Obj { get; init; }
+            public GraphQL.Types.IMetadataReader Obj { get; init; }
             public GraphQL.Types.IFieldType? ParentFieldType { get; init; }
             public GraphQL.Types.IGraphType? ParentGraphType { get; init; }
         }
@@ -147,15 +147,15 @@ namespace GraphQL.Server.Transports.AspNetCore
         public GraphQLHttpMiddleware(Microsoft.AspNetCore.Http.RequestDelegate next, GraphQL.IGraphQLTextSerializer serializer, GraphQL.IDocumentExecuter<TSchema> documentExecuter, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddlewareOptions options, Microsoft.Extensions.Hosting.IHostApplicationLifetime hostApplicationLifetime) { }
         protected override System.Threading.Tasks.ValueTask<System.Collections.Generic.IDictionary<string, object?>?> BuildUserContextAsync(Microsoft.AspNetCore.Http.HttpContext context, object? payload) { }
     }
-    public sealed class HttpGetValidationRule : GraphQL.Validation.IValidationRule
+    public sealed class HttpGetValidationRule : GraphQL.Validation.ValidationRuleBase
     {
         public HttpGetValidationRule() { }
-        public System.Threading.Tasks.ValueTask<GraphQL.Validation.INodeVisitor?> ValidateAsync(GraphQL.Validation.ValidationContext context) { }
+        public override System.Threading.Tasks.ValueTask<GraphQL.Validation.INodeVisitor?> GetPreNodeVisitorAsync(GraphQL.Validation.ValidationContext context) { }
     }
-    public sealed class HttpPostValidationRule : GraphQL.Validation.IValidationRule
+    public sealed class HttpPostValidationRule : GraphQL.Validation.ValidationRuleBase
     {
         public HttpPostValidationRule() { }
-        public System.Threading.Tasks.ValueTask<GraphQL.Validation.INodeVisitor?> ValidateAsync(GraphQL.Validation.ValidationContext context) { }
+        public override System.Threading.Tasks.ValueTask<GraphQL.Validation.INodeVisitor?> GetPreNodeVisitorAsync(GraphQL.Validation.ValidationContext context) { }
     }
     public interface IAuthorizationOptions
     {
