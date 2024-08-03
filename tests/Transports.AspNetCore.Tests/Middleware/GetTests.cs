@@ -87,19 +87,21 @@ public class GetTests : IDisposable
     }
 
     [Theory]
-    [InlineData(null, false)]
-    [InlineData("Header1", true)]
-    [InlineData("Header2", true)]
-    [InlineData("Header3", false)]
-    [InlineData("GraphQL-Require-Preflight", false)]
-    public async Task CsrfCustomTests(string? header, bool success)
+    [InlineData(null, null, false)]
+    [InlineData("Header1", "true", true)]
+    [InlineData("Header1", "", false)]
+    [InlineData("Header1", null, false)]
+    [InlineData("Header2", "true", true)]
+    [InlineData("Header3", "true", false)]
+    [InlineData("GraphQL-Require-Preflight", "true", false)]
+    public async Task CsrfCustomTests(string? header, string? value, bool success)
     {
         _options.CsrfProtectionEnabled = true;
         _options.CsrfProtectionHeaders = ["Header1", "Header2"];
         var client = _server.CreateClient();
         using var request = new HttpRequestMessage(HttpMethod.Get, "/graphql?query={count}");
         if (header != null)
-            request.Headers.Add(header, "true");
+            request.Headers.Add(header, value);
         using var response = await client.SendAsync(request);
         if (!success)
             await response.ShouldBeAsync(true, """{"errors":[{"message":"This request requires a non-empty header from the following list: \u0027Header1\u0027, \u0027Header2\u0027.","extensions":{"code":"CSRF_PROTECTION","codes":["CSRF_PROTECTION"]}}]}""");
