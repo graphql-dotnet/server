@@ -1,7 +1,7 @@
 namespace GraphQL.Server.Transports.AspNetCore.Errors;
 
 /// <summary>
-/// Represents an error indicating that the JSON provided could not be parsed.
+/// Represents an error indicating that the request may not have triggered a CORS preflight request.
 /// </summary>
 public class CsrfProtectionError : RequestError
 {
