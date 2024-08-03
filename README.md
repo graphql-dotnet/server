@@ -1005,7 +1005,7 @@ Please see the 'Upload' sample for a demonstration of this technique, which also
 demonstrates the use of the `MediaTypeAttribute` to restrict the allowable media
 types that will be accepted.  Note that using the `FormFileGraphType` scalar requires
 that the uploaded files be sent only via the `multipart/form-data` content type as
-attached files.  If you wish to also allow clients to send files as base-64 encoded
+attached files.  If you also wish to allow clients to send files as base-64 encoded
 strings, you can write a custom scalar better suited to your needs.
 
 ### Native AOT support
