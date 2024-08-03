@@ -70,7 +70,7 @@ public class MediaTypeAttribute : GraphQLAttribute
                 else
                     throw new InvalidOperationException("Expected an IFormFile object.");
             }
-            else if (obj is IEnumerable enumerable)
+            else if (obj is IEnumerable enumerable && obj is not string)
             {
                 foreach (var item in enumerable)
                 {
