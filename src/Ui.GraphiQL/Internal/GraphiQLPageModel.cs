@@ -49,7 +49,7 @@ internal sealed class GraphiQLPageModel
                 .Replace("@Model.SubscriptionsEndPoint", StringEncode(_options.SubscriptionsEndPoint))
                 .Replace("@Model.Headers", JsonSerialize(headers))
                 .Replace("@Model.HeaderEditorEnabled", _options.HeaderEditorEnabled ? "true" : "false")
-                .Replace("@Model.GraphiQLElement", _options.ExplorerExtensionEnabled ? "GraphiQLWithExtensions.GraphiQLWithExtensions" : "GraphiQL")
+                .Replace("@Model.GraphiQLElement", "GraphiQL")
                 .Replace("@Model.RequestCredentials", requestCredentials);
 
             // Here, fully-qualified, absolute and relative URLs are supported for both the
