@@ -36,6 +36,10 @@ public abstract class BaseTest : IDisposable
         {
             Content = httpContent
         };
+        if (httpMethod == HttpMethod.Get)
+        {
+            request.Headers.Add("GraphQL-Require-Preflight", "true");
+        }
         return Client.SendAsync(request);
     }
 
@@ -87,7 +91,11 @@ public abstract class BaseTest : IDisposable
             case RequestType.Get:
                 // Details passed in query string
                 urlWithParams = url + "?" + await Serializer.ToQueryStringParamsAsync(request);
-                response = await Client.GetAsync(urlWithParams);
+                using (var getRequest = new HttpRequestMessage(HttpMethod.Get, urlWithParams))
+                {
+                    getRequest.Headers.Add("GraphQL-Require-Preflight", "true");
+                    response = await Client.SendAsync(getRequest);
+                }
                 break;
 
             case RequestType.PostWithJson:
@@ -113,7 +121,12 @@ public abstract class BaseTest : IDisposable
             case RequestType.PostWithForm:
                 // Details passed in form body as form url encoded, with url query string params also allowed
                 var formContent = Serializer.ToFormUrlEncodedContent(request);
-                response = await Client.PostAsync(url, formContent);
+                using (var formPostRequest = new HttpRequestMessage(HttpMethod.Post, url))
+                {
+                    formPostRequest.Content = formContent;
+                    formPostRequest.Headers.Add("GraphQL-Require-Preflight", "true");
+                    response = await Client.SendAsync(formPostRequest);
+                }
                 break;
 
             default:

@@ -71,6 +71,22 @@ public class GraphQLHttpMiddlewareOptions : IAuthorizationOptions
     public bool ReadFormOnPost { get; set; } = true; // TODO: change to false for v9
 
     /// <summary>
+    /// Enables cross-site request forgery (CSRF) protection for both GET and POST requests.
+    /// Requires a non-empty header from the <see cref="CsrfProtectionHeaders"/> list to be
+    /// present, or a POST request with a Content-Type header that is not <c>text/plain</c>,
+    /// <c>application/x-www-form-urlencoded</c>, or <c>multipart/form-data</c>.
+    /// </summary>
+    public bool CsrfProtectionEnabled { get; set; } = true;
+
+    /// <summary>
+    /// When <see cref="CsrfProtectionEnabled"/> is enabled, requests require a non-empty
+    /// header from this list or a POST request with a Content-Type header that is not
+    /// <c>text/plain</c>, <c>application/x-www-form-urlencoded</c>, or <c>multipart/form-data</c>.
+    /// Defaults to <c>GraphQL-Require-Preflight</c>.
+    /// </summary>
+    public List<string> CsrfProtectionHeaders { get; set; } = ["GraphQL-Require-Preflight"]; // see https://github.com/graphql/graphql-over-http/pull/303
+
+    /// <summary>
     /// Enables reading variables from the query string.
     /// Variables are interpreted as JSON and deserialized before being
     /// provided to the <see cref="IDocumentExecuter"/>.
