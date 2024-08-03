@@ -496,9 +496,17 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
     {
         if (!_options.CsrfProtectionEnabled)
             return false;
-        if (context.Request.Headers.TryGetValue("Content-Type", out var contentType) && contentType.Count > 0
-            && !(contentType[0] == "text/plain" || contentType[0] == "application/x-www-form-urlencoded" || contentType[0] == "multipart/form-data"))
-            return false;
+        if (context.Request.Headers.TryGetValue("Content-Type", out var contentTypes) && contentTypes.Count > 0 && contentTypes[0] != null)
+        {
+            var contentType = contentTypes[0]!;
+            if (contentType.IndexOf(';') > 0)
+            {
+                contentType = contentType.Substring(0, contentType.IndexOf(';'));
+            }
+            contentType = contentType.Trim().ToLowerInvariant();
+            if (!(contentType == "text/plain" || contentType == "application/x-www-form-urlencoded" || contentType == "multipart/form-data"))
+                return false;
+        }
         foreach (var header in _options.CsrfProtectionHeaders)
         {
             if (context.Request.Headers.TryGetValue(header, out var values) && values.Count > 0 && values[0]?.Length > 0)

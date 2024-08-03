@@ -147,9 +147,15 @@ public class PostTests : IDisposable
     }
 #endif
 
-    [Fact]
-    public async Task FormMultipart_Legacy()
+    [Theory]
+    [InlineData(true, true)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(false, false)]
+    public async Task FormMultipart_Legacy(bool requireCsrf, bool supplyCsrf)
     {
+        if (!requireCsrf)
+            _options2.CsrfProtectionEnabled = false;
         var client = _server.CreateClient();
         var content = new MultipartFormDataContent();
         var queryContent = new StringContent("query op1{ext} query op2($test:String!){ext var(test:$test)}");
@@ -164,13 +170,25 @@ public class PostTests : IDisposable
         content.Add(variablesContent, "variables");
         content.Add(extensionsContent, "extensions");
         content.Add(operationNameContent, "operationName");
-        using var response = await client.PostAsync("/graphql2", content);
-        await response.ShouldBeAsync("""{"data":{"ext":"2","var":"1"}}""");
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/graphql2") { Content = content };
+        if (supplyCsrf)
+            request.Headers.Add("GraphQL-Require-Preflight", "true");
+        using var response = await client.SendAsync(request);
+        if (!requireCsrf || supplyCsrf)
+            await response.ShouldBeAsync("""{"data":{"ext":"2","var":"1"}}""");
+        else
+            await response.ShouldBeAsync(true, """{"errors":[{"message":"This request requires a non-empty header from the following list: \u0027GraphQL-Require-Preflight\u0027.","extensions":{"code":"CSRF_PROTECTION","codes":["CSRF_PROTECTION"]}}]}""");
     }
 
-    [Fact]
-    public async Task FormMultipart_Upload()
+    [Theory]
+    [InlineData(true, true)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(false, false)]
+    public async Task FormMultipart_Upload(bool requireCsrf, bool supplyCsrf)
     {
+        if (!requireCsrf)
+            _options2.CsrfProtectionEnabled = false;
         var client = _server.CreateClient();
         using var content = new MultipartFormDataContent();
         var jsonContent = new StringContent("""
@@ -182,8 +200,14 @@ public class PostTests : IDisposable
             }
             """, Encoding.UTF8, "application/json");
         content.Add(jsonContent, "operations");
-        using var response = await client.PostAsync("/graphql2", content);
-        await response.ShouldBeAsync("""{"data":{"ext":"2","var":"1"}}""");
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/graphql2") { Content = content };
+        if (supplyCsrf)
+            request.Headers.Add("GraphQL-Require-Preflight", "true");
+        using var response = await client.SendAsync(request);
+        if (!requireCsrf || supplyCsrf)
+            await response.ShouldBeAsync("""{"data":{"ext":"2","var":"1"}}""");
+        else
+            await response.ShouldBeAsync(true, """{"errors":[{"message":"This request requires a non-empty header from the following list: \u0027GraphQL-Require-Preflight\u0027.","extensions":{"code":"CSRF_PROTECTION","codes":["CSRF_PROTECTION"]}}]}""");
     }
 
     // successful queries
@@ -345,7 +369,9 @@ public class PostTests : IDisposable
             content.Add(new StringContent("test1", Encoding.UTF8, "text/text"), "file0", "example1.txt");
         if (file1)
             content.Add(new StringContent("test2", Encoding.UTF8, "text/html"), "file1", "example2.html");
-        using var response = await client.PostAsync("/graphql2", content);
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/graphql2") { Content = content };
+        request.Headers.Add("GraphQL-Require-Preflight", "true");
+        using var response = await client.SendAsync(request);
         await response.ShouldBeAsync((HttpStatusCode)expectedStatusCode, expectedResponse);
     }
 
@@ -366,13 +392,21 @@ public class PostTests : IDisposable
             { new StringContent("test1", Encoding.UTF8, "text/text"), "file0", "example1.txt" },
             { new StringContent("test2", Encoding.UTF8, "text/html"), "file1", "example2.html" }
         };
-        using var response = await client.PostAsync("/graphql2", content);
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/graphql2") { Content = content };
+        request.Headers.Add("GraphQL-Require-Preflight", "true");
+        using var response = await client.SendAsync(request);
         await response.ShouldBeAsync(expectedStatusCode, expectedResponse);
     }
 
-    [Fact]
-    public async Task FormUrlEncoded()
+    [Theory]
+    [InlineData(true, true)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(false, false)]
+    public async Task FormUrlEncoded(bool requireCsrf, bool supplyCsrf)
     {
+        if (!requireCsrf)
+            _options2.CsrfProtectionEnabled = false;
         var client = _server.CreateClient();
         var content = new FormUrlEncodedContent(new[] {
             new KeyValuePair<string?, string?>("query", "query op1{ext} query op2($test:String!){ext var(test:$test)}"),
@@ -380,8 +414,14 @@ public class PostTests : IDisposable
             new KeyValuePair<string?, string?>("extensions", """{"test":"2"}"""),
             new KeyValuePair<string?, string?>("operationName", "op2"),
         });
-        using var response = await client.PostAsync("/graphql2", content);
-        await response.ShouldBeAsync("""{"data":{"ext":"2","var":"1"}}""");
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/graphql2") { Content = content };
+        if (supplyCsrf)
+            request.Headers.Add("GraphQL-Require-Preflight", "true");
+        using var response = await client.SendAsync(request);
+        if (requireCsrf && !supplyCsrf)
+            await response.ShouldBeAsync(true, """{"errors":[{"message":"This request requires a non-empty header from the following list: \u0027GraphQL-Require-Preflight\u0027.","extensions":{"code":"CSRF_PROTECTION","codes":["CSRF_PROTECTION"]}}]}""");
+        else
+            await response.ShouldBeAsync("""{"data":{"ext":"2","var":"1"}}""");
     }
 
     [Theory]
@@ -395,7 +435,9 @@ public class PostTests : IDisposable
             new KeyValuePair<string?, string?>("query", "{ext}"),
             new KeyValuePair<string?, string?>("variables", "{"),
         });
-        using var response = await client.PostAsync("/graphql2", content);
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/graphql2") { Content = content };
+        request.Headers.Add("GraphQL-Require-Preflight", "true");
+        using var response = await client.SendAsync(request);
         // always returns BadRequest here
         await response.ShouldBeAsync(true, """{"errors":[{"message":"JSON body text could not be parsed. Expected depth to be zero at the end of the JSON payload. There is an open JSON object or array that should be closed. Path: $ | LineNumber: 0 | BytePositionInLine: 1.","extensions":{"code":"JSON_INVALID","codes":["JSON_INVALID"]}}]}""");
     }
@@ -435,6 +477,7 @@ public class PostTests : IDisposable
     [InlineData(true, false, "application/x-www-form-urlencoded")]
     public async Task UnknownContentType(bool badRequest, bool allowFormBody, string contentType)
     {
+        _options.CsrfProtectionEnabled = false;
         _options.ValidationErrorsReturnBadRequest = badRequest;
         _options.ReadFormOnPost = allowFormBody;
         var client = _server.CreateClient();
@@ -467,6 +510,7 @@ public class PostTests : IDisposable
         var client = _server.CreateClient();
         var content = new StringContent("");
         content.Headers.ContentType = null;
+        content.Headers.Add("GraphQL-Require-Preflight", "true");
         var response = await client.PostAsync("/graphql2", content);
         // always returns unsupported media type
         response.StatusCode.ShouldBe(HttpStatusCode.UnsupportedMediaType);

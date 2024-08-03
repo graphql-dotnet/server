@@ -31,10 +31,12 @@ public class GetTests : IDisposable
             app.UseWebSockets();
             app.UseGraphQL("/graphql", opts =>
             {
+                opts.CsrfProtectionEnabled = false;
                 _options = opts;
             });
             app.UseGraphQL<Schema2>("/graphql2", opts =>
             {
+                opts.CsrfProtectionEnabled = false;
                 _options2 = opts;
             });
         });
@@ -63,6 +65,46 @@ public class GetTests : IDisposable
         var client = _server.CreateClient();
         using var response = await client.GetAsync("/graphql?query={count}");
         await response.ShouldBeAsync("""{"data":{"count":0}}""");
+    }
+
+    [Theory]
+    [InlineData(true, true)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(false, false)]
+    public async Task CsrfBasicTests(bool requireCsrf, bool sendCsrf)
+    {
+        _options.CsrfProtectionEnabled = requireCsrf;
+        var client = _server.CreateClient();
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/graphql?query={count}");
+        if (sendCsrf)
+            request.Headers.Add("GraphQL-Require-Preflight", "true");
+        using var response = await client.SendAsync(request);
+        if (requireCsrf && !sendCsrf)
+            await response.ShouldBeAsync(true, """{"errors":[{"message":"This request requires a non-empty header from the following list: \u0027GraphQL-Require-Preflight\u0027.","extensions":{"code":"CSRF_PROTECTION","codes":["CSRF_PROTECTION"]}}]}""");
+        else
+            await response.ShouldBeAsync("""{"data":{"count":0}}""");
+    }
+
+    [Theory]
+    [InlineData(null, false)]
+    [InlineData("Header1", true)]
+    [InlineData("Header2", true)]
+    [InlineData("Header3", false)]
+    [InlineData("GraphQL-Require-Preflight", false)]
+    public async Task CsrfCustomTests(string? header, bool success)
+    {
+        _options.CsrfProtectionEnabled = true;
+        _options.CsrfProtectionHeaders = ["Header1", "Header2"];
+        var client = _server.CreateClient();
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/graphql?query={count}");
+        if (header != null)
+            request.Headers.Add(header, "true");
+        using var response = await client.SendAsync(request);
+        if (!success)
+            await response.ShouldBeAsync(true, """{"errors":[{"message":"This request requires a non-empty header from the following list: \u0027Header1\u0027, \u0027Header2\u0027.","extensions":{"code":"CSRF_PROTECTION","codes":["CSRF_PROTECTION"]}}]}""");
+        else
+            await response.ShouldBeAsync("""{"data":{"count":0}}""");
     }
 
     [Theory]
@@ -155,7 +197,6 @@ public class GetTests : IDisposable
         }
         var client = _server.CreateClient();
         using var request = new HttpRequestMessage(HttpMethod.Get, "/graphql?query={count}");
-        request.Headers.Add("GraphQL-Require-Preflight", "true");
         request.Headers.Add("Accept", mediaType);
         using var response = await client.SendAsync(request);
         var contentType = response.Content.Headers.ContentType?.ToString();
@@ -181,7 +222,9 @@ public class GetTests : IDisposable
         using var server = new TestServer(hostBuilder);
 
         var client = server.CreateClient();
-        using var response = await client.GetAsync("/graphql?query={count}");
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/graphql?query={count}");
+        request.Headers.Add("GraphQL-Require-Preflight", "true");
+        using var response = await client.SendAsync(request);
         await response.ShouldBeAsync("""{"data":{"count":0}}""");
     }
 
