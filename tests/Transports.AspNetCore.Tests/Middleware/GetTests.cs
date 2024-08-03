@@ -155,6 +155,7 @@ public class GetTests : IDisposable
         }
         var client = _server.CreateClient();
         using var request = new HttpRequestMessage(HttpMethod.Get, "/graphql?query={count}");
+        request.Headers.Add("GraphQL-Require-Preflight", "true");
         request.Headers.Add("Accept", mediaType);
         using var response = await client.SendAsync(request);
         var contentType = response.Content.Headers.ContentType?.ToString();
