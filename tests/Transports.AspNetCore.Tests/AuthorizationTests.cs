@@ -759,7 +759,7 @@ public class AuthorizationTests : IDisposable
                 context.User = _principal;
                 return next(context);
             });
-            app.UseGraphQL();
+            app.UseGraphQL(configureMiddleware: c => c.CsrfProtectionEnabled = false);
         });
         using var server = new TestServer(hostBuilder);
 

@@ -36,6 +36,7 @@ public static class TestServerExtensions
     {
         using var client = server.CreateClient();
         using var request = new HttpRequestMessage(HttpMethod.Get, url + "?query=" + Uri.EscapeDataString(query));
+        request.Headers.Add("GraphQL-Require-Preflight", "true");
         if (jwtToken != null)
             request.Headers.Authorization = new("Bearer", jwtToken);
         using var response = await client.SendAsync(request);

@@ -497,7 +497,7 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
         if (!_options.CsrfProtectionEnabled)
             return false;
         if (context.Request.Headers.TryGetValue("Content-Type", out var contentType) && contentType.Count > 0
-            && (contentType[0] == "text/plain" || contentType[0] == "application/x-www-form-urlencoded" || contentType[0] == "multipart/form-data"))
+            && !(contentType[0] == "text/plain" || contentType[0] == "application/x-www-form-urlencoded" || contentType[0] == "multipart/form-data"))
             return false;
         foreach (var header in _options.CsrfProtectionHeaders)
         {

@@ -99,6 +99,8 @@ namespace GraphQL.Server.Transports.AspNetCore
         protected virtual System.Threading.Tasks.Task HandleBatchRequestAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next, System.Collections.Generic.IList<GraphQL.Transport.GraphQLRequest?> gqlRequests) { }
         protected virtual System.Threading.Tasks.Task HandleBatchedRequestsNotSupportedAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next) { }
         protected virtual System.Threading.Tasks.Task HandleContentTypeCouldNotBeParsedErrorAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next) { }
+        protected virtual System.Threading.Tasks.ValueTask<bool> HandleCsrfProtectionAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next) { }
+        protected virtual System.Threading.Tasks.Task HandleCsrfProtectionErrorAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next) { }
         protected virtual System.Threading.Tasks.ValueTask<bool> HandleDeserializationErrorAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next, System.Exception exception) { }
         protected virtual System.Threading.Tasks.Task HandleInvalidContentTypeErrorAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next) { }
         protected virtual System.Threading.Tasks.Task HandleInvalidHttpMethodErrorAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next) { }
@@ -115,6 +117,7 @@ namespace GraphQL.Server.Transports.AspNetCore
                 "BatchRequest"})]
         protected virtual System.Threading.Tasks.Task<System.ValueTuple<GraphQL.Transport.GraphQLRequest?, System.Collections.Generic.IList<GraphQL.Transport.GraphQLRequest?>?>?> ReadPostContentAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next, string? mediaType, System.Text.Encoding? sourceEncoding) { }
         protected virtual string SelectResponseContentType(Microsoft.AspNetCore.Http.HttpContext context) { }
+        protected virtual System.Threading.Tasks.Task WriteErrorResponseAsync(Microsoft.AspNetCore.Http.HttpContext context, GraphQL.ExecutionError executionError) { }
         protected virtual System.Threading.Tasks.Task WriteErrorResponseAsync(Microsoft.AspNetCore.Http.HttpContext context, System.Net.HttpStatusCode httpStatusCode, GraphQL.ExecutionError executionError) { }
         protected virtual System.Threading.Tasks.Task WriteErrorResponseAsync(Microsoft.AspNetCore.Http.HttpContext context, System.Net.HttpStatusCode httpStatusCode, string errorMessage) { }
         protected virtual System.Threading.Tasks.Task WriteJsonResponseAsync<TResult>(Microsoft.AspNetCore.Http.HttpContext context, System.Net.HttpStatusCode httpStatusCode, TResult result) { }
@@ -126,6 +129,8 @@ namespace GraphQL.Server.Transports.AspNetCore
         public bool AuthorizationRequired { get; set; }
         public string? AuthorizedPolicy { get; set; }
         public System.Collections.Generic.List<string> AuthorizedRoles { get; set; }
+        public bool CsrfProtectionEnabled { get; set; }
+        public System.Collections.Generic.List<string> CsrfProtectionHeaders { get; set; }
         public Microsoft.Net.Http.Headers.MediaTypeHeaderValue DefaultResponseContentType { get; set; }
         public bool EnableBatchedRequests { get; set; }
         public bool ExecuteBatchedRequestsInParallel { get; set; }
@@ -192,6 +197,11 @@ namespace GraphQL.Server.Transports.AspNetCore.Errors
     public class BatchedRequestsNotSupportedError : GraphQL.Execution.RequestError
     {
         public BatchedRequestsNotSupportedError() { }
+    }
+    public class CsrfProtectionError : GraphQL.Execution.RequestError
+    {
+        public CsrfProtectionError(System.Collections.Generic.IEnumerable<string> headersRequired) { }
+        public CsrfProtectionError(System.Collections.Generic.IEnumerable<string> headersRequired, System.Exception innerException) { }
     }
     public class FileCountExceededError : GraphQL.Execution.RequestError, GraphQL.Server.Transports.AspNetCore.Errors.IHasPreferredStatusCode
     {
