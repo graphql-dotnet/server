@@ -18,8 +18,7 @@ Provides the following packages:
 
 | Package                                              | Downloads                                                                                                                                                                             | Version                                                                                                                                                                              | Description |
 |------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------|
-| GraphQL.Server.All                                   | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.All)](https://www.nuget.org/packages/GraphQL.Server.All)                                                                     | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.All)](https://www.nuget.org/packages/GraphQL.Server.All)                                                                     | Includes all the packages below, excluding the legacy authorization package, plus the `GraphQL.DataLoader` and `GraphQL.MemoryCache` packages |
-| GraphQL.Server.Authorization.AspNetCore (deprecated) | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Authorization.AspNetCore)](https://www.nuget.org/packages/GraphQL.Server.Authorization.AspNetCore)                           | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.Authorization.AspNetCore)](https://www.nuget.org/packages/GraphQL.Server.Authorization.AspNetCore)                           | Provides legacy authorization rule support (deprecated; please use GraphQL.Server.Transports.AspNetCore) |
+| GraphQL.Server.All                                   | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.All)](https://www.nuget.org/packages/GraphQL.Server.All)                                                                     | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.All)](https://www.nuget.org/packages/GraphQL.Server.All)                                                                     | Includes all the packages below, plus the `GraphQL.DataLoader` and `GraphQL.MemoryCache` packages |
 | GraphQL.Server.Transports.AspNetCore                 | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Transports.AspNetCore)](https://www.nuget.org/packages/GraphQL.Server.Transports.AspNetCore)                                 | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.Transports.AspNetCore)](https://www.nuget.org/packages/GraphQL.Server.Transports.AspNetCore)                                 | Provides GraphQL over HTTP/WebSocket server support on top of ASP.NET Core, plus authorization rule support |
 | GraphQL.Server.Ui.Altair                             | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Ui.Altair)](https://www.nuget.org/packages/GraphQL.Server.Ui.Altair)                                                         | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.Ui.Altair)](https://www.nuget.org/packages/GraphQL.Server.Ui.Altair)                                                         | Provides Altair UI middleware |
 | GraphQL.Server.Ui.Playground                         | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Ui.Playground)](https://www.nuget.org/packages/GraphQL.Server.Ui.Playground)                                                 | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.Ui.Playground)](https://www.nuget.org/packages/GraphQL.Server.Ui.Playground)                                                 | Provides Playground UI middleware |
@@ -33,6 +32,7 @@ Note that GitHub requires authentication to consume the feed. See more informati
 | :warning: When upgrading from prior versions, please remove references to these old packages :warning: |
 |-|
 | GraphQL.Server.Core |
+| GraphQL.Server.Authentication.AspNetCore |
 | GraphQL.Server.Transports.AspNetCore.NewtonsoftJson |
 | GraphQL.Server.Transports.AspNetCore.SystemTextJson |
 | GraphQL.Server.Transports.Subscriptions.Abstractions |
@@ -64,7 +64,10 @@ any policies or roles specified for input graph types, fields of input graph typ
 directives.  It skips validations for fields or fragments that are marked with the `@skip` or
 `@include` directives.
 
-See [migration notes](docs/migration/migration7.md) for changes from version 6.x.
+### Migration from older version
+
+- [v7 to v8 migration notes](docs/migration/migration8.md)
+- [v6 to v7 migration notes](docs/migration/migration7.md)
 
 ## Configuration
 
@@ -894,6 +897,10 @@ are long-lived, using scoped services within a user context builder will result 
 scoped services having a matching long lifetime.  You may wish to alleviate this by
 creating a service scope temporarily within your user context builder.
 
+For applications that service multiple schemas, you may register `IUserContextBuilder<TSchema>`
+to create a user context for a specific schema.  This is useful when you need to create
+a user context that is specific to a particular schema.
+
 ### Mutations within GET requests
 
 For security reasons and pursuant to current recommendations, mutation GraphQL requests
@@ -999,6 +1006,15 @@ using the `FormFileGraphType` scalar requires that the uploaded files be sent on
 via the `multipart/form-data` content type as attached files.  If you wish to also
 allow clients to send files as base-64 encoded strings, you can write a custom scalar
 better suited to your needs.
+
+### Native AOT support
+
+GraphQL.NET Server fully supports Native AOT publishing with .NET 8.0 and later.
+See [ASP.NET Core support for Native AOT](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/native-aot)
+for a list of features supported by .NET 8.0.  However, GraphQL.NET only provides limited
+support for Native AOT publishing due to its extensive use of reflection.  Please see
+[GraphQL.NET Ahead-of-time compilation](https://github.com/graphql-dotnet/graphql-dotnet?tab=readme-ov-file#ahead-of-time-compilation)
+for more information.
 
 ## Samples
 
