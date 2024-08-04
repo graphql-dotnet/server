@@ -213,12 +213,12 @@ namespace GraphQL.Server.Transports.AspNetCore.Errors
     public class FileCountExceededError : GraphQL.Execution.RequestError, GraphQL.Server.Transports.AspNetCore.Errors.IHasPreferredStatusCode
     {
         public FileCountExceededError() { }
-        public System.Net.HttpStatusCode PreferredStatusCode { get; }
+        public System.Net.HttpStatusCode PreferredStatusCode { get; set; }
     }
     public class FileSizeExceededError : GraphQL.Execution.RequestError, GraphQL.Server.Transports.AspNetCore.Errors.IHasPreferredStatusCode
     {
         public FileSizeExceededError() { }
-        public System.Net.HttpStatusCode PreferredStatusCode { get; }
+        public System.Net.HttpStatusCode PreferredStatusCode { get; set; }
     }
     public class HttpMethodValidationError : GraphQL.Validation.ValidationError
     {
