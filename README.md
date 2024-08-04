@@ -149,6 +149,27 @@ http://localhost:5000/graphql?query={hero}
 {"data":{"hero":"Luke Skywalker"}}
 ```
 
+### Basic options
+
+By default, the middleware will be installed with these configurable options:
+- GET, POST, and WebSocket requests are all enabled
+- Form content types are disabled, and cross-site request forgery (CSRF)
+  protection is enabled
+- There are no authentication or authorization requirements
+- The default response content type is `application/graphql-response+json`
+- The middleware will use the default schema instance
+
+To configure these options, pass a confiuguration delegate to the `UseGraphQL`
+method as demonstrated below:
+
+```csharp
+app.UseGraphQL("/graphql", opts => {
+    opts.ReadFormOnPost = true;
+});
+```
+
+Configuration of these options and more are further described below in this document.
+
 ### Configuration with endpoint routing
 
 To use endpoint routing, call `MapGraphQL` from inside the endpoint configuration
@@ -576,7 +597,7 @@ will reject requests that do not meet one of the following criteria:
   `application/x-www-form-urlencoded`, `multipart/form-data`, or `text/plain`.
 - The request includes a non-empty `GraphQL-Require-Preflight` header.
 
-To disable this behavior, set the `CsrfProtectionEnabled` option to `false` in the `GraphQLServerOptions`.
+To disable this behavior, set the `CsrfProtectionEnabled` option to `false`.
 
 ```csharp
 app.UseGraphQL("/graphql", config =>
@@ -696,7 +717,7 @@ methods allowing for different options for each configured endpoint.
 | `MaximumFileSize`                  | Sets the maximum file size allowed for GraphQL multipart requests. | unlimited |
 | `MaximumFileCount`                 | Sets the maximum number of files allowed for GraphQL multipart requests. | unlimited |
 | `ReadExtensionsFromQueryString`    | Enables reading extensions from the query string. | True |
-| `ReadFormOnPost`                   | Enables parsing of form data for POST requests (may have security implications). | True |
+| `ReadFormOnPost`                   | Enables parsing of form data for POST requests (may have security implications). | False |
 | `ReadQueryStringOnPost`            | Enables parsing the query string on POST requests. | True |
 | `ReadVariablesFromQueryString`     | Enables reading variables from the query string. | True |
 | `ValidationErrorsReturnBadRequest` | When enabled, GraphQL requests with validation errors have the HTTP status code set to 400 Bad Request. | True |
@@ -948,16 +969,13 @@ even when the CORS policy prohibits it, regardless of whether the sender has acc
 This situation exposes the system to security vulnerabilities, which should be carefully evaluated and
 mitigated to ensure the safe handling of GraphQL requests and maintain the integrity of the data.
 
-This functionality is activated by default to maintain backward compatibility, but it can be turned off by
-setting the `ReadFormOnPost` value to `false`.  The next major version of GraphQL.NET Server will have this
-feature disabled by default, enhancing security measures.
+To mitigate this potential security vulnerability, CSRF protection is enabled by default, requiring a
+`GraphQL-Require-Preflight` header to be sent with form data requests, which will trigger a CORS preflight
+request.  In addition, form data requests are disabled by default, as they are not recommended for typical
+use.
 
-Keep in mind that CORS pre-flight requests are also not executed for GET requests, potentially presenting a
-security risk.  However, GraphQL query operations usually do not alter data, and mutations are refused.
-Additionally, the response is not expected to be readable in the browser (unless CORS checks are successful),
-which helps alleviate this concern.
-
-GraphQL.NET Server supports two formats of `application/x-www-form-urlencoded` or `multipart/form-data` requests:
+To enable form data for POST request, set the `ReadFormOnPost` setting to `true`.  GraphQL.NET Server supports
+two formats of `application/x-www-form-urlencoded` or `multipart/form-data` requests:
 
 1. The following keys are read from the form data and used to populate the GraphQL request:
    - `query`: The GraphQL query string.
@@ -1032,8 +1050,9 @@ Please see the 'Upload' sample for a demonstration of this technique, which also
 demonstrates the use of the `MediaTypeAttribute` to restrict the allowable media
 types that will be accepted.  Note that using the `FormFileGraphType` scalar requires
 that the uploaded files be sent only via the `multipart/form-data` content type as
-attached files.  If you also wish to allow clients to send files as base-64 encoded
-strings, you can write a custom scalar better suited to your needs.
+attached files, with the `ReadFormOnPost` option enabled. If you also wish to allow
+clients to send files as base-64 encoded strings, you can write a custom scalar
+better suited to your needs.
 
 ### Native AOT support
 

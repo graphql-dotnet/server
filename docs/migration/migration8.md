@@ -18,6 +18,8 @@
   all form-POST requests.  To disable this feature, set the `CsrfProtectionEnabled` property on the
   `GraphQLMiddlewareOptions` class to `false`.  You may also configure the headers list by modifying
   the `CsrfProtectionHeaders` property on the same class.  See the readme for more details.
+- Form POST requests are disabled by default; to enable them, set the `ReadFormOnPost` setting
+  to `true`.
 
 ## Other changes
 
