@@ -600,18 +600,11 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
                 // if all errors being returned prefer the same status code, use that
                 if (result.Errors?.Count > 0 && result.Errors[0] is IHasPreferredStatusCode initialError)
                 {
-                    for (int i = 1; i < result.Errors.Count; i++)
-                    {
-                        if (result.Errors[i] is not IHasPreferredStatusCode error || error.PreferredStatusCode != initialError.PreferredStatusCode)
-                        {
-                            goto Continue;
-                        }
-                    }
-                    statusCode = initialError.PreferredStatusCode;
+                    if (result.Errors.All(e => e is IHasPreferredStatusCode e2 && e2.PreferredStatusCode == initialError.PreferredStatusCode))
+                        statusCode = initialError.PreferredStatusCode;
                 }
             }
         }
-    Continue:
         await WriteJsonResponseAsync(context, statusCode, result);
     }
 
