@@ -220,9 +220,10 @@ namespace GraphQL.Server.Transports.AspNetCore.Errors
         public FileSizeExceededError() { }
         public System.Net.HttpStatusCode PreferredStatusCode { get; set; }
     }
-    public class HttpMethodValidationError : GraphQL.Validation.ValidationError
+    public class HttpMethodValidationError : GraphQL.Validation.ValidationError, GraphQL.Server.Transports.AspNetCore.Errors.IHasPreferredStatusCode
     {
         public HttpMethodValidationError(GraphQLParser.ROM originalQuery, GraphQLParser.AST.ASTNode node, string message) { }
+        public System.Net.HttpStatusCode PreferredStatusCode { get; set; }
     }
     public interface IHasPreferredStatusCode
     {
