@@ -152,7 +152,7 @@ http://localhost:5000/graphql?query={hero}
 ### Basic options
 
 By default, the middleware will be installed with these configurable options:
-- GET, POST, and WebSocket support is enabled
+- GET, POST, and WebSocket requests are all enabled
 - Form content types are disabled, and cross-site request forgery (CSRF)
   protection is enabled
 - There are no authentication or authorization requirements
