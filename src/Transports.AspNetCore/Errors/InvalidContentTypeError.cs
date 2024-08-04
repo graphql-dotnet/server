@@ -1,4 +1,3 @@
-
 namespace GraphQL.Server.Transports.AspNetCore.Errors;
 
 /// <summary>
