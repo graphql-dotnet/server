@@ -66,9 +66,11 @@ public class GraphQLHttpMiddlewareOptions : IAuthorizationOptions
     /// alongside the request does not initiate a pre-flight CORS request.
     /// As a result, GraphQL.NET carries out the request and potentially modifies data,
     /// even if the CORS policy forbids it, irrespective of the sender's ability to access
-    /// the response.
+    /// the response.  With <see cref="CsrfProtectionEnabled"/> enabled, these requests
+    /// are blocked the request contains a non-empty header from the
+    /// <see cref="CsrfProtectionHeaders"/> list, providing a measure of protection.
     /// </remarks>
-    public bool ReadFormOnPost { get; set; } = true; // TODO: change to false for v9
+    public bool ReadFormOnPost { get; set; }
 
     /// <summary>
     /// Enables cross-site request forgery (CSRF) protection for both GET and POST requests.

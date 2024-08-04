@@ -60,7 +60,10 @@ public class StartupWithRouting
 
         app.UseEndpoints(endpoints =>
         {
-            endpoints.MapGraphQL<GraphQLHttpMiddlewareWithLogs<ChatSchema>>("/graphql", new GraphQLHttpMiddlewareOptions());
+            endpoints.MapGraphQL<GraphQLHttpMiddlewareWithLogs<ChatSchema>>("/graphql", new GraphQLHttpMiddlewareOptions()
+            {
+                ReadFormOnPost = true,
+            });
 
             endpoints.MapGraphQLPlayground(options: new PlaygroundOptions
             {

@@ -55,7 +55,10 @@ public class Startup
 
         app.UseWebSockets();
 
-        app.UseGraphQL<GraphQLHttpMiddlewareWithLogs<ChatSchema>>("/graphql", new GraphQLHttpMiddlewareOptions());
+        app.UseGraphQL<GraphQLHttpMiddlewareWithLogs<ChatSchema>>("/graphql", new GraphQLHttpMiddlewareOptions()
+        {
+            ReadFormOnPost = true,
+        });
 
         app.UseGraphQLPlayground(options: new PlaygroundOptions
         {
