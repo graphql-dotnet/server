@@ -22,7 +22,7 @@
   to `true`.
 - Validation errors such as authentication errors may now be returned with a 'preferred' status
   code instead of a 400 status code.  This occurs when (1) the response would otherwise contain
-  a 400 status code (i.e. the execution of the document has not yet begun), and (2) all errors
+  a 400 status code (e.g. the execution of the document has not yet begun), and (2) all errors
   in the response prefer the same status code.  For practical purposes, this means that the included
   errors triggered by the authorization validation rule will now return 401 or 403 when appropriate.
 
