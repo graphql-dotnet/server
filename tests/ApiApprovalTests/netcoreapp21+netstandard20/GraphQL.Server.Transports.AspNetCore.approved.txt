@@ -210,12 +210,13 @@ namespace GraphQL.Server.Transports.AspNetCore
 }
 namespace GraphQL.Server.Transports.AspNetCore.Errors
 {
-    public class AccessDeniedError : GraphQL.Validation.ValidationError
+    public class AccessDeniedError : GraphQL.Validation.ValidationError, GraphQL.Server.Transports.AspNetCore.Errors.IHasPreferredStatusCode
     {
         public AccessDeniedError(string resource) { }
         public AccessDeniedError(string resource, GraphQLParser.ROM originalQuery, params GraphQLParser.AST.ASTNode[] nodes) { }
         public Microsoft.AspNetCore.Authorization.AuthorizationResult? PolicyAuthorizationResult { get; set; }
         public string? PolicyRequired { get; set; }
+        public System.Net.HttpStatusCode PreferredStatusCode { get; set; }
         public System.Collections.Generic.List<string>? RolesRequired { get; set; }
     }
     public class BatchedRequestsNotSupportedError : GraphQL.Execution.RequestError
@@ -230,12 +231,12 @@ namespace GraphQL.Server.Transports.AspNetCore.Errors
     public class FileCountExceededError : GraphQL.Execution.RequestError, GraphQL.Server.Transports.AspNetCore.Errors.IHasPreferredStatusCode
     {
         public FileCountExceededError() { }
-        public System.Net.HttpStatusCode PreferredStatusCode { get; }
+        public System.Net.HttpStatusCode PreferredStatusCode { get; set; }
     }
     public class FileSizeExceededError : GraphQL.Execution.RequestError, GraphQL.Server.Transports.AspNetCore.Errors.IHasPreferredStatusCode
     {
         public FileSizeExceededError() { }
-        public System.Net.HttpStatusCode PreferredStatusCode { get; }
+        public System.Net.HttpStatusCode PreferredStatusCode { get; set; }
     }
     public class HttpMethodValidationError : GraphQL.Validation.ValidationError
     {
@@ -245,10 +246,11 @@ namespace GraphQL.Server.Transports.AspNetCore.Errors
     {
         System.Net.HttpStatusCode PreferredStatusCode { get; }
     }
-    public class InvalidContentTypeError : GraphQL.Execution.RequestError
+    public class InvalidContentTypeError : GraphQL.Execution.RequestError, GraphQL.Server.Transports.AspNetCore.Errors.IHasPreferredStatusCode
     {
         public InvalidContentTypeError() { }
         public InvalidContentTypeError(string message) { }
+        public System.Net.HttpStatusCode PreferredStatusCode { get; set; }
     }
     public class InvalidMapError : GraphQL.Execution.RequestError
     {

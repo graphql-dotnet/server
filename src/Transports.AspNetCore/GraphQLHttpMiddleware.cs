@@ -273,7 +273,7 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
                     }
                     catch (ExecutionError ex) // catches FileCountExceededError, FileSizeExceededError, InvalidMapError
                     {
-                        await WriteErrorResponseAsync(context, ex is IHasPreferredStatusCode sc ? sc.PreferredStatusCode : HttpStatusCode.BadRequest, ex);
+                        await WriteErrorResponseAsync(context, ex);
                         return null;
                     }
                     catch (Exception ex) // catches JSON deserialization exceptions
@@ -1067,19 +1067,19 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
     /// Writes an access denied message to the output with status code <c>401 Unauthorized</c> when the user is not authenticated.
     /// </summary>
     protected virtual Task HandleNotAuthenticatedAsync(HttpContext context, RequestDelegate next)
-        => WriteErrorResponseAsync(context, HttpStatusCode.Unauthorized, new AccessDeniedError("schema"));
+        => WriteErrorResponseAsync(context, new AccessDeniedError("schema") { PreferredStatusCode = HttpStatusCode.Unauthorized });
 
     /// <summary>
     /// Writes an access denied message to the output with status code <c>403 Forbidden</c> when the user fails the role checks.
     /// </summary>
     protected virtual Task HandleNotAuthorizedRoleAsync(HttpContext context, RequestDelegate next)
-        => WriteErrorResponseAsync(context, HttpStatusCode.Forbidden, new AccessDeniedError("schema") { RolesRequired = _options.AuthorizedRoles });
+        => WriteErrorResponseAsync(context, new AccessDeniedError("schema") { RolesRequired = _options.AuthorizedRoles });
 
     /// <summary>
     /// Writes an access denied message to the output with status code <c>403 Forbidden</c> when the user fails the policy check.
     /// </summary>
     protected virtual Task HandleNotAuthorizedPolicyAsync(HttpContext context, RequestDelegate next, AuthorizationResult authorizationResult)
-        => WriteErrorResponseAsync(context, HttpStatusCode.Forbidden, new AccessDeniedError("schema") { PolicyRequired = _options.AuthorizedPolicy, PolicyAuthorizationResult = authorizationResult });
+        => WriteErrorResponseAsync(context, new AccessDeniedError("schema") { PolicyRequired = _options.AuthorizedPolicy, PolicyAuthorizationResult = authorizationResult });
 
     /// <summary>
     /// Writes a '400 JSON body text could not be parsed.' message to the output.
@@ -1116,7 +1116,7 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
     /// Writes a '415 Invalid Content-Type header: could not be parsed.' message to the output.
     /// </summary>
     protected virtual Task HandleContentTypeCouldNotBeParsedErrorAsync(HttpContext context, RequestDelegate next)
-        => WriteErrorResponseAsync(context, HttpStatusCode.UnsupportedMediaType, new InvalidContentTypeError($"value '{context.Request.ContentType}' could not be parsed."));
+        => WriteErrorResponseAsync(context, new InvalidContentTypeError($"value '{context.Request.ContentType}' could not be parsed."));
 
     /// <summary>
     /// Writes a '415 Invalid Content-Type header: non-supported media type.' message to the output.
@@ -1124,7 +1124,6 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
     protected virtual Task HandleInvalidContentTypeErrorAsync(HttpContext context, RequestDelegate next)
         => WriteErrorResponseAsync(
             context,
-            HttpStatusCode.UnsupportedMediaType,
             _options.ReadFormOnPost
             ? new InvalidContentTypeError($"non-supported media type '{context.Request.ContentType}'. Must be '{MEDIATYPE_JSON}', '{MEDIATYPE_GRAPHQL}' or a form body.")
             : new InvalidContentTypeError($"non-supported media type '{context.Request.ContentType}'. Must be '{MEDIATYPE_JSON}' or '{MEDIATYPE_GRAPHQL}'.")
