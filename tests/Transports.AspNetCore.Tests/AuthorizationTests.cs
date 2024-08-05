@@ -765,7 +765,7 @@ public class AuthorizationTests : IDisposable
 
         using var client = server.CreateClient();
         using var response = await client.GetAsync("/graphql?query={ parent { child } }");
-        response.StatusCode.ShouldBe(authenticated ? System.Net.HttpStatusCode.OK : System.Net.HttpStatusCode.BadRequest);
+        response.StatusCode.ShouldBe(authenticated ? System.Net.HttpStatusCode.OK : System.Net.HttpStatusCode.Unauthorized);
         var actual = await response.Content.ReadAsStringAsync();
 
         if (authenticated)

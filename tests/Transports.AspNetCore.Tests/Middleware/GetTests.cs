@@ -1,4 +1,6 @@
 using System.Net;
+using GraphQL.Server.Transports.AspNetCore.Errors;
+using GraphQL.Validation;
 
 namespace Tests.Middleware;
 
@@ -6,7 +8,7 @@ public class GetTests : IDisposable
 {
     private GraphQLHttpMiddlewareOptions _options = null!;
     private GraphQLHttpMiddlewareOptions _options2 = null!;
-    private readonly Action<ExecutionOptions> _configureExecution = _ => { };
+    private Action<ExecutionOptions> _configureExecution = _ => { };
     private readonly TestServer _server;
 
     public GetTests()
@@ -55,6 +57,14 @@ public class GetTests : IDisposable
     {
         public static string? Ext(IResolveFieldContext context)
             => context.InputExtensions.TryGetValue("test", out var value) ? value?.ToString() : null;
+
+        public static string? CustomError() => throw new CustomError();
+    }
+
+    public class CustomError : ValidationError, IHasPreferredStatusCode
+    {
+        public CustomError() : base("Custom error") { }
+        public HttpStatusCode PreferredStatusCode => HttpStatusCode.NotAcceptable;
     }
 
     public void Dispose() => _server.Dispose();
@@ -248,6 +258,67 @@ public class GetTests : IDisposable
         var client = _server.CreateClient();
         using var response = await client.GetAsync("/graphql?query={count}");
         response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task PreferredStatusCode_ExecutionErrors(bool badRequest)
+    {
+        _options2.ValidationErrorsReturnBadRequest = badRequest;
+        var client = _server.CreateClient();
+        using var response = await client.GetAsync("/graphql2?query={customError}");
+        await response.ShouldBeAsync(
+            HttpStatusCode.OK,
+            """{"errors":[{"message":"Custom error","locations":[{"line":1,"column":2}],"path":["customError"],"extensions":{"code":"CUSTOM","codes":["CUSTOM"]}}],"data":{"customError":null}}""");
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task PreferredStatusCode_ValidationErrors(bool badRequest)
+    {
+        _options2.ValidationErrorsReturnBadRequest = badRequest;
+        var mockRule = new Mock<IValidationRule>(MockBehavior.Loose);
+        mockRule.Setup(x => x.GetPreNodeVisitorAsync(It.IsAny<ValidationContext>())).Returns<ValidationContext>(context =>
+        {
+            context.ReportError(new CustomError());
+            context.ReportError(new CustomError());
+            return default;
+        });
+        _configureExecution = o =>
+        {
+            o.ValidationRules = (o.ValidationRules ?? DocumentValidator.CoreRules).Append(mockRule.Object);
+        };
+        var client = _server.CreateClient();
+        using var response = await client.GetAsync("/graphql2?query={__typename}");
+        await response.ShouldBeAsync(
+            badRequest ? HttpStatusCode.NotAcceptable : HttpStatusCode.OK,
+            """{"errors":[{"message":"Custom error","extensions":{"code":"CUSTOM","codes":["CUSTOM"]}},{"message":"Custom error","extensions":{"code":"CUSTOM","codes":["CUSTOM"]}}]}""");
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task PreferredStatusCode_MixedValidationErrors(bool badRequest)
+    {
+        _options2.ValidationErrorsReturnBadRequest = badRequest;
+        var mockRule = new Mock<IValidationRule>(MockBehavior.Loose);
+        mockRule.Setup(x => x.GetPreNodeVisitorAsync(It.IsAny<ValidationContext>())).Returns<ValidationContext>(context =>
+        {
+            context.ReportError(new CustomError());
+            context.ReportError(new ValidationError("test"));
+            return default;
+        });
+        _configureExecution = o =>
+        {
+            o.ValidationRules = (o.ValidationRules ?? DocumentValidator.CoreRules).Append(mockRule.Object);
+        };
+        var client = _server.CreateClient();
+        using var response = await client.GetAsync("/graphql2?query={__typename}");
+        await response.ShouldBeAsync(
+            badRequest ? HttpStatusCode.BadRequest : HttpStatusCode.OK,
+            """{"errors":[{"message":"Custom error","extensions":{"code":"CUSTOM","codes":["CUSTOM"]}},{"message":"test","extensions":{"code":"VALIDATION_ERROR","codes":["VALIDATION_ERROR"]}}]}""");
     }
 
     [Theory]

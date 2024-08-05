@@ -43,8 +43,8 @@ public class GraphQLHttpMiddlewareOptions : IAuthorizationOptions
     public bool ExecuteBatchedRequestsInParallel { get; set; } = true;
 
     /// <summary>
-    /// When enabled, GraphQL requests with validation errors
-    /// have the HTTP status code set to 400 Bad Request.
+    /// When enabled, GraphQL requests with validation errors have the HTTP status code
+    /// set to 400 Bad Request or the error status code dictated by the error.
     /// GraphQL requests with execution errors are unaffected.
     /// <br/><br/>
     /// Does not apply to batched or WebSocket requests.

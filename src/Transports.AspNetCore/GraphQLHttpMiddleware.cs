@@ -584,12 +584,26 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
         var userContext = await BuildUserContextAsync(context, null);
         var result = await ExecuteRequestAsync(context, gqlRequest, context.RequestServices, userContext);
         HttpStatusCode statusCode = HttpStatusCode.OK;
+        // when the request fails validation (this logic does not apply to execution errors)
         if (!result.Executed)
         {
+            // always return 405 Method Not Allowed when applicable, as this is a transport problem, not really a validation error,
+            // even though it occurs during validation (because the query text must be parsed to know if the request is a query or a mutation)
             if (result.Errors?.Any(e => e is HttpMethodValidationError) == true)
+            {
                 statusCode = HttpStatusCode.MethodNotAllowed;
+            }
+            // otherwise use 4xx error codes when configured to do so
             else if (_options.ValidationErrorsReturnBadRequest)
+            {
                 statusCode = HttpStatusCode.BadRequest;
+                // if all errors being returned prefer the same status code, use that
+                if (result.Errors?.Count > 0 && result.Errors[0] is IHasPreferredStatusCode initialError)
+                {
+                    if (result.Errors.All(e => e is IHasPreferredStatusCode e2 && e2.PreferredStatusCode == initialError.PreferredStatusCode))
+                        statusCode = initialError.PreferredStatusCode;
+                }
+            }
         }
         await WriteJsonResponseAsync(context, statusCode, result);
     }
