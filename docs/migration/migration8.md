@@ -7,8 +7,9 @@
 - Cross-site request forgery (CSRF) protection has been added for both GET and POST requests,
   enabled by default.
 - Status codes for validation errors are now, by default, determined by the response content type,
-  and for authentication errors may return a 401 or 403 status code.  See the breaking changes
-  section below for more information.
+  and for authentication errors may return a 401 or 403 status code.  These changes are purusant
+  to the [GraphQL over HTTP specification](https://github.com/graphql/graphql-over-http/blob/main/spec/GraphQLOverHTTP.md).
+  See the breaking changes section below for more information.
 
 ## Breaking changes
 
