@@ -720,8 +720,10 @@ methods allowing for different options for each configured endpoint.
 | `ReadFormOnPost`                   | Enables parsing of form data for POST requests (may have security implications). | False |
 | `ReadQueryStringOnPost`            | Enables parsing the query string on POST requests. | True |
 | `ReadVariablesFromQueryString`     | Enables reading variables from the query string. | True |
-| `ValidationErrorsReturnBadRequest` | When enabled, GraphQL requests with validation errors have the HTTP status code set to 400 Bad Request. | True |
+| `ValidationErrorsReturnBadRequest` | When enabled, GraphQL requests with validation errors have the HTTP status code set to 400 Bad Request. | Automatic[^1] |
 | `WebSockets`                       | Returns a set of configuration properties for WebSocket connections. | |
+
+[^1]: Automatic mode will return a 200 OK status code when the returned content type is `application/json`; otherwise 400 or as defined by the error.
 
 #### GraphQLWebSocketOptions
 

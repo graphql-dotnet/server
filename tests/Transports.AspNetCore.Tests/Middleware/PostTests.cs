@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Http.Headers;
 using GraphQL.Server.Transports.AspNetCore.Errors;
 using GraphQL.Validation;
 
@@ -535,13 +536,27 @@ public class PostTests : IDisposable
     }
 
     [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public async Task WithError(bool badRequest)
+    [InlineData(false, false, "application/graphql-response+json", "application/graphql-response+json; charset=utf-8")]
+    [InlineData(false, false, "application/json", "application/json; charset=utf-8")]
+    [InlineData(true, true, "application/graphql-response+json", "application/graphql-response+json; charset=utf-8")]
+    [InlineData(true, true, "application/json", "application/json; charset=utf-8")]
+    [InlineData(null, true, "application/graphql-response+json", "application/graphql-response+json; charset=utf-8")]
+    [InlineData(null, true, "application/graphql-response+json; charset=utf-8", "application/graphql-response+json; charset=utf-8")]
+    [InlineData(null, true, "text/text", "application/graphql-response+json; charset=utf-8")]
+    [InlineData(null, false, "application/json; charset=utf-8", "application/json; charset=utf-8")]
+    [InlineData(null, false, "application/json", "application/json; charset=utf-8")]
+    public async Task WithError(bool? badRequest, bool expectBadRequest, string accept, string contentType)
     {
         _options.ValidationErrorsReturnBadRequest = badRequest;
-        using var response = await PostRequestAsync(new() { Query = "{invalid}" });
-        await response.ShouldBeAsync(badRequest, """{"errors":[{"message":"Cannot query field \u0027invalid\u0027 on type \u0027Query\u0027.","locations":[{"line":1,"column":2}],"extensions":{"code":"FIELDS_ON_CORRECT_TYPE","codes":["FIELDS_ON_CORRECT_TYPE"],"number":"5.3.1"}}]}""");
+        var client = _server.CreateClient();
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/graphql");
+        request.Content = new StringContent(new GraphQLSerializer().Serialize(new GraphQLRequest { Query = "{invalid}" }), Encoding.UTF8, "application/json");
+        request.Headers.Accept.Add(MediaTypeWithQualityHeaderValue.Parse(accept));
+        using var response = await client.SendAsync(request);
+        await response.ShouldBeAsync(
+            contentType,
+            expectBadRequest ? HttpStatusCode.BadRequest : HttpStatusCode.OK,
+            """{"errors":[{"message":"Cannot query field \u0027invalid\u0027 on type \u0027Query\u0027.","locations":[{"line":1,"column":2}],"extensions":{"code":"FIELDS_ON_CORRECT_TYPE","codes":["FIELDS_ON_CORRECT_TYPE"],"number":"5.3.1"}}]}""");
     }
 
     [Fact]
