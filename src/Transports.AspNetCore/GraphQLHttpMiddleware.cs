@@ -3,7 +3,6 @@
 using System.Collections;
 using System.Diagnostics;
 using System.Globalization;
-using System.Net.Mime;
 using System.Text;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Primitives;
