@@ -43,13 +43,11 @@ namespace GraphQL.Server.Transports.AspNetCore
         protected abstract System.Threading.Tasks.ValueTask<Microsoft.AspNetCore.Authorization.AuthorizationResult> AuthorizeAsync(string policy);
         public virtual System.Threading.Tasks.ValueTask EnterAsync(GraphQLParser.AST.ASTNode node, GraphQL.Validation.ValidationContext context) { }
         protected virtual string GenerateResourceDescription(GraphQL.Server.Transports.AspNetCore.AuthorizationVisitorBase.ValidationInfo info) { }
-        protected System.Collections.Generic.List<GraphQLParser.AST.GraphQLFragmentDefinition>? GetRecursivelyReferencedUsedFragments(GraphQL.Validation.ValidationContext validationContext) { }
         protected virtual void HandleNodeNotAuthorized(GraphQL.Server.Transports.AspNetCore.AuthorizationVisitorBase.ValidationInfo info) { }
         protected virtual void HandleNodeNotInPolicy(GraphQL.Server.Transports.AspNetCore.AuthorizationVisitorBase.ValidationInfo info, string policy, Microsoft.AspNetCore.Authorization.AuthorizationResult authorizationResult) { }
         protected virtual void HandleNodeNotInRoles(GraphQL.Server.Transports.AspNetCore.AuthorizationVisitorBase.ValidationInfo info, System.Collections.Generic.List<string> roles) { }
         protected abstract bool IsInRole(string role);
         public virtual System.Threading.Tasks.ValueTask LeaveAsync(GraphQLParser.AST.ASTNode node, GraphQL.Validation.ValidationContext context) { }
-        protected virtual bool SkipNode(GraphQLParser.AST.ASTNode node, GraphQL.Validation.ValidationContext context) { }
         protected virtual System.Threading.Tasks.ValueTask<bool> ValidateAsync(GraphQL.Server.Transports.AspNetCore.AuthorizationVisitorBase.ValidationInfo info) { }
         public virtual System.Threading.Tasks.ValueTask<bool> ValidateSchemaAsync(GraphQL.Validation.ValidationContext context) { }
         public readonly struct ValidationInfo : System.IEquatable<GraphQL.Server.Transports.AspNetCore.AuthorizationVisitorBase.ValidationInfo>
