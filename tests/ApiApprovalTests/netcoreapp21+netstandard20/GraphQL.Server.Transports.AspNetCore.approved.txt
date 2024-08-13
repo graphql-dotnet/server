@@ -48,7 +48,6 @@ namespace GraphQL.Server.Transports.AspNetCore
         protected virtual void HandleNodeNotInRoles(GraphQL.Server.Transports.AspNetCore.AuthorizationVisitorBase.ValidationInfo info, System.Collections.Generic.List<string> roles) { }
         protected abstract bool IsInRole(string role);
         public virtual System.Threading.Tasks.ValueTask LeaveAsync(GraphQLParser.AST.ASTNode node, GraphQL.Validation.ValidationContext context) { }
-        protected virtual bool SkipNode(GraphQLParser.AST.ASTNode node, GraphQL.Validation.ValidationContext context) { }
         protected virtual System.Threading.Tasks.ValueTask<bool> ValidateAsync(GraphQL.Server.Transports.AspNetCore.AuthorizationVisitorBase.ValidationInfo info) { }
         public virtual System.Threading.Tasks.ValueTask<bool> ValidateSchemaAsync(GraphQL.Validation.ValidationContext context) { }
         public readonly struct ValidationInfo : System.IEquatable<GraphQL.Server.Transports.AspNetCore.AuthorizationVisitorBase.ValidationInfo>

@@ -37,6 +37,8 @@
 - The `AuthorizationVisitorBase.GetRecursivelyReferencedUsedFragments` method has been removed as
   `ValidationContext` now provides a overload to `GetRecursivelyReferencedFragments` which will only
   return fragments in use by the specified operation.
+- The `AuthorizationVisitorBase.SkipNode` method has been removed as `ValidationContext` now provides
+  a `ShouldIncludeNode` method.
 
 ## Other changes
 
