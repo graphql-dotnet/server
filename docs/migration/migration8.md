@@ -35,7 +35,7 @@
   errors triggered by the authorization validation rule will now return 401 or 403 when appropriate.
 - The `SelectResponseContentType` method now returns a `MediaTypeHeaderValue` instead of a string.
 - The `AuthorizationVisitorBase.GetRecursivelyReferencedUsedFragments` method has been removed as
-  `ValidationContext` now provides a overload to `GetRecursivelyReferencedFragments` which will only
+  `ValidationContext` now provides an overload to `GetRecursivelyReferencedFragments` which will only
   return fragments in use by the specified operation.
 - The `AuthorizationVisitorBase.SkipNode` method has been removed as `ValidationContext` now provides
   a `ShouldIncludeNode` method.
