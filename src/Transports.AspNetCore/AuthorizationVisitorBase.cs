@@ -8,7 +8,7 @@ public abstract partial class AuthorizationVisitorBase : INodeVisitor
     {
         if (context == null)
             throw new ArgumentNullException(nameof(context));
-        _fragmentDefinitionsToCheck = GetRecursivelyReferencedUsedFragments(context);
+        _fragmentDefinitionsToCheck = context.GetRecursivelyReferencedFragments(context.Operation, true);
     }
 
     private bool _checkTree; // used to skip processing fragments or operations that do not apply

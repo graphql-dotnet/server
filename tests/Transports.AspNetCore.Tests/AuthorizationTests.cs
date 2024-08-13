@@ -545,8 +545,9 @@ public class AuthorizationTests : IDisposable
     public void Constructors()
     {
         Should.Throw<ArgumentNullException>(() => new AuthorizationVisitor(null!, _principal, Mock.Of<IAuthorizationService>()));
-        Should.Throw<ArgumentNullException>(() => new AuthorizationVisitor(new ValidationContext(), null!, Mock.Of<IAuthorizationService>()));
-        Should.Throw<ArgumentNullException>(() => new AuthorizationVisitor(new ValidationContext(), _principal, null!));
+        var context = new ValidationContext() { Operation = new(new([])), Document = new([]) };
+        Should.Throw<ArgumentNullException>(() => new AuthorizationVisitor(context, null!, Mock.Of<IAuthorizationService>()));
+        Should.Throw<ArgumentNullException>(() => new AuthorizationVisitor(context, _principal, null!));
     }
 
     [Theory]
