@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="GraphQL" Version="$(GraphQLVersion)" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Transports.AspNetCore\Transports.AspNetCore.csproj" />
   </ItemGroup>
 
