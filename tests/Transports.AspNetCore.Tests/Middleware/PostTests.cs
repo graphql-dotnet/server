@@ -445,7 +445,7 @@ public class PostTests : IDisposable
     [InlineData(true)]
     public async Task FormUrlEncoded_DeserializationError(bool badRequest)
     {
-        _options.ValidationErrorsReturnBadRequest = badRequest;
+        _options2.ValidationErrorsReturnBadRequest = badRequest;
         _options2.ReadFormOnPost = true;
         var client = _server.CreateClient();
         var content = new FormUrlEncodedContent(new[] {
