@@ -1213,6 +1213,7 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
         Variables = _options.ReadVariablesFromQueryString && queryCollection.TryGetValue(VARIABLES_KEY, out var variablesValues) ? _serializer.Deserialize<Inputs>(variablesValues[0]) : null,
         Extensions = _options.ReadExtensionsFromQueryString && queryCollection.TryGetValue(EXTENSIONS_KEY, out var extensionsValues) ? _serializer.Deserialize<Inputs>(extensionsValues[0]) : null,
         OperationName = queryCollection.TryGetValue(OPERATION_NAME_KEY, out var operationNameValues) ? operationNameValues[0] : null,
+        DocumentId = queryCollection.TryGetValue(DOCUMENT_ID_KEY, out var documentIdValues) ? documentIdValues[0] : null,
     };
 
     private GraphQLRequest DeserializeFromFormBody(IFormCollection formCollection) => new()
