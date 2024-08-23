@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Headers;
+using GraphQL.PersistedDocuments;
 using GraphQL.Server.Transports.AspNetCore.Errors;
 using GraphQL.Validation;
 
@@ -10,6 +11,7 @@ public class PostTests : IDisposable
     private GraphQLHttpMiddlewareOptions _options = null!;
     private GraphQLHttpMiddlewareOptions _options2 = null!;
     private Action<ExecutionOptions> _configureExecution = _ => { };
+    private bool _enablePersistedDocuments = true;
     private readonly TestServer _server;
 
     public PostTests()
@@ -18,15 +20,27 @@ public class PostTests : IDisposable
         hostBuilder.ConfigureServices(services =>
         {
             services.AddSingleton<Chat.IChat, Chat.Chat>();
-            services.AddGraphQL(b => b
-                .AddAutoSchema<Chat.Query>(s => s
-                    .WithMutation<Chat.Mutation>()
-                    .WithSubscription<Chat.Subscription>())
-                .AddSchema<Schema2>()
-                .AddAutoClrMappings()
-                .AddFormFileGraphType()
-                .AddSystemTextJson()
-                .UsePersistedDocuments(o =>
+            services.AddGraphQL(b =>
+            {
+                b
+                    .AddAutoSchema<Chat.Query>(s => s
+                        .WithMutation<Chat.Mutation>()
+                        .WithSubscription<Chat.Subscription>())
+                    .AddSchema<Schema2>()
+                    .AddAutoClrMappings()
+                    .AddFormFileGraphType()
+                    .AddSystemTextJson()
+                    .ConfigureExecution((options, next) =>
+                    {
+                        if (_enablePersistedDocuments)
+                        {
+                            var handler = options.RequestServices!.GetRequiredService<PersistedDocumentHandler>();
+                            return handler.ExecuteAsync(options, next);
+                        }
+                        return next(options);
+                    })
+                    .ConfigureExecutionOptions(o => _configureExecution(o));
+                b.Services.Configure<PersistedDocumentOptions>(o =>
                 {
                     o.AllowOnlyPersistedDocuments = false;
                     o.AllowedPrefixes.Add("test");
@@ -34,8 +48,9 @@ public class PostTests : IDisposable
                         prefix == "test" && payload == "abc" ? new("{count}") :
                         prefix == "test" && payload == "form" ? new("query op1{ext} query op2($test:String!){ext var(test:$test)}") :
                         default;
-                })
-                .ConfigureExecutionOptions(o => _configureExecution(o)));
+                });
+            });
+            services.AddSingleton<PersistedDocumentHandler>();
 #if NETCOREAPP2_1 || NET48
             services.AddHostApplicationLifetime();
 #endif
@@ -335,17 +350,17 @@ public class PostTests : IDisposable
         400, "{\"errors\":[{\"message\":\"Invalid map path. Map target cannot be null.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
     // invalid map keys
     [InlineData(40, null, "{\"\":[\"0.variables.arg\"]}", false, false,
-        400, "{\"errors\":[{\"message\":\"Invalid map path. Map key cannot be query, operationName, variables, extensions, operations or map.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Map key cannot be query, operationName, variables, extensions, documentId, operations or map.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
     [InlineData(41, null, "{\"query\":[\"0.variables.arg\"]}", false, false,
-        400, "{\"errors\":[{\"message\":\"Invalid map path. Map key cannot be query, operationName, variables, extensions, operations or map.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Map key cannot be query, operationName, variables, extensions, documentId, operations or map.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
     [InlineData(42, null, "{\"variables\":[\"0.variables.arg\"]}", false, false,
-        400, "{\"errors\":[{\"message\":\"Invalid map path. Map key cannot be query, operationName, variables, extensions, operations or map.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Map key cannot be query, operationName, variables, extensions, documentId, operations or map.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
     [InlineData(43, null, "{\"extensions\":[\"0.variables.arg\"]}", false, false,
-        400, "{\"errors\":[{\"message\":\"Invalid map path. Map key cannot be query, operationName, variables, extensions, operations or map.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Map key cannot be query, operationName, variables, extensions, documentId, operations or map.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
     [InlineData(44, null, "{\"operationName\":[\"0.variables.arg\"]}", false, false,
-        400, "{\"errors\":[{\"message\":\"Invalid map path. Map key cannot be query, operationName, variables, extensions, operations or map.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Map key cannot be query, operationName, variables, extensions, documentId, operations or map.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
     [InlineData(45, null, "{\"map\":[\"0.variables.arg\"]}", false, false,
-        400, "{\"errors\":[{\"message\":\"Invalid map path. Map key cannot be query, operationName, variables, extensions, operations or map.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Map key cannot be query, operationName, variables, extensions, documentId, operations or map.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
     // missing referenced file
     [InlineData(50, null, "{\"file0\":[\"0.variables.arg\"]}", false, false,
         400, "{\"errors\":[{\"message\":\"Invalid map path. Map key does not refer to an uploaded file.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
@@ -682,13 +697,18 @@ public class PostTests : IDisposable
     }
 
     [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public async Task NoQuery(bool badRequest)
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    public async Task NoQuery(bool badRequest, bool usePersistedDocumentHandler)
     {
+        _enablePersistedDocuments = usePersistedDocumentHandler;
         _options.ValidationErrorsReturnBadRequest = badRequest;
         using var response = await PostJsonAsync("{}");
-        await response.ShouldBeAsync(badRequest, """{"errors":[{"message":"GraphQL query is missing.","extensions":{"code":"QUERY_MISSING","codes":["QUERY_MISSING"]}}]}""");
+        await response.ShouldBeAsync(badRequest, usePersistedDocumentHandler
+            ? """{"errors":[{"message":"The request must have a documentId parameter.","extensions":{"code":"DOCUMENT_ID_MISSING","codes":["DOCUMENT_ID_MISSING"]}}]}"""
+            : """{"errors":[{"message":"GraphQL query is missing.","extensions":{"code":"QUERY_MISSING","codes":["QUERY_MISSING"]}}]}""");
     }
 
     [Theory]
@@ -696,6 +716,7 @@ public class PostTests : IDisposable
     [InlineData(true)]
     public async Task NullRequest(bool badRequest)
     {
+        _enablePersistedDocuments = false;
         _options.ValidationErrorsReturnBadRequest = badRequest;
         using var response = await PostJsonAsync("null");
         await response.ShouldBeAsync(badRequest, """{"errors":[{"message":"GraphQL query is missing.","extensions":{"code":"QUERY_MISSING","codes":["QUERY_MISSING"]}}]}""");
