@@ -26,6 +26,15 @@ public class PostTests : IDisposable
                 .AddAutoClrMappings()
                 .AddFormFileGraphType()
                 .AddSystemTextJson()
+                .UsePersistedDocuments(o =>
+                {
+                    o.AllowOnlyPersistedDocuments = false;
+                    o.AllowedPrefixes.Add("test");
+                    o.GetQueryDelegate = (options, prefix, payload) =>
+                        prefix == "test" && payload == "abc" ? new("{count}") :
+                        prefix == "test" && payload == "form" ? new("query op1{ext} query op2($test:String!){ext var(test:$test)}") :
+                        default;
+                })
                 .ConfigureExecutionOptions(o => _configureExecution(o)));
 #if NETCOREAPP2_1 || NET48
             services.AddHostApplicationLifetime();
@@ -125,6 +134,13 @@ public class PostTests : IDisposable
         await response.ShouldBeAsync("""{"data":{"count":0}}""");
     }
 
+    [Fact]
+    public async Task PersistedDocument_Simple()
+    {
+        using var response = await PostRequestAsync(new() { DocumentId = "test:abc" });
+        await response.ShouldBeAsync("""{"data":{"count":0}}""");
+    }
+
 #if NET5_0_OR_GREATER
     [Fact]
     public async Task AltCharset()
@@ -159,26 +175,39 @@ public class PostTests : IDisposable
 #endif
 
     [Theory]
-    [InlineData(true, true)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(false, false)]
-    public async Task FormMultipart_Legacy(bool requireCsrf, bool supplyCsrf)
+    [InlineData(true, true, false)]
+    [InlineData(true, false, false)]
+    [InlineData(false, true, false)]
+    [InlineData(false, false, false)]
+    [InlineData(true, true, true)]
+    [InlineData(true, false, true)]
+    [InlineData(false, true, true)]
+    [InlineData(false, false, true)]
+    public async Task FormMultipart_Legacy(bool requireCsrf, bool supplyCsrf, bool useDocumentId)
     {
         _options2.ReadFormOnPost = true;
         if (!requireCsrf)
             _options2.CsrfProtectionEnabled = false;
         var client = _server.CreateClient();
         var content = new MultipartFormDataContent();
-        var queryContent = new StringContent("query op1{ext} query op2($test:String!){ext var(test:$test)}");
-        queryContent.Headers.ContentType = new("application/graphql");
+        if (!useDocumentId)
+        {
+            var queryContent = new StringContent("query op1{ext} query op2($test:String!){ext var(test:$test)}");
+            queryContent.Headers.ContentType = new("application/graphql");
+            content.Add(queryContent, "query");
+        }
+        else
+        {
+            var documentIdContent = new StringContent("test:form");
+            documentIdContent.Headers.ContentType = new("text/text");
+            content.Add(documentIdContent, "documentId");
+        }
         var variablesContent = new StringContent("""{"test":"1"}""");
         variablesContent.Headers.ContentType = new("application/json");
         var extensionsContent = new StringContent("""{"test":"2"}""");
         extensionsContent.Headers.ContentType = new("application/json");
         var operationNameContent = new StringContent("op2");
         operationNameContent.Headers.ContentType = new("text/text");
-        content.Add(queryContent, "query");
         content.Add(variablesContent, "variables");
         content.Add(extensionsContent, "extensions");
         content.Add(operationNameContent, "operationName");
@@ -193,20 +222,31 @@ public class PostTests : IDisposable
     }
 
     [Theory]
-    [InlineData(true, true)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(false, false)]
-    public async Task FormMultipart_Upload(bool requireCsrf, bool supplyCsrf)
+    [InlineData(true, true, false)]
+    [InlineData(true, false, false)]
+    [InlineData(false, true, false)]
+    [InlineData(false, false, false)]
+    [InlineData(true, true, true)]
+    [InlineData(true, false, true)]
+    [InlineData(false, true, true)]
+    [InlineData(false, false, true)]
+    public async Task FormMultipart_Upload(bool requireCsrf, bool supplyCsrf, bool useDocumentId)
     {
         _options2.ReadFormOnPost = true;
         if (!requireCsrf)
             _options2.CsrfProtectionEnabled = false;
         var client = _server.CreateClient();
         using var content = new MultipartFormDataContent();
-        var jsonContent = new StringContent("""
+        var jsonContent = new StringContent(!useDocumentId ? """
             {
                 "query": "query op1{ext} query op2($test:String!){ext var(test:$test)}",
+                "operationName": "op2",
+                "variables": { "test": "1" },
+                "extensions": { "test": "2"}
+            }
+            """ : """
+            {
+                "documentId": "test:form",
                 "operationName": "op2",
                 "variables": { "test": "1" },
                 "extensions": { "test": "2"}
@@ -414,18 +454,24 @@ public class PostTests : IDisposable
     }
 
     [Theory]
-    [InlineData(true, true)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(false, false)]
-    public async Task FormUrlEncoded(bool requireCsrf, bool supplyCsrf)
+    [InlineData(true, true, false)]
+    [InlineData(true, false, false)]
+    [InlineData(false, true, false)]
+    [InlineData(false, false, false)]
+    [InlineData(true, true, true)]
+    [InlineData(true, false, true)]
+    [InlineData(false, true, true)]
+    [InlineData(false, false, true)]
+    public async Task FormUrlEncoded(bool requireCsrf, bool supplyCsrf, bool useDocumentId)
     {
         _options2.ReadFormOnPost = true;
         if (!requireCsrf)
             _options2.CsrfProtectionEnabled = false;
         var client = _server.CreateClient();
         var content = new FormUrlEncodedContent(new[] {
-            new KeyValuePair<string?, string?>("query", "query op1{ext} query op2($test:String!){ext var(test:$test)}"),
+            !useDocumentId
+                ? new KeyValuePair<string?, string?>("query", "query op1{ext} query op2($test:String!){ext var(test:$test)}")
+                : new KeyValuePair<string?, string?>("documentId", "test:form"),
             new KeyValuePair<string?, string?>("variables", """{"test":"1"}"""),
             new KeyValuePair<string?, string?>("extensions", """{"test":"2"}"""),
             new KeyValuePair<string?, string?>("operationName", "op2"),
@@ -739,4 +785,10 @@ public class PostTests : IDisposable
         await response.ShouldBeAsync(expected);
     }
 
+    [Fact]
+    public async Task ReadAlsoFromQueryString_DocumentId()
+    {
+        using var response = await PostRequestAsync("/graphql?documentId=test:abc", new() { DocumentId = "test:def" });
+        await response.ShouldBeAsync("""{"data":{"count":0}}""");
+    }
 }

@@ -200,7 +200,8 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
                 Query = urlGQLRequest?.Query ?? bodyGQLRequest?.Query,
                 Variables = urlGQLRequest?.Variables ?? bodyGQLRequest?.Variables,
                 Extensions = urlGQLRequest?.Extensions ?? bodyGQLRequest?.Extensions,
-                OperationName = urlGQLRequest?.OperationName ?? bodyGQLRequest?.OperationName
+                OperationName = urlGQLRequest?.OperationName ?? bodyGQLRequest?.OperationName,
+                DocumentId = urlGQLRequest?.DocumentId ?? bodyGQLRequest?.DocumentId,
             };
 
             await HandleRequestAsync(context, next, gqlRequest);
@@ -684,6 +685,7 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
             Query = request?.Query,
             Variables = request?.Variables,
             Extensions = request?.Extensions,
+            DocumentId = request?.DocumentId,
             CancellationToken = context.RequestAborted,
             OperationName = request?.OperationName,
             RequestServices = serviceProvider,

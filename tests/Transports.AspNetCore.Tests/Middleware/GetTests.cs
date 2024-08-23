@@ -24,6 +24,12 @@ public class GetTests : IDisposable
                     .WithSubscription<Chat.Subscription>())
                 .AddSchema<Schema2>()
                 .AddSystemTextJson()
+                .UsePersistedDocuments(o =>
+                {
+                    o.AllowOnlyPersistedDocuments = false;
+                    o.AllowedPrefixes.Add("test");
+                    o.GetQueryDelegate = (options, prefix, payload) => prefix == "test" && payload == "abc" ? new("{count}") : default;
+                })
                 .ConfigureExecutionOptions(o => _configureExecution(o)));
 #if NETCOREAPP2_1 || NET48
             services.AddHostApplicationLifetime();
@@ -75,6 +81,14 @@ public class GetTests : IDisposable
     {
         var client = _server.CreateClient();
         using var response = await client.GetAsync("/graphql?query={count}");
+        await response.ShouldBeAsync("""{"data":{"count":0}}""");
+    }
+
+    [Fact]
+    public async Task PersistedDocumentTest()
+    {
+        var client = _server.CreateClient();
+        using var response = await client.GetAsync("/graphql?documentId=test:abc");
         await response.ShouldBeAsync("""{"data":{"count":0}}""");
     }
 
