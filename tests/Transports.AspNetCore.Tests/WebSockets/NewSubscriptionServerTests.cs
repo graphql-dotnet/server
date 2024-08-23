@@ -356,6 +356,7 @@ public class NewSubscriptionServerTests : IDisposable
             Variables = new Inputs(new Dictionary<string, object?>()),
             Extensions = new Inputs(new Dictionary<string, object?>()),
             OperationName = "def",
+            DocumentId = "ghi",
         };
         _mockSerializer.Setup(x => x.ReadNode<GraphQLRequest>(payload))
             .Returns(request)
@@ -381,6 +382,7 @@ public class NewSubscriptionServerTests : IDisposable
                 options.Query.ShouldBe(request.Query);
                 options.Variables.ShouldBe(request.Variables);
                 options.Extensions.ShouldBe(request.Extensions);
+                options.DocumentId.ShouldBe(request.DocumentId);
                 options.OperationName.ShouldBe(request.OperationName);
                 options.UserContext.ShouldBe(mockUserContext.Object);
                 options.RequestServices.ShouldBe(mockServiceProvider.Object);

@@ -186,6 +186,7 @@ public class SubscriptionServer : BaseSubscriptionServer
                 Query = request.Query,
                 Variables = request.Variables,
                 Extensions = request.Extensions,
+                DocumentId = request.DocumentId,
                 OperationName = request.OperationName,
                 RequestServices = scope.ServiceProvider,
                 CancellationToken = CancellationToken,

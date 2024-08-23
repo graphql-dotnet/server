@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Headers;
+using GraphQL.PersistedDocuments;
 using GraphQL.Server.Transports.AspNetCore.Errors;
 using GraphQL.Validation;
 
@@ -10,6 +11,7 @@ public class GetTests : IDisposable
     private GraphQLHttpMiddlewareOptions _options = null!;
     private GraphQLHttpMiddlewareOptions _options2 = null!;
     private Action<ExecutionOptions> _configureExecution = _ => { };
+    private bool _enablePersistedDocuments = true;
     private readonly TestServer _server;
 
     public GetTests()
@@ -18,13 +20,35 @@ public class GetTests : IDisposable
         hostBuilder.ConfigureServices(services =>
         {
             services.AddSingleton<Chat.IChat, Chat.Chat>();
-            services.AddGraphQL(b => b
-                .AddAutoSchema<Chat.Query>(s => s
-                    .WithMutation<Chat.Mutation>()
-                    .WithSubscription<Chat.Subscription>())
-                .AddSchema<Schema2>()
-                .AddSystemTextJson()
-                .ConfigureExecutionOptions(o => _configureExecution(o)));
+            services.AddGraphQL(b =>
+            {
+                b
+                    .AddAutoSchema<Chat.Query>(s => s
+                        .WithMutation<Chat.Mutation>()
+                        .WithSubscription<Chat.Subscription>())
+                    .AddSchema<Schema2>()
+                    .AddSystemTextJson()
+                    .ConfigureExecution((options, next) =>
+                    {
+                        if (_enablePersistedDocuments)
+                        {
+                            var handler = options.RequestServices!.GetRequiredService<PersistedDocumentHandler>();
+                            return handler.ExecuteAsync(options, next);
+                        }
+                        return next(options);
+                    })
+                    .ConfigureExecutionOptions(o => _configureExecution(o));
+                b.Services.Configure<PersistedDocumentOptions>(o =>
+                {
+                    o.AllowOnlyPersistedDocuments = false;
+                    o.AllowedPrefixes.Add("test");
+                    o.GetQueryDelegate = (options, prefix, payload) =>
+                        prefix == "test" && payload == "abc" ? new("{count}") :
+                        prefix == "test" && payload == "form" ? new("query op1{ext} query op2($test:String!){ext var(test:$test)}") :
+                        default;
+                });
+            });
+            services.AddSingleton<PersistedDocumentHandler>();
 #if NETCOREAPP2_1 || NET48
             services.AddHostApplicationLifetime();
 #endif
@@ -75,6 +99,14 @@ public class GetTests : IDisposable
     {
         var client = _server.CreateClient();
         using var response = await client.GetAsync("/graphql?query={count}");
+        await response.ShouldBeAsync("""{"data":{"count":0}}""");
+    }
+
+    [Fact]
+    public async Task PersistedDocumentTest()
+    {
+        var client = _server.CreateClient();
+        using var response = await client.GetAsync("/graphql?documentId=test:abc");
         await response.ShouldBeAsync("""{"data":{"count":0}}""");
     }
 
@@ -346,14 +378,19 @@ public class GetTests : IDisposable
     }
 
     [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public async Task NoQuery(bool badRequest)
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    public async Task NoQuery(bool badRequest, bool usePersistedDocumentHandler)
     {
+        _enablePersistedDocuments = usePersistedDocumentHandler;
         _options.ValidationErrorsReturnBadRequest = badRequest;
         var client = _server.CreateClient();
         using var response = await client.GetAsync("/graphql");
-        await response.ShouldBeAsync(badRequest, """{"errors":[{"message":"GraphQL query is missing.","extensions":{"code":"QUERY_MISSING","codes":["QUERY_MISSING"]}}]}""");
+        await response.ShouldBeAsync(badRequest, usePersistedDocumentHandler
+            ? """{"errors":[{"message":"The request must have a documentId parameter.","extensions":{"code":"DOCUMENT_ID_MISSING","codes":["DOCUMENT_ID_MISSING"]}}]}"""
+            : """{"errors":[{"message":"GraphQL query is missing.","extensions":{"code":"QUERY_MISSING","codes":["QUERY_MISSING"]}}]}""");
     }
 
     [Theory]

@@ -68,6 +68,7 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
     private const string VARIABLES_KEY = "variables";
     private const string EXTENSIONS_KEY = "extensions";
     private const string OPERATION_NAME_KEY = "operationName";
+    private const string DOCUMENT_ID_KEY = "documentId";
     private const string OPERATIONS_KEY = "operations"; // used for multipart/form-data requests per https://github.com/jaydenseric/graphql-multipart-request-spec
     private const string MAP_KEY = "map"; // used for multipart/form-data requests per https://github.com/jaydenseric/graphql-multipart-request-spec
     private const string MEDIATYPE_GRAPHQLJSON = "application/graphql+json"; // deprecated
@@ -199,7 +200,8 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
                 Query = urlGQLRequest?.Query ?? bodyGQLRequest?.Query,
                 Variables = urlGQLRequest?.Variables ?? bodyGQLRequest?.Variables,
                 Extensions = urlGQLRequest?.Extensions ?? bodyGQLRequest?.Extensions,
-                OperationName = urlGQLRequest?.OperationName ?? bodyGQLRequest?.OperationName
+                OperationName = urlGQLRequest?.OperationName ?? bodyGQLRequest?.OperationName,
+                DocumentId = urlGQLRequest?.DocumentId ?? bodyGQLRequest?.DocumentId,
             };
 
             await HandleRequestAsync(context, next, gqlRequest);
@@ -343,8 +345,8 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
             foreach (var entry in map)
             {
                 // validate entry key
-                if (entry.Key == "" || entry.Key == "query" || entry.Key == "operationName" || entry.Key == "variables" || entry.Key == "extensions" || entry.Key == "operations" || entry.Key == "map")
-                    throw new InvalidMapError("Map key cannot be query, operationName, variables, extensions, operations or map.");
+                if (entry.Key == "" || entry.Key == QUERY_KEY || entry.Key == OPERATION_NAME_KEY || entry.Key == VARIABLES_KEY || entry.Key == EXTENSIONS_KEY || entry.Key == DOCUMENT_ID_KEY || entry.Key == OPERATIONS_KEY || entry.Key == MAP_KEY)
+                    throw new InvalidMapError("Map key cannot be query, operationName, variables, extensions, documentId, operations or map.");
                 // locate file
                 var file = form.Files[entry.Key]
                     ?? throw new InvalidMapError("Map key does not refer to an uploaded file.");
@@ -683,6 +685,7 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
             Query = request?.Query,
             Variables = request?.Variables,
             Extensions = request?.Extensions,
+            DocumentId = request?.DocumentId,
             CancellationToken = context.RequestAborted,
             OperationName = request?.OperationName,
             RequestServices = serviceProvider,
@@ -1212,6 +1215,7 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
         Variables = _options.ReadVariablesFromQueryString && queryCollection.TryGetValue(VARIABLES_KEY, out var variablesValues) ? _serializer.Deserialize<Inputs>(variablesValues[0]) : null,
         Extensions = _options.ReadExtensionsFromQueryString && queryCollection.TryGetValue(EXTENSIONS_KEY, out var extensionsValues) ? _serializer.Deserialize<Inputs>(extensionsValues[0]) : null,
         OperationName = queryCollection.TryGetValue(OPERATION_NAME_KEY, out var operationNameValues) ? operationNameValues[0] : null,
+        DocumentId = queryCollection.TryGetValue(DOCUMENT_ID_KEY, out var documentIdValues) ? documentIdValues[0] : null,
     };
 
     private GraphQLRequest DeserializeFromFormBody(IFormCollection formCollection) => new()
@@ -1220,6 +1224,7 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
         Variables = formCollection.TryGetValue(VARIABLES_KEY, out var variablesValues) ? _serializer.Deserialize<Inputs>(variablesValues[0]) : null,
         Extensions = formCollection.TryGetValue(EXTENSIONS_KEY, out var extensionsValues) ? _serializer.Deserialize<Inputs>(extensionsValues[0]) : null,
         OperationName = formCollection.TryGetValue(OPERATION_NAME_KEY, out var operationNameValues) ? operationNameValues[0] : null,
+        DocumentId = formCollection.TryGetValue(DOCUMENT_ID_KEY, out var documentIdValues) ? documentIdValues[0] : null,
     };
 
     /// <summary>

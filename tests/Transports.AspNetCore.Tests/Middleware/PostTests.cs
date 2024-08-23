@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Headers;
+using GraphQL.PersistedDocuments;
 using GraphQL.Server.Transports.AspNetCore.Errors;
 using GraphQL.Validation;
 
@@ -10,6 +11,7 @@ public class PostTests : IDisposable
     private GraphQLHttpMiddlewareOptions _options = null!;
     private GraphQLHttpMiddlewareOptions _options2 = null!;
     private Action<ExecutionOptions> _configureExecution = _ => { };
+    private bool _enablePersistedDocuments = true;
     private readonly TestServer _server;
 
     public PostTests()
@@ -18,15 +20,37 @@ public class PostTests : IDisposable
         hostBuilder.ConfigureServices(services =>
         {
             services.AddSingleton<Chat.IChat, Chat.Chat>();
-            services.AddGraphQL(b => b
-                .AddAutoSchema<Chat.Query>(s => s
-                    .WithMutation<Chat.Mutation>()
-                    .WithSubscription<Chat.Subscription>())
-                .AddSchema<Schema2>()
-                .AddAutoClrMappings()
-                .AddFormFileGraphType()
-                .AddSystemTextJson()
-                .ConfigureExecutionOptions(o => _configureExecution(o)));
+            services.AddGraphQL(b =>
+            {
+                b
+                    .AddAutoSchema<Chat.Query>(s => s
+                        .WithMutation<Chat.Mutation>()
+                        .WithSubscription<Chat.Subscription>())
+                    .AddSchema<Schema2>()
+                    .AddAutoClrMappings()
+                    .AddFormFileGraphType()
+                    .AddSystemTextJson()
+                    .ConfigureExecution((options, next) =>
+                    {
+                        if (_enablePersistedDocuments)
+                        {
+                            var handler = options.RequestServices!.GetRequiredService<PersistedDocumentHandler>();
+                            return handler.ExecuteAsync(options, next);
+                        }
+                        return next(options);
+                    })
+                    .ConfigureExecutionOptions(o => _configureExecution(o));
+                b.Services.Configure<PersistedDocumentOptions>(o =>
+                {
+                    o.AllowOnlyPersistedDocuments = false;
+                    o.AllowedPrefixes.Add("test");
+                    o.GetQueryDelegate = (options, prefix, payload) =>
+                        prefix == "test" && payload == "abc" ? new("{count}") :
+                        prefix == "test" && payload == "form" ? new("query op1{ext} query op2($test:String!){ext var(test:$test)}") :
+                        default;
+                });
+            });
+            services.AddSingleton<PersistedDocumentHandler>();
 #if NETCOREAPP2_1 || NET48
             services.AddHostApplicationLifetime();
 #endif
@@ -125,6 +149,13 @@ public class PostTests : IDisposable
         await response.ShouldBeAsync("""{"data":{"count":0}}""");
     }
 
+    [Fact]
+    public async Task PersistedDocument_Simple()
+    {
+        using var response = await PostRequestAsync(new() { DocumentId = "test:abc" });
+        await response.ShouldBeAsync("""{"data":{"count":0}}""");
+    }
+
 #if NET5_0_OR_GREATER
     [Fact]
     public async Task AltCharset()
@@ -159,26 +190,39 @@ public class PostTests : IDisposable
 #endif
 
     [Theory]
-    [InlineData(true, true)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(false, false)]
-    public async Task FormMultipart_Legacy(bool requireCsrf, bool supplyCsrf)
+    [InlineData(true, true, false)]
+    [InlineData(true, false, false)]
+    [InlineData(false, true, false)]
+    [InlineData(false, false, false)]
+    [InlineData(true, true, true)]
+    [InlineData(true, false, true)]
+    [InlineData(false, true, true)]
+    [InlineData(false, false, true)]
+    public async Task FormMultipart_Legacy(bool requireCsrf, bool supplyCsrf, bool useDocumentId)
     {
         _options2.ReadFormOnPost = true;
         if (!requireCsrf)
             _options2.CsrfProtectionEnabled = false;
         var client = _server.CreateClient();
         var content = new MultipartFormDataContent();
-        var queryContent = new StringContent("query op1{ext} query op2($test:String!){ext var(test:$test)}");
-        queryContent.Headers.ContentType = new("application/graphql");
+        if (!useDocumentId)
+        {
+            var queryContent = new StringContent("query op1{ext} query op2($test:String!){ext var(test:$test)}");
+            queryContent.Headers.ContentType = new("application/graphql");
+            content.Add(queryContent, "query");
+        }
+        else
+        {
+            var documentIdContent = new StringContent("test:form");
+            documentIdContent.Headers.ContentType = new("text/text");
+            content.Add(documentIdContent, "documentId");
+        }
         var variablesContent = new StringContent("""{"test":"1"}""");
         variablesContent.Headers.ContentType = new("application/json");
         var extensionsContent = new StringContent("""{"test":"2"}""");
         extensionsContent.Headers.ContentType = new("application/json");
         var operationNameContent = new StringContent("op2");
         operationNameContent.Headers.ContentType = new("text/text");
-        content.Add(queryContent, "query");
         content.Add(variablesContent, "variables");
         content.Add(extensionsContent, "extensions");
         content.Add(operationNameContent, "operationName");
@@ -193,20 +237,31 @@ public class PostTests : IDisposable
     }
 
     [Theory]
-    [InlineData(true, true)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(false, false)]
-    public async Task FormMultipart_Upload(bool requireCsrf, bool supplyCsrf)
+    [InlineData(true, true, false)]
+    [InlineData(true, false, false)]
+    [InlineData(false, true, false)]
+    [InlineData(false, false, false)]
+    [InlineData(true, true, true)]
+    [InlineData(true, false, true)]
+    [InlineData(false, true, true)]
+    [InlineData(false, false, true)]
+    public async Task FormMultipart_Upload(bool requireCsrf, bool supplyCsrf, bool useDocumentId)
     {
         _options2.ReadFormOnPost = true;
         if (!requireCsrf)
             _options2.CsrfProtectionEnabled = false;
         var client = _server.CreateClient();
         using var content = new MultipartFormDataContent();
-        var jsonContent = new StringContent("""
+        var jsonContent = new StringContent(!useDocumentId ? """
             {
                 "query": "query op1{ext} query op2($test:String!){ext var(test:$test)}",
+                "operationName": "op2",
+                "variables": { "test": "1" },
+                "extensions": { "test": "2"}
+            }
+            """ : """
+            {
+                "documentId": "test:form",
                 "operationName": "op2",
                 "variables": { "test": "1" },
                 "extensions": { "test": "2"}
@@ -295,17 +350,17 @@ public class PostTests : IDisposable
         400, "{\"errors\":[{\"message\":\"Invalid map path. Map target cannot be null.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
     // invalid map keys
     [InlineData(40, null, "{\"\":[\"0.variables.arg\"]}", false, false,
-        400, "{\"errors\":[{\"message\":\"Invalid map path. Map key cannot be query, operationName, variables, extensions, operations or map.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Map key cannot be query, operationName, variables, extensions, documentId, operations or map.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
     [InlineData(41, null, "{\"query\":[\"0.variables.arg\"]}", false, false,
-        400, "{\"errors\":[{\"message\":\"Invalid map path. Map key cannot be query, operationName, variables, extensions, operations or map.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Map key cannot be query, operationName, variables, extensions, documentId, operations or map.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
     [InlineData(42, null, "{\"variables\":[\"0.variables.arg\"]}", false, false,
-        400, "{\"errors\":[{\"message\":\"Invalid map path. Map key cannot be query, operationName, variables, extensions, operations or map.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Map key cannot be query, operationName, variables, extensions, documentId, operations or map.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
     [InlineData(43, null, "{\"extensions\":[\"0.variables.arg\"]}", false, false,
-        400, "{\"errors\":[{\"message\":\"Invalid map path. Map key cannot be query, operationName, variables, extensions, operations or map.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Map key cannot be query, operationName, variables, extensions, documentId, operations or map.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
     [InlineData(44, null, "{\"operationName\":[\"0.variables.arg\"]}", false, false,
-        400, "{\"errors\":[{\"message\":\"Invalid map path. Map key cannot be query, operationName, variables, extensions, operations or map.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Map key cannot be query, operationName, variables, extensions, documentId, operations or map.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
     [InlineData(45, null, "{\"map\":[\"0.variables.arg\"]}", false, false,
-        400, "{\"errors\":[{\"message\":\"Invalid map path. Map key cannot be query, operationName, variables, extensions, operations or map.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Map key cannot be query, operationName, variables, extensions, documentId, operations or map.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
     // missing referenced file
     [InlineData(50, null, "{\"file0\":[\"0.variables.arg\"]}", false, false,
         400, "{\"errors\":[{\"message\":\"Invalid map path. Map key does not refer to an uploaded file.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
@@ -414,18 +469,24 @@ public class PostTests : IDisposable
     }
 
     [Theory]
-    [InlineData(true, true)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(false, false)]
-    public async Task FormUrlEncoded(bool requireCsrf, bool supplyCsrf)
+    [InlineData(true, true, false)]
+    [InlineData(true, false, false)]
+    [InlineData(false, true, false)]
+    [InlineData(false, false, false)]
+    [InlineData(true, true, true)]
+    [InlineData(true, false, true)]
+    [InlineData(false, true, true)]
+    [InlineData(false, false, true)]
+    public async Task FormUrlEncoded(bool requireCsrf, bool supplyCsrf, bool useDocumentId)
     {
         _options2.ReadFormOnPost = true;
         if (!requireCsrf)
             _options2.CsrfProtectionEnabled = false;
         var client = _server.CreateClient();
         var content = new FormUrlEncodedContent(new[] {
-            new KeyValuePair<string?, string?>("query", "query op1{ext} query op2($test:String!){ext var(test:$test)}"),
+            !useDocumentId
+                ? new KeyValuePair<string?, string?>("query", "query op1{ext} query op2($test:String!){ext var(test:$test)}")
+                : new KeyValuePair<string?, string?>("documentId", "test:form"),
             new KeyValuePair<string?, string?>("variables", """{"test":"1"}"""),
             new KeyValuePair<string?, string?>("extensions", """{"test":"2"}"""),
             new KeyValuePair<string?, string?>("operationName", "op2"),
@@ -636,13 +697,18 @@ public class PostTests : IDisposable
     }
 
     [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public async Task NoQuery(bool badRequest)
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    public async Task NoQuery(bool badRequest, bool usePersistedDocumentHandler)
     {
+        _enablePersistedDocuments = usePersistedDocumentHandler;
         _options.ValidationErrorsReturnBadRequest = badRequest;
         using var response = await PostJsonAsync("{}");
-        await response.ShouldBeAsync(badRequest, """{"errors":[{"message":"GraphQL query is missing.","extensions":{"code":"QUERY_MISSING","codes":["QUERY_MISSING"]}}]}""");
+        await response.ShouldBeAsync(badRequest, usePersistedDocumentHandler
+            ? """{"errors":[{"message":"The request must have a documentId parameter.","extensions":{"code":"DOCUMENT_ID_MISSING","codes":["DOCUMENT_ID_MISSING"]}}]}"""
+            : """{"errors":[{"message":"GraphQL query is missing.","extensions":{"code":"QUERY_MISSING","codes":["QUERY_MISSING"]}}]}""");
     }
 
     [Theory]
@@ -650,6 +716,7 @@ public class PostTests : IDisposable
     [InlineData(true)]
     public async Task NullRequest(bool badRequest)
     {
+        _enablePersistedDocuments = false;
         _options.ValidationErrorsReturnBadRequest = badRequest;
         using var response = await PostJsonAsync("null");
         await response.ShouldBeAsync(badRequest, """{"errors":[{"message":"GraphQL query is missing.","extensions":{"code":"QUERY_MISSING","codes":["QUERY_MISSING"]}}]}""");
@@ -739,4 +806,10 @@ public class PostTests : IDisposable
         await response.ShouldBeAsync(expected);
     }
 
+    [Fact]
+    public async Task ReadAlsoFromQueryString_DocumentId()
+    {
+        using var response = await PostRequestAsync("/graphql?documentId=test:abc", new() { DocumentId = "test:def" });
+        await response.ShouldBeAsync("""{"data":{"count":0}}""");
+    }
 }
