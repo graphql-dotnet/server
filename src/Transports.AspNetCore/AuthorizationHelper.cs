@@ -12,9 +12,7 @@ public static class AuthorizationHelper
     /// </summary>
     public static async ValueTask<bool> AuthorizeAsync<TState>(AuthorizationParameters<TState> options, TState state)
     {
-        var anyRolesRequired = options.AuthorizedRoles?.Any() ?? false;
-
-        if (options.AuthorizationRequired || anyRolesRequired || options.AuthorizedPolicy != null)
+        if (options.AuthorizationRequired)
         {
             if (!((options.HttpContext.User ?? NoUser()).Identity ?? NoIdentity()).IsAuthenticated)
             {
@@ -24,7 +22,7 @@ public static class AuthorizationHelper
             }
         }
 
-        if (anyRolesRequired)
+        if (options.AuthorizedRoles?.Any() ?? false)
         {
             var user = options.HttpContext.User ?? NoUser();
             foreach (var role in options.AuthorizedRoles!)
