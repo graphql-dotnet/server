@@ -49,7 +49,9 @@ public class TestBaseSubscriptionServer : BaseSubscriptionServer
         => ErrorAccessDeniedAsync();
 
     public Task Do_OnConnectionInitAsync(OperationMessage message, bool smartKeepAlive)
+#pragma warning disable CS0618 // Type or member is obsolete
         => OnConnectionInitAsync(message, smartKeepAlive);
+#pragma warning restore CS0618 // Type or member is obsolete
 
     public Task Do_SubscribeAsync(OperationMessage message, bool overwrite)
         => SubscribeAsync(message, overwrite);

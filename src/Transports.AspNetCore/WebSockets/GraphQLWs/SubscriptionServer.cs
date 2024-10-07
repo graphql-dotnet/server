@@ -4,6 +4,11 @@ namespace GraphQL.Server.Transports.AspNetCore.WebSockets.GraphQLWs;
 public class SubscriptionServer : BaseSubscriptionServer
 {
     private readonly IWebSocketAuthenticationService? _authenticationService;
+    private readonly IGraphQLSerializer _serializer;
+    private readonly GraphQLWebSocketOptions _options;
+    private DateTime _lastPongReceivedUtc;
+    private string? _lastPingId;
+    private readonly object _lastPingLock = new();
 
     /// <summary>
     /// The WebSocket sub-protocol used for this protocol.
@@ -67,6 +72,8 @@ public class SubscriptionServer : BaseSubscriptionServer
         UserContextBuilder = userContextBuilder ?? throw new ArgumentNullException(nameof(userContextBuilder));
         Serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
         _authenticationService = authenticationService;
+        _serializer = serializer;
+        _options = options;
     }
 
     /// <inheritdoc/>
@@ -90,7 +97,9 @@ public class SubscriptionServer : BaseSubscriptionServer
             }
             else
             {
+#pragma warning disable CS0618 // Type or member is obsolete
                 await OnConnectionInitAsync(message, true);
+#pragma warning restore CS0618 // Type or member is obsolete
             }
             return;
         }
@@ -113,6 +122,69 @@ public class SubscriptionServer : BaseSubscriptionServer
         }
     }
 
+    /// <inheritdoc/>
+    [Obsolete($"Please use the {nameof(OnConnectionInitAsync)} and {nameof(OnKeepAliveLoopAsync)} methods instead. This method will be removed in a future version of this library.")]
+    protected override Task OnConnectionInitAsync(OperationMessage message, bool smartKeepAlive)
+    {
+        if (smartKeepAlive)
+            return base.OnConnectionInitAsync(message);
+        else
+            return base.OnConnectionInitAsync(message, smartKeepAlive);
+    }
+
+    /// <inheritdoc/>
+    protected override Task OnKeepAliveLoopAsync(TimeSpan keepAliveTimeout, KeepAliveMode keepAliveMode)
+    {
+        if (keepAliveMode == KeepAliveMode.TimeoutWithPayload)
+        {
+            if (keepAliveTimeout <= TimeSpan.Zero)
+                return Task.CompletedTask;
+            return SecureKeepAliveLoopAsync(keepAliveTimeout, keepAliveTimeout);
+        }
+        return base.OnKeepAliveLoopAsync(keepAliveTimeout, keepAliveMode);
+
+        // pingInterval is the time since the last pong was received before sending a new ping
+        // pongInterval is the time to wait for a pong after a ping was sent before forcibly closing the connection
+        async Task SecureKeepAliveLoopAsync(TimeSpan pingInterval, TimeSpan pongInterval)
+        {
+            lock (_lastPingLock)
+                _lastPongReceivedUtc = DateTime.UtcNow;
+            while (!CancellationToken.IsCancellationRequested)
+            {
+                // Wait for the next ping interval
+                TimeSpan interval;
+                var now = DateTime.UtcNow;
+                DateTime lastPongReceivedUtc;
+                lock (_lastPingLock)
+                {
+                    lastPongReceivedUtc = _lastPongReceivedUtc;
+                }
+                var nextPing = _lastPongReceivedUtc.Add(pingInterval);
+                interval = nextPing.Subtract(now);
+                if (interval > TimeSpan.Zero) // could easily be zero or less, if pongInterval is equal or greater than pingInterval
+                    await Task.Delay(interval, CancellationToken);
+
+                // Send a new ping message
+                await OnSendKeepAliveAsync();
+
+                // Wait for the pong response
+                await Task.Delay(pongInterval, CancellationToken);
+                bool abort;
+                lock (_lastPingLock)
+                {
+                    abort = _lastPongReceivedUtc == lastPongReceivedUtc;
+                }
+                if (abort)
+                {
+                    // Forcibly close the connection if the client has not responded to the keep-alive message.
+                    // Do not send a close message to the client or wait for a response.
+                    Connection.HttpContext.Abort();
+                    return;
+                }
+            }
+        }
+    }
+
     /// <summary>
     /// Pong is a required response to a ping, and also a unidirectional keep-alive packet,
     /// whereas ping is a bidirectional keep-alive packet.
@@ -129,11 +201,46 @@ public class SubscriptionServer : BaseSubscriptionServer
     /// Executes when a pong message is received.
     /// </summary>
     protected virtual Task OnPongAsync(OperationMessage message)
-        => Task.CompletedTask;
+    {
+        if (_options.KeepAliveMode == KeepAliveMode.TimeoutWithPayload)
+        {
+            try
+            {
+                var pingId = _serializer.ReadNode<PingPayload>(message.Payload)?.id;
+                lock (_lastPingLock)
+                {
+                    if (_lastPingId == pingId)
+                        _lastPongReceivedUtc = DateTime.UtcNow;
+                }
+            }
+            catch { } // ignore deserialization errors in case the pong message does not match the expected format
+        }
+        return Task.CompletedTask;
+    }
 
     /// <inheritdoc/>
     protected override Task OnSendKeepAliveAsync()
-        => Connection.SendMessageAsync(_pongMessage);
+    {
+        if (_options.KeepAliveMode == KeepAliveMode.TimeoutWithPayload)
+        {
+            var lastPingId = Guid.NewGuid().ToString("N");
+            lock (_lastPingLock)
+            {
+                _lastPingId = lastPingId;
+            }
+            return Connection.SendMessageAsync(
+                new()
+                {
+                    Type = MessageType.Ping,
+                    Payload = new PingPayload { id = lastPingId }
+                }
+            );
+        }
+        else
+        {
+            return Connection.SendMessageAsync(_pongMessage);
+        }
+    }
 
     private static readonly OperationMessage _connectionAckMessage = new() { Type = MessageType.ConnectionAck };
     /// <inheritdoc/>
