@@ -597,9 +597,34 @@ public class WebSocketConnectionTests : IDisposable
     public async Task SendMessageAsync()
     {
         var message = new OperationMessage();
+        _mockConnection.Setup(x => x.SendMessageAsync(It.IsAny<OperationMessage>())).CallBase().Verifiable();
         _mockConnection.Protected().Setup<Task>("OnSendMessageAsync", message)
             .Returns(Task.CompletedTask).Verifiable();
         await _connection.SendMessageAsync(message);
+        _mockConnection.Verify();
+    }
+
+    [Fact]
+    public async Task MessageCountAsync()
+    {
+        var tc = new TaskCompletionSource<bool>();
+        var message = new OperationMessage();
+        _mockConnection.Setup(x => x.SendMessageAsync(It.IsAny<OperationMessage>())).CallBase().Verifiable();
+        _mockConnection.Protected().Setup<Task>("OnSendMessageAsync", message)
+            .Returns(tc.Task).Verifiable();
+        await _connection.SendMessageAsync(message);
+        _connection.Get_SendQueueCount.ShouldBe(1);
+        await _connection.SendMessageAsync(message);
+        _connection.Get_SendQueueCount.ShouldBe(2);
+        tc.SetResult(true);
+        for (int i = 0; i < 100; i++)
+        {
+            if (_connection.Get_SendQueueCount != 0)
+                await Task.Delay(100);
+            else
+                break;
+        }
+        _connection.Get_SendQueueCount.ShouldBe(0);
         _mockConnection.Verify();
     }
 
@@ -609,6 +634,7 @@ public class WebSocketConnectionTests : IDisposable
         var oldTime = _connection.LastMessageSentAt;
         await Task.Delay(100);
         var message = new OperationMessage();
+        _mockConnection.Setup(x => x.SendMessageAsync(It.IsAny<OperationMessage>())).CallBase().Verifiable();
         _mockConnection.Protected().Setup<Task>("OnSendMessageAsync", message)
             .Returns(Task.CompletedTask).Verifiable();
         await _connection.SendMessageAsync(message);
@@ -623,6 +649,7 @@ public class WebSocketConnectionTests : IDisposable
     {
         // send a message
         var message = new OperationMessage();
+        _mockConnection.Setup(x => x.SendMessageAsync(It.IsAny<OperationMessage>())).CallBase().Verifiable();
         _mockConnection.Protected().SetupGet<TimeSpan>("DefaultDisconnectionTimeout").CallBase().Verifiable();
         _mockConnection.Protected().Setup<Task>("OnSendMessageAsync", message)
             .Returns(Task.CompletedTask).Verifiable();
