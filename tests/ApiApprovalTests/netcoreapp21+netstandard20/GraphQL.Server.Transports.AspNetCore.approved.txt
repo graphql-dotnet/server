@@ -358,6 +358,7 @@ namespace GraphQL.Server.Transports.AspNetCore.WebSockets
         public Microsoft.AspNetCore.Http.HttpContext HttpContext { get; }
         public System.DateTime LastMessageSentAt { get; }
         public System.Threading.CancellationToken RequestAborted { get; }
+        protected int SendQueueCount { get; }
         public System.Threading.Tasks.Task CloseAsync() { }
         public System.Threading.Tasks.Task CloseAsync(int eventId, string? description) { }
         public virtual void Dispose() { }
@@ -366,7 +367,7 @@ namespace GraphQL.Server.Transports.AspNetCore.WebSockets
         protected virtual System.Threading.Tasks.Task OnDispatchMessageAsync(GraphQL.Server.Transports.AspNetCore.WebSockets.IOperationMessageProcessor operationMessageProcessor, GraphQL.Transport.OperationMessage message) { }
         protected virtual System.Threading.Tasks.Task OnNonGracefulShutdownAsync(bool receivedCloseMessage, bool sentCloseMessage) { }
         protected virtual System.Threading.Tasks.Task OnSendMessageAsync(GraphQL.Transport.OperationMessage message) { }
-        public System.Threading.Tasks.Task SendMessageAsync(GraphQL.Transport.OperationMessage message) { }
+        public virtual System.Threading.Tasks.Task SendMessageAsync(GraphQL.Transport.OperationMessage message) { }
     }
 }
 namespace GraphQL.Server.Transports.AspNetCore.WebSockets.GraphQLWs
