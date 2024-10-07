@@ -220,7 +220,9 @@ public class WebSocketConnection : IWebSocketConnection
     /// </remarks>
     public Task SendMessageAsync(OperationMessage message)
     {
-        _pump.Post(new Message { OperationMessage = message });
+        // Messages posted after requesting the connection be closed will be discarded.
+        if (!_closeRequested)
+            _pump.Post(new Message { OperationMessage = message });
         return Task.CompletedTask;
     }
 
