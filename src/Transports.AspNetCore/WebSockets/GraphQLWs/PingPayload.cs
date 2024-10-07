@@ -1,4 +1,4 @@
-﻿namespace GraphQL.Server.Transports.AspNetCore.WebSockets.GraphQLWs;
+namespace GraphQL.Server.Transports.AspNetCore.WebSockets.GraphQLWs;
 
 /// <summary>
 /// The payload of the ping message.
