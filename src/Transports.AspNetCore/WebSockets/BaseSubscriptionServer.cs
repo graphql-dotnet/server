@@ -268,7 +268,7 @@ public abstract partial class BaseSubscriptionServer : IOperationMessageProcesso
             return;
         }
         await OnConnectionAcknowledgeAsync(message);
-        if (TryInitialize() == false)
+        if (!TryInitialize())
             return;
 
         _ = OnKeepAliveLoopAsync();
