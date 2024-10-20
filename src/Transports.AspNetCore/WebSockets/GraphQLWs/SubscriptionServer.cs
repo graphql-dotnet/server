@@ -195,7 +195,9 @@ public class SubscriptionServer : BaseSubscriptionServer
     /// Executes when a ping message is received.
     /// </summary>
     protected virtual Task OnPingAsync(OperationMessage message)
-        => Connection.SendMessageAsync(_pongMessage);
+        => message.Payload == null
+        ? Connection.SendMessageAsync(_pongMessage)
+        : Connection.SendMessageAsync(new OperationMessage { Type = MessageType.Pong, Payload = message.Payload });
 
     /// <summary>
     /// Executes when a pong message is received.
