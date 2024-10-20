@@ -1007,7 +1007,7 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
     /// <summary>
     /// Gets a list of WebSocket sub-protocols supported.
     /// </summary>
-    protected virtual IEnumerable<string> SupportedWebSocketSubProtocols => _supportedSubProtocols;
+    protected virtual IEnumerable<string> SupportedWebSocketSubProtocols => _options.WebSockets.SupportedWebSocketSubProtocols;
 
     /// <summary>
     /// Creates an <see cref="IWebSocketConnection"/>, a WebSocket message pump.

@@ -259,10 +259,33 @@ public abstract partial class BaseSubscriptionServer : IOperationMessageProcesso
     /// <br/><br/>
     /// Otherwise, the connection is acknowledged via <see cref="OnConnectionAcknowledgeAsync(OperationMessage)"/>,
     /// <see cref="TryInitialize"/> is called to indicate that this WebSocket connection is ready to accept requests,
-    /// and keep-alive messages are sent via <see cref="OnSendKeepAliveAsync"/> if configured to do so.
-    /// Keep-alive messages are only sent if no messages have been sent over the WebSockets connection for the
-    /// length of time configured in <see cref="GraphQLWebSocketOptions.KeepAliveTimeout"/>.
+    /// and <see cref="OnSendKeepAliveAsync"/> is called to start sending keep-alive messages if configured to do so.
     /// </summary>
+    protected virtual async Task OnConnectionInitAsync(OperationMessage message)
+    {
+        if (!await AuthorizeAsync(message))
+        {
+            return;
+        }
+        await OnConnectionAcknowledgeAsync(message);
+        if (!TryInitialize())
+            return;
+
+        _ = OnKeepAliveLoopAsync();
+    }
+
+    /// <summary>
+    /// Executes when the client is attempting to initialize the connection.
+    /// <br/><br/>
+    /// By default, this first checks <see cref="AuthorizeAsync(OperationMessage)"/> to validate that the
+    /// request has passed authentication.  If validation fails, the connection is closed with an Access
+    /// Denied message.
+    /// <br/><br/>
+    /// Otherwise, the connection is acknowledged via <see cref="OnConnectionAcknowledgeAsync(OperationMessage)"/>,
+    /// <see cref="TryInitialize"/> is called to indicate that this WebSocket connection is ready to accept requests,
+    /// and <see cref="OnSendKeepAliveAsync"/> is called to start sending keep-alive messages if configured to do so.
+    /// </summary>
+    [Obsolete($"Please use the {nameof(OnConnectionInitAsync)}(message) and {nameof(OnKeepAliveLoopAsync)} methods instead. This method will be removed in a future version of this library.")]
     protected virtual async Task OnConnectionInitAsync(OperationMessage message, bool smartKeepAlive)
     {
         if (!await AuthorizeAsync(message))
@@ -277,12 +300,49 @@ public abstract partial class BaseSubscriptionServer : IOperationMessageProcesso
         if (keepAliveTimeout > TimeSpan.Zero)
         {
             if (smartKeepAlive)
-                _ = StartSmartKeepAliveLoopAsync();
+                _ = OnKeepAliveLoopAsync(keepAliveTimeout, KeepAliveMode.Timeout);
             else
-                _ = StartKeepAliveLoopAsync();
+                _ = OnKeepAliveLoopAsync(keepAliveTimeout, KeepAliveMode.Interval);
+        }
+    }
+
+    /// <summary>
+    /// Starts sending keep-alive messages if configured to do so. Inspects the configured
+    /// <see cref="GraphQLWebSocketOptions"/> and passes control to <see cref="OnKeepAliveLoopAsync(TimeSpan, KeepAliveMode)"/>
+    /// if keep-alive messages are enabled.
+    /// </summary>
+    protected virtual Task OnKeepAliveLoopAsync()
+    {
+        return OnKeepAliveLoopAsync(
+            _options.KeepAliveTimeout ?? DefaultKeepAliveTimeout,
+            _options.KeepAliveMode);
+    }
+
+    /// <summary>
+    /// Sends keep-alive messages according to the specified timeout period and method.
+    /// See <see cref="KeepAliveMode"/> for implementation details for each supported mode.
+    /// </summary>
+    protected virtual async Task OnKeepAliveLoopAsync(TimeSpan keepAliveTimeout, KeepAliveMode keepAliveMode)
+    {
+        if (keepAliveTimeout <= TimeSpan.Zero)
+            return;
+
+        switch (keepAliveMode)
+        {
+            case KeepAliveMode.Default:
+            case KeepAliveMode.Timeout:
+                await StartSmartKeepAliveLoopAsync();
+                break;
+            case KeepAliveMode.Interval:
+                await StartDumbKeepAliveLoopAsync();
+                break;
+            case KeepAliveMode.TimeoutWithPayload:
+                throw new NotImplementedException($"{nameof(KeepAliveMode.TimeoutWithPayload)} is not implemented within the {nameof(BaseSubscriptionServer)} class.");
+            default:
+                throw new ArgumentOutOfRangeException(nameof(keepAliveMode));
         }
 
-        async Task StartKeepAliveLoopAsync()
+        async Task StartDumbKeepAliveLoopAsync()
         {
             while (!CancellationToken.IsCancellationRequested)
             {
