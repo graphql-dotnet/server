@@ -838,9 +838,9 @@ disconnect the client.  When the server forcibly disconnects the client, no grac
 of the WebSocket protocol occurs, and any queued messages are discarded.
 
 When using the `TimeoutWithPayload` keep-alive mode, you may wish to enforce that the
-`graphql-transport-ws` sub-protocol is in use by the client.  This can be done by setting
-the `SupportedWebSocketSubProtocols` property to only include the `graphql-transport-ws`
-sub-protocol.
+`graphql-transport-ws` sub-protocol is in use by the client, as the `graphql-ws` sub-protocol
+does not support bidirectional keep-alive packets.  This can be done by setting the
+`SupportedWebSocketSubProtocols` property to only include the `graphql-transport-ws` sub-protocol.
 
 ```csharp
 app.UseGraphQL("/graphql", options =>
