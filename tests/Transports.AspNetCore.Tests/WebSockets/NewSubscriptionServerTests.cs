@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using GraphQL.Server.Transports.AspNetCore.WebSockets.GraphQLWs;
 
 namespace Tests.WebSockets;
 
@@ -67,6 +68,14 @@ public class NewSubscriptionServerTests : IDisposable
         else
         {
             _mockServer.Protected().Setup<Task>("OnConnectionInitAsync", message, true)
+                .CallBase().Verifiable();
+            _mockServer.Protected().Setup<Task>("OnConnectionInitAsync", message)
+                .CallBase().Verifiable();
+            _mockServer.Protected().Setup<ValueTask<bool>>("AuthorizeAsync", message)
+                .Returns(new ValueTask<bool>(true)).Verifiable();
+            _mockServer.Protected().Setup<Task>("OnConnectionAcknowledgeAsync", message)
+                .Returns(Task.CompletedTask).Verifiable();
+            _mockServer.Protected().Setup<Task>("OnKeepAliveLoopAsync")
                 .Returns(Task.CompletedTask).Verifiable();
         }
         _mockServer.Setup(x => x.OnMessageReceivedAsync(message)).CallBase().Verifiable();
@@ -99,11 +108,15 @@ public class NewSubscriptionServerTests : IDisposable
     }
 
     [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public async Task Message_Ping(bool initialized)
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public async Task Message_Ping(bool initialized, bool withPayload)
     {
         var message = new OperationMessage { Type = "ping" };
+        if (withPayload)
+            message.Payload = new PingPayload { id = Guid.NewGuid().ToString("N") };
         _mockServer.Protected().Setup<Task>("OnPingAsync", message)
             .Returns(Task.CompletedTask).Verifiable();
         if (initialized)
@@ -117,11 +130,15 @@ public class NewSubscriptionServerTests : IDisposable
     }
 
     [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public async Task Message_Pong(bool initialized)
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public async Task Message_Pong(bool initialized, bool withPayload)
     {
         var message = new OperationMessage { Type = "pong" };
+        if (withPayload)
+            message.Payload = new PingPayload { id = Guid.NewGuid().ToString("N") };
         _mockServer.Protected().Setup<Task>("OnPongAsync", message)
             .Returns(Task.CompletedTask).Verifiable();
         if (initialized)
@@ -180,14 +197,53 @@ public class NewSubscriptionServerTests : IDisposable
         _mockServer.VerifyNoOtherCalls();
     }
 
-    [Fact]
-    public async Task OnSendKeepAliveAsync()
+    [Theory]
+    [InlineData(KeepAliveMode.Default)]
+    [InlineData(KeepAliveMode.Interval)]
+    [InlineData(KeepAliveMode.Timeout)]
+    [InlineData(KeepAliveMode.TimeoutWithPayload)]
+    public async Task OnSendKeepAliveAsync(KeepAliveMode keepAliveMode)
     {
+        _options.WebSockets.KeepAliveMode = keepAliveMode;
         _mockStream.Setup(x => x.SendMessageAsync(It.IsAny<OperationMessage>()))
-            .Returns<OperationMessage>(o => o.Type == "pong" ? Task.CompletedTask : Task.FromException(new Exception()))
+            .Returns<OperationMessage>(async o =>
+            {
+                o.Id.ShouldBeNull();
+                if (keepAliveMode == KeepAliveMode.TimeoutWithPayload)
+                {
+                    o.Type.ShouldBe("ping");
+                    var payload = o.Payload.ShouldBeOfType<PingPayload>();
+                    var guid = Guid.ParseExact(payload.id.ShouldNotBeNull(), "N");
+                    guid.ShouldNotBe(Guid.Empty);
+                }
+                else
+                {
+                    o.Type.ShouldBe("pong");
+                    o.Payload.ShouldBeNull();
+                }
+            })
             .Verifiable();
         _mockServer.Protected().Setup<Task>("OnSendKeepAliveAsync").CallBase().Verifiable();
         await _server.Do_OnSendKeepAliveAsync();
+        _mockServer.Verify();
+        _mockServer.VerifyNoOtherCalls();
+    }
+
+    [Theory]
+    [InlineData(KeepAliveMode.Default)]
+    [InlineData(KeepAliveMode.Interval)]
+    [InlineData(KeepAliveMode.Timeout)]
+    [InlineData(KeepAliveMode.TimeoutWithPayload)]
+    public async Task OnKeepAliveLoopAsync(KeepAliveMode keepAliveMode)
+    {
+        _options.WebSockets.KeepAliveMode = keepAliveMode;
+        var defaultKeepAliveTimeout = TimeSpan.FromSeconds(10);
+        _mockServer.Protected().SetupGet<TimeSpan>("DefaultKeepAliveTimeout")
+            .Returns(defaultKeepAliveTimeout).Verifiable();
+        _mockServer.Protected().Setup<Task>("OnKeepAliveLoopAsync").CallBase().Verifiable();
+        _mockServer.Protected().Setup<Task>("OnKeepAliveLoopAsync", defaultKeepAliveTimeout, keepAliveMode)
+            .Returns(Task.CompletedTask).Verifiable();
+        await _server.Do_OnKeepAliveLoopAsync();
         _mockServer.Verify();
         _mockServer.VerifyNoOtherCalls();
     }
@@ -205,13 +261,28 @@ public class NewSubscriptionServerTests : IDisposable
         _mockServer.VerifyNoOtherCalls();
     }
 
-    [Fact]
-    public async Task OnPingAsync()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task OnPingAsync(bool withPayload)
     {
+        var payload = new { id = Guid.NewGuid().ToString("N") };
         _mockStream.Setup(x => x.SendMessageAsync(It.IsAny<OperationMessage>()))
-            .Returns<OperationMessage>(o => o.Type == "pong" ? Task.CompletedTask : Task.FromException(new Exception()))
+            .Returns<OperationMessage>(async o =>
+            {
+                o.Id.ShouldBeNull();
+                o.Type.ShouldBe("pong");
+                if (withPayload)
+                {
+                    o.Payload.ShouldBe(payload);
+                }
+                else
+                {
+                    o.Payload.ShouldBeNull();
+                }
+            })
             .Verifiable();
-        var message = new OperationMessage();
+        var message = new OperationMessage() { Payload = withPayload ? payload : null };
         _mockServer.Protected().Setup<Task>("OnPingAsync", message).CallBase().Verifiable();
         await _server.Do_OnPingAsync(message);
         _mockServer.Verify();

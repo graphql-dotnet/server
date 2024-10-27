@@ -85,7 +85,9 @@ public class SubscriptionServer : BaseSubscriptionServer
             }
             else
             {
+#pragma warning disable CS0618 // Type or member is obsolete
                 await OnConnectionInitAsync(message, false);
+#pragma warning restore CS0618 // Type or member is obsolete
             }
             return;
         }
@@ -107,6 +109,26 @@ public class SubscriptionServer : BaseSubscriptionServer
                 break;
         }
     }
+
+    /// <inheritdoc/>
+    [Obsolete($"Please use the {nameof(OnConnectionInitAsync)} and {nameof(OnKeepAliveLoopAsync)} methods instead. This method will be removed in a future version of this library.")]
+    protected override Task OnConnectionInitAsync(OperationMessage message, bool smartKeepAlive)
+    {
+        if (!smartKeepAlive)
+            return OnConnectionInitAsync(message);
+        else
+            return base.OnConnectionInitAsync(message, smartKeepAlive);
+    }
+
+    /// <inheritdoc/>
+    /// <remarks>
+    /// This implementation overrides <see cref="GraphQLWebSocketOptions.KeepAliveMode"/> to <see cref="KeepAliveMode.Interval"/>
+    /// as this protocol does not support the other modes. Override this method to support your own implementation.
+    /// </remarks>
+    protected override Task OnKeepAliveLoopAsync(TimeSpan keepAliveTimeout, KeepAliveMode keepAliveMode)
+        => base.OnKeepAliveLoopAsync(
+            keepAliveTimeout,
+            KeepAliveMode.Interval);
 
     private static readonly OperationMessage _keepAliveMessage = new() { Type = MessageType.GQL_CONNECTION_KEEP_ALIVE };
     /// <inheritdoc/>
