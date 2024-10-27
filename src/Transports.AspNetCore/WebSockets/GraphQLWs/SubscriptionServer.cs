@@ -159,7 +159,7 @@ public class SubscriptionServer : BaseSubscriptionServer
                 {
                     lastPongReceivedUtc = _lastPongReceivedUtc;
                 }
-                var nextPing = _lastPongReceivedUtc.Add(pingInterval);
+                var nextPing = lastPongReceivedUtc.Add(pingInterval);
                 interval = nextPing.Subtract(now);
                 if (interval > TimeSpan.Zero) // could easily be zero or less, if pongInterval is equal or greater than pingInterval
                     await Task.Delay(interval, CancellationToken);
