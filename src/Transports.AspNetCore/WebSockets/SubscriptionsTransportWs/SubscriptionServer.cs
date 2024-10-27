@@ -115,7 +115,7 @@ public class SubscriptionServer : BaseSubscriptionServer
     protected override Task OnConnectionInitAsync(OperationMessage message, bool smartKeepAlive)
     {
         if (!smartKeepAlive)
-            return base.OnConnectionInitAsync(message);
+            return OnConnectionInitAsync(message);
         else
             return base.OnConnectionInitAsync(message, smartKeepAlive);
     }

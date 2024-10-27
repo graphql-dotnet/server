@@ -87,6 +87,14 @@ public class OldSubscriptionServerTests : IDisposable
         else
         {
             _mockServer.Protected().Setup<Task>("OnConnectionInitAsync", message, false)
+                .CallBase().Verifiable();
+            _mockServer.Protected().Setup<Task>("OnConnectionInitAsync", message)
+                .CallBase().Verifiable();
+            _mockServer.Protected().Setup<ValueTask<bool>>("AuthorizeAsync", message)
+                .Returns(new ValueTask<bool>(true)).Verifiable();
+            _mockServer.Protected().Setup<Task>("OnConnectionAcknowledgeAsync", message)
+                .Returns(Task.CompletedTask).Verifiable();
+            _mockServer.Protected().Setup<Task>("OnKeepAliveLoopAsync")
                 .Returns(Task.CompletedTask).Verifiable();
         }
         _mockServer.Setup(x => x.OnMessageReceivedAsync(message)).CallBase().Verifiable();
