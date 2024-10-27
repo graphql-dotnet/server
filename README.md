@@ -853,7 +853,7 @@ app.UseGraphQL("/graphql", options =>
 });
 ```
 
-Please note that some UI packages do not support the `graphql-transport-ws` sub-protocol.
+Please note that the included UI packages are configured to use the `graphql-ws` sub-protocol.
 
 ### Customizing middleware behavior
 
