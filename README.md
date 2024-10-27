@@ -730,10 +730,12 @@ methods allowing for different options for each configured endpoint.
 | Property                    | Description          | Default value |
 |-----------------------------|----------------------|---------------|
 | `ConnectionInitWaitTimeout` | The amount of time to wait for a GraphQL initialization packet before the connection is closed. | 10 seconds |
-| `KeepAliveTimeout`          | The amount of time to wait between sending keep-alive packets. | disabled |
 | `DisconnectionTimeout`      | The amount of time to wait to attempt a graceful teardown of the WebSockets protocol. | 10 seconds |
 | `DisconnectAfterErrorEvent` | Disconnects a subscription from the client if the subscription source dispatches an `OnError` event. | True |
 | `DisconnectAfterAnyError`   | Disconnects a subscription from the client if there are any GraphQL errors during a subscription. | False |
+| `KeepAliveMode`             | The mode to use for sending keep-alive packets. | protocol-dependent |
+| `KeepAliveTimeout`          | The amount of time to wait between sending keep-alive packets. | disabled |
+| `SupportedWebSocketSubProtocols` | A list of supported WebSocket sub-protocols. | `graphql-ws`, `graphql-transport-ws` |
 
 ### Multi-schema configuration
 
@@ -799,6 +801,59 @@ public class MySchema : Schema
     }
 }
 ```
+
+### Keep-alive configuration
+
+By default, the middleware will not send keep-alive packets to the client.  As the underlying
+operating system may not detect a disconnected client until a message is sent, you may wish to
+enable keep-alive packets to be sent periodically.  The default mode for keep-alive packets
+differs depending on whether the client connected with the `graphql-ws` or `graphql-transport-ws`
+sub-protocol.  The `graphql-ws` sub-protocol will send a unidirectional keep-alive packet to the
+client on a fixed schedule, while the `graphql-transport-ws` sub-protocol will only send
+unidirectional keep-alive packets when the client has not sent a message within a certain time.
+The differing behavior is due to the default implementation of the `graphql-ws` sub-protocol
+client, which after receiving a single keep-alive packet, expects additional keep-alive packets
+to be sent sooner than every 20 seconds, regardless of the client's activity.
+
+To configure keep-alive packets, set the `KeepAliveMode` and `KeepAliveTimeout` properties
+within the `GraphQLWebSocketOptions` object.  Set the `KeepAliveTimeout` property to
+enable keep-alive packets, or use `TimeSpan.Zero` or `Timeout.InfiniteTimeSpan` to disable it.
+
+The `KeepAliveMode` property is only applicable to the `graphql-transport-ws` sub-protocol and
+can be set to the options listed below:
+
+| Keep-alive mode | Description |
+|-----------------|-------------|
+| `Default`       | Same as `Timeout`. |
+| `Timeout`       | Sends a unidirectional keep-alive message when no message has been received within the specified timeout period. |
+| `Interval`      | Sends a unidirectional keep-alive message at a fixed interval, regardless of message activity. |
+| `TimeoutWithPayload` | Sends a bidirectional keep-alive message with a payload on a fixed interval, and validates the payload matches in the response. |
+
+The `TimeoutWithPayload` model is particularly useful when the server may send messages to the
+client at a faster pace than the client can process them.  In this case queued messages will be
+limited to double the timeout period, as the keep-alive message is queued along with other
+packets sent from the server to the client.  The client will need to respond to process queued
+messages and respond to the keep-alive message within the timeout period or the server will
+disconnect the client.  When the server forcibly disconnects the client, no graceful teardown
+of the WebSocket protocol occurs, and any queued messages are discarded.
+
+When using the `TimeoutWithPayload` keep-alive mode, you may wish to enforce that the
+`graphql-transport-ws` sub-protocol is in use by the client, as the `graphql-ws` sub-protocol
+does not support bidirectional keep-alive packets.  This can be done by setting the
+`SupportedWebSocketSubProtocols` property to only include the `graphql-transport-ws` sub-protocol.
+
+```csharp
+app.UseGraphQL("/graphql", options =>
+{
+    // configure keep-alive packets
+    options.WebSockets.KeepAliveTimeout = TimeSpan.FromSeconds(10);
+    options.WebSockets.KeepAliveMode = KeepAliveMode.TimeoutWithPayload;
+    // set the supported sub-protocols to only include the graphql-transport-ws sub-protocol
+    options.WebSockets.SupportedWebSocketSubProtocols = [GraphQLWs.SubscriptionServer.SubProtocol];
+});
+```
+
+Please note that the included UI packages are configured to use the `graphql-ws` sub-protocol.
 
 ### Customizing middleware behavior
 
