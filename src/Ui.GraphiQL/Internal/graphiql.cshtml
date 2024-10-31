@@ -233,11 +233,7 @@
           if (err instanceof Error) {
             throwMe = err;
           } else if (err instanceof CloseEvent) {
-            throwMe = new Error(
-              `Socket closed with event ${err.code} ${
-                err.reason || ""
-              }`.trim()
-            );
+            throwMe = new Error(`Socket closed with event ${err.code} ${err.reason || ""}`.trim());
           } else {
             // GraphQLError[]
             throwMe = new Error(err.map(({ message }) => message).join(", "));
