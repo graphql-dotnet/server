@@ -215,7 +215,6 @@
 
     let wsClient = null;
     function graphQLWsFetcher(payload, fetcherOpts) {
-      console.log('graphQLWsFetcher', payload, fetcherOpts, !fetcherOpts || !fetcherOpts.documentAST || !isSubscription(payload.operationName, fetcherOpts.documentAST));
       if (!fetcherOpts || !fetcherOpts.documentAST || !isSubscription(payload.operationName, fetcherOpts.documentAST))
         return graphQLFetcher(payload, fetcherOpts);
       if (!wsClient) {
