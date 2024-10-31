@@ -207,7 +207,7 @@
     
     function isSubscription(operationName, documentAST) {
       if (!documentAST.definitions || !documentAST.definitions.length || !documentAST.definitions.filter) return false;
-      const definitions = documentAST.definitions.filter(function (def) { return def.kind === 'OperationDefinition'; });
+      let definitions = documentAST.definitions.filter(function (def) { return def.kind === 'OperationDefinition'; });
       if (operationName) definitions = definitions.filter(function (def) { return def.name && def.name.value === operationName; });
       if (definitions.length === 0) return false;
       return definitions[0].operation === 'subscription';
