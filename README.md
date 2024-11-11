@@ -853,7 +853,9 @@ app.UseGraphQL("/graphql", options =>
 });
 ```
 
-Please note that the included UI packages are configured to use the `graphql-ws` sub-protocol.
+Please note that the included UI packages are configured to use the `graphql-ws` sub-protocol by
+default.  You may use the `graphql-transport-ws` sub-protocol with the GraphiQL package by setting
+the `GraphQLWsSubscriptions` option to `true` when configuring the GraphiQL middleware.
 
 ### Customizing middleware behavior
 

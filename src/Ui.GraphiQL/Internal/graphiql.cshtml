@@ -77,6 +77,11 @@
     integrity="sha384-ArTEHLNWIe9TuoDpFEtD/NeztNdWn3SdmWwMiAuZaSJeOaYypEGzeQoBxuPO+ORM"
     crossorigin="anonymous"
   ></script>
+  <script
+    src="https://unpkg.com/graphql-ws@5.16.0/umd/graphql-ws.min.js"
+    integrity="sha384-oEPbisbEBMo7iCrbQcKx244HXUjGnF1jyS8hkVZ3oCwnw9c9oLfY70c1RKeKj3+i"
+    crossorigin="anonymous"
+  ></script>
 
 </head>
 <body>
@@ -188,14 +193,85 @@
       // if location is absolute (e.g. "/api") then prepend host only
       return (window.location.protocol === "http:" ? "ws://" : "wss://") + window.location.host + subscriptionsEndPoint;
     }
+    const subscriptionEndPoint = getSubscriptionsEndPoint();
 
     // Enable Subscriptions via WebSocket
-    var subscriptionsClient = new window.SubscriptionsTransportWs.SubscriptionClient(getSubscriptionsEndPoint(), { reconnect: true });
-    function subscriptionsFetcher(graphQLParams, fetcherOpts = { headers: {} }) {
+    let subscriptionsClient = null;
+    function subscriptionsTransportWsFetcher(graphQLParams, fetcherOpts = { headers: {} }) {
+      if (!subscriptionsClient)
+        subscriptionsClient = new window.SubscriptionsTransportWs.SubscriptionClient(subscriptionEndPoint, { reconnect: true });
       return window.GraphiQLSubscriptionsFetcher.graphQLFetcher(subscriptionsClient, function (_graphQLParams) {
         return graphQLFetcher(_graphQLParams, fetcherOpts);
       })(graphQLParams);
     }
+    
+    function isSubscription(operationName, documentAST) {
+      if (!documentAST.definitions || !documentAST.definitions.length || !documentAST.definitions.filter) return false;
+      let definitions = documentAST.definitions.filter(function (def) { return def.kind === 'OperationDefinition'; });
+      if (operationName) definitions = definitions.filter(function (def) { return def.name && def.name.value === operationName; });
+      if (definitions.length === 0) return false;
+      return definitions[0].operation === 'subscription';
+    }
+
+    let wsClient = null;
+    function graphQLWsFetcher(payload, fetcherOpts) {
+      if (!fetcherOpts || !fetcherOpts.documentAST || !isSubscription(payload.operationName, fetcherOpts.documentAST))
+        return graphQLFetcher(payload, fetcherOpts);
+      if (!wsClient) {
+        wsClient = graphqlWs.createClient({ url: subscriptionEndPoint });
+      }
+      let deferred = null;
+      const pending = [];
+      let throwMe = null,
+        done = false;
+      const dispose = wsClient.subscribe(payload, {
+        next: (data) => {
+          pending.push(data);
+          if (deferred) deferred.resolve(false);
+        },
+        error: (err) => {
+          if (err instanceof Error) {
+            throwMe = err;
+          } else if (err instanceof CloseEvent) {
+            throwMe = new Error(`Socket closed with event ${err.code} ${err.reason || ""}`.trim());
+          } else {
+            // GraphQLError[]
+            throwMe = new Error(err.map(({ message }) => message).join(", "));
+          }
+          if (deferred) deferred.reject(throwMe);
+        },
+        complete: () => {
+          done = true;
+          if (deferred) deferred.resolve(true);
+        },
+      });
+
+      return {
+        [Symbol.asyncIterator]: function() {
+          return this;
+        },
+        next: function() {
+          if (done) return Promise.resolve({ done: true, value: undefined });
+          if (throwMe) return Promise.reject(throwMe);
+          if (pending.length) return Promise.resolve({ value: pending.shift() });
+          return new Promise(function(resolve, reject) {
+            deferred = { resolve, reject };
+          }).then(function(result) {
+            if (result) {
+              return { done: true, value: undefined };
+            } else {
+              return { value: pending.shift() };
+            }
+          });
+        },
+        return: function() {
+          dispose();
+          return Promise.resolve({ done: true, value: undefined });
+        }
+      };
+    }
+
+    const subscriptionFetcher = (@Model.GraphQLWs) ? graphQLWsFetcher : subscriptionsTransportWsFetcher;
 
     // Render <GraphiQL /> into the body.
     // See the README in the top level of this module to learn more about
@@ -203,7 +279,7 @@
     // additional child elements.
     ReactDOM.render(
       React.createElement(@Model.GraphiQLElement, {
-        fetcher: subscriptionsFetcher,
+        fetcher: subscriptionFetcher,
         query: parameters.query,
         variables: parameters.variables,
         operationName: parameters.operationName,

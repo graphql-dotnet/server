@@ -50,7 +50,8 @@ internal sealed class GraphiQLPageModel
                 .Replace("@Model.Headers", JsonSerialize(headers))
                 .Replace("@Model.HeaderEditorEnabled", _options.HeaderEditorEnabled ? "true" : "false")
                 .Replace("@Model.GraphiQLElement", "GraphiQL")
-                .Replace("@Model.RequestCredentials", requestCredentials);
+                .Replace("@Model.RequestCredentials", requestCredentials)
+                .Replace("@Model.GraphQLWs", _options.GraphQLWsSubscriptions ? "true" : "false");
 
             // Here, fully-qualified, absolute and relative URLs are supported for both the
             // GraphQLEndPoint and SubscriptionsEndPoint.  Those paths can be passed unmodified
