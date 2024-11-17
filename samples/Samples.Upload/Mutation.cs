@@ -1,4 +1,5 @@
 using GraphQL;
+using GraphQL.Server.Transports.AspNetCore;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 
@@ -6,7 +7,7 @@ namespace Samples.Upload;
 
 public class Mutation
 {
-    public static async Task<string> Rotate(IFormFile file, CancellationToken cancellationToken)
+    public static async Task<string> Rotate([MediaType("image/*")] IFormFile file, CancellationToken cancellationToken)
     {
         if (file == null || file.Length == 0)
         {

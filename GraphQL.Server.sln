@@ -12,6 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".Solution Items", ".Solutio
 		.gitignore = .gitignore
 		Directory.Build.props = Directory.Build.props
 		Directory.Build.targets = Directory.Build.targets
+		global.json = global.json
 		graphql.snk = graphql.snk
 		LICENSE.md = LICENSE.md
 		README.md = README.md
@@ -96,15 +97,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples.Net48.Tests", "test
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples.Pages.Tests", "tests\Samples.Pages.Tests\Samples.Pages.Tests.csproj", "{BF4ED814-A21D-45F5-8F71-54148751AE81}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Authorization.AspNetCore", "src\Authorization.AspNetCore\Authorization.AspNetCore.csproj", "{A4875E2D-62AF-4D86-9D8A-19A310365FE8}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Authorization.AspNetCore.Tests", "tests\Authorization.AspNetCore.Tests\Authorization.AspNetCore.Tests.csproj", "{9AEB9941-618B-430A-A14C-37F39AFFC0C4}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentation", "{AB155A1E-CB5E-465E-BC29-A1A4A5D9D2B0}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Migration", "Migration", "{FF0810A0-3372-40ED-B3E3-D703BEF0F118}"
 	ProjectSection(SolutionItems) = preProject
 		docs\migration\migration7.md = docs\migration\migration7.md
+		docs\migration\migration8.md = docs\migration\migration8.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples.Jwt", "samples\Samples.Jwt\Samples.Jwt.csproj", "{5A16B117-0FAD-4F91-A97C-E72B733B4E57}"
@@ -120,7 +118,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples.AzureFunctions", "s
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples.AzureFunctions.Tests", "tests\Samples.AzureFunctions.Tests\Samples.AzureFunctions.Tests.csproj", "{A204E359-05E8-4CEE-891C-4CCA6570FA52}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Samples.Upload", "samples\Samples.Upload\Samples.Upload.csproj", "{33E2CDF5-F854-4F1A-80D5-DBF0BDF8EEA8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples.Upload", "samples\Samples.Upload\Samples.Upload.csproj", "{33E2CDF5-F854-4F1A-80D5-DBF0BDF8EEA8}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples.Upload.Tests", "tests\Samples.Upload.Tests\Samples.Upload.Tests.csproj", "{DE3059F4-B548-4091-BFC0-5879246A2DF9}"
 EndProject
@@ -242,14 +240,6 @@ Global
 		{BF4ED814-A21D-45F5-8F71-54148751AE81}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BF4ED814-A21D-45F5-8F71-54148751AE81}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BF4ED814-A21D-45F5-8F71-54148751AE81}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A4875E2D-62AF-4D86-9D8A-19A310365FE8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A4875E2D-62AF-4D86-9D8A-19A310365FE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A4875E2D-62AF-4D86-9D8A-19A310365FE8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A4875E2D-62AF-4D86-9D8A-19A310365FE8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9AEB9941-618B-430A-A14C-37F39AFFC0C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9AEB9941-618B-430A-A14C-37F39AFFC0C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9AEB9941-618B-430A-A14C-37F39AFFC0C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9AEB9941-618B-430A-A14C-37F39AFFC0C4}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5A16B117-0FAD-4F91-A97C-E72B733B4E57}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5A16B117-0FAD-4F91-A97C-E72B733B4E57}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5A16B117-0FAD-4F91-A97C-E72B733B4E57}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -306,7 +296,6 @@ Global
 		{15043767-3620-4505-9DA9-78E3E5C05E18} = {BBD07745-C962-4D2D-B302-6DA1BCC2FF43}
 		{08E0FF4C-9131-4523-A6EF-4C1FCE7EFA05} = {BBD07745-C962-4D2D-B302-6DA1BCC2FF43}
 		{BF4ED814-A21D-45F5-8F71-54148751AE81} = {BBD07745-C962-4D2D-B302-6DA1BCC2FF43}
-		{9AEB9941-618B-430A-A14C-37F39AFFC0C4} = {BBD07745-C962-4D2D-B302-6DA1BCC2FF43}
 		{FF0810A0-3372-40ED-B3E3-D703BEF0F118} = {AB155A1E-CB5E-465E-BC29-A1A4A5D9D2B0}
 		{5A16B117-0FAD-4F91-A97C-E72B733B4E57} = {5C07AFA3-12F2-40EA-807D-7A1EEF29012B}
 		{2B5A39E8-098F-458E-981C-BC9470CB94B0} = {BBD07745-C962-4D2D-B302-6DA1BCC2FF43}

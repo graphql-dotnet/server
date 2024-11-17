@@ -21,7 +21,7 @@ public class EndToEndTests
 
     [Fact]
     public Task GraphQLGet_AccessDenied()
-        => new ServerTests<Program>().VerifyGraphQLGetAsync("/graphql", ACCESS_DENIED_QUERY, ACCESS_DENIED_RESPONSE, HttpStatusCode.BadRequest);
+        => new ServerTests<Program>().VerifyGraphQLGetAsync("/graphql", ACCESS_DENIED_QUERY, ACCESS_DENIED_RESPONSE, HttpStatusCode.Unauthorized);
 
     [Fact]
     public Task GraphQLPost_Success()
@@ -29,7 +29,7 @@ public class EndToEndTests
 
     [Fact]
     public Task GraphQPost_AccessDenied()
-        => new ServerTests<Program>().VerifyGraphQLPostAsync("/graphql", ACCESS_DENIED_QUERY, ACCESS_DENIED_RESPONSE, HttpStatusCode.BadRequest);
+        => new ServerTests<Program>().VerifyGraphQLPostAsync("/graphql", ACCESS_DENIED_QUERY, ACCESS_DENIED_RESPONSE, HttpStatusCode.Unauthorized);
 
     [Fact]
     public Task GraphQLWebSocket_Success()

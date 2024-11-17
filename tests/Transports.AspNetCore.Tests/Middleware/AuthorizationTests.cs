@@ -107,7 +107,9 @@ public class AuthorizationTests : IDisposable
     {
         _options.AuthorizationRequired = true;
         var client = _server.CreateClient();
-        using var response = await client.GetAsync("/graphql?query={ __typename }");
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/graphql?query={ __typename }");
+        request.Headers.Add("GraphQL-Require-Preflight", "true");
+        using var response = await client.SendAsync(request);
         response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
         var actual = await response.Content.ReadAsStringAsync();
         actual.ShouldBe("""{"errors":[{"message":"Access denied for schema.","extensions":{"code":"ACCESS_DENIED","codes":["ACCESS_DENIED"]}}]}""");

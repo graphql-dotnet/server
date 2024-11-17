@@ -1,4 +1,8 @@
 using System.Net;
+using System.Net.Http.Headers;
+using GraphQL.PersistedDocuments;
+using GraphQL.Server.Transports.AspNetCore.Errors;
+using GraphQL.Validation;
 
 namespace Tests.Middleware;
 
@@ -6,7 +10,8 @@ public class PostTests : IDisposable
 {
     private GraphQLHttpMiddlewareOptions _options = null!;
     private GraphQLHttpMiddlewareOptions _options2 = null!;
-    private readonly Action<ExecutionOptions> _configureExecution = _ => { };
+    private Action<ExecutionOptions> _configureExecution = _ => { };
+    private bool _enablePersistedDocuments = true;
     private readonly TestServer _server;
 
     public PostTests()
@@ -15,15 +20,37 @@ public class PostTests : IDisposable
         hostBuilder.ConfigureServices(services =>
         {
             services.AddSingleton<Chat.IChat, Chat.Chat>();
-            services.AddGraphQL(b => b
-                .AddAutoSchema<Chat.Query>(s => s
-                    .WithMutation<Chat.Mutation>()
-                    .WithSubscription<Chat.Subscription>())
-                .AddSchema<Schema2>()
-                .AddAutoClrMappings()
-                .AddFormFileGraphType()
-                .AddSystemTextJson()
-                .ConfigureExecutionOptions(o => _configureExecution(o)));
+            services.AddGraphQL(b =>
+            {
+                b
+                    .AddAutoSchema<Chat.Query>(s => s
+                        .WithMutation<Chat.Mutation>()
+                        .WithSubscription<Chat.Subscription>())
+                    .AddSchema<Schema2>()
+                    .AddAutoClrMappings()
+                    .AddFormFileGraphType()
+                    .AddSystemTextJson()
+                    .ConfigureExecution((options, next) =>
+                    {
+                        if (_enablePersistedDocuments)
+                        {
+                            var handler = options.RequestServices!.GetRequiredService<PersistedDocumentHandler>();
+                            return handler.ExecuteAsync(options, next);
+                        }
+                        return next(options);
+                    })
+                    .ConfigureExecutionOptions(o => _configureExecution(o));
+                b.Services.Configure<PersistedDocumentOptions>(o =>
+                {
+                    o.AllowOnlyPersistedDocuments = false;
+                    o.AllowedPrefixes.Add("test");
+                    o.GetQueryDelegate = (options, prefix, payload) =>
+                        prefix == "test" && payload == "abc" ? new("{count}") :
+                        prefix == "test" && payload == "form" ? new("query op1{ext} query op2($test:String!){ext var(test:$test)}") :
+                        default;
+                });
+            });
+            services.AddSingleton<PersistedDocumentHandler>();
 #if NETCOREAPP2_1 || NET48
             services.AddHostApplicationLifetime();
 #endif
@@ -65,6 +92,14 @@ public class PostTests : IDisposable
         public static MyFile File3(MyFileInput arg) => new(arg.File);
         public static IEnumerable<MyFile> File4(IEnumerable<MyFileInput> args) => args.Select(x => new MyFile(x.File));
         public static IEnumerable<MyFile> File5(MyFileInput2 args) => args.Files.Select(x => new MyFile(x));
+
+        public static string? CustomError() => throw new CustomError();
+    }
+
+    public class CustomError : ValidationError, IHasPreferredStatusCode
+    {
+        public CustomError() : base("Custom error") { }
+        public HttpStatusCode PreferredStatusCode => HttpStatusCode.NotAcceptable;
     }
 
     private record MyFileInput(IFormFile File);
@@ -114,6 +149,13 @@ public class PostTests : IDisposable
         await response.ShouldBeAsync("""{"data":{"count":0}}""");
     }
 
+    [Fact]
+    public async Task PersistedDocument_Simple()
+    {
+        using var response = await PostRequestAsync(new() { DocumentId = "test:abc" });
+        await response.ShouldBeAsync("""{"data":{"count":0}}""");
+    }
+
 #if NET5_0_OR_GREATER
     [Fact]
     public async Task AltCharset()
@@ -147,43 +189,93 @@ public class PostTests : IDisposable
     }
 #endif
 
-    [Fact]
-    public async Task FormMultipart_Legacy()
+    [Theory]
+    [InlineData(true, true, false)]
+    [InlineData(true, false, false)]
+    [InlineData(false, true, false)]
+    [InlineData(false, false, false)]
+    [InlineData(true, true, true)]
+    [InlineData(true, false, true)]
+    [InlineData(false, true, true)]
+    [InlineData(false, false, true)]
+    public async Task FormMultipart_Legacy(bool requireCsrf, bool supplyCsrf, bool useDocumentId)
     {
+        _options2.ReadFormOnPost = true;
+        if (!requireCsrf)
+            _options2.CsrfProtectionEnabled = false;
         var client = _server.CreateClient();
         var content = new MultipartFormDataContent();
-        var queryContent = new StringContent("query op1{ext} query op2($test:String!){ext var(test:$test)}");
-        queryContent.Headers.ContentType = new("application/graphql");
+        if (!useDocumentId)
+        {
+            var queryContent = new StringContent("query op1{ext} query op2($test:String!){ext var(test:$test)}");
+            queryContent.Headers.ContentType = new("application/graphql");
+            content.Add(queryContent, "query");
+        }
+        else
+        {
+            var documentIdContent = new StringContent("test:form");
+            documentIdContent.Headers.ContentType = new("text/text");
+            content.Add(documentIdContent, "documentId");
+        }
         var variablesContent = new StringContent("""{"test":"1"}""");
         variablesContent.Headers.ContentType = new("application/json");
         var extensionsContent = new StringContent("""{"test":"2"}""");
         extensionsContent.Headers.ContentType = new("application/json");
         var operationNameContent = new StringContent("op2");
         operationNameContent.Headers.ContentType = new("text/text");
-        content.Add(queryContent, "query");
         content.Add(variablesContent, "variables");
         content.Add(extensionsContent, "extensions");
         content.Add(operationNameContent, "operationName");
-        using var response = await client.PostAsync("/graphql2", content);
-        await response.ShouldBeAsync("""{"data":{"ext":"2","var":"1"}}""");
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/graphql2") { Content = content };
+        if (supplyCsrf)
+            request.Headers.Add("GraphQL-Require-Preflight", "true");
+        using var response = await client.SendAsync(request);
+        if (!requireCsrf || supplyCsrf)
+            await response.ShouldBeAsync("""{"data":{"ext":"2","var":"1"}}""");
+        else
+            await response.ShouldBeAsync(true, """{"errors":[{"message":"This request requires a non-empty header from the following list: \u0027GraphQL-Require-Preflight\u0027.","extensions":{"code":"CSRF_PROTECTION","codes":["CSRF_PROTECTION"]}}]}""");
     }
 
-    [Fact]
-    public async Task FormMultipart_Upload()
+    [Theory]
+    [InlineData(true, true, false)]
+    [InlineData(true, false, false)]
+    [InlineData(false, true, false)]
+    [InlineData(false, false, false)]
+    [InlineData(true, true, true)]
+    [InlineData(true, false, true)]
+    [InlineData(false, true, true)]
+    [InlineData(false, false, true)]
+    public async Task FormMultipart_Upload(bool requireCsrf, bool supplyCsrf, bool useDocumentId)
     {
+        _options2.ReadFormOnPost = true;
+        if (!requireCsrf)
+            _options2.CsrfProtectionEnabled = false;
         var client = _server.CreateClient();
         using var content = new MultipartFormDataContent();
-        var jsonContent = new StringContent("""
+        var jsonContent = new StringContent(!useDocumentId ? """
             {
                 "query": "query op1{ext} query op2($test:String!){ext var(test:$test)}",
                 "operationName": "op2",
                 "variables": { "test": "1" },
                 "extensions": { "test": "2"}
             }
+            """ : """
+            {
+                "documentId": "test:form",
+                "operationName": "op2",
+                "variables": { "test": "1" },
+                "extensions": { "test": "2"}
+            }
             """, Encoding.UTF8, "application/json");
         content.Add(jsonContent, "operations");
-        using var response = await client.PostAsync("/graphql2", content);
-        await response.ShouldBeAsync("""{"data":{"ext":"2","var":"1"}}""");
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/graphql2") { Content = content };
+        if (supplyCsrf)
+            request.Headers.Add("GraphQL-Require-Preflight", "true");
+        using var response = await client.SendAsync(request);
+        if (!requireCsrf || supplyCsrf)
+            await response.ShouldBeAsync("""{"data":{"ext":"2","var":"1"}}""");
+        else
+            await response.ShouldBeAsync(true, """{"errors":[{"message":"This request requires a non-empty header from the following list: \u0027GraphQL-Require-Preflight\u0027.","extensions":{"code":"CSRF_PROTECTION","codes":["CSRF_PROTECTION"]}}]}""");
     }
 
     // successful queries
@@ -258,17 +350,17 @@ public class PostTests : IDisposable
         400, "{\"errors\":[{\"message\":\"Invalid map path. Map target cannot be null.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
     // invalid map keys
     [InlineData(40, null, "{\"\":[\"0.variables.arg\"]}", false, false,
-        400, "{\"errors\":[{\"message\":\"Invalid map path. Map key cannot be query, operationName, variables, extensions, operations or map.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Map key cannot be query, operationName, variables, extensions, documentId, operations or map.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
     [InlineData(41, null, "{\"query\":[\"0.variables.arg\"]}", false, false,
-        400, "{\"errors\":[{\"message\":\"Invalid map path. Map key cannot be query, operationName, variables, extensions, operations or map.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Map key cannot be query, operationName, variables, extensions, documentId, operations or map.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
     [InlineData(42, null, "{\"variables\":[\"0.variables.arg\"]}", false, false,
-        400, "{\"errors\":[{\"message\":\"Invalid map path. Map key cannot be query, operationName, variables, extensions, operations or map.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Map key cannot be query, operationName, variables, extensions, documentId, operations or map.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
     [InlineData(43, null, "{\"extensions\":[\"0.variables.arg\"]}", false, false,
-        400, "{\"errors\":[{\"message\":\"Invalid map path. Map key cannot be query, operationName, variables, extensions, operations or map.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Map key cannot be query, operationName, variables, extensions, documentId, operations or map.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
     [InlineData(44, null, "{\"operationName\":[\"0.variables.arg\"]}", false, false,
-        400, "{\"errors\":[{\"message\":\"Invalid map path. Map key cannot be query, operationName, variables, extensions, operations or map.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Map key cannot be query, operationName, variables, extensions, documentId, operations or map.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
     [InlineData(45, null, "{\"map\":[\"0.variables.arg\"]}", false, false,
-        400, "{\"errors\":[{\"message\":\"Invalid map path. Map key cannot be query, operationName, variables, extensions, operations or map.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
+        400, "{\"errors\":[{\"message\":\"Invalid map path. Map key cannot be query, operationName, variables, extensions, documentId, operations or map.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
     // missing referenced file
     [InlineData(50, null, "{\"file0\":[\"0.variables.arg\"]}", false, false,
         400, "{\"errors\":[{\"message\":\"Invalid map path. Map key does not refer to an uploaded file.\",\"extensions\":{\"code\":\"INVALID_MAP\",\"codes\":[\"INVALID_MAP\"]}}]}")]
@@ -333,6 +425,7 @@ public class PostTests : IDisposable
     [Theory]
     public async Task FormMultipart_Upload_Matrix(int testIndex, string? operations, string? map, bool file0, bool file1, int expectedStatusCode, string expectedResponse)
     {
+        _options2.ReadFormOnPost = true;
         _ = testIndex;
         operations ??= "{\"query\":\"query($arg:FormFile){file(file:$arg){content}}\",\"variables\":{\"arg\":null}}";
         var client = _server.CreateClient();
@@ -345,7 +438,9 @@ public class PostTests : IDisposable
             content.Add(new StringContent("test1", Encoding.UTF8, "text/text"), "file0", "example1.txt");
         if (file1)
             content.Add(new StringContent("test2", Encoding.UTF8, "text/html"), "file1", "example2.html");
-        using var response = await client.PostAsync("/graphql2", content);
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/graphql2") { Content = content };
+        request.Headers.Add("GraphQL-Require-Preflight", "true");
+        using var response = await client.SendAsync(request);
         await response.ShouldBeAsync((HttpStatusCode)expectedStatusCode, expectedResponse);
     }
 
@@ -359,6 +454,7 @@ public class PostTests : IDisposable
         var client = _server.CreateClient();
         _options2.MaximumFileCount = maxFileCount;
         _options2.MaximumFileSize = maxFileLength;
+        _options2.ReadFormOnPost = true;
         using var content = new MultipartFormDataContent
         {
             { new StringContent(operations, Encoding.UTF8, "application/json"), "operations" },
@@ -366,22 +462,43 @@ public class PostTests : IDisposable
             { new StringContent("test1", Encoding.UTF8, "text/text"), "file0", "example1.txt" },
             { new StringContent("test2", Encoding.UTF8, "text/html"), "file1", "example2.html" }
         };
-        using var response = await client.PostAsync("/graphql2", content);
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/graphql2") { Content = content };
+        request.Headers.Add("GraphQL-Require-Preflight", "true");
+        using var response = await client.SendAsync(request);
         await response.ShouldBeAsync(expectedStatusCode, expectedResponse);
     }
 
-    [Fact]
-    public async Task FormUrlEncoded()
+    [Theory]
+    [InlineData(true, true, false)]
+    [InlineData(true, false, false)]
+    [InlineData(false, true, false)]
+    [InlineData(false, false, false)]
+    [InlineData(true, true, true)]
+    [InlineData(true, false, true)]
+    [InlineData(false, true, true)]
+    [InlineData(false, false, true)]
+    public async Task FormUrlEncoded(bool requireCsrf, bool supplyCsrf, bool useDocumentId)
     {
+        _options2.ReadFormOnPost = true;
+        if (!requireCsrf)
+            _options2.CsrfProtectionEnabled = false;
         var client = _server.CreateClient();
         var content = new FormUrlEncodedContent(new[] {
-            new KeyValuePair<string?, string?>("query", "query op1{ext} query op2($test:String!){ext var(test:$test)}"),
+            !useDocumentId
+                ? new KeyValuePair<string?, string?>("query", "query op1{ext} query op2($test:String!){ext var(test:$test)}")
+                : new KeyValuePair<string?, string?>("documentId", "test:form"),
             new KeyValuePair<string?, string?>("variables", """{"test":"1"}"""),
             new KeyValuePair<string?, string?>("extensions", """{"test":"2"}"""),
             new KeyValuePair<string?, string?>("operationName", "op2"),
         });
-        using var response = await client.PostAsync("/graphql2", content);
-        await response.ShouldBeAsync("""{"data":{"ext":"2","var":"1"}}""");
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/graphql2") { Content = content };
+        if (supplyCsrf)
+            request.Headers.Add("GraphQL-Require-Preflight", "true");
+        using var response = await client.SendAsync(request);
+        if (requireCsrf && !supplyCsrf)
+            await response.ShouldBeAsync(true, """{"errors":[{"message":"This request requires a non-empty header from the following list: \u0027GraphQL-Require-Preflight\u0027.","extensions":{"code":"CSRF_PROTECTION","codes":["CSRF_PROTECTION"]}}]}""");
+        else
+            await response.ShouldBeAsync("""{"data":{"ext":"2","var":"1"}}""");
     }
 
     [Theory]
@@ -389,13 +506,16 @@ public class PostTests : IDisposable
     [InlineData(true)]
     public async Task FormUrlEncoded_DeserializationError(bool badRequest)
     {
-        _options.ValidationErrorsReturnBadRequest = badRequest;
+        _options2.ValidationErrorsReturnBadRequest = badRequest;
+        _options2.ReadFormOnPost = true;
         var client = _server.CreateClient();
         var content = new FormUrlEncodedContent(new[] {
             new KeyValuePair<string?, string?>("query", "{ext}"),
             new KeyValuePair<string?, string?>("variables", "{"),
         });
-        using var response = await client.PostAsync("/graphql2", content);
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/graphql2") { Content = content };
+        request.Headers.Add("GraphQL-Require-Preflight", "true");
+        using var response = await client.SendAsync(request);
         // always returns BadRequest here
         await response.ShouldBeAsync(true, """{"errors":[{"message":"JSON body text could not be parsed. Expected depth to be zero at the end of the JSON payload. There is an open JSON object or array that should be closed. Path: $ | LineNumber: 0 | BytePositionInLine: 1.","extensions":{"code":"JSON_INVALID","codes":["JSON_INVALID"]}}]}""");
     }
@@ -435,6 +555,7 @@ public class PostTests : IDisposable
     [InlineData(true, false, "application/x-www-form-urlencoded")]
     public async Task UnknownContentType(bool badRequest, bool allowFormBody, string contentType)
     {
+        _options.CsrfProtectionEnabled = false;
         _options.ValidationErrorsReturnBadRequest = badRequest;
         _options.ReadFormOnPost = allowFormBody;
         var client = _server.CreateClient();
@@ -467,6 +588,7 @@ public class PostTests : IDisposable
         var client = _server.CreateClient();
         var content = new StringContent("");
         content.Headers.ContentType = null;
+        content.Headers.Add("GraphQL-Require-Preflight", "true");
         var response = await client.PostAsync("/graphql2", content);
         // always returns unsupported media type
         response.StatusCode.ShouldBe(HttpStatusCode.UnsupportedMediaType);
@@ -475,13 +597,27 @@ public class PostTests : IDisposable
     }
 
     [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public async Task WithError(bool badRequest)
+    [InlineData(false, false, "application/graphql-response+json", "application/graphql-response+json; charset=utf-8")]
+    [InlineData(false, false, "application/json", "application/json; charset=utf-8")]
+    [InlineData(true, true, "application/graphql-response+json", "application/graphql-response+json; charset=utf-8")]
+    [InlineData(true, true, "application/json", "application/json; charset=utf-8")]
+    [InlineData(null, true, "application/graphql-response+json", "application/graphql-response+json; charset=utf-8")]
+    [InlineData(null, true, "application/graphql-response+json; charset=utf-8", "application/graphql-response+json; charset=utf-8")]
+    [InlineData(null, true, "text/text", "application/graphql-response+json; charset=utf-8")]
+    [InlineData(null, false, "application/json; charset=utf-8", "application/json; charset=utf-8")]
+    [InlineData(null, false, "application/json", "application/json; charset=utf-8")]
+    public async Task WithError(bool? badRequest, bool expectBadRequest, string accept, string contentType)
     {
         _options.ValidationErrorsReturnBadRequest = badRequest;
-        using var response = await PostRequestAsync(new() { Query = "{invalid}" });
-        await response.ShouldBeAsync(badRequest, """{"errors":[{"message":"Cannot query field \u0027invalid\u0027 on type \u0027Query\u0027.","locations":[{"line":1,"column":2}],"extensions":{"code":"FIELDS_ON_CORRECT_TYPE","codes":["FIELDS_ON_CORRECT_TYPE"],"number":"5.3.1"}}]}""");
+        var client = _server.CreateClient();
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/graphql");
+        request.Content = new StringContent(new GraphQLSerializer().Serialize(new GraphQLRequest { Query = "{invalid}" }), Encoding.UTF8, "application/json");
+        request.Headers.Accept.Add(MediaTypeWithQualityHeaderValue.Parse(accept));
+        using var response = await client.SendAsync(request);
+        await response.ShouldBeAsync(
+            contentType,
+            expectBadRequest ? HttpStatusCode.BadRequest : HttpStatusCode.OK,
+            """{"errors":[{"message":"Cannot query field \u0027invalid\u0027 on type \u0027Query\u0027.","locations":[{"line":1,"column":2}],"extensions":{"code":"FIELDS_ON_CORRECT_TYPE","codes":["FIELDS_ON_CORRECT_TYPE"],"number":"5.3.1"}}]}""");
     }
 
     [Fact]
@@ -490,6 +626,64 @@ public class PostTests : IDisposable
         _options.HandlePost = false;
         using var response = await PostRequestAsync(new() { Query = "{count}" });
         response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task PreferredStatusCode_ExecutionErrors(bool badRequest)
+    {
+        _options2.ValidationErrorsReturnBadRequest = badRequest;
+        using var response = await PostRequestAsync("/graphql2", new() { Query = "{customError}" });
+        await response.ShouldBeAsync(
+            HttpStatusCode.OK,
+            """{"errors":[{"message":"Custom error","locations":[{"line":1,"column":2}],"path":["customError"],"extensions":{"code":"CUSTOM","codes":["CUSTOM"]}}],"data":{"customError":null}}""");
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task PreferredStatusCode_ValidationErrors(bool badRequest)
+    {
+        _options2.ValidationErrorsReturnBadRequest = badRequest;
+        var mockRule = new Mock<IValidationRule>(MockBehavior.Loose);
+        mockRule.Setup(x => x.GetPreNodeVisitorAsync(It.IsAny<ValidationContext>())).Returns<ValidationContext>(context =>
+        {
+            context.ReportError(new CustomError());
+            context.ReportError(new CustomError());
+            return default;
+        });
+        _configureExecution = o =>
+        {
+            o.ValidationRules = (o.ValidationRules ?? DocumentValidator.CoreRules).Append(mockRule.Object);
+        };
+        using var response = await PostRequestAsync("/graphql2", new() { Query = "{__typename}" });
+        await response.ShouldBeAsync(
+            badRequest ? HttpStatusCode.NotAcceptable : HttpStatusCode.OK,
+            """{"errors":[{"message":"Custom error","extensions":{"code":"CUSTOM","codes":["CUSTOM"]}},{"message":"Custom error","extensions":{"code":"CUSTOM","codes":["CUSTOM"]}}]}""");
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task PreferredStatusCode_MixedValidationErrors(bool badRequest)
+    {
+        _options2.ValidationErrorsReturnBadRequest = badRequest;
+        var mockRule = new Mock<IValidationRule>(MockBehavior.Loose);
+        mockRule.Setup(x => x.GetPreNodeVisitorAsync(It.IsAny<ValidationContext>())).Returns<ValidationContext>(context =>
+        {
+            context.ReportError(new CustomError());
+            context.ReportError(new ValidationError("test"));
+            return default;
+        });
+        _configureExecution = o =>
+        {
+            o.ValidationRules = (o.ValidationRules ?? DocumentValidator.CoreRules).Append(mockRule.Object);
+        };
+        using var response = await PostRequestAsync("/graphql2", new() { Query = "{__typename}" });
+        await response.ShouldBeAsync(
+            badRequest ? HttpStatusCode.BadRequest : HttpStatusCode.OK,
+            """{"errors":[{"message":"Custom error","extensions":{"code":"CUSTOM","codes":["CUSTOM"]}},{"message":"test","extensions":{"code":"VALIDATION_ERROR","codes":["VALIDATION_ERROR"]}}]}""");
     }
 
     [Theory]
@@ -503,13 +697,18 @@ public class PostTests : IDisposable
     }
 
     [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public async Task NoQuery(bool badRequest)
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    public async Task NoQuery(bool badRequest, bool usePersistedDocumentHandler)
     {
+        _enablePersistedDocuments = usePersistedDocumentHandler;
         _options.ValidationErrorsReturnBadRequest = badRequest;
         using var response = await PostJsonAsync("{}");
-        await response.ShouldBeAsync(badRequest, """{"errors":[{"message":"GraphQL query is missing.","extensions":{"code":"QUERY_MISSING","codes":["QUERY_MISSING"]}}]}""");
+        await response.ShouldBeAsync(badRequest, usePersistedDocumentHandler
+            ? """{"errors":[{"message":"The request must have a documentId parameter.","extensions":{"code":"DOCUMENT_ID_MISSING","codes":["DOCUMENT_ID_MISSING"]}}]}"""
+            : """{"errors":[{"message":"GraphQL query is missing.","extensions":{"code":"QUERY_MISSING","codes":["QUERY_MISSING"]}}]}""");
     }
 
     [Theory]
@@ -517,6 +716,7 @@ public class PostTests : IDisposable
     [InlineData(true)]
     public async Task NullRequest(bool badRequest)
     {
+        _enablePersistedDocuments = false;
         _options.ValidationErrorsReturnBadRequest = badRequest;
         using var response = await PostJsonAsync("null");
         await response.ShouldBeAsync(badRequest, """{"errors":[{"message":"GraphQL query is missing.","extensions":{"code":"QUERY_MISSING","codes":["QUERY_MISSING"]}}]}""");
@@ -606,4 +806,10 @@ public class PostTests : IDisposable
         await response.ShouldBeAsync(expected);
     }
 
+    [Fact]
+    public async Task ReadAlsoFromQueryString_DocumentId()
+    {
+        using var response = await PostRequestAsync("/graphql?documentId=test:abc", new() { DocumentId = "test:def" });
+        await response.ShouldBeAsync("""{"data":{"count":0}}""");
+    }
 }

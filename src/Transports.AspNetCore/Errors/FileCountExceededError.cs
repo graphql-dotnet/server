@@ -14,5 +14,5 @@ public class FileCountExceededError : RequestError, IHasPreferredStatusCode
     }
 
     /// <inheritdoc/>
-    public HttpStatusCode PreferredStatusCode => HttpStatusCode.RequestEntityTooLarge;
+    public HttpStatusCode PreferredStatusCode { get; set; } = HttpStatusCode.RequestEntityTooLarge;
 }
