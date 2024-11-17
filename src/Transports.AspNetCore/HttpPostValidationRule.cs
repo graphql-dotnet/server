@@ -3,10 +3,10 @@ namespace GraphQL.Server.Transports.AspNetCore;
 /// <summary>
 /// Validates that HTTP POST requests do not execute subscriptions.
 /// </summary>
-public sealed class HttpPostValidationRule : IValidationRule
+public sealed class HttpPostValidationRule : ValidationRuleBase
 {
     /// <inheritdoc/>
-    public ValueTask<INodeVisitor?> ValidateAsync(ValidationContext context)
+    public override ValueTask<INodeVisitor?> GetPreNodeVisitorAsync(ValidationContext context)
     {
         if (context.Operation.Operation == OperationType.Subscription)
         {

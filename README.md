@@ -18,8 +18,7 @@ Provides the following packages:
 
 | Package                                              | Downloads                                                                                                                                                                             | Version                                                                                                                                                                              | Description |
 |------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------|
-| GraphQL.Server.All                                   | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.All)](https://www.nuget.org/packages/GraphQL.Server.All)                                                                     | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.All)](https://www.nuget.org/packages/GraphQL.Server.All)                                                                     | Includes all the packages below, excluding the legacy authorization package, plus the `GraphQL.DataLoader` and `GraphQL.MemoryCache` packages |
-| GraphQL.Server.Authorization.AspNetCore (deprecated) | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Authorization.AspNetCore)](https://www.nuget.org/packages/GraphQL.Server.Authorization.AspNetCore)                           | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.Authorization.AspNetCore)](https://www.nuget.org/packages/GraphQL.Server.Authorization.AspNetCore)                           | Provides legacy authorization rule support (deprecated; please use GraphQL.Server.Transports.AspNetCore) |
+| GraphQL.Server.All                                   | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.All)](https://www.nuget.org/packages/GraphQL.Server.All)                                                                     | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.All)](https://www.nuget.org/packages/GraphQL.Server.All)                                                                     | Includes all the packages below, plus the `GraphQL.DataLoader` and `GraphQL.MemoryCache` packages |
 | GraphQL.Server.Transports.AspNetCore                 | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Transports.AspNetCore)](https://www.nuget.org/packages/GraphQL.Server.Transports.AspNetCore)                                 | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.Transports.AspNetCore)](https://www.nuget.org/packages/GraphQL.Server.Transports.AspNetCore)                                 | Provides GraphQL over HTTP/WebSocket server support on top of ASP.NET Core, plus authorization rule support |
 | GraphQL.Server.Ui.Altair                             | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Ui.Altair)](https://www.nuget.org/packages/GraphQL.Server.Ui.Altair)                                                         | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.Ui.Altair)](https://www.nuget.org/packages/GraphQL.Server.Ui.Altair)                                                         | Provides Altair UI middleware |
 | GraphQL.Server.Ui.Playground                         | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Ui.Playground)](https://www.nuget.org/packages/GraphQL.Server.Ui.Playground)                                                 | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.Ui.Playground)](https://www.nuget.org/packages/GraphQL.Server.Ui.Playground)                                                 | Provides Playground UI middleware |
@@ -33,6 +32,7 @@ Note that GitHub requires authentication to consume the feed. See more informati
 | :warning: When upgrading from prior versions, please remove references to these old packages :warning: |
 |-|
 | GraphQL.Server.Core |
+| GraphQL.Server.Authentication.AspNetCore |
 | GraphQL.Server.Transports.AspNetCore.NewtonsoftJson |
 | GraphQL.Server.Transports.AspNetCore.SystemTextJson |
 | GraphQL.Server.Transports.Subscriptions.Abstractions |
@@ -64,7 +64,10 @@ any policies or roles specified for input graph types, fields of input graph typ
 directives.  It skips validations for fields or fragments that are marked with the `@skip` or
 `@include` directives.
 
-See [migration notes](docs/migration/migration7.md) for changes from version 6.x.
+### Migration from older version
+
+- [v7 to v8 migration notes](docs/migration/migration8.md)
+- [v6 to v7 migration notes](docs/migration/migration7.md)
 
 ## Configuration
 
@@ -145,6 +148,27 @@ http://localhost:5000/graphql?query={hero}
 ```json
 {"data":{"hero":"Luke Skywalker"}}
 ```
+
+### Basic options
+
+By default, the middleware will be installed with these configurable options:
+- GET, POST, and WebSocket requests are all enabled
+- Form content types are disabled, and cross-site request forgery (CSRF)
+  protection is enabled
+- There are no authentication or authorization requirements
+- The default response content type is `application/graphql-response+json`
+- The middleware will use the default schema instance
+
+To configure these options, pass a confiuguration delegate to the `UseGraphQL`
+method as demonstrated below:
+
+```csharp
+app.UseGraphQL("/graphql", opts => {
+    opts.ReadFormOnPost = true;
+});
+```
+
+Configuration of these options and more are further described below in this document.
 
 ### Configuration with endpoint routing
 
@@ -566,6 +590,31 @@ app.UseEndpoints(endpoints =>
 await app.RunAsync();
 ```
 
+In order to ensure that all requests trigger CORS preflight requests, by default the server
+will reject requests that do not meet one of the following criteria:
+
+- The request is a POST request that includes a Content-Type header that is not
+  `application/x-www-form-urlencoded`, `multipart/form-data`, or `text/plain`.
+- The request includes a non-empty `GraphQL-Require-Preflight` header.
+
+To disable this behavior, set the `CsrfProtectionEnabled` option to `false`.
+
+```csharp
+app.UseGraphQL("/graphql", config =>
+{
+    config.CsrfProtectionEnabled = false;
+});
+```
+
+You may also change the allowed headers by modifying the `CsrfProtectionHeaders` option.
+
+```csharp
+app.UseGraphQL("/graphql", config =>
+{
+    config.CsrfProtectionHeaders = ["MyCustomHeader"];
+});
+```
+
 ### Response compression
 
 ASP.NET Core supports response compression independently of GraphQL, with brotli and gzip
@@ -657,6 +706,8 @@ methods allowing for different options for each configured endpoint.
 | `AuthorizationRequired`            | Requires `HttpContext.User` to represent an authenticated user. | False |
 | `AuthorizedPolicy`                 | If set, requires `HttpContext.User` to pass authorization of the specified policy. | |
 | `AuthorizedRoles`                  | If set, requires `HttpContext.User` to be a member of any one of a list of roles. | |
+| `CsrfProtectionEnabled`            | Enables cross-site request forgery (CSRF) protection for both GET and POST requests. | True |
+| `CsrfProtectionHeaders`            | Sets the headers used for CSRF protection when necessary. | `GraphQL-Require-Preflight` |
 | `DefaultResponseContentType`       | Sets the default response content type used within responses. | `application/graphql-response+json; charset=utf-8` |
 | `EnableBatchedRequests`            | Enables handling of batched GraphQL requests for POST requests when formatted as JSON. | True |
 | `ExecuteBatchedRequestsInParallel` | Enables parallel execution of batched GraphQL requests. | True |
@@ -666,21 +717,25 @@ methods allowing for different options for each configured endpoint.
 | `MaximumFileSize`                  | Sets the maximum file size allowed for GraphQL multipart requests. | unlimited |
 | `MaximumFileCount`                 | Sets the maximum number of files allowed for GraphQL multipart requests. | unlimited |
 | `ReadExtensionsFromQueryString`    | Enables reading extensions from the query string. | True |
-| `ReadFormOnPost`                   | Enables parsing of form data for POST requests (may have security implications). | True |
+| `ReadFormOnPost`                   | Enables parsing of form data for POST requests (may have security implications). | False |
 | `ReadQueryStringOnPost`            | Enables parsing the query string on POST requests. | True |
 | `ReadVariablesFromQueryString`     | Enables reading variables from the query string. | True |
-| `ValidationErrorsReturnBadRequest` | When enabled, GraphQL requests with validation errors have the HTTP status code set to 400 Bad Request. | True |
+| `ValidationErrorsReturnBadRequest` | When enabled, GraphQL requests with validation errors have the HTTP status code set to 400 Bad Request. | Automatic[^1] |
 | `WebSockets`                       | Returns a set of configuration properties for WebSocket connections. | |
+
+[^1]: Automatic mode will return a 200 OK status code when the returned content type is `application/json`; otherwise 400 or as defined by the error.
 
 #### GraphQLWebSocketOptions
 
 | Property                    | Description          | Default value |
 |-----------------------------|----------------------|---------------|
 | `ConnectionInitWaitTimeout` | The amount of time to wait for a GraphQL initialization packet before the connection is closed. | 10 seconds |
-| `KeepAliveTimeout`          | The amount of time to wait between sending keep-alive packets. | disabled |
 | `DisconnectionTimeout`      | The amount of time to wait to attempt a graceful teardown of the WebSockets protocol. | 10 seconds |
 | `DisconnectAfterErrorEvent` | Disconnects a subscription from the client if the subscription source dispatches an `OnError` event. | True |
 | `DisconnectAfterAnyError`   | Disconnects a subscription from the client if there are any GraphQL errors during a subscription. | False |
+| `KeepAliveMode`             | The mode to use for sending keep-alive packets. | protocol-dependent |
+| `KeepAliveTimeout`          | The amount of time to wait between sending keep-alive packets. | disabled |
+| `SupportedWebSocketSubProtocols` | A list of supported WebSocket sub-protocols. | `graphql-ws`, `graphql-transport-ws` |
 
 ### Multi-schema configuration
 
@@ -746,6 +801,61 @@ public class MySchema : Schema
     }
 }
 ```
+
+### Keep-alive configuration
+
+By default, the middleware will not send keep-alive packets to the client.  As the underlying
+operating system may not detect a disconnected client until a message is sent, you may wish to
+enable keep-alive packets to be sent periodically.  The default mode for keep-alive packets
+differs depending on whether the client connected with the `graphql-ws` or `graphql-transport-ws`
+sub-protocol.  The `graphql-ws` sub-protocol will send a unidirectional keep-alive packet to the
+client on a fixed schedule, while the `graphql-transport-ws` sub-protocol will only send
+unidirectional keep-alive packets when the client has not sent a message within a certain time.
+The differing behavior is due to the default implementation of the `graphql-ws` sub-protocol
+client, which after receiving a single keep-alive packet, expects additional keep-alive packets
+to be sent sooner than every 20 seconds, regardless of the client's activity.
+
+To configure keep-alive packets, set the `KeepAliveMode` and `KeepAliveTimeout` properties
+within the `GraphQLWebSocketOptions` object.  Set the `KeepAliveTimeout` property to
+enable keep-alive packets, or use `TimeSpan.Zero` or `Timeout.InfiniteTimeSpan` to disable it.
+
+The `KeepAliveMode` property is only applicable to the `graphql-transport-ws` sub-protocol and
+can be set to the options listed below:
+
+| Keep-alive mode | Description |
+|-----------------|-------------|
+| `Default`       | Same as `Timeout`. |
+| `Timeout`       | Sends a unidirectional keep-alive message when no message has been received within the specified timeout period. |
+| `Interval`      | Sends a unidirectional keep-alive message at a fixed interval, regardless of message activity. |
+| `TimeoutWithPayload` | Sends a bidirectional keep-alive message with a payload on a fixed interval, and validates the payload matches in the response. |
+
+The `TimeoutWithPayload` model is particularly useful when the server may send messages to the
+client at a faster pace than the client can process them.  In this case queued messages will be
+limited to double the timeout period, as the keep-alive message is queued along with other
+packets sent from the server to the client.  The client will need to respond to process queued
+messages and respond to the keep-alive message within the timeout period or the server will
+disconnect the client.  When the server forcibly disconnects the client, no graceful teardown
+of the WebSocket protocol occurs, and any queued messages are discarded.
+
+When using the `TimeoutWithPayload` keep-alive mode, you may wish to enforce that the
+`graphql-transport-ws` sub-protocol is in use by the client, as the `graphql-ws` sub-protocol
+does not support bidirectional keep-alive packets.  This can be done by setting the
+`SupportedWebSocketSubProtocols` property to only include the `graphql-transport-ws` sub-protocol.
+
+```csharp
+app.UseGraphQL("/graphql", options =>
+{
+    // configure keep-alive packets
+    options.WebSockets.KeepAliveTimeout = TimeSpan.FromSeconds(10);
+    options.WebSockets.KeepAliveMode = KeepAliveMode.TimeoutWithPayload;
+    // set the supported sub-protocols to only include the graphql-transport-ws sub-protocol
+    options.WebSockets.SupportedWebSocketSubProtocols = [GraphQLWs.SubscriptionServer.SubProtocol];
+});
+```
+
+Please note that the included UI packages are configured to use the `graphql-ws` sub-protocol by
+default.  You may use the `graphql-transport-ws` sub-protocol with the GraphiQL package by setting
+the `GraphQLWsSubscriptions` option to `true` when configuring the GraphiQL middleware.
 
 ### Customizing middleware behavior
 
@@ -918,16 +1028,13 @@ even when the CORS policy prohibits it, regardless of whether the sender has acc
 This situation exposes the system to security vulnerabilities, which should be carefully evaluated and
 mitigated to ensure the safe handling of GraphQL requests and maintain the integrity of the data.
 
-This functionality is activated by default to maintain backward compatibility, but it can be turned off by
-setting the `ReadFormOnPost` value to `false`.  The next major version of GraphQL.NET Server will have this
-feature disabled by default, enhancing security measures.
+To mitigate this potential security vulnerability, CSRF protection is enabled by default, requiring a
+`GraphQL-Require-Preflight` header to be sent with form data requests, which will trigger a CORS preflight
+request.  In addition, form data requests are disabled by default, as they are not recommended for typical
+use.
 
-Keep in mind that CORS pre-flight requests are also not executed for GET requests, potentially presenting a
-security risk.  However, GraphQL query operations usually do not alter data, and mutations are refused.
-Additionally, the response is not expected to be readable in the browser (unless CORS checks are successful),
-which helps alleviate this concern.
-
-GraphQL.NET Server supports two formats of `application/x-www-form-urlencoded` or `multipart/form-data` requests:
+To enable form data for POST request, set the `ReadFormOnPost` setting to `true`.  GraphQL.NET Server supports
+two formats of `application/x-www-form-urlencoded` or `multipart/form-data` requests:
 
 1. The following keys are read from the form data and used to populate the GraphQL request:
    - `query`: The GraphQL query string.
@@ -998,10 +1105,12 @@ services.AddGraphQL(b => b
     .AddSystemTextJson());
 ```
 
-Please see the 'Upload' sample for a demonstration of this technique.  Note that
-using the `FormFileGraphType` scalar requires that the uploaded files be sent only
-via the `multipart/form-data` content type as attached files.  If you wish to also
-allow clients to send files as base-64 encoded strings, you can write a custom scalar
+Please see the 'Upload' sample for a demonstration of this technique, which also
+demonstrates the use of the `MediaTypeAttribute` to restrict the allowable media
+types that will be accepted.  Note that using the `FormFileGraphType` scalar requires
+that the uploaded files be sent only via the `multipart/form-data` content type as
+attached files, with the `ReadFormOnPost` option enabled. If you also wish to allow
+clients to send files as base-64 encoded strings, you can write a custom scalar
 better suited to your needs.
 
 ### Native AOT support
