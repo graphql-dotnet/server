@@ -50,7 +50,10 @@ public class FileUploadTests : IDisposable
         var fileContent = new ByteArrayContent(fileData);
         fileContent.Headers.ContentType = new("application/octet-stream");
         content.Add(fileContent, "file", "filename.bin");
-        using var response = await client.PostAsync("/graphql", content);
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/graphql");
+        request.Content = content;
+        request.Headers.Add("GraphQL-Require-Preflight", "true");
+        using var response = await client.SendAsync(request);
         if (withOtherVariables)
         {
             await response.ShouldBeAsync("""{"data":{"convertToBase64":"pre-filename.bin-YWJjZA=="}}""");

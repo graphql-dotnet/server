@@ -8,7 +8,7 @@ public abstract partial class AuthorizationVisitorBase : INodeVisitor
     {
         if (context == null)
             throw new ArgumentNullException(nameof(context));
-        _fragmentDefinitionsToCheck = GetRecursivelyReferencedUsedFragments(context);
+        _fragmentDefinitionsToCheck = context.GetRecursivelyReferencedFragments(context.Operation, true);
     }
 
     private bool _checkTree; // used to skip processing fragments or operations that do not apply
@@ -36,7 +36,7 @@ public abstract partial class AuthorizationVisitorBase : INodeVisitor
         else if (_checkTree)
         {
             // if a directive indicates to skip this node, skip authorization checks until Leave() is called for this node
-            if (SkipNode(node, context))
+            if (!context.ShouldIncludeNode(node))
             {
                 _checkTree = false;
                 _checkUntil = node;
@@ -172,72 +172,6 @@ public abstract partial class AuthorizationVisitorBase : INodeVisitor
                 _todos ??= new();
                 _todos.Add(new(BuildValidationInfo(node, type, context), info));
             }
-        }
-    }
-
-    /// <summary>
-    /// Indicates if the specified node should skip authentication processing.
-    /// Default implementation looks at @skip and @include directives only.
-    /// </summary>
-    protected virtual bool SkipNode(ASTNode node, ValidationContext context)
-    {
-        // according to GraphQL spec, directives with the same name may be defined so long as they cannot be
-        // placed on the same node types as other directives with the same name; so here we verify that the
-        // node is a field, fragment spread, or inline fragment, the only nodes allowed by the built-in @skip
-        // and @include directives
-        if (node is not GraphQLField && node is not GraphQLFragmentSpread && node is not GraphQLInlineFragment)
-            return false;
-
-        var directivesNode = (IHasDirectivesNode)node;
-
-        var skipDirective = directivesNode.Directives?.FirstOrDefault(x => x.Name == "skip");
-        if (skipDirective != null)
-        {
-            var value = GetDirectiveValue(skipDirective, context, false);
-            if (value)
-                return true;
-        }
-
-        var includeDirective = directivesNode.Directives?.FirstOrDefault(x => x.Name == "include");
-        if (includeDirective != null)
-        {
-            var value = GetDirectiveValue(includeDirective, context, true);
-            if (!value)
-                return true;
-        }
-
-        return false;
-
-        static bool GetDirectiveValue(GraphQLDirective directive, ValidationContext context, bool defaultValue)
-        {
-            var ifArg = directive.Arguments?.FirstOrDefault(x => x.Name == "if");
-            if (ifArg != null)
-            {
-                if (ifArg.Value is GraphQLBooleanValue boolValue)
-                {
-                    return boolValue.BoolValue;
-                }
-                else if (ifArg.Value is GraphQLVariable variable)
-                {
-                    if (context.Operation.Variables != null)
-                    {
-                        var varDef = context.Operation.Variables.FirstOrDefault(x => x.Variable.Name == variable.Name);
-                        if (varDef != null && varDef.Type.Name() == "Boolean")
-                        {
-                            if (context.Variables.TryGetValue(variable.Name.StringValue, out var value))
-                            {
-                                if (value is bool boolValue2)
-                                    return boolValue2;
-                            }
-                            if (varDef.DefaultValue is GraphQLBooleanValue boolValue3)
-                            {
-                                return boolValue3.BoolValue;
-                            }
-                        }
-                    }
-                }
-            }
-            return defaultValue;
         }
     }
 

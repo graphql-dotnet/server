@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace GraphQL;
 
 /// <summary>
@@ -12,7 +14,9 @@ public static class ServerGraphQLBuilderExtensions
     /// Requires <see cref="IHttpContextAccessor"/> to be registered within the dependency injection framework
     /// if calling <see cref="DocumentExecuter.ExecuteAsync(ExecutionOptions)"/> directly.
     /// </summary>
-    public static IGraphQLBuilder AddUserContextBuilder<TUserContextBuilder>(this IGraphQLBuilder builder)
+    public static IGraphQLBuilder AddUserContextBuilder<
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TUserContextBuilder>(
+        this IGraphQLBuilder builder)
         where TUserContextBuilder : class, IUserContextBuilder
     {
         builder.Services.Register<IUserContextBuilder, TUserContextBuilder>(DI.ServiceLifetime.Singleton);
@@ -107,7 +111,9 @@ public static class ServerGraphQLBuilderExtensions
     /// Registers <typeparamref name="TWebSocketAuthenticationService"/> with the dependency injection framework
     /// as a singleton of type <see cref="IWebSocketAuthenticationService"/>.
     /// </summary>
-    public static IGraphQLBuilder AddWebSocketAuthentication<TWebSocketAuthenticationService>(this IGraphQLBuilder builder)
+    public static IGraphQLBuilder AddWebSocketAuthentication<
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TWebSocketAuthenticationService>(
+        this IGraphQLBuilder builder)
         where TWebSocketAuthenticationService : class, IWebSocketAuthenticationService
     {
         builder.Services.Register<IWebSocketAuthenticationService, TWebSocketAuthenticationService>(DI.ServiceLifetime.Singleton);

@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Microsoft.AspNetCore.Builder;
 
 /// <summary>
@@ -70,7 +72,9 @@ public static class GraphQLHttpApplicationBuilderExtensions
     /// <param name="path">The path to the GraphQL endpoint which defaults to '/graphql'</param>
     /// <param name="args">The arguments to pass to the middleware type instance's constructor.</param>
     /// <returns>The <see cref="IApplicationBuilder"/> received as parameter</returns>
-    public static IApplicationBuilder UseGraphQL<TMiddleware>(this IApplicationBuilder builder, string path = "/graphql", params object[] args)
+    public static IApplicationBuilder UseGraphQL<
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicMethods)] TMiddleware>(
+        this IApplicationBuilder builder, string path = "/graphql", params object[] args)
         where TMiddleware : GraphQLHttpMiddleware
         => builder.UseGraphQL<TMiddleware>(new PathString(path), args);
 
@@ -82,7 +86,9 @@ public static class GraphQLHttpApplicationBuilderExtensions
     /// <param name="path">The path to the GraphQL endpoint</param>
     /// <param name="args">The arguments to pass to the middleware type instance's constructor.</param>
     /// <returns>The <see cref="IApplicationBuilder"/> received as parameter</returns>
-    public static IApplicationBuilder UseGraphQL<TMiddleware>(this IApplicationBuilder builder, PathString path, params object[] args)
+    public static IApplicationBuilder UseGraphQL<
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicMethods)] TMiddleware>(
+        this IApplicationBuilder builder, PathString path, params object[] args)
         where TMiddleware : GraphQLHttpMiddleware
     {
         return builder.UseWhen(

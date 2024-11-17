@@ -1,5 +1,7 @@
 #if !NETSTANDARD2_0 && !NETCOREAPP2_1
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace Microsoft.AspNetCore.Builder;
 
 /// <summary>
@@ -47,7 +49,9 @@ public static class GraphQLHttpEndpointRouteBuilderExtensions
     /// <param name="pattern">The route pattern.</param>
     /// <param name="args">The arguments to pass to the middleware type instance's constructor.</param>
     /// <returns>The <see cref="IApplicationBuilder"/> received as parameter</returns>
-    public static GraphQLEndpointConventionBuilder MapGraphQL<TMiddleware>(this IEndpointRouteBuilder endpoints, string pattern = "graphql", params object[] args)
+    public static GraphQLEndpointConventionBuilder MapGraphQL<
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicMethods)] TMiddleware>(
+        this IEndpointRouteBuilder endpoints, string pattern = "graphql", params object[] args)
         where TMiddleware : GraphQLHttpMiddleware
     {
         var requestDelegate = endpoints.CreateApplicationBuilder().UseMiddleware<TMiddleware>(args).Build();

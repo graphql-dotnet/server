@@ -90,7 +90,7 @@ public class EndpointTests
             httpMethod == "POST" ? HttpMethod.Post : httpMethod == "OPTIONS" ? HttpMethod.Options : httpMethod == "GET" ? HttpMethod.Get : throw new ArgumentOutOfRangeException(nameof(httpMethod)),
             configureCors: _ => { },
             configureCorsPolicy: _ => { },
-            configureGraphQl: _ => { },
+            configureGraphQl: o => o.CsrfProtectionEnabled = false,
             configureGraphQlEndpoint: _ => { },
             configureHeaders: headers =>
             {

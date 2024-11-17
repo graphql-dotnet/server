@@ -57,7 +57,7 @@ public class AuthorizationTests : IDisposable
         var inputs = new GraphQLSerializer().Deserialize<Inputs>(variables) ?? Inputs.Empty;
 
         var validator = new DocumentValidator();
-        var (coreRulesResult, _) = validator.ValidateAsync(new ValidationOptions
+        var validationResult = validator.ValidateAsync(new ValidationOptions
         {
             Document = document,
             Extensions = Inputs.Empty,
@@ -68,9 +68,9 @@ public class AuthorizationTests : IDisposable
             RequestServices = mockServices.Object,
             User = _principal,
         }).GetAwaiter().GetResult(); // there is no async code being tested
-        coreRulesResult.IsValid.ShouldBe(shouldPassCoreRules);
+        validationResult.IsValid.ShouldBe(shouldPassCoreRules);
 
-        var (result, _) = validator.ValidateAsync(new ValidationOptions
+        var result = validator.ValidateAsync(new ValidationOptions
         {
             Document = document,
             Extensions = Inputs.Empty,
@@ -507,7 +507,7 @@ public class AuthorizationTests : IDisposable
         ret.IsValid.ShouldBeFalse();
     }
 
-    private void Apply(IProvideMetadata obj, Mode mode)
+    private void Apply(IMetadataWriter obj, Mode mode)
     {
         switch (mode)
         {
@@ -545,8 +545,9 @@ public class AuthorizationTests : IDisposable
     public void Constructors()
     {
         Should.Throw<ArgumentNullException>(() => new AuthorizationVisitor(null!, _principal, Mock.Of<IAuthorizationService>()));
-        Should.Throw<ArgumentNullException>(() => new AuthorizationVisitor(new ValidationContext(), null!, Mock.Of<IAuthorizationService>()));
-        Should.Throw<ArgumentNullException>(() => new AuthorizationVisitor(new ValidationContext(), _principal, null!));
+        var context = new ValidationContext() { Operation = new(new([])), Document = new([]) };
+        Should.Throw<ArgumentNullException>(() => new AuthorizationVisitor(context, null!, Mock.Of<IAuthorizationService>()));
+        Should.Throw<ArgumentNullException>(() => new AuthorizationVisitor(context, _principal, null!));
     }
 
     [Theory]
@@ -600,7 +601,7 @@ public class AuthorizationTests : IDisposable
         var validator = new DocumentValidator();
         _schema.Authorize();
 
-        var (result, _) = await validator.ValidateAsync(new ValidationOptions
+        var result = await validator.ValidateAsync(new ValidationOptions
         {
             Document = document,
             Extensions = Inputs.Empty,
@@ -759,13 +760,13 @@ public class AuthorizationTests : IDisposable
                 context.User = _principal;
                 return next(context);
             });
-            app.UseGraphQL();
+            app.UseGraphQL(configureMiddleware: c => c.CsrfProtectionEnabled = false);
         });
         using var server = new TestServer(hostBuilder);
 
         using var client = server.CreateClient();
         using var response = await client.GetAsync("/graphql?query={ parent { child } }");
-        response.StatusCode.ShouldBe(authenticated ? System.Net.HttpStatusCode.OK : System.Net.HttpStatusCode.BadRequest);
+        response.StatusCode.ShouldBe(authenticated ? System.Net.HttpStatusCode.OK : System.Net.HttpStatusCode.Unauthorized);
         var actual = await response.Content.ReadAsStringAsync();
 
         if (authenticated)

@@ -17,6 +17,7 @@ public class EndToEndTests
         {
             request.Method = "GET";
             request.QueryString = new QueryString("?query={count}");
+            request.Headers.Add("GraphQL-Require-Preflight", "true");
         }, GraphQL.RunGraphQL);
 
         statusCode.ShouldBe(200);
