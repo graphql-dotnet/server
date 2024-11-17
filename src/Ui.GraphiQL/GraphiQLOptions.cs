@@ -53,4 +53,9 @@ public class GraphiQLOptions
     /// See <see href="https://developer.mozilla.org/en-US/docs/Web/API/Request/credentials"/>.
     /// </remarks>
     public RequestCredentials RequestCredentials { get; set; } = RequestCredentials.SameOrigin;
+
+    /// <summary>
+    /// Use the graphql-ws package instead of the subscription-transports-ws package for subscriptions.
+    /// </summary>
+    public bool GraphQLWsSubscriptions { get; set; }
 }

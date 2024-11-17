@@ -373,7 +373,7 @@ public class BuilderMethodTests
         _hostBuilder.Configure(app =>
         {
             app.UseWebSockets();
-            app.UseGraphQL<Schema2>();
+            app.UseGraphQL<Schema2>(configureMiddleware: c => c.CsrfProtectionEnabled = false);
         });
         using var server = new TestServer(_hostBuilder);
         var str = await server.ExecuteGet("/graphql?query={userInfo}");

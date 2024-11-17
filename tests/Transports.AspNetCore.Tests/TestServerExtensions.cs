@@ -5,7 +5,9 @@ internal static class TestServerExtensions
     public static async Task<string> ExecuteGet(this TestServer server, string url)
     {
         var client = server.CreateClient();
-        using var response = await client.GetAsync(url);
+        using var request = new HttpRequestMessage(HttpMethod.Get, url);
+        request.Headers.Add("GraphQL-Require-Preflight", "true");
+        using var response = await client.SendAsync(request);
         response.EnsureSuccessStatusCode();
         var contentType = response.Content.Headers.ContentType;
         contentType.ShouldNotBeNull();

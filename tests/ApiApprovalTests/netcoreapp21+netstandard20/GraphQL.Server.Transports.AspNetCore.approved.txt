@@ -22,10 +22,10 @@ namespace GraphQL.Server.Transports.AspNetCore
         public System.Func<TState, Microsoft.AspNetCore.Authorization.AuthorizationResult, System.Threading.Tasks.Task>? OnNotAuthorizedPolicy { get; }
         public System.Func<TState, System.Threading.Tasks.Task>? OnNotAuthorizedRole { get; }
     }
-    public class AuthorizationValidationRule : GraphQL.Validation.IValidationRule
+    public class AuthorizationValidationRule : GraphQL.Validation.ValidationRuleBase
     {
         public AuthorizationValidationRule() { }
-        public virtual System.Threading.Tasks.ValueTask<GraphQL.Validation.INodeVisitor?> ValidateAsync(GraphQL.Validation.ValidationContext context) { }
+        public override System.Threading.Tasks.ValueTask<GraphQL.Validation.INodeVisitor?> GetPreNodeVisitorAsync(GraphQL.Validation.ValidationContext context) { }
     }
     public class AuthorizationVisitor : GraphQL.Server.Transports.AspNetCore.AuthorizationVisitorBase
     {
@@ -43,21 +43,19 @@ namespace GraphQL.Server.Transports.AspNetCore
         protected abstract System.Threading.Tasks.ValueTask<Microsoft.AspNetCore.Authorization.AuthorizationResult> AuthorizeAsync(string policy);
         public virtual System.Threading.Tasks.ValueTask EnterAsync(GraphQLParser.AST.ASTNode node, GraphQL.Validation.ValidationContext context) { }
         protected virtual string GenerateResourceDescription(GraphQL.Server.Transports.AspNetCore.AuthorizationVisitorBase.ValidationInfo info) { }
-        protected System.Collections.Generic.List<GraphQLParser.AST.GraphQLFragmentDefinition>? GetRecursivelyReferencedUsedFragments(GraphQL.Validation.ValidationContext validationContext) { }
         protected virtual void HandleNodeNotAuthorized(GraphQL.Server.Transports.AspNetCore.AuthorizationVisitorBase.ValidationInfo info) { }
         protected virtual void HandleNodeNotInPolicy(GraphQL.Server.Transports.AspNetCore.AuthorizationVisitorBase.ValidationInfo info, string policy, Microsoft.AspNetCore.Authorization.AuthorizationResult authorizationResult) { }
         protected virtual void HandleNodeNotInRoles(GraphQL.Server.Transports.AspNetCore.AuthorizationVisitorBase.ValidationInfo info, System.Collections.Generic.List<string> roles) { }
         protected abstract bool IsInRole(string role);
         public virtual System.Threading.Tasks.ValueTask LeaveAsync(GraphQLParser.AST.ASTNode node, GraphQL.Validation.ValidationContext context) { }
-        protected virtual bool SkipNode(GraphQLParser.AST.ASTNode node, GraphQL.Validation.ValidationContext context) { }
         protected virtual System.Threading.Tasks.ValueTask<bool> ValidateAsync(GraphQL.Server.Transports.AspNetCore.AuthorizationVisitorBase.ValidationInfo info) { }
         public virtual System.Threading.Tasks.ValueTask<bool> ValidateSchemaAsync(GraphQL.Validation.ValidationContext context) { }
         public readonly struct ValidationInfo : System.IEquatable<GraphQL.Server.Transports.AspNetCore.AuthorizationVisitorBase.ValidationInfo>
         {
-            public ValidationInfo(GraphQL.Types.IProvideMetadata Obj, GraphQLParser.AST.ASTNode? Node, GraphQL.Types.IFieldType? ParentFieldType, GraphQL.Types.IGraphType? ParentGraphType, GraphQL.Validation.ValidationContext Context) { }
+            public ValidationInfo(GraphQL.Types.IMetadataReader Obj, GraphQLParser.AST.ASTNode? Node, GraphQL.Types.IFieldType? ParentFieldType, GraphQL.Types.IGraphType? ParentGraphType, GraphQL.Validation.ValidationContext Context) { }
             public GraphQL.Validation.ValidationContext Context { get; init; }
             public GraphQLParser.AST.ASTNode? Node { get; init; }
-            public GraphQL.Types.IProvideMetadata Obj { get; init; }
+            public GraphQL.Types.IMetadataReader Obj { get; init; }
             public GraphQL.Types.IFieldType? ParentFieldType { get; init; }
             public GraphQL.Types.IGraphType? ParentGraphType { get; init; }
         }
@@ -106,6 +104,8 @@ namespace GraphQL.Server.Transports.AspNetCore
         protected virtual System.Threading.Tasks.Task HandleBatchRequestAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next, System.Collections.Generic.IList<GraphQL.Transport.GraphQLRequest?> gqlRequests) { }
         protected virtual System.Threading.Tasks.Task HandleBatchedRequestsNotSupportedAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next) { }
         protected virtual System.Threading.Tasks.Task HandleContentTypeCouldNotBeParsedErrorAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next) { }
+        protected virtual System.Threading.Tasks.ValueTask<bool> HandleCsrfProtectionAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next) { }
+        protected virtual System.Threading.Tasks.Task HandleCsrfProtectionErrorAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next) { }
         protected virtual System.Threading.Tasks.ValueTask<bool> HandleDeserializationErrorAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next, System.Exception exception) { }
         protected virtual System.Threading.Tasks.Task HandleInvalidContentTypeErrorAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next) { }
         protected virtual System.Threading.Tasks.Task HandleInvalidHttpMethodErrorAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next) { }
@@ -121,9 +121,11 @@ namespace GraphQL.Server.Transports.AspNetCore
                 "SingleRequest",
                 "BatchRequest"})]
         protected virtual System.Threading.Tasks.Task<System.ValueTuple<GraphQL.Transport.GraphQLRequest?, System.Collections.Generic.IList<GraphQL.Transport.GraphQLRequest?>?>?> ReadPostContentAsync(Microsoft.AspNetCore.Http.HttpContext context, Microsoft.AspNetCore.Http.RequestDelegate next, string? mediaType, System.Text.Encoding? sourceEncoding) { }
-        protected virtual string SelectResponseContentType(Microsoft.AspNetCore.Http.HttpContext context) { }
+        protected virtual Microsoft.Net.Http.Headers.MediaTypeHeaderValue SelectResponseContentType(Microsoft.AspNetCore.Http.HttpContext context) { }
+        protected virtual System.Threading.Tasks.Task WriteErrorResponseAsync(Microsoft.AspNetCore.Http.HttpContext context, GraphQL.ExecutionError executionError) { }
         protected virtual System.Threading.Tasks.Task WriteErrorResponseAsync(Microsoft.AspNetCore.Http.HttpContext context, System.Net.HttpStatusCode httpStatusCode, GraphQL.ExecutionError executionError) { }
         protected virtual System.Threading.Tasks.Task WriteErrorResponseAsync(Microsoft.AspNetCore.Http.HttpContext context, System.Net.HttpStatusCode httpStatusCode, string errorMessage) { }
+        protected virtual System.Threading.Tasks.Task WriteJsonResponseAsync(Microsoft.AspNetCore.Http.HttpContext context, GraphQL.ExecutionResult result) { }
         protected virtual System.Threading.Tasks.Task WriteJsonResponseAsync<TResult>(Microsoft.AspNetCore.Http.HttpContext context, System.Net.HttpStatusCode httpStatusCode, TResult result) { }
     }
     public class GraphQLHttpMiddlewareOptions : GraphQL.Server.Transports.AspNetCore.IAuthorizationOptions
@@ -133,6 +135,8 @@ namespace GraphQL.Server.Transports.AspNetCore
         public bool AuthorizationRequired { get; set; }
         public string? AuthorizedPolicy { get; set; }
         public System.Collections.Generic.List<string> AuthorizedRoles { get; set; }
+        public bool CsrfProtectionEnabled { get; set; }
+        public System.Collections.Generic.List<string> CsrfProtectionHeaders { get; set; }
         public Microsoft.Net.Http.Headers.MediaTypeHeaderValue DefaultResponseContentType { get; set; }
         public bool EnableBatchedRequests { get; set; }
         public bool ExecuteBatchedRequestsInParallel { get; set; }
@@ -145,7 +149,7 @@ namespace GraphQL.Server.Transports.AspNetCore
         public bool ReadFormOnPost { get; set; }
         public bool ReadQueryStringOnPost { get; set; }
         public bool ReadVariablesFromQueryString { get; set; }
-        public bool ValidationErrorsReturnBadRequest { get; set; }
+        public bool? ValidationErrorsReturnBadRequest { get; set; }
         public GraphQL.Server.Transports.AspNetCore.WebSockets.GraphQLWebSocketOptions WebSockets { get; set; }
     }
     public class GraphQLHttpMiddleware<TSchema> : GraphQL.Server.Transports.AspNetCore.GraphQLHttpMiddleware
@@ -161,15 +165,15 @@ namespace GraphQL.Server.Transports.AspNetCore
         public System.Threading.Tasks.Task StartAsync(System.Threading.CancellationToken cancellationToken) { }
         public System.Threading.Tasks.Task StopAsync(System.Threading.CancellationToken cancellationToken) { }
     }
-    public sealed class HttpGetValidationRule : GraphQL.Validation.IValidationRule
+    public sealed class HttpGetValidationRule : GraphQL.Validation.ValidationRuleBase
     {
         public HttpGetValidationRule() { }
-        public System.Threading.Tasks.ValueTask<GraphQL.Validation.INodeVisitor?> ValidateAsync(GraphQL.Validation.ValidationContext context) { }
+        public override System.Threading.Tasks.ValueTask<GraphQL.Validation.INodeVisitor?> GetPreNodeVisitorAsync(GraphQL.Validation.ValidationContext context) { }
     }
-    public sealed class HttpPostValidationRule : GraphQL.Validation.IValidationRule
+    public sealed class HttpPostValidationRule : GraphQL.Validation.ValidationRuleBase
     {
         public HttpPostValidationRule() { }
-        public System.Threading.Tasks.ValueTask<GraphQL.Validation.INodeVisitor?> ValidateAsync(GraphQL.Validation.ValidationContext context) { }
+        public override System.Threading.Tasks.ValueTask<GraphQL.Validation.INodeVisitor?> GetPreNodeVisitorAsync(GraphQL.Validation.ValidationContext context) { }
     }
     public interface IAuthorizationOptions
     {
@@ -187,6 +191,12 @@ namespace GraphQL.Server.Transports.AspNetCore
     }
     public interface IUserContextBuilder<TSchema> : GraphQL.Server.Transports.AspNetCore.IUserContextBuilder
         where TSchema : GraphQL.Types.ISchema { }
+    public class MediaTypeAttribute : GraphQL.GraphQLAttribute
+    {
+        public MediaTypeAttribute(params string[] mimeTypes) { }
+        public override void Modify(GraphQL.Types.QueryArgument queryArgument) { }
+        public override void Modify(GraphQL.Types.FieldType fieldType, bool isInputType) { }
+    }
     public class UserContextBuilder<TUserContext> : GraphQL.Server.Transports.AspNetCore.IUserContextBuilder
         where TUserContext : System.Collections.Generic.IDictionary<string, object?>
     {
@@ -199,40 +209,48 @@ namespace GraphQL.Server.Transports.AspNetCore
 }
 namespace GraphQL.Server.Transports.AspNetCore.Errors
 {
-    public class AccessDeniedError : GraphQL.Validation.ValidationError
+    public class AccessDeniedError : GraphQL.Validation.ValidationError, GraphQL.Server.Transports.AspNetCore.Errors.IHasPreferredStatusCode
     {
         public AccessDeniedError(string resource) { }
         public AccessDeniedError(string resource, GraphQLParser.ROM originalQuery, params GraphQLParser.AST.ASTNode[] nodes) { }
         public Microsoft.AspNetCore.Authorization.AuthorizationResult? PolicyAuthorizationResult { get; set; }
         public string? PolicyRequired { get; set; }
+        public System.Net.HttpStatusCode PreferredStatusCode { get; set; }
         public System.Collections.Generic.List<string>? RolesRequired { get; set; }
     }
     public class BatchedRequestsNotSupportedError : GraphQL.Execution.RequestError
     {
         public BatchedRequestsNotSupportedError() { }
     }
+    public class CsrfProtectionError : GraphQL.Execution.RequestError
+    {
+        public CsrfProtectionError(System.Collections.Generic.IEnumerable<string> headersRequired) { }
+        public CsrfProtectionError(System.Collections.Generic.IEnumerable<string> headersRequired, System.Exception innerException) { }
+    }
     public class FileCountExceededError : GraphQL.Execution.RequestError, GraphQL.Server.Transports.AspNetCore.Errors.IHasPreferredStatusCode
     {
         public FileCountExceededError() { }
-        public System.Net.HttpStatusCode PreferredStatusCode { get; }
+        public System.Net.HttpStatusCode PreferredStatusCode { get; set; }
     }
     public class FileSizeExceededError : GraphQL.Execution.RequestError, GraphQL.Server.Transports.AspNetCore.Errors.IHasPreferredStatusCode
     {
         public FileSizeExceededError() { }
-        public System.Net.HttpStatusCode PreferredStatusCode { get; }
+        public System.Net.HttpStatusCode PreferredStatusCode { get; set; }
     }
-    public class HttpMethodValidationError : GraphQL.Validation.ValidationError
+    public class HttpMethodValidationError : GraphQL.Validation.ValidationError, GraphQL.Server.Transports.AspNetCore.Errors.IHasPreferredStatusCode
     {
         public HttpMethodValidationError(GraphQLParser.ROM originalQuery, GraphQLParser.AST.ASTNode node, string message) { }
+        public System.Net.HttpStatusCode PreferredStatusCode { get; set; }
     }
     public interface IHasPreferredStatusCode
     {
         System.Net.HttpStatusCode PreferredStatusCode { get; }
     }
-    public class InvalidContentTypeError : GraphQL.Execution.RequestError
+    public class InvalidContentTypeError : GraphQL.Execution.RequestError, GraphQL.Server.Transports.AspNetCore.Errors.IHasPreferredStatusCode
     {
         public InvalidContentTypeError() { }
         public InvalidContentTypeError(string message) { }
+        public System.Net.HttpStatusCode PreferredStatusCode { get; set; }
     }
     public class InvalidMapError : GraphQL.Execution.RequestError
     {
@@ -274,8 +292,13 @@ namespace GraphQL.Server.Transports.AspNetCore.WebSockets
         public virtual System.Threading.Tasks.Task InitializeConnectionAsync() { }
         protected virtual System.Threading.Tasks.Task OnCloseConnectionAsync() { }
         protected abstract System.Threading.Tasks.Task OnConnectionAcknowledgeAsync(GraphQL.Transport.OperationMessage message);
+        protected virtual System.Threading.Tasks.Task OnConnectionInitAsync(GraphQL.Transport.OperationMessage message) { }
+        [System.Obsolete("Please use the OnConnectionInitAsync(message) and OnKeepAliveLoopAsync methods in" +
+            "stead. This method will be removed in a future version of this library.")]
         protected virtual System.Threading.Tasks.Task OnConnectionInitAsync(GraphQL.Transport.OperationMessage message, bool smartKeepAlive) { }
         protected virtual System.Threading.Tasks.Task OnConnectionInitWaitTimeoutAsync() { }
+        protected virtual System.Threading.Tasks.Task OnKeepAliveLoopAsync() { }
+        protected virtual System.Threading.Tasks.Task OnKeepAliveLoopAsync(System.TimeSpan keepAliveTimeout, GraphQL.Server.Transports.AspNetCore.WebSockets.KeepAliveMode keepAliveMode) { }
         public abstract System.Threading.Tasks.Task OnMessageReceivedAsync(GraphQL.Transport.OperationMessage message);
         protected virtual System.Threading.Tasks.Task OnNotAuthenticatedAsync(GraphQL.Transport.OperationMessage message) { }
         protected virtual System.Threading.Tasks.Task OnNotAuthorizedPolicyAsync(GraphQL.Transport.OperationMessage message, Microsoft.AspNetCore.Authorization.AuthorizationResult result) { }
@@ -300,7 +323,9 @@ namespace GraphQL.Server.Transports.AspNetCore.WebSockets
         public bool DisconnectAfterAnyError { get; set; }
         public bool DisconnectAfterErrorEvent { get; set; }
         public System.TimeSpan? DisconnectionTimeout { get; set; }
+        public GraphQL.Server.Transports.AspNetCore.WebSockets.KeepAliveMode KeepAliveMode { get; set; }
         public System.TimeSpan? KeepAliveTimeout { get; set; }
+        public System.Collections.Generic.List<string> SupportedWebSocketSubProtocols { get; set; }
     }
     public interface IOperationMessageProcessor : System.IDisposable
     {
@@ -321,6 +346,13 @@ namespace GraphQL.Server.Transports.AspNetCore.WebSockets
         System.Threading.Tasks.Task ExecuteAsync(GraphQL.Server.Transports.AspNetCore.WebSockets.IOperationMessageProcessor operationMessageProcessor);
         System.Threading.Tasks.Task SendMessageAsync(GraphQL.Transport.OperationMessage message);
     }
+    public enum KeepAliveMode
+    {
+        Default = 0,
+        Timeout = 1,
+        Interval = 2,
+        TimeoutWithPayload = 3,
+    }
     public sealed class SubscriptionList : System.IDisposable
     {
         public SubscriptionList() { }
@@ -340,6 +372,7 @@ namespace GraphQL.Server.Transports.AspNetCore.WebSockets
         public Microsoft.AspNetCore.Http.HttpContext HttpContext { get; }
         public System.DateTime LastMessageSentAt { get; }
         public System.Threading.CancellationToken RequestAborted { get; }
+        protected int SendQueueCount { get; }
         public System.Threading.Tasks.Task CloseAsync() { }
         public System.Threading.Tasks.Task CloseAsync(int eventId, string? description) { }
         public virtual void Dispose() { }
@@ -348,7 +381,7 @@ namespace GraphQL.Server.Transports.AspNetCore.WebSockets
         protected virtual System.Threading.Tasks.Task OnDispatchMessageAsync(GraphQL.Server.Transports.AspNetCore.WebSockets.IOperationMessageProcessor operationMessageProcessor, GraphQL.Transport.OperationMessage message) { }
         protected virtual System.Threading.Tasks.Task OnNonGracefulShutdownAsync(bool receivedCloseMessage, bool sentCloseMessage) { }
         protected virtual System.Threading.Tasks.Task OnSendMessageAsync(GraphQL.Transport.OperationMessage message) { }
-        public System.Threading.Tasks.Task SendMessageAsync(GraphQL.Transport.OperationMessage message) { }
+        public virtual System.Threading.Tasks.Task SendMessageAsync(GraphQL.Transport.OperationMessage message) { }
     }
 }
 namespace GraphQL.Server.Transports.AspNetCore.WebSockets.GraphQLWs
@@ -364,6 +397,11 @@ namespace GraphQL.Server.Transports.AspNetCore.WebSockets.GraphQLWs
         public const string Pong = "pong";
         public const string Subscribe = "subscribe";
     }
+    public class PingPayload
+    {
+        public PingPayload() { }
+        public string? id { get; set; }
+    }
     public class SubscriptionServer : GraphQL.Server.Transports.AspNetCore.WebSockets.BaseSubscriptionServer
     {
         public SubscriptionServer(GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketConnection connection, GraphQL.Server.Transports.AspNetCore.WebSockets.GraphQLWebSocketOptions options, GraphQL.Server.Transports.AspNetCore.IAuthorizationOptions authorizationOptions, GraphQL.IDocumentExecuter executer, GraphQL.IGraphQLSerializer serializer, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory serviceScopeFactory, GraphQL.Server.Transports.AspNetCore.IUserContextBuilder userContextBuilder, GraphQL.Server.Transports.AspNetCore.WebSockets.IWebSocketAuthenticationService? authenticationService = null) { }
@@ -377,6 +415,10 @@ namespace GraphQL.Server.Transports.AspNetCore.WebSockets.GraphQLWs
         protected override System.Threading.Tasks.Task<GraphQL.ExecutionResult> ExecuteRequestAsync(GraphQL.Transport.OperationMessage message) { }
         protected virtual System.Threading.Tasks.Task OnCompleteAsync(GraphQL.Transport.OperationMessage message) { }
         protected override System.Threading.Tasks.Task OnConnectionAcknowledgeAsync(GraphQL.Transport.OperationMessage message) { }
+        [System.Obsolete("Please use the OnConnectionInitAsync and OnKeepAliveLoopAsync methods instead. Th" +
+            "is method will be removed in a future version of this library.")]
+        protected override System.Threading.Tasks.Task OnConnectionInitAsync(GraphQL.Transport.OperationMessage message, bool smartKeepAlive) { }
+        protected override System.Threading.Tasks.Task OnKeepAliveLoopAsync(System.TimeSpan keepAliveTimeout, GraphQL.Server.Transports.AspNetCore.WebSockets.KeepAliveMode keepAliveMode) { }
         public override System.Threading.Tasks.Task OnMessageReceivedAsync(GraphQL.Transport.OperationMessage message) { }
         protected virtual System.Threading.Tasks.Task OnPingAsync(GraphQL.Transport.OperationMessage message) { }
         protected virtual System.Threading.Tasks.Task OnPongAsync(GraphQL.Transport.OperationMessage message) { }
@@ -415,6 +457,10 @@ namespace GraphQL.Server.Transports.AspNetCore.WebSockets.SubscriptionsTransport
         protected override System.Threading.Tasks.Task ErrorAccessDeniedAsync() { }
         protected override System.Threading.Tasks.Task<GraphQL.ExecutionResult> ExecuteRequestAsync(GraphQL.Transport.OperationMessage message) { }
         protected override System.Threading.Tasks.Task OnConnectionAcknowledgeAsync(GraphQL.Transport.OperationMessage message) { }
+        [System.Obsolete("Please use the OnConnectionInitAsync and OnKeepAliveLoopAsync methods instead. Th" +
+            "is method will be removed in a future version of this library.")]
+        protected override System.Threading.Tasks.Task OnConnectionInitAsync(GraphQL.Transport.OperationMessage message, bool smartKeepAlive) { }
+        protected override System.Threading.Tasks.Task OnKeepAliveLoopAsync(System.TimeSpan keepAliveTimeout, GraphQL.Server.Transports.AspNetCore.WebSockets.KeepAliveMode keepAliveMode) { }
         public override System.Threading.Tasks.Task OnMessageReceivedAsync(GraphQL.Transport.OperationMessage message) { }
         protected override System.Threading.Tasks.Task OnSendKeepAliveAsync() { }
         protected virtual System.Threading.Tasks.Task OnStartAsync(GraphQL.Transport.OperationMessage message) { }

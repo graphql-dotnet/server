@@ -42,6 +42,9 @@ public class TestNewSubscriptionServer : SubscriptionServer
     public Task<ExecutionResult> Do_ExecuteRequestAsync(OperationMessage message)
         => ExecuteRequestAsync(message);
 
+    public Task Do_OnKeepAliveLoopAsync()
+        => OnKeepAliveLoopAsync();
+
     public SubscriptionList Get_Subscriptions
         => Subscriptions;
 
@@ -56,4 +59,6 @@ public class TestNewSubscriptionServer : SubscriptionServer
     public IDocumentExecuter Get_DocumentExecuter => DocumentExecuter;
 
     public IServiceScopeFactory Get_ServiceScopeFactory => ServiceScopeFactory;
+
+    public TimeSpan Get_DefaultKeepAliveTimeout => DefaultKeepAliveTimeout;
 }

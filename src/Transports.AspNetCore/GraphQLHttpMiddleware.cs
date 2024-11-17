@@ -68,6 +68,7 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
     private const string VARIABLES_KEY = "variables";
     private const string EXTENSIONS_KEY = "extensions";
     private const string OPERATION_NAME_KEY = "operationName";
+    private const string DOCUMENT_ID_KEY = "documentId";
     private const string OPERATIONS_KEY = "operations"; // used for multipart/form-data requests per https://github.com/jaydenseric/graphql-multipart-request-spec
     private const string MAP_KEY = "map"; // used for multipart/form-data requests per https://github.com/jaydenseric/graphql-multipart-request-spec
     private const string MEDIATYPE_GRAPHQLJSON = "application/graphql+json"; // deprecated
@@ -142,6 +143,10 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
             return;
         }
 
+        // Perform CSRF protection if necessary
+        if (await HandleCsrfProtectionAsync(context, next))
+            return;
+
         // Authenticate request if necessary
         if (await HandleAuthorizeAsync(context, next))
             return;
@@ -195,7 +200,8 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
                 Query = urlGQLRequest?.Query ?? bodyGQLRequest?.Query,
                 Variables = urlGQLRequest?.Variables ?? bodyGQLRequest?.Variables,
                 Extensions = urlGQLRequest?.Extensions ?? bodyGQLRequest?.Extensions,
-                OperationName = urlGQLRequest?.OperationName ?? bodyGQLRequest?.OperationName
+                OperationName = urlGQLRequest?.OperationName ?? bodyGQLRequest?.OperationName,
+                DocumentId = urlGQLRequest?.DocumentId ?? bodyGQLRequest?.DocumentId,
             };
 
             await HandleRequestAsync(context, next, gqlRequest);
@@ -269,7 +275,7 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
                     }
                     catch (ExecutionError ex) // catches FileCountExceededError, FileSizeExceededError, InvalidMapError
                     {
-                        await WriteErrorResponseAsync(context, ex is IHasPreferredStatusCode sc ? sc.PreferredStatusCode : HttpStatusCode.BadRequest, ex);
+                        await WriteErrorResponseAsync(context, ex);
                         return null;
                     }
                     catch (Exception ex) // catches JSON deserialization exceptions
@@ -339,8 +345,8 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
             foreach (var entry in map)
             {
                 // validate entry key
-                if (entry.Key == "" || entry.Key == "query" || entry.Key == "operationName" || entry.Key == "variables" || entry.Key == "extensions" || entry.Key == "operations" || entry.Key == "map")
-                    throw new InvalidMapError("Map key cannot be query, operationName, variables, extensions, operations or map.");
+                if (entry.Key == "" || entry.Key == QUERY_KEY || entry.Key == OPERATION_NAME_KEY || entry.Key == VARIABLES_KEY || entry.Key == EXTENSIONS_KEY || entry.Key == DOCUMENT_ID_KEY || entry.Key == OPERATIONS_KEY || entry.Key == MAP_KEY)
+                    throw new InvalidMapError("Map key cannot be query, operationName, variables, extensions, documentId, operations or map.");
                 // locate file
                 var file = form.Files[entry.Key]
                     ?? throw new InvalidMapError("Map key does not refer to an uploaded file.");
@@ -484,7 +490,36 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
     }
 
     /// <summary>
-    /// Perform authentication, if required, and return <see langword="true"/> if the
+    /// Performs CSRF protection, if required, and returns <see langword="true"/> if the
+    /// request was handled (typically by returning an error message).  If <see langword="false"/>
+    /// is returned, the request is processed normally.
+    /// </summary>
+    protected virtual async ValueTask<bool> HandleCsrfProtectionAsync(HttpContext context, RequestDelegate next)
+    {
+        if (!_options.CsrfProtectionEnabled)
+            return false;
+        if (context.Request.Headers.TryGetValue("Content-Type", out var contentTypes) && contentTypes.Count > 0 && contentTypes[0] != null)
+        {
+            var contentType = contentTypes[0]!;
+            if (contentType.IndexOf(';') > 0)
+            {
+                contentType = contentType.Substring(0, contentType.IndexOf(';'));
+            }
+            contentType = contentType.Trim().ToLowerInvariant();
+            if (!(contentType == "text/plain" || contentType == "application/x-www-form-urlencoded" || contentType == "multipart/form-data"))
+                return false;
+        }
+        foreach (var header in _options.CsrfProtectionHeaders)
+        {
+            if (context.Request.Headers.TryGetValue(header, out var values) && values.Count > 0 && values[0]?.Length > 0)
+                return false;
+        }
+        await HandleCsrfProtectionErrorAsync(context, next);
+        return true;
+    }
+
+    /// <summary>
+    /// Perform authentication, if required, and returns <see langword="true"/> if the
     /// request was handled (typically by returning an error message).  If <see langword="false"/>
     /// is returned, the request is processed normally.
     /// </summary>
@@ -550,15 +585,18 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
         // Normal execution with single graphql request
         var userContext = await BuildUserContextAsync(context, null);
         var result = await ExecuteRequestAsync(context, gqlRequest, context.RequestServices, userContext);
-        HttpStatusCode statusCode = HttpStatusCode.OK;
+        // when the request fails validation (this logic does not apply to execution errors)
         if (!result.Executed)
         {
+            // always return 405 Method Not Allowed when applicable, as this is a transport problem, not really a validation error,
+            // even though it occurs during validation (because the query text must be parsed to know if the request is a query or a mutation)
             if (result.Errors?.Any(e => e is HttpMethodValidationError) == true)
-                statusCode = HttpStatusCode.MethodNotAllowed;
-            else if (_options.ValidationErrorsReturnBadRequest)
-                statusCode = HttpStatusCode.BadRequest;
+            {
+                await WriteJsonResponseAsync(context, HttpStatusCode.MethodNotAllowed, result);
+                return;
+            }
         }
-        await WriteJsonResponseAsync(context, statusCode, result);
+        await WriteJsonResponseAsync(context, result);
     }
 
     /// <summary>
@@ -647,6 +685,7 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
             Query = request?.Query,
             Variables = request?.Variables,
             Extensions = request?.Extensions,
+            DocumentId = request?.DocumentId,
             CancellationToken = context.RequestAborted,
             OperationName = request?.OperationName,
             RequestServices = serviceProvider,
@@ -703,10 +742,11 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
     ValueTask<IDictionary<string, object?>?> IUserContextBuilder.BuildUserContextAsync(HttpContext context, object? payload)
         => BuildUserContextAsync(context, payload);
 
+    private static readonly MediaTypeHeaderValueMs _applicationJsonMediaType = MediaTypeHeaderValueMs.Parse(CONTENTTYPE_JSON);
     private static readonly MediaTypeHeaderValueMs[] _validMediaTypes = new[]
     {
         MediaTypeHeaderValueMs.Parse(CONTENTTYPE_GRAPHQLRESPONSEJSON),
-        MediaTypeHeaderValueMs.Parse(CONTENTTYPE_JSON),
+        _applicationJsonMediaType,
         MediaTypeHeaderValueMs.Parse(CONTENTTYPE_GRAPHQLJSON), // deprecated
     };
 
@@ -724,61 +764,86 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
     /// For more complex behavior patterns, override
     /// <see cref="WriteJsonResponseAsync{TResult}(HttpContext, HttpStatusCode, TResult)"/>.
     /// </summary>
-    protected virtual string SelectResponseContentType(HttpContext context)
+    protected virtual MediaTypeHeaderValueMs SelectResponseContentType(HttpContext context)
     {
         // pull the Accept header, which may contain multiple content types
         var acceptHeaders = context.Request.Headers.ContainsKey(Microsoft.Net.Http.Headers.HeaderNames.Accept)
             ? context.Request.GetTypedHeaders().Accept
             : Array.Empty<MediaTypeHeaderValueMs>();
 
-        if (acceptHeaders.Count > 0)
+        if (acceptHeaders.Count == 1)
+        {
+            var response = IsSupportedMediaType(acceptHeaders[0]);
+            if (response != null)
+                return response;
+        }
+        else if (acceptHeaders.Count > 0)
         {
             // enumerate through each content type and see if it matches a supported content type
             // give priority to specific types, then to types with wildcards
             foreach (var acceptHeader in acceptHeaders.OrderBy(x => x.MatchesAllTypes ? 4 : x.MatchesAllSubTypes ? 3 : x.MatchesAllSubTypesWithoutSuffix ? 2 : 1))
             {
-                var response = CheckForMatch(acceptHeader);
+                var response = IsSupportedMediaType(acceptHeader);
                 if (response != null)
                     return response;
             }
         }
 
         // return the default content type if no match is found, or if there is no 'Accept' header
-        return _options.DefaultResponseContentTypeString;
+        return _options.DefaultResponseContentType;
+    }
 
-        string? CheckForMatch(MediaTypeHeaderValueMs acceptHeader)
+    /// <summary>
+    /// Checks to see if the specified <see cref="MediaTypeHeaderValueMs"/> matches any of the supported content types
+    /// by this middleware.  If a match is found, the matching content type is returned; otherwise, <see langword="null"/>.
+    /// Prioritizes <see cref="GraphQLHttpMiddlewareOptions.DefaultResponseContentType"/>, then
+    /// <c>application/graphql-response+json</c>, then <c>application/json</c>.
+    /// </summary>
+    private MediaTypeHeaderValueMs? IsSupportedMediaType(MediaTypeHeaderValueMs acceptHeader)
+        => IsSupportedMediaType(acceptHeader, _options.DefaultResponseContentType, _validMediaTypes);
+
+    /// <summary>
+    /// Checks to see if the specified <see cref="MediaTypeHeaderValueMs"/> matches any of the supported content types
+    /// by this middleware.  If a match is found, the matching content type is returned; otherwise, <see langword="null"/>.
+    /// Prioritizes <see cref="GraphQLHttpMiddlewareOptions.DefaultResponseContentType"/>, then
+    /// <c>application/graphql-response+json</c>, then <c>application/json</c>.
+    /// </summary>
+    private static MediaTypeHeaderValueMs? IsSupportedMediaType(MediaTypeHeaderValueMs acceptHeader, MediaTypeHeaderValueMs preferredContentType, MediaTypeHeaderValueMs[] allowedContentTypes)
+    {
+        // speeds check in WriteJsonResponseAsync
+        if (acceptHeader == preferredContentType)
+            return preferredContentType;
+
+        // strip quotes from charset
+        if (acceptHeader.Charset.Length > 0 && acceptHeader.Charset[0] == '\"' && acceptHeader.Charset[acceptHeader.Charset.Length - 1] == '\"')
         {
-            // strip quotes from charset
-            if (acceptHeader.Charset.Length > 0 && acceptHeader.Charset[0] == '\"' && acceptHeader.Charset[acceptHeader.Charset.Length - 1] == '\"')
-            {
-                acceptHeader.Charset = acceptHeader.Charset.Substring(1, acceptHeader.Charset.Length - 2);
-            }
-
-            // check if this matches the default content type header
-            if (IsSubsetOf(_options.DefaultResponseContentType, acceptHeader))
-                return _options.DefaultResponseContentTypeString;
-
-            // if the default content type header does not contain a charset, test with utf-8 as the charset
-            if (_options.DefaultResponseContentType.Charset.Length == 0)
-            {
-                var contentType2 = _options.DefaultResponseContentType.Copy();
-                contentType2.Charset = "utf-8";
-                if (IsSubsetOf(contentType2, acceptHeader))
-                    return contentType2.ToString();
-            }
-
-            // loop through the other supported media types, attempting to find a match
-            for (int j = 0; j < _validMediaTypes.Length; j++)
-            {
-                var mediaType = _validMediaTypes[j];
-                if (IsSubsetOf(mediaType, acceptHeader))
-                    // when a match is found, return the match
-                    return mediaType.ToString();
-            }
-
-            // no match
-            return null;
+            acceptHeader.Charset = acceptHeader.Charset.Substring(1, acceptHeader.Charset.Length - 2);
         }
+
+        // check if this matches the default content type header
+        if (IsSubsetOf(preferredContentType, acceptHeader))
+            return preferredContentType;
+
+        // if the default content type header does not contain a charset, test with utf-8 as the charset
+        if (preferredContentType.Charset.Length == 0)
+        {
+            var contentType2 = preferredContentType.Copy();
+            contentType2.Charset = "utf-8";
+            if (IsSubsetOf(contentType2, acceptHeader))
+                return contentType2;
+        }
+
+        // loop through the other supported media types, attempting to find a match
+        for (int j = 0; j < allowedContentTypes.Length; j++)
+        {
+            var mediaType = allowedContentTypes[j];
+            if (IsSubsetOf(mediaType, acceptHeader))
+                // when a match is found, return the match
+                return mediaType;
+        }
+
+        // no match
+        return null;
 
         // --- note: the below functions were copied from ASP.NET Core 2.1 source ---
         // see https://github.com/dotnet/aspnetcore/blob/v2.1.33/src/Http/Headers/src/MediaTypeHeaderValue.cs
@@ -893,11 +958,41 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
     }
 
     /// <summary>
-    /// Writes the specified object (usually a GraphQL response represented as an instance of <see cref="ExecutionResult"/>) as JSON to the HTTP response stream.
+    /// Writes the specified <see cref="ExecutionResult"/> as JSON to the HTTP response stream,
+    /// selecting the proper content type and status code based on the request Accept header and response.
+    /// </summary>
+    protected virtual Task WriteJsonResponseAsync(HttpContext context, ExecutionResult result)
+    {
+        var contentType = SelectResponseContentType(context);
+        context.Response.ContentType = contentType == _options.DefaultResponseContentType ? _options.DefaultResponseContentTypeString : contentType.ToString();
+        context.Response.StatusCode = (int)HttpStatusCode.OK;
+        if (result.Executed == false)
+        {
+            var useBadRequest = _options.ValidationErrorsReturnBadRequest ?? IsSupportedMediaType(contentType, _applicationJsonMediaType, Array.Empty<MediaTypeHeaderValueMs>()) == null;
+            if (useBadRequest)
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+
+                // if all errors being returned prefer the same status code, use that
+                if (result.Errors?.Count > 0 && result.Errors[0] is IHasPreferredStatusCode initialError)
+                {
+                    if (result.Errors.All(e => e is IHasPreferredStatusCode e2 && e2.PreferredStatusCode == initialError.PreferredStatusCode))
+                        context.Response.StatusCode = (int)initialError.PreferredStatusCode;
+                }
+            }
+        }
+
+        return _serializer.WriteAsync(context.Response.Body, result, context.RequestAborted);
+    }
+
+    /// <summary>
+    /// Writes the specified object (usually a GraphQL response represented as an instance of <see cref="ExecutionResult"/>)
+    /// as JSON to the HTTP response stream, using the specified status code.
     /// </summary>
     protected virtual Task WriteJsonResponseAsync<TResult>(HttpContext context, HttpStatusCode httpStatusCode, TResult result)
     {
-        context.Response.ContentType = SelectResponseContentType(context);
+        var contentType = SelectResponseContentType(context);
+        context.Response.ContentType = contentType == _options.DefaultResponseContentType ? _options.DefaultResponseContentTypeString : contentType.ToString();
         context.Response.StatusCode = (int)httpStatusCode;
 
         return _serializer.WriteAsync(context.Response.Body, result, context.RequestAborted);
@@ -912,7 +1007,7 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
     /// <summary>
     /// Gets a list of WebSocket sub-protocols supported.
     /// </summary>
-    protected virtual IEnumerable<string> SupportedWebSocketSubProtocols => _supportedSubProtocols;
+    protected virtual IEnumerable<string> SupportedWebSocketSubProtocols => _options.WebSockets.SupportedWebSocketSubProtocols;
 
     /// <summary>
     /// Creates an <see cref="IWebSocketConnection"/>, a WebSocket message pump.
@@ -1013,19 +1108,19 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
     /// Writes an access denied message to the output with status code <c>401 Unauthorized</c> when the user is not authenticated.
     /// </summary>
     protected virtual Task HandleNotAuthenticatedAsync(HttpContext context, RequestDelegate next)
-        => WriteErrorResponseAsync(context, HttpStatusCode.Unauthorized, new AccessDeniedError("schema"));
+        => WriteErrorResponseAsync(context, new AccessDeniedError("schema") { PreferredStatusCode = HttpStatusCode.Unauthorized });
 
     /// <summary>
     /// Writes an access denied message to the output with status code <c>403 Forbidden</c> when the user fails the role checks.
     /// </summary>
     protected virtual Task HandleNotAuthorizedRoleAsync(HttpContext context, RequestDelegate next)
-        => WriteErrorResponseAsync(context, HttpStatusCode.Forbidden, new AccessDeniedError("schema") { RolesRequired = _options.AuthorizedRoles });
+        => WriteErrorResponseAsync(context, new AccessDeniedError("schema") { RolesRequired = _options.AuthorizedRoles });
 
     /// <summary>
     /// Writes an access denied message to the output with status code <c>403 Forbidden</c> when the user fails the policy check.
     /// </summary>
     protected virtual Task HandleNotAuthorizedPolicyAsync(HttpContext context, RequestDelegate next, AuthorizationResult authorizationResult)
-        => WriteErrorResponseAsync(context, HttpStatusCode.Forbidden, new AccessDeniedError("schema") { PolicyRequired = _options.AuthorizedPolicy, PolicyAuthorizationResult = authorizationResult });
+        => WriteErrorResponseAsync(context, new AccessDeniedError("schema") { PolicyRequired = _options.AuthorizedPolicy, PolicyAuthorizationResult = authorizationResult });
 
     /// <summary>
     /// Writes a '400 JSON body text could not be parsed.' message to the output.
@@ -1034,27 +1129,35 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
     /// </summary>
     protected virtual async ValueTask<bool> HandleDeserializationErrorAsync(HttpContext context, RequestDelegate next, Exception exception)
     {
-        await WriteErrorResponseAsync(context, HttpStatusCode.BadRequest, new JsonInvalidError(exception));
+        await WriteErrorResponseAsync(context, new JsonInvalidError(exception));
         return true;
+    }
+
+    /// <summary>
+    /// Writes a '.' message to the output.
+    /// </summary>
+    protected virtual async Task HandleCsrfProtectionErrorAsync(HttpContext context, RequestDelegate next)
+    {
+        await WriteErrorResponseAsync(context, new CsrfProtectionError(_options.CsrfProtectionHeaders));
     }
 
     /// <summary>
     /// Writes a '400 Batched requests are not supported.' message to the output.
     /// </summary>
     protected virtual Task HandleBatchedRequestsNotSupportedAsync(HttpContext context, RequestDelegate next)
-        => WriteErrorResponseAsync(context, HttpStatusCode.BadRequest, new BatchedRequestsNotSupportedError());
+        => WriteErrorResponseAsync(context, new BatchedRequestsNotSupportedError());
 
     /// <summary>
     /// Writes a '400 Invalid requested WebSocket sub-protocol(s).' message to the output.
     /// </summary>
     protected virtual Task HandleWebSocketSubProtocolNotSupportedAsync(HttpContext context, RequestDelegate next)
-        => WriteErrorResponseAsync(context, HttpStatusCode.BadRequest, new WebSocketSubProtocolNotSupportedError(context.WebSockets.WebSocketRequestedProtocols));
+        => WriteErrorResponseAsync(context, new WebSocketSubProtocolNotSupportedError(context.WebSockets.WebSocketRequestedProtocols));
 
     /// <summary>
     /// Writes a '415 Invalid Content-Type header: could not be parsed.' message to the output.
     /// </summary>
     protected virtual Task HandleContentTypeCouldNotBeParsedErrorAsync(HttpContext context, RequestDelegate next)
-        => WriteErrorResponseAsync(context, HttpStatusCode.UnsupportedMediaType, new InvalidContentTypeError($"value '{context.Request.ContentType}' could not be parsed."));
+        => WriteErrorResponseAsync(context, new InvalidContentTypeError($"value '{context.Request.ContentType}' could not be parsed."));
 
     /// <summary>
     /// Writes a '415 Invalid Content-Type header: non-supported media type.' message to the output.
@@ -1062,7 +1165,6 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
     protected virtual Task HandleInvalidContentTypeErrorAsync(HttpContext context, RequestDelegate next)
         => WriteErrorResponseAsync(
             context,
-            HttpStatusCode.UnsupportedMediaType,
             _options.ReadFormOnPost
             ? new InvalidContentTypeError($"non-supported media type '{context.Request.ContentType}'. Must be '{MEDIATYPE_JSON}', '{MEDIATYPE_GRAPHQL}' or a form body.")
             : new InvalidContentTypeError($"non-supported media type '{context.Request.ContentType}'. Must be '{MEDIATYPE_JSON}' or '{MEDIATYPE_GRAPHQL}'.")
@@ -1078,6 +1180,12 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
         //return WriteErrorResponseAsync(context, $"Invalid HTTP method.{(Options.HandleGet || Options.HandlePost ? $" Only {(Options.HandleGet && Options.HandlePost ? "GET and POST are" : Options.HandleGet ? "GET is" : "POST is")} supported." : "")}", HttpStatusCode.MethodNotAllowed);
         return next(context);
     }
+
+    /// <summary>
+    /// Writes the specified error as a JSON-formatted GraphQL response.
+    /// </summary>
+    protected virtual Task WriteErrorResponseAsync(HttpContext context, ExecutionError executionError)
+        => WriteErrorResponseAsync(context, executionError is IHasPreferredStatusCode withCode ? withCode.PreferredStatusCode : HttpStatusCode.BadRequest, executionError);
 
     /// <summary>
     /// Writes the specified error message as a JSON-formatted GraphQL response, with the specified HTTP status code.
@@ -1107,6 +1215,7 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
         Variables = _options.ReadVariablesFromQueryString && queryCollection.TryGetValue(VARIABLES_KEY, out var variablesValues) ? _serializer.Deserialize<Inputs>(variablesValues[0]) : null,
         Extensions = _options.ReadExtensionsFromQueryString && queryCollection.TryGetValue(EXTENSIONS_KEY, out var extensionsValues) ? _serializer.Deserialize<Inputs>(extensionsValues[0]) : null,
         OperationName = queryCollection.TryGetValue(OPERATION_NAME_KEY, out var operationNameValues) ? operationNameValues[0] : null,
+        DocumentId = queryCollection.TryGetValue(DOCUMENT_ID_KEY, out var documentIdValues) ? documentIdValues[0] : null,
     };
 
     private GraphQLRequest DeserializeFromFormBody(IFormCollection formCollection) => new()
@@ -1115,6 +1224,7 @@ public class GraphQLHttpMiddleware : IUserContextBuilder
         Variables = formCollection.TryGetValue(VARIABLES_KEY, out var variablesValues) ? _serializer.Deserialize<Inputs>(variablesValues[0]) : null,
         Extensions = formCollection.TryGetValue(EXTENSIONS_KEY, out var extensionsValues) ? _serializer.Deserialize<Inputs>(extensionsValues[0]) : null,
         OperationName = formCollection.TryGetValue(OPERATION_NAME_KEY, out var operationNameValues) ? operationNameValues[0] : null,
+        DocumentId = formCollection.TryGetValue(DOCUMENT_ID_KEY, out var documentIdValues) ? documentIdValues[0] : null,
     };
 
     /// <summary>

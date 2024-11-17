@@ -11,7 +11,7 @@ builder.Services.AddGraphQL(b => b
 
 var app = builder.Build();
 app.UseDeveloperExceptionPage();
-app.UseGraphQL();
+app.UseGraphQL(configureMiddleware: opts => opts.ReadFormOnPost = true);
 app.UseRouting();
 app.MapRazorPages();
 

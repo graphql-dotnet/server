@@ -1,4 +1,8 @@
 using System.Net;
+using System.Net.Http.Headers;
+using GraphQL.PersistedDocuments;
+using GraphQL.Server.Transports.AspNetCore.Errors;
+using GraphQL.Validation;
 
 namespace Tests.Middleware;
 
@@ -6,7 +10,8 @@ public class GetTests : IDisposable
 {
     private GraphQLHttpMiddlewareOptions _options = null!;
     private GraphQLHttpMiddlewareOptions _options2 = null!;
-    private readonly Action<ExecutionOptions> _configureExecution = _ => { };
+    private Action<ExecutionOptions> _configureExecution = _ => { };
+    private bool _enablePersistedDocuments = true;
     private readonly TestServer _server;
 
     public GetTests()
@@ -15,13 +20,35 @@ public class GetTests : IDisposable
         hostBuilder.ConfigureServices(services =>
         {
             services.AddSingleton<Chat.IChat, Chat.Chat>();
-            services.AddGraphQL(b => b
-                .AddAutoSchema<Chat.Query>(s => s
-                    .WithMutation<Chat.Mutation>()
-                    .WithSubscription<Chat.Subscription>())
-                .AddSchema<Schema2>()
-                .AddSystemTextJson()
-                .ConfigureExecutionOptions(o => _configureExecution(o)));
+            services.AddGraphQL(b =>
+            {
+                b
+                    .AddAutoSchema<Chat.Query>(s => s
+                        .WithMutation<Chat.Mutation>()
+                        .WithSubscription<Chat.Subscription>())
+                    .AddSchema<Schema2>()
+                    .AddSystemTextJson()
+                    .ConfigureExecution((options, next) =>
+                    {
+                        if (_enablePersistedDocuments)
+                        {
+                            var handler = options.RequestServices!.GetRequiredService<PersistedDocumentHandler>();
+                            return handler.ExecuteAsync(options, next);
+                        }
+                        return next(options);
+                    })
+                    .ConfigureExecutionOptions(o => _configureExecution(o));
+                b.Services.Configure<PersistedDocumentOptions>(o =>
+                {
+                    o.AllowOnlyPersistedDocuments = false;
+                    o.AllowedPrefixes.Add("test");
+                    o.GetQueryDelegate = (options, prefix, payload) =>
+                        prefix == "test" && payload == "abc" ? new("{count}") :
+                        prefix == "test" && payload == "form" ? new("query op1{ext} query op2($test:String!){ext var(test:$test)}") :
+                        default;
+                });
+            });
+            services.AddSingleton<PersistedDocumentHandler>();
 #if NETCOREAPP2_1 || NET48
             services.AddHostApplicationLifetime();
 #endif
@@ -31,10 +58,12 @@ public class GetTests : IDisposable
             app.UseWebSockets();
             app.UseGraphQL("/graphql", opts =>
             {
+                opts.CsrfProtectionEnabled = false;
                 _options = opts;
             });
             app.UseGraphQL<Schema2>("/graphql2", opts =>
             {
+                opts.CsrfProtectionEnabled = false;
                 _options2 = opts;
             });
         });
@@ -53,6 +82,14 @@ public class GetTests : IDisposable
     {
         public static string? Ext(IResolveFieldContext context)
             => context.InputExtensions.TryGetValue("test", out var value) ? value?.ToString() : null;
+
+        public static string? CustomError() => throw new CustomError();
+    }
+
+    public class CustomError : ValidationError, IHasPreferredStatusCode
+    {
+        public CustomError() : base("Custom error") { }
+        public HttpStatusCode PreferredStatusCode => HttpStatusCode.NotAcceptable;
     }
 
     public void Dispose() => _server.Dispose();
@@ -63,6 +100,56 @@ public class GetTests : IDisposable
         var client = _server.CreateClient();
         using var response = await client.GetAsync("/graphql?query={count}");
         await response.ShouldBeAsync("""{"data":{"count":0}}""");
+    }
+
+    [Fact]
+    public async Task PersistedDocumentTest()
+    {
+        var client = _server.CreateClient();
+        using var response = await client.GetAsync("/graphql?documentId=test:abc");
+        await response.ShouldBeAsync("""{"data":{"count":0}}""");
+    }
+
+    [Theory]
+    [InlineData(true, true)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(false, false)]
+    public async Task CsrfBasicTests(bool requireCsrf, bool sendCsrf)
+    {
+        _options.CsrfProtectionEnabled = requireCsrf;
+        var client = _server.CreateClient();
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/graphql?query={count}");
+        if (sendCsrf)
+            request.Headers.Add("GraphQL-Require-Preflight", "true");
+        using var response = await client.SendAsync(request);
+        if (requireCsrf && !sendCsrf)
+            await response.ShouldBeAsync(true, """{"errors":[{"message":"This request requires a non-empty header from the following list: \u0027GraphQL-Require-Preflight\u0027.","extensions":{"code":"CSRF_PROTECTION","codes":["CSRF_PROTECTION"]}}]}""");
+        else
+            await response.ShouldBeAsync("""{"data":{"count":0}}""");
+    }
+
+    [Theory]
+    [InlineData(null, null, false)]
+    [InlineData("Header1", "true", true)]
+    [InlineData("Header1", "", false)]
+    [InlineData("Header1", null, false)]
+    [InlineData("Header2", "true", true)]
+    [InlineData("Header3", "true", false)]
+    [InlineData("GraphQL-Require-Preflight", "true", false)]
+    public async Task CsrfCustomTests(string? header, string? value, bool success)
+    {
+        _options.CsrfProtectionEnabled = true;
+        _options.CsrfProtectionHeaders = ["Header1", "Header2"];
+        var client = _server.CreateClient();
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/graphql?query={count}");
+        if (header != null)
+            request.Headers.Add(header, value);
+        using var response = await client.SendAsync(request);
+        if (!success)
+            await response.ShouldBeAsync(true, """{"errors":[{"message":"This request requires a non-empty header from the following list: \u0027Header1\u0027, \u0027Header2\u0027.","extensions":{"code":"CSRF_PROTECTION","codes":["CSRF_PROTECTION"]}}]}""");
+        else
+            await response.ShouldBeAsync("""{"data":{"count":0}}""");
     }
 
     [Theory]
@@ -180,19 +267,33 @@ public class GetTests : IDisposable
         using var server = new TestServer(hostBuilder);
 
         var client = server.CreateClient();
-        using var response = await client.GetAsync("/graphql?query={count}");
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/graphql?query={count}");
+        request.Headers.Add("GraphQL-Require-Preflight", "true");
+        using var response = await client.SendAsync(request);
         await response.ShouldBeAsync("""{"data":{"count":0}}""");
     }
 
     [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public async Task WithError(bool badRequest)
+    [InlineData(false, false, "application/graphql-response+json", "application/graphql-response+json; charset=utf-8")]
+    [InlineData(false, false, "application/json", "application/json; charset=utf-8")]
+    [InlineData(true, true, "application/graphql-response+json", "application/graphql-response+json; charset=utf-8")]
+    [InlineData(true, true, "application/json", "application/json; charset=utf-8")]
+    [InlineData(null, true, "application/graphql-response+json", "application/graphql-response+json; charset=utf-8")]
+    [InlineData(null, true, "application/graphql-response+json; charset=utf-8", "application/graphql-response+json; charset=utf-8")]
+    [InlineData(null, true, "text/text", "application/graphql-response+json; charset=utf-8")]
+    [InlineData(null, false, "application/json; charset=utf-8", "application/json; charset=utf-8")]
+    [InlineData(null, false, "application/json", "application/json; charset=utf-8")]
+    public async Task WithError(bool? badRequest, bool expectBadRequest, string accept, string contentType)
     {
         _options.ValidationErrorsReturnBadRequest = badRequest;
         var client = _server.CreateClient();
-        using var response = await client.GetAsync("/graphql?query={invalid}");
-        await response.ShouldBeAsync(badRequest, """{"errors":[{"message":"Cannot query field \u0027invalid\u0027 on type \u0027Query\u0027.","locations":[{"line":1,"column":2}],"extensions":{"code":"FIELDS_ON_CORRECT_TYPE","codes":["FIELDS_ON_CORRECT_TYPE"],"number":"5.3.1"}}]}""");
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/graphql?query={invalid}");
+        request.Headers.Accept.Add(MediaTypeWithQualityHeaderValue.Parse(accept));
+        using var response = await client.SendAsync(request);
+        await response.ShouldBeAsync(
+            contentType,
+            expectBadRequest ? HttpStatusCode.BadRequest : HttpStatusCode.OK,
+            """{"errors":[{"message":"Cannot query field \u0027invalid\u0027 on type \u0027Query\u0027.","locations":[{"line":1,"column":2}],"extensions":{"code":"FIELDS_ON_CORRECT_TYPE","codes":["FIELDS_ON_CORRECT_TYPE"],"number":"5.3.1"}}]}""");
     }
 
     [Fact]
@@ -202,6 +303,67 @@ public class GetTests : IDisposable
         var client = _server.CreateClient();
         using var response = await client.GetAsync("/graphql?query={count}");
         response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task PreferredStatusCode_ExecutionErrors(bool badRequest)
+    {
+        _options2.ValidationErrorsReturnBadRequest = badRequest;
+        var client = _server.CreateClient();
+        using var response = await client.GetAsync("/graphql2?query={customError}");
+        await response.ShouldBeAsync(
+            HttpStatusCode.OK,
+            """{"errors":[{"message":"Custom error","locations":[{"line":1,"column":2}],"path":["customError"],"extensions":{"code":"CUSTOM","codes":["CUSTOM"]}}],"data":{"customError":null}}""");
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task PreferredStatusCode_ValidationErrors(bool badRequest)
+    {
+        _options2.ValidationErrorsReturnBadRequest = badRequest;
+        var mockRule = new Mock<IValidationRule>(MockBehavior.Loose);
+        mockRule.Setup(x => x.GetPreNodeVisitorAsync(It.IsAny<ValidationContext>())).Returns<ValidationContext>(context =>
+        {
+            context.ReportError(new CustomError());
+            context.ReportError(new CustomError());
+            return default;
+        });
+        _configureExecution = o =>
+        {
+            o.ValidationRules = (o.ValidationRules ?? DocumentValidator.CoreRules).Append(mockRule.Object);
+        };
+        var client = _server.CreateClient();
+        using var response = await client.GetAsync("/graphql2?query={__typename}");
+        await response.ShouldBeAsync(
+            badRequest ? HttpStatusCode.NotAcceptable : HttpStatusCode.OK,
+            """{"errors":[{"message":"Custom error","extensions":{"code":"CUSTOM","codes":["CUSTOM"]}},{"message":"Custom error","extensions":{"code":"CUSTOM","codes":["CUSTOM"]}}]}""");
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task PreferredStatusCode_MixedValidationErrors(bool badRequest)
+    {
+        _options2.ValidationErrorsReturnBadRequest = badRequest;
+        var mockRule = new Mock<IValidationRule>(MockBehavior.Loose);
+        mockRule.Setup(x => x.GetPreNodeVisitorAsync(It.IsAny<ValidationContext>())).Returns<ValidationContext>(context =>
+        {
+            context.ReportError(new CustomError());
+            context.ReportError(new ValidationError("test"));
+            return default;
+        });
+        _configureExecution = o =>
+        {
+            o.ValidationRules = (o.ValidationRules ?? DocumentValidator.CoreRules).Append(mockRule.Object);
+        };
+        var client = _server.CreateClient();
+        using var response = await client.GetAsync("/graphql2?query={__typename}");
+        await response.ShouldBeAsync(
+            badRequest ? HttpStatusCode.BadRequest : HttpStatusCode.OK,
+            """{"errors":[{"message":"Custom error","extensions":{"code":"CUSTOM","codes":["CUSTOM"]}},{"message":"test","extensions":{"code":"VALIDATION_ERROR","codes":["VALIDATION_ERROR"]}}]}""");
     }
 
     [Theory]
@@ -216,14 +378,19 @@ public class GetTests : IDisposable
     }
 
     [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public async Task NoQuery(bool badRequest)
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    public async Task NoQuery(bool badRequest, bool usePersistedDocumentHandler)
     {
+        _enablePersistedDocuments = usePersistedDocumentHandler;
         _options.ValidationErrorsReturnBadRequest = badRequest;
         var client = _server.CreateClient();
         using var response = await client.GetAsync("/graphql");
-        await response.ShouldBeAsync(badRequest, """{"errors":[{"message":"GraphQL query is missing.","extensions":{"code":"QUERY_MISSING","codes":["QUERY_MISSING"]}}]}""");
+        await response.ShouldBeAsync(badRequest, usePersistedDocumentHandler
+            ? """{"errors":[{"message":"The request must have a documentId parameter.","extensions":{"code":"DOCUMENT_ID_MISSING","codes":["DOCUMENT_ID_MISSING"]}}]}"""
+            : """{"errors":[{"message":"GraphQL query is missing.","extensions":{"code":"QUERY_MISSING","codes":["QUERY_MISSING"]}}]}""");
     }
 
     [Theory]

@@ -43,13 +43,23 @@ public class GraphQLHttpMiddlewareOptions : IAuthorizationOptions
     public bool ExecuteBatchedRequestsInParallel { get; set; } = true;
 
     /// <summary>
-    /// When enabled, GraphQL requests with validation errors
-    /// have the HTTP status code set to 400 Bad Request.
-    /// GraphQL requests with execution errors are unaffected.
+    /// When enabled, GraphQL requests with validation errors have the HTTP status code
+    /// set to 400 Bad Request or the error status code dictated by the error, while
+    /// setting this to <c>false</c> will use a 200 status code for all responses.
+    /// <br/><br/>
+    /// GraphQL requests with execution errors are unaffected and return a 200 status code.
+    /// <br/><br/>
+    /// Transport errors, such as a transport-level authentication failure, are not affected
+    /// and return a error-specific status code, such as 405 Method Not Allowed if a mutation
+    /// is attempted over a HTTP GET connection.
     /// <br/><br/>
     /// Does not apply to batched or WebSocket requests.
+    /// <br/><br/>
+    /// Settings this to <see langword="null"/> will use a 200 status code for
+    /// <c>application/json</c> responses and use a 4xx status code for
+    /// <c>application/graphql-response+json</c> and other responses.
     /// </summary>
-    public bool ValidationErrorsReturnBadRequest { get; set; } = true;
+    public bool? ValidationErrorsReturnBadRequest { get; set; }
 
     /// <summary>
     /// Enables parsing the query string on POST requests.
@@ -66,9 +76,27 @@ public class GraphQLHttpMiddlewareOptions : IAuthorizationOptions
     /// alongside the request does not initiate a pre-flight CORS request.
     /// As a result, GraphQL.NET carries out the request and potentially modifies data,
     /// even if the CORS policy forbids it, irrespective of the sender's ability to access
-    /// the response.
+    /// the response.  With <see cref="CsrfProtectionEnabled"/> enabled, these requests
+    /// are blocked the request contains a non-empty header from the
+    /// <see cref="CsrfProtectionHeaders"/> list, providing a measure of protection.
     /// </remarks>
-    public bool ReadFormOnPost { get; set; } = true; // TODO: change to false for v9
+    public bool ReadFormOnPost { get; set; }
+
+    /// <summary>
+    /// Enables cross-site request forgery (CSRF) protection for both GET and POST requests.
+    /// Requires a non-empty header from the <see cref="CsrfProtectionHeaders"/> list to be
+    /// present, or a POST request with a Content-Type header that is not <c>text/plain</c>,
+    /// <c>application/x-www-form-urlencoded</c>, or <c>multipart/form-data</c>.
+    /// </summary>
+    public bool CsrfProtectionEnabled { get; set; } = true;
+
+    /// <summary>
+    /// When <see cref="CsrfProtectionEnabled"/> is enabled, requests require a non-empty
+    /// header from this list or a POST request with a Content-Type header that is not
+    /// <c>text/plain</c>, <c>application/x-www-form-urlencoded</c>, or <c>multipart/form-data</c>.
+    /// Defaults to <c>GraphQL-Require-Preflight</c>.
+    /// </summary>
+    public List<string> CsrfProtectionHeaders { get; set; } = ["GraphQL-Require-Preflight"]; // see https://github.com/graphql/graphql-over-http/pull/303
 
     /// <summary>
     /// Enables reading variables from the query string.

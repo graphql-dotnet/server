@@ -107,7 +107,9 @@ public class UserContextBuilderTests : IDisposable
 
     private async Task Test(string name)
     {
-        using var response = await _client.GetAsync("/graphql?query={test}");
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/graphql?query={test}");
+        request.Headers.Add("GraphQL-Require-Preflight", "true");
+        using var response = await _client.SendAsync(request);
         response.EnsureSuccessStatusCode();
         var actual = await response.Content.ReadAsStringAsync();
         actual.ShouldBe(@"{""data"":{""test"":""" + name + @"""}}");
