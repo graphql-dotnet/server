@@ -25,4 +25,6 @@ public class TestWebSocketConnection : WebSocketConnection
 
     public TimeSpan Get_DefaultDisconnectionTimeout
         => DefaultDisconnectionTimeout;
+
+    public int Get_SendQueueCount => base.SendQueueCount;
 }

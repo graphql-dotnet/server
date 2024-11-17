@@ -16,6 +16,7 @@ namespace GraphQL.Server.Ui.GraphiQL
         public GraphiQLOptions() { }
         public bool ExplorerExtensionEnabled { get; set; }
         public string GraphQLEndPoint { get; set; }
+        public bool GraphQLWsSubscriptions { get; set; }
         public bool HeaderEditorEnabled { get; set; }
         public System.Collections.Generic.Dictionary<string, string>? Headers { get; set; }
         public System.Func<GraphQL.Server.Ui.GraphiQL.GraphiQLOptions, System.IO.Stream> IndexStream { get; set; }

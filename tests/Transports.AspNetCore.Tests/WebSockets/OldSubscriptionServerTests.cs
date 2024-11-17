@@ -87,6 +87,14 @@ public class OldSubscriptionServerTests : IDisposable
         else
         {
             _mockServer.Protected().Setup<Task>("OnConnectionInitAsync", message, false)
+                .CallBase().Verifiable();
+            _mockServer.Protected().Setup<Task>("OnConnectionInitAsync", message)
+                .CallBase().Verifiable();
+            _mockServer.Protected().Setup<ValueTask<bool>>("AuthorizeAsync", message)
+                .Returns(new ValueTask<bool>(true)).Verifiable();
+            _mockServer.Protected().Setup<Task>("OnConnectionAcknowledgeAsync", message)
+                .Returns(Task.CompletedTask).Verifiable();
+            _mockServer.Protected().Setup<Task>("OnKeepAliveLoopAsync")
                 .Returns(Task.CompletedTask).Verifiable();
         }
         _mockServer.Setup(x => x.OnMessageReceivedAsync(message)).CallBase().Verifiable();
@@ -310,6 +318,7 @@ public class OldSubscriptionServerTests : IDisposable
             Variables = new Inputs(new Dictionary<string, object?>()),
             Extensions = new Inputs(new Dictionary<string, object?>()),
             OperationName = "def",
+            DocumentId = "ghi",
         };
         _mockSerializer.Setup(x => x.ReadNode<GraphQLRequest>(payload))
             .Returns(request)
@@ -335,6 +344,7 @@ public class OldSubscriptionServerTests : IDisposable
                 options.Query.ShouldBe(request.Query);
                 options.Variables.ShouldBe(request.Variables);
                 options.Extensions.ShouldBe(request.Extensions);
+                options.DocumentId.ShouldBe(request.DocumentId);
                 options.OperationName.ShouldBe(request.OperationName);
                 options.UserContext.ShouldBe(mockUserContext.Object);
                 options.RequestServices.ShouldBe(mockServiceProvider.Object);
