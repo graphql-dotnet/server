@@ -5,6 +5,7 @@ namespace GraphQL.Server.Ui.Playground;
 /// <summary>
 /// An action result that returns a Playground user interface.
 /// </summary>
+[Obsolete("GraphQL Playground has not been updated since 2019. Please use GraphiQL instead.")]
 public class PlaygroundActionResult : IActionResult
 {
     private readonly PlaygroundMiddleware _middleware;

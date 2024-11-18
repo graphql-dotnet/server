@@ -15,10 +15,10 @@ app.UseDeveloperExceptionPage();
 app.UseWebSockets();
 // configure the graphql endpoint at "/graphql"
 app.UseGraphQL("/graphql");
-// configure Playground at "/"
-app.UseGraphQLPlayground(
+// configure GraphiQL at "/"
+app.UseGraphQLGraphiQL(
     "/",
-    new GraphQL.Server.Ui.Playground.PlaygroundOptions
+    new GraphQL.Server.Ui.GraphiQL.GraphiQLOptions
     {
         GraphQLEndPoint = "/graphql",
         SubscriptionsEndPoint = "/graphql",

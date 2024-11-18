@@ -1,5 +1,5 @@
 using GraphQL.Server.Transports.AspNetCore;
-using GraphQL.Server.Ui.Playground;
+using GraphQL.Server.Ui.GraphiQL;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -21,12 +21,12 @@ public class GraphQL
     }
 
     [FunctionName("Playground")]
-    public static IActionResult RunPlayground(
+    public static IActionResult RunGraphiQL(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequest request,
         ILogger log)
     {
-        log.LogInformation("C# HTTP trigger function processed a request for the GraphQL Playground UI.");
+        log.LogInformation("C# HTTP trigger function processed a request for the GraphiQL UI.");
 
-        return new PlaygroundActionResult(opts => opts.GraphQLEndPoint = "/api/graphql"); // /api/graphql route will call RunGraphQL method
+        return new GraphiQLActionResult(opts => opts.GraphQLEndPoint = "/api/graphql"); // /api/graphql route will call RunGraphQL method
     }
 }

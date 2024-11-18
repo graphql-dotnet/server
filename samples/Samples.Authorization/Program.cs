@@ -61,13 +61,13 @@ app.UseWebSockets();
 // configure the graphql endpoint at "/graphql"
 app.UseGraphQL("/graphql");
 // configure Playground at "/ui/graphql"
-app.UseGraphQLPlayground(
+app.UseGraphQLGraphiQL(
     "/ui/graphql",
-    new GraphQL.Server.Ui.Playground.PlaygroundOptions
+    new GraphQL.Server.Ui.GraphiQL.GraphiQLOptions
     {
         GraphQLEndPoint = "/graphql",
         SubscriptionsEndPoint = "/graphql",
-        RequestCredentials = GraphQL.Server.Ui.Playground.RequestCredentials.Include,
+        RequestCredentials = GraphQL.Server.Ui.GraphiQL.RequestCredentials.Include,
     });
 // -------------------------------------
 

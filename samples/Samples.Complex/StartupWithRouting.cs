@@ -65,6 +65,7 @@ public class StartupWithRouting
                 ReadFormOnPost = true,
             });
 
+#pragma warning disable CS0618 // Type or member is obsolete
             endpoints.MapGraphQLPlayground(options: new PlaygroundOptions
             {
                 BetaUpdates = true,
@@ -92,6 +93,7 @@ public class StartupWithRouting
                     ["MyHeader2"] = 42,
                 },
             });
+#pragma warning restore CS0618 // Type or member is obsolete
 
             endpoints.MapGraphQLGraphiQL(options: new GraphiQLOptions
             {

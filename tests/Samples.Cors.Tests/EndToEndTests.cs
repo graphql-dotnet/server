@@ -5,8 +5,8 @@ namespace Samples.Cors.Tests;
 public class EndToEndTests
 {
     [Fact]
-    public Task Playground()
-        => new ServerTests<Program>().VerifyPlaygroundAsync();
+    public Task GraphiQL()
+        => new ServerTests<Program>().VerifyGraphiQLAsync();
 
     [Fact]
     public Task GraphQLGet()

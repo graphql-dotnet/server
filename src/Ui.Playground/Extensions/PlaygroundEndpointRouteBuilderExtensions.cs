@@ -17,6 +17,7 @@ public static class PlaygroundEndpointRouteBuilderExtensions
     /// <param name="options">Options to customize <see cref="PlaygroundMiddleware"/>. If not set, then the default values will be used.</param>
     /// <param name="pattern">The route pattern.</param>
     /// <returns>The <see cref="IApplicationBuilder"/> received as parameter</returns>
+    [Obsolete("GraphQL Playground has not been updated since 2019. Please use GraphiQL instead.")]
     public static PlaygroundEndpointConventionBuilder MapGraphQLPlayground(this IEndpointRouteBuilder endpoints, string pattern = "ui/playground", PlaygroundOptions? options = null)
     {
         if (endpoints == null)

@@ -19,7 +19,7 @@ app.UseEndpoints(endpoints =>
 {
     // configure the graphql endpoint at "/graphql"
     endpoints.MapGraphQL("/graphql");
-    // configure Playground at "/"
-    endpoints.MapGraphQLPlayground("/");
+    // configure GraphiQL at "/"
+    endpoints.MapGraphQLGraphiQL("/");
 });
 await app.RunAsync();
