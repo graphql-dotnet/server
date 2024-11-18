@@ -20,7 +20,7 @@ public class GraphQL
         return new GraphQLExecutionActionResult();
     }
 
-    [FunctionName("Playground")]
+    [FunctionName("GraphiQL")]
     public static IActionResult RunGraphiQL(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequest request,
         ILogger log)
