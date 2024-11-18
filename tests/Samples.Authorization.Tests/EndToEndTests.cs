@@ -12,8 +12,8 @@ public class EndToEndTests
     private const string ACCESS_DENIED_RESPONSE = @"{""errors"":" + ACCESS_DENIED_ERRORS + "}";
 
     [Fact]
-    public Task Playground()
-        => new ServerTests<Program>().VerifyPlaygroundAsync("/ui/graphql");
+    public Task GraphiQL()
+        => new ServerTests<Program>().VerifyGraphiQLAsync("/ui/graphql");
 
     [Fact]
     public Task GraphQLGet_Success()

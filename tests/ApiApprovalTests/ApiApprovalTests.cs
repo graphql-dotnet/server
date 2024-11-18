@@ -11,7 +11,9 @@ public class ApiApprovalTests
     [Theory]
     [InlineData(typeof(Server.Ui.Altair.AltairMiddleware))]
     [InlineData(typeof(Server.Ui.GraphiQL.GraphiQLMiddleware))]
+#pragma warning disable CS0618 // Type or member is obsolete
     [InlineData(typeof(Server.Ui.Playground.PlaygroundMiddleware))]
+#pragma warning restore CS0618 // Type or member is obsolete
     [InlineData(typeof(Server.Ui.Voyager.VoyagerMiddleware))]
     [InlineData(typeof(Server.Transports.AspNetCore.GraphQLHttpMiddleware<>))]
     public void public_api_should_not_change_unintentionally(Type type)
