@@ -60,6 +60,7 @@ public class Startup
             ReadFormOnPost = true,
         });
 
+#pragma warning disable CS0618 // Type or member is obsolete
         app.UseGraphQLPlayground(options: new PlaygroundOptions
         {
             BetaUpdates = true,
@@ -87,6 +88,7 @@ public class Startup
                 ["MyHeader2"] = 42,
             },
         });
+#pragma warning restore CS0618 // Type or member is obsolete
 
         app.UseGraphQLGraphiQL(options: new GraphiQLOptions
         {

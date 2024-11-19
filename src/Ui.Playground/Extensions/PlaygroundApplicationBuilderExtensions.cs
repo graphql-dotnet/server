@@ -13,6 +13,7 @@ public static class PlaygroundApplicationBuilderExtensions
     /// <param name="options"> Options to customize <see cref="PlaygroundMiddleware"/>. If not set, then the default values will be used. </param>
     /// <param name="path">The path to the GraphQL Playground endpoint which defaults to '/ui/playground'</param>
     /// <returns> The reference to provided <paramref name="app"/> instance. </returns>
+    [Obsolete("GraphQL Playground has not been updated since 2019. Please use GraphiQL instead.")]
     public static IApplicationBuilder UseGraphQLPlayground(this IApplicationBuilder app, string path = "/ui/playground", PlaygroundOptions? options = null)
     {
         return app.UseWhen(

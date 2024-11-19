@@ -11,12 +11,14 @@ namespace GraphQL.Server.Ui.Playground
         Dark = 0,
         Light = 1,
     }
+    [System.Obsolete("GraphQL Playground has not been updated since 2019. Please use GraphiQL instead.")]
     public class PlaygroundActionResult : Microsoft.AspNetCore.Mvc.IActionResult
     {
         public PlaygroundActionResult(GraphQL.Server.Ui.Playground.PlaygroundOptions options) { }
         public PlaygroundActionResult(System.Action<GraphQL.Server.Ui.Playground.PlaygroundOptions>? configure = null) { }
         public System.Threading.Tasks.Task ExecuteResultAsync(Microsoft.AspNetCore.Mvc.ActionContext context) { }
     }
+    [System.Obsolete("GraphQL Playground has not been updated since 2019. Please use GraphiQL instead.")]
     public class PlaygroundMiddleware
     {
         public PlaygroundMiddleware(Microsoft.AspNetCore.Http.RequestDelegate next, GraphQL.Server.Ui.Playground.PlaygroundOptions options) { }
@@ -59,6 +61,7 @@ namespace Microsoft.AspNetCore.Builder
 {
     public static class PlaygroundApplicationBuilderExtensions
     {
+        [System.Obsolete("GraphQL Playground has not been updated since 2019. Please use GraphiQL instead.")]
         public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseGraphQLPlayground(this Microsoft.AspNetCore.Builder.IApplicationBuilder app, string path = "/ui/playground", GraphQL.Server.Ui.Playground.PlaygroundOptions? options = null) { }
     }
     public class PlaygroundEndpointConventionBuilder : Microsoft.AspNetCore.Builder.IEndpointConventionBuilder
@@ -67,6 +70,7 @@ namespace Microsoft.AspNetCore.Builder
     }
     public static class PlaygroundEndpointRouteBuilderExtensions
     {
+        [System.Obsolete("GraphQL Playground has not been updated since 2019. Please use GraphiQL instead.")]
         public static Microsoft.AspNetCore.Builder.PlaygroundEndpointConventionBuilder MapGraphQLPlayground(this Microsoft.AspNetCore.Routing.IEndpointRouteBuilder endpoints, string pattern = "ui/playground", GraphQL.Server.Ui.Playground.PlaygroundOptions? options = null) { }
     }
 }

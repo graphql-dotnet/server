@@ -29,7 +29,7 @@ app.UseEndpoints(endpoints =>
     // configure the graphql endpoint at "/graphql"
     endpoints.MapGraphQL("/graphql")
         .RequireCors("MyCorsPolicy");
-    // configure Playground at "/"
-    endpoints.MapGraphQLPlayground("/");
+    // configure GraphiQL at "/"
+    endpoints.MapGraphQLGraphiQL("/");
 });
 await app.RunAsync();

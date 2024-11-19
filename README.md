@@ -21,7 +21,7 @@ Provides the following packages:
 | GraphQL.Server.All                                   | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.All)](https://www.nuget.org/packages/GraphQL.Server.All)                                                                     | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.All)](https://www.nuget.org/packages/GraphQL.Server.All)                                                                     | Includes all the packages below, plus the `GraphQL.DataLoader` and `GraphQL.MemoryCache` packages |
 | GraphQL.Server.Transports.AspNetCore                 | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Transports.AspNetCore)](https://www.nuget.org/packages/GraphQL.Server.Transports.AspNetCore)                                 | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.Transports.AspNetCore)](https://www.nuget.org/packages/GraphQL.Server.Transports.AspNetCore)                                 | Provides GraphQL over HTTP/WebSocket server support on top of ASP.NET Core, plus authorization rule support |
 | GraphQL.Server.Ui.Altair                             | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Ui.Altair)](https://www.nuget.org/packages/GraphQL.Server.Ui.Altair)                                                         | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.Ui.Altair)](https://www.nuget.org/packages/GraphQL.Server.Ui.Altair)                                                         | Provides Altair UI middleware |
-| GraphQL.Server.Ui.Playground                         | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Ui.Playground)](https://www.nuget.org/packages/GraphQL.Server.Ui.Playground)                                                 | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.Ui.Playground)](https://www.nuget.org/packages/GraphQL.Server.Ui.Playground)                                                 | Provides Playground UI middleware |
+| GraphQL.Server.Ui.Playground :warning:               | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Ui.Playground)](https://www.nuget.org/packages/GraphQL.Server.Ui.Playground)                                                 | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.Ui.Playground)](https://www.nuget.org/packages/GraphQL.Server.Ui.Playground)                                                 | Provides Playground UI middleware (deprecated) |
 | GraphQL.Server.Ui.GraphiQL                           | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Ui.GraphiQL)](https://www.nuget.org/packages/GraphQL.Server.Ui.GraphiQL)                                                     | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.Ui.GraphiQL)](https://www.nuget.org/packages/GraphQL.Server.Ui.GraphiQL)                                                     | Provides GraphiQL UI middleware |
 | GraphQL.Server.Ui.Voyager                            | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Server.Ui.Voyager)](https://www.nuget.org/packages/GraphQL.Server.Ui.Voyager)                                                       | [![Nuget](https://img.shields.io/nuget/v/GraphQL.Server.Ui.Voyager)](https://www.nuget.org/packages/GraphQL.Server.Ui.Voyager)                                                       | Provides Voyager UI middleware |
 
@@ -81,7 +81,7 @@ Then update your `Program.cs` or `Startup.cs` to configure GraphQL, registering 
 and the serialization engine as a minimum.  Configure WebSockets and GraphQL in the HTTP
 pipeline by calling `UseWebSockets` and `UseGraphQL` at the appropriate point.
 Finally, you may also include some UI middleware for easy testing of your GraphQL endpoint
-by calling `UseGraphQLVoyager` or a similar method at the appropriate point.
+by calling `UseGraphQLGraphiQL` or a similar method at the appropriate point.
 
 Below is a complete sample of a .NET 6 console app that hosts a GraphQL endpoint at
 `http://localhost:5000/graphql`:
@@ -118,9 +118,9 @@ var app = builder.Build();
 app.UseDeveloperExceptionPage();
 app.UseWebSockets();
 app.UseGraphQL("/graphql");            // url to host GraphQL endpoint
-app.UseGraphQLPlayground(
-    "/",                               // url to host Playground at
-    new GraphQL.Server.Ui.Playground.PlaygroundOptions
+app.UseGraphQLGraphiQL(
+    "/",                               // url to host GraphiQL at
+    new GraphQL.Server.Ui.GraphiQL.GraphiQLOptions
     {
         GraphQLEndPoint = "/graphql",         // url of GraphQL endpoint
         SubscriptionsEndPoint = "/graphql",   // url of GraphQL endpoint
@@ -297,11 +297,11 @@ public static IActionResult RunGraphQL(
 4. Optionally, add a UI package to the project and configure it:
 
 ```csharp
-[FunctionName("Playground")]
-public static IActionResult RunGraphQL(
+[FunctionName("GraphiQL")]
+public static IActionResult RunGraphiQL(
     [HttpTrigger(AuthorizationLevel.Anonymous, "get"] HttpRequest req)
 {
-    return new PlaygroundActionResult(opts => opts.GraphQLEndPoint = "/api/graphql");
+    return new GraphiQLActionResult(opts => opts.GraphQLEndPoint = "/api/graphql");
 }
 ```
 
@@ -534,20 +534,21 @@ field authorization will perform role and policy checks against the same authent
 ### UI configuration
 
 There are four UI middleware projects included; Altair, GraphiQL, Playground and Voyager.
+Playground has not been updated since 2019 and is deprecated in favor of GraphiQL.
 See review the following methods for configuration options within each of the 4 respective
 NuGet packages:
 
 ```csharp
 app.UseGraphQLAltair();
 app.UseGraphQLGraphiQL();
-app.UseGraphQLPlayground();
+app.UseGraphQLPlayground();  // deprecated
 app.UseGraphQLVoyager();
 
 // or
 
 endpoints.MapGraphQLAltair();
 endpoints.MapGraphQLGraphiQL();
-endpoints.MapGraphQLPlayground();
+endpoints.MapGraphQLPlayground();  // deprecated
 endpoints.MapGraphQLVoyager();
 ```
 

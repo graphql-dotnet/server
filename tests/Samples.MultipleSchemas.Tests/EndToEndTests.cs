@@ -10,12 +10,12 @@ public class EndToEndTests
     private const string DOG_RESPONSE = """{"data":{"dog":{"name":"Shadow"}}}""";
 
     [Fact]
-    public Task Cats_Playground()
-        => new ServerTests<Program>().VerifyPlaygroundAsync("/cats/ui/playground");
+    public Task Cats_GraphiQL()
+        => new ServerTests<Program>().VerifyGraphiQLAsync("/cats/ui/graphiql");
 
     [Fact]
-    public Task Dogs_Playground()
-        => new ServerTests<Program>().VerifyPlaygroundAsync("/dogs/ui/playground");
+    public Task Dogs_GraphiQL()
+        => new ServerTests<Program>().VerifyGraphiQLAsync("/dogs/ui/graphiql");
 
     [Fact]
     public Task Cats_GraphQLGet()

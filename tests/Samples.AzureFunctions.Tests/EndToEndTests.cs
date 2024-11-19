@@ -41,17 +41,17 @@ public class EndToEndTests
     }
 
     [Fact]
-    public async Task Playground()
+    public async Task GraphiQL()
     {
         var (statusCode, contentType, body) = await ExecuteRequest(request =>
         {
             request.Method = "GET";
-        }, GraphQL.RunPlayground);
+        }, GraphQL.RunGraphiQL);
 
         statusCode.ShouldBe(200);
         contentType.ShouldBe("text/html");
         body.ShouldContain("<!DOCTYPE html>", Case.Insensitive);
-        body.ShouldContain("playground", Case.Insensitive);
+        body.ShouldContain("GraphiQL", Case.Insensitive);
     }
 
     private async Task<(int statusCode, string? contentType, string body)> ExecuteRequest(Action<HttpRequest> configureRequest, Func<HttpRequest, ILogger, IActionResult> func)

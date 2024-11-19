@@ -7,6 +7,7 @@ namespace GraphQL.Server.Ui.Playground;
 /// <summary>
 /// A middleware for GraphQL Playground UI.
 /// </summary>
+[Obsolete("GraphQL Playground has not been updated since 2019. Please use GraphiQL instead.")]
 public class PlaygroundMiddleware
 {
     private readonly PlaygroundOptions _options;
