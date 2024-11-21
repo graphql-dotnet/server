@@ -31,13 +31,16 @@ namespace GraphQL.Server.Samples.Jwt;
 /// The expected format of the payload is <c>{"Authorization":"Bearer TOKEN"}</c> where TOKEN is the JSON Web Token (JWT),
 /// mirroring the format of the 'Authorization' HTTP header.
 /// </item>
-/// </list>
-/// </summary>
-/// <remarks>
+/// <item>
 /// This implementation only supports the "Bearer" scheme configured in ASP.NET Core. Any scheme configured via
 /// <see cref="Transports.AspNetCore.GraphQLHttpMiddlewareOptions.AuthenticationSchemes"/> property is
 /// ignored by this implementation.
-/// </remarks>
+/// </item>
+/// <item>
+/// Events configured in <see cref="JwtBearerOptions.Events"/> are not raised by this implementation.
+/// </item>
+/// </list>
+/// </summary>
 public class JwtWebSocketAuthenticationService : IWebSocketAuthenticationService
 {
     private readonly IGraphQLSerializer _graphQLSerializer;
