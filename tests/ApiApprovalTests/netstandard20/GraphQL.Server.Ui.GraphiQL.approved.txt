@@ -14,6 +14,7 @@ namespace GraphQL.Server.Ui.GraphiQL
     public class GraphiQLOptions
     {
         public GraphiQLOptions() { }
+        [System.Obsolete("This property has no effect and will be removed in a future version.")]
         public bool ExplorerExtensionEnabled { get; set; }
         public string GraphQLEndPoint { get; set; }
         public bool GraphQLWsSubscriptions { get; set; }
