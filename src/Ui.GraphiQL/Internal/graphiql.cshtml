@@ -57,17 +57,6 @@
     crossorigin="anonymous"
   />
   <script
-    src="https://unpkg.com/graphiql-with-extensions@0.14.3/graphiqlWithExtensions.min.js"
-    integrity="sha384-TqI6gT2PjmSrnEOTvGHLad1U4Vm5VoyzMmcKK0C/PLCWTnwPyXhCJY6NYhC/tp19"
-    crossorigin="anonymous"
-  ></script>
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/graphiql-with-extensions@0.14.3/graphiqlWithExtensions.css"
-    integrity="sha384-GBqwox+q8UtVEyBLBKloN5QDlBDsQnuoSUfMeJH1ZtDiCrrk103D7Bg/WjIvl4ya"
-    crossorigin="anonymous"
-  />
-  <script
     src="https://unpkg.com/subscriptions-transport-ws@0.8.2/browser/client.js"
     integrity="sha384-Eqe2SG8kA+Au+rwrgfWJ+epqYAtKGW/As+WdcywebVKX7377xelWa+/il4CHiHXI"
     crossorigin="anonymous"
@@ -286,7 +275,7 @@
         onEditQuery: onEditQuery,
         onEditVariables: onEditVariables,
         onEditOperationName: onEditOperationName,
-        headerEditorEnabled: @Model.HeaderEditorEnabled,
+        isHeadersEditorEnabled: @Model.HeaderEditorEnabled,
       }),
       document.getElementById('graphiql'),
     );

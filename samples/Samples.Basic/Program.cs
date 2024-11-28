@@ -22,6 +22,7 @@ app.UseGraphQLGraphiQL(
     {
         GraphQLEndPoint = "/graphql",
         SubscriptionsEndPoint = "/graphql",
+        HeaderEditorEnabled = false,
     });
 
 await app.RunAsync();
