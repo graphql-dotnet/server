@@ -94,7 +94,6 @@ jobs:
         working-directory: samples/Samples.NativeAot/published
         shell: bash
         run: |
-          # Using bash on both Windows and Linux.
           if [ "$RUNNER_OS" == "Windows" ]; then
             ./GraphQL.Server.Samples.NativeAot.exe &
           else
@@ -107,8 +106,7 @@ jobs:
           set +e
           for i in {1..60}; do
             echo "Request $i to the GraphQL endpoint..."
-            # Replace the URL below with the actual endpoint used by your NativeAOT application.
-            response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/graphql || true)
+            response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/ || true)
             if [ "$response" -eq 200 ]; then
               echo "Received 200 response, NativeAOT sample is ready."
               exit 0
