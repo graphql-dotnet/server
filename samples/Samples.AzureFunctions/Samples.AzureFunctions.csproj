@@ -6,11 +6,6 @@
     <NoWarn>$(NoWarn);IDE0060</NoWarn>
   </PropertyGroup>
 
-  <!-- In-Process .NET 6 Azure Functions can't be built on Linux -->
-  <PropertyGroup Condition="'$(MSBuildRuntimeOS)'=='Linux'">
-    <SkipCompilation>true</SkipCompilation>
-  </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.6.0" />
@@ -28,11 +23,14 @@
     </None>
   </ItemGroup>
 
-  <!-- Skip this project on Linux -->
-  <ItemGroup Condition="'$(SkipCompilation)'=='true'">
+  <!-- In-Process .NET 6 Azure Functions can't be built on Linux -->
+  <ItemGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' != 'true'">
     <Compile Remove="**/*.cs" />
     <PackageReference Remove="Microsoft.Azure.Functions.Extensions" />
     <PackageReference Remove="Microsoft.NET.Sdk.Functions" />
+    <ProjectReference Remove="..\..\src\Transports.AspNetCore\Transports.AspNetCore.csproj" />
+    <ProjectReference Remove="..\..\src\Ui.GraphiQL\Ui.GraphiQL.csproj" />
+    <ProjectReference Remove="..\Samples.Schemas.Chat\Samples.Schemas.Chat.csproj" />
   </ItemGroup>
 
 </Project>

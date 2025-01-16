@@ -6,17 +6,13 @@
     <Description>End to end tests for the Samples.AzureFunctions project</Description>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(MSBuildRuntimeOS)'=='Linux'">
-    <SkipCompilation>true</SkipCompilation>
-  </PropertyGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\..\samples\Samples.AzureFunctions\Samples.AzureFunctions.csproj" />
     <ProjectReference Include="..\Samples.Tests\Samples.Tests.csproj" />
   </ItemGroup>
 
   <!-- Skip this project on Linux -->
-  <ItemGroup Condition="'$(SkipCompilation)'=='true'">
+  <ItemGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' != 'true'">
     <Compile Remove="**/*.cs" />
     <ProjectReference Remove="..\..\samples\Samples.AzureFunctions\Samples.AzureFunctions.csproj" />
     <ProjectReference Remove="..\Samples.Tests\Samples.Tests.csproj" />
