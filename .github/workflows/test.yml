@@ -96,9 +96,9 @@ jobs:
         run: |
           # Using bash on both Windows and Linux.
           if [ "$RUNNER_OS" == "Windows" ]; then
-            ./Samples.NativeAot.exe &
+            ./GraphQL.Server.Samples.NativeAot.exe &
           else
-            ./Samples.NativeAot &
+            ./GraphQL.Server.Samples.NativeAot &
           fi
       - name: Wait for NativeAOT sample to spin up
         shell: bash
