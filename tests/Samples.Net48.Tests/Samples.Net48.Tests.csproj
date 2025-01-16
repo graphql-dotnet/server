@@ -23,6 +23,9 @@
   </ItemGroup>
 
   <!-- Skip this project on Linux -->
+  <PropertyGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' != 'true'">
+    <IsTestProject>false</IsTestProject>
+  </PropertyGroup>
   <ItemGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' != 'true'">
     <Compile Remove="**/*.cs" />
     <ProjectReference Remove="..\..\samples\Samples.Net48\Samples.Net48.csproj" />
