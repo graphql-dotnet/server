@@ -1138,6 +1138,7 @@ typical ASP.NET Core scenarios.
 | EndpointRouting | .NET 8 Minimal           | Demonstrates configuring GraphQL through endpoint routing |
 | Jwt             | .NET 8 Minimal           | Demonstrates authenticating GraphQL requests with a JWT bearer token over HTTP POST and WebSocket connections |
 | MultipleSchemas | .NET 8 Minimal           | Demonstrates configuring multiple schemas within a single server |
+| NativeAot       | .NET 8 Slim              | Demonstrates configuring GraphQL for Native AOT publishing |
 | Net48           | .NET Core 2.1 / .NET 4.8 | Demonstrates configuring GraphQL on .NET 4.8 / Core 2.1 |
 | Pages           | .NET 8 Minimal           | Demonstrates configuring GraphQL on top of a Razor Pages template |
 | Upload          | .NET 8 Minimal           | Demonstrates uploading files via the `multipart/form-data` content type |
