@@ -2,7 +2,7 @@
   <Import Project="../../Tests.props" />
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0;net6.0;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>net8.0;net6.0</TargetFrameworks>
     <Description>End to end tests for Samples.Server project</Description>
   </PropertyGroup>
 

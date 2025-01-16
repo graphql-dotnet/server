@@ -6,6 +6,16 @@
     <Description>End to end tests for the Samples.AzureFunctions project</Description>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(MSBuildRuntimeOS)'=='Linux'">
+    <SkipBuild>true</SkipBuild>
+  </PropertyGroup>
+
+  <!-- Override the CoreBuild target when building on Linux -->
+  <Target Name="CoreBuild" Condition="'$(SkipBuild)'=='true'">
+    <Message Text="Skipping test project build on Linux." Importance="high" />
+    <!-- No build actions are performed -->
+  </Target>
+
   <ItemGroup>
     <ProjectReference Include="..\..\samples\Samples.AzureFunctions\Samples.AzureFunctions.csproj" />
     <ProjectReference Include="..\Samples.Tests\Samples.Tests.csproj" />
