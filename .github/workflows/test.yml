@@ -71,15 +71,81 @@ jobs:
         with:
           files: .coverage/GraphQL.Server.Transports.AspNetCore.Tests/coverage.net7.0.opencover.xml,.coverage/GraphQL.Server.Transports.AspNetCore.Tests/coverage.netcoreapp2.1.opencover.xml,.coverage/GraphQL.Server.Samples.Server.Tests/coverage.net7.0.opencover.xml
 
+  nativeaot:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    name: NativeAOT Sample on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+      - name: Setup .NET SDK for NativeAOT
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+          source-url: https://nuget.pkg.github.com/graphql-dotnet/index.json
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish NativeAOT sample
+        working-directory: samples/Samples.NativeAot
+        run: dotnet publish -c Release -o published
+      - name: Start NativeAOT sample in background
+        working-directory: samples/Samples.NativeAot/published
+        shell: bash
+        run: |
+          # Using bash on both Windows and Linux.
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            ./Samples.NativeAot.exe &
+          else
+            ./Samples.NativeAot &
+          fi
+      - name: Wait for NativeAOT sample to spin up
+        shell: bash
+        run: |
+          # Disable exit-on-error to allow retries
+          set +e
+          for i in {1..60}; do
+            echo "Request $i to the GraphQL endpoint..."
+            # Replace the URL below with the actual endpoint used by your NativeAOT application.
+            response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/graphql || true)
+            if [ "$response" -eq 200 ]; then
+              echo "Received 200 response, NativeAOT sample is ready."
+              exit 0
+            fi
+            echo "Did not receive a 200 response, sleeping for 0.5 second..."
+            sleep 0.5
+          done
+          echo "NativeAOT sample did not spin up in time."
+          exit 1
+      - name: Run GraphQL query against NativeAOT sample
+        shell: bash
+        working-directory: samples/Samples.NativeAot
+        run: |
+          # Run a simple GraphQL query. Adjust the request as needed for your sample.
+          curl -X POST -H "Content-Type: application/json" \
+            -d @sample-request.json \
+            http://localhost:5000/graphql > nativeaot_response.json
+      - name: Print query result
+        working-directory: samples/Samples.NativeAot
+        run: cat nativeaot_response.json
+      - name: Compare query result to expected response
+        working-directory: samples/Samples.NativeAot
+        run: |
+          jq . nativeaot_response.json > actual-response.json
+          jq . sample-response.json > expected-response.json
+          diff -b actual-response.json expected-response.json
+
   buildcheck:
     needs:
       - test
+      - nativeaot
     runs-on: ubuntu-latest
     if: always()
     steps:
       - name: Pass build check
-        if: ${{ needs.test.result == 'success' }}
+        if: ${{ needs.test.result == 'success' && needs.nativeaot.result == 'success' }}
         run: exit 0
       - name: Fail build check
-        if: ${{ needs.test.result != 'success' }}
+        if: ${{ needs.test.result != 'success' || needs.nativeaot.result != 'success' }}
         run: exit 1
