@@ -117,8 +117,8 @@ jobs:
           echo "NativeAOT sample did not spin up in time."
           exit 1
       - name: Run GraphQL query against NativeAOT sample
-        shell: bash
         working-directory: samples/Samples.NativeAot
+        shell: bash
         run: |
           # Run a simple GraphQL query. Adjust the request as needed for your sample.
           curl -X POST -H "Content-Type: application/json" \
@@ -126,9 +126,11 @@ jobs:
             http://localhost:5000/graphql > nativeaot_response.json
       - name: Print query result
         working-directory: samples/Samples.NativeAot
+        shell: bash
         run: cat nativeaot_response.json
       - name: Compare query result to expected response
         working-directory: samples/Samples.NativeAot
+        shell: bash
         run: |
           jq . nativeaot_response.json > actual-response.json
           jq . sample-response.json > expected-response.json
