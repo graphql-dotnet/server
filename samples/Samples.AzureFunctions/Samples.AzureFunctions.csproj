@@ -1,21 +1,36 @@
 <Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <AzureFunctionsVersion>v4</AzureFunctionsVersion>
     <NoWarn>$(NoWarn);IDE0060</NoWarn>
   </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.6.0" />
   </ItemGroup>
+  
   <ItemGroup>
     <ProjectReference Include="..\..\src\Transports.AspNetCore\Transports.AspNetCore.csproj" />
     <ProjectReference Include="..\..\src\Ui.GraphiQL\Ui.GraphiQL.csproj" />
     <ProjectReference Include="..\Samples.Schemas.Chat\Samples.Schemas.Chat.csproj" />
   </ItemGroup>
+  
   <ItemGroup>
     <None Update="host.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+
+  <!-- In-Process .NET 6 Azure Functions can't be built on Linux -->
+  <ItemGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' != 'true'">
+    <Compile Remove="**/*.cs" />
+    <PackageReference Remove="Microsoft.Azure.Functions.Extensions" />
+    <PackageReference Remove="Microsoft.NET.Sdk.Functions" />
+    <ProjectReference Remove="..\..\src\Transports.AspNetCore\Transports.AspNetCore.csproj" />
+    <ProjectReference Remove="..\..\src\Ui.GraphiQL\Ui.GraphiQL.csproj" />
+    <ProjectReference Remove="..\Samples.Schemas.Chat\Samples.Schemas.Chat.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -2,7 +2,7 @@
   <Import Project="../../Tests.props" />
 
   <PropertyGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' != 'true'">
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework><!-- netcoreapp2.1 not testable on Linux anymore -->
     <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
   </PropertyGroup>
   <PropertyGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' == 'true'">
@@ -20,6 +20,16 @@
   <ItemGroup>
     <ProjectReference Include="..\..\samples\Samples.Net48\Samples.Net48.csproj" />
     <ProjectReference Include="..\Samples.Tests\Samples.Tests.csproj" />
+  </ItemGroup>
+
+  <!-- Skip this project on Linux -->
+  <PropertyGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' != 'true'">
+    <IsTestProject>false</IsTestProject>
+  </PropertyGroup>
+  <ItemGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' != 'true'">
+    <Compile Remove="**/*.cs" />
+    <ProjectReference Remove="..\..\samples\Samples.Net48\Samples.Net48.csproj" />
+    <ProjectReference Remove="..\Samples.Tests\Samples.Tests.csproj" />
   </ItemGroup>
 
 </Project>

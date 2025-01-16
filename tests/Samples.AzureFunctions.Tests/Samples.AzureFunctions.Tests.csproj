@@ -11,4 +11,14 @@
     <ProjectReference Include="..\Samples.Tests\Samples.Tests.csproj" />
   </ItemGroup>
 
+  <!-- Skip this project on Linux -->
+  <PropertyGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' != 'true'">
+    <IsTestProject>false</IsTestProject>
+  </PropertyGroup>
+  <ItemGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' != 'true'">
+    <Compile Remove="**/*.cs" />
+    <ProjectReference Remove="..\..\samples\Samples.AzureFunctions\Samples.AzureFunctions.csproj" />
+    <ProjectReference Remove="..\Samples.Tests\Samples.Tests.csproj" />
+  </ItemGroup>
+
 </Project>
