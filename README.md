@@ -41,7 +41,7 @@ Note that GitHub requires authentication to consume the feed. See more informati
 
 ## Description
 
-This package is designed for ASP.NET Core (2.1 through 6.0) to facilitate easy set-up of GraphQL requests
+This package is designed for ASP.NET Core (2.1 through 9.0) to facilitate easy set-up of GraphQL requests
 over HTTP.  The code is designed to be used as middleware within the ASP.NET Core pipeline,
 serving GET, POST or WebSocket requests.  GET requests process requests from the query string.
 POST requests can be in the form of JSON requests, form submissions, or raw GraphQL strings.
@@ -75,7 +75,7 @@ directives.  It skips validations for fields or fragments that are marked with t
 
 First add either the `GraphQL.Server.All` nuget package or the `GraphQL.Server.Transports.AspNetCore`
 nuget package to your application.  Referencing the "all" package will include the UI middleware
-packages.  These packages depend on `GraphQL` version 7.0.0 or later.
+packages.  These packages depend on `GraphQL` version 8.2.1 or later.
 
 Then update your `Program.cs` or `Startup.cs` to configure GraphQL, registering the schema
 and the serialization engine as a minimum.  Configure WebSockets and GraphQL in the HTTP
