@@ -783,7 +783,7 @@ public class AuthorizationTests : IDisposable
     [InlineData("Role1", true, false)]  // User with Role1, child requires Role2 and is anonymous - should fail
     [InlineData("Role2", true, true)]   // User with Role2, child requires Role2 and is anonymous - should pass
     [InlineData("Role1,Role2", true, true)] // User with both roles, child is anonymous - should pass
-    [InlineData(null, true, false)]     // Unauthenticated user, child is anonymous - should fail due as Role2 missing
+    [InlineData(null, true, false)]     // Unauthenticated user, child is anonymous - should fail as Role2 is missing
     public void BothAnonymousAndRequirements(string? userRoles, bool childIsAnonymous, bool expectedIsValid)
     {
         // Set up query to require Role1
