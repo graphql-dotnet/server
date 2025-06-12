@@ -775,6 +775,37 @@ public class AuthorizationTests : IDisposable
             actual.ShouldBe("""{"errors":[{"message":"Access denied for field \u0027parent\u0027 on type \u0027QueryType\u0027.","locations":[{"line":1,"column":3}],"extensions":{"code":"ACCESS_DENIED","codes":["ACCESS_DENIED"]}}]}""");
     }
 
+    [Theory]
+    [InlineData("Role1", false, false)] // User with Role1, child requires Role2 - should fail at child level
+    [InlineData("Role2", false, false)] // User with Role2, query requires Role1 - should fail at query level
+    [InlineData("Role1,Role2", false, true)] // User with both roles - should pass
+    [InlineData(null, false, false)]    // Unauthenticated user - should fail at query level
+    [InlineData("Role1", true, false)]  // User with Role1, child requires Role2 and is anonymous - should fail
+    [InlineData("Role2", true, true)]   // User with Role2, child requires Role2 and is anonymous - should pass
+    [InlineData("Role1,Role2", true, true)] // User with both roles, child is anonymous - should pass
+    [InlineData(null, true, false)]     // Unauthenticated user, child is anonymous - should fail due as Role2 missing
+    public void BothAnonymousAndRequirements(string? userRoles, bool childIsAnonymous, bool expectedIsValid)
+    {
+        // Set up query to require Role1
+        _query.AuthorizeWithRoles("Role1");
+
+        // Set up child field to require Role2 and optionally be anonymous
+        _field.AuthorizeWithRoles("Role2");
+        if (childIsAnonymous)
+            _field.AllowAnonymous();
+
+        // Set up user principal based on test parameters
+        if (userRoles != null)
+        {
+            var roles = userRoles.Split(',');
+            var claims = roles.Select(role => new Claim(ClaimTypes.Role, role)).ToArray();
+            _principal = new ClaimsPrincipal(new ClaimsIdentity(claims, "Cookie"));
+        }
+
+        var ret = Validate(@"{ parent { child } }");
+        ret.IsValid.ShouldBe(expectedIsValid);
+    }
+
     public enum Mode
     {
         None,
