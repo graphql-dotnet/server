@@ -65,10 +65,7 @@ public abstract partial class AuthorizationVisitorBase : INodeVisitor
                     _onlyAnonymousSelected.Push(ti);
 
                     // Fields, unlike types, are validated immediately.
-                    if (!fieldAnonymousAllowed)
-                    {
-                        await ValidateAsync(field, node, context);
-                    }
+                    await ValidateAsync(field, node, context);
                 }
 
                 // prep for descendants, if any
