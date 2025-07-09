@@ -84,7 +84,7 @@ public class ExecutionResultHttpResultTests : IDisposable
     public async Task ReturnsBadRequestForUnexecutedResults()
     {
         using var httpClient = _server.CreateClient();
-        var request = new HttpRequestMessage(HttpMethod.Get, "/graphql?query={}");
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/graphql?query={}");
         var response = await httpClient.SendAsync(request);
         response.StatusCode.ShouldBe(System.Net.HttpStatusCode.BadRequest);
         var str3 = await response.Content.ReadAsStringAsync();
