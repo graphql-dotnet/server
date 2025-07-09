@@ -451,8 +451,8 @@ Both roles and policies are supported for output graph types, fields on output g
 and query arguments.  If multiple policies are specified, all must match; if multiple roles
 are specified, any one role must match.  You may also use `.Authorize()` and/or the
 `[Authorize]` attribute to validate that the user has authenticated.  You may also use
-`.AllowAnonymous()` and/or `[AllowAnonymous]` to allow fields to be returned to
-unauthenticated users within an graph that has an authorization requirement defined.
+`.AllowAnonymous()` and/or `[AllowAnonymous]` to allow fields to bypass authorization
+requirements defined on the type that contains the field.
 
 Please note that authorization rules do not apply to values returned within introspection requests,
 potentially leaking information about protected areas of the schema to unauthenticated users.
