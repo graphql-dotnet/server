@@ -49,7 +49,6 @@ public class GraphQLExecutionActionResult<TSchema> : IActionResult
 
         return middleware.InvokeAsync(context.HttpContext);
     }
-
 }
 
 /// <summary>
