@@ -55,8 +55,8 @@ and [enisdenjo/graphql-ws](https://github.com/enisdenjo/graphql-ws) repositories
 The middleware can be configured through the `IApplicationBuilder` or `IEndpointRouteBuilder`
 builder interfaces.  Alternatively, route handlers (such as `MapGet` and `MapPost`) can return
 a `GraphQLExecutionHttpResult` for direct GraphQL execution, or `ExecutionResultHttpResult` for
-returning pre-executed GraphQL responses.  In addition, `GraphQLExecutionActionResult`
-and `ExecutionResultActionResult` classes are added for returning GraphQL responses directly from
+returning pre-executed GraphQL responses.  Similarly, `GraphQLExecutionActionResult`
+and `ExecutionResultActionResult` classes are added for returning GraphQL responses from
 controller actions.
 
 Authorization is also supported with the included `AuthorizationValidationRule`.  It will
