@@ -54,7 +54,8 @@ and [enisdenjo/graphql-ws](https://github.com/enisdenjo/graphql-ws) repositories
 
 The middleware can be configured through the `IApplicationBuilder` or `IEndpointRouteBuilder`
 builder interfaces.  Alternatively, route handlers (such as `MapGet` and `MapPost`) can return
-a `GraphQLExecutionHttpResult` for direct GraphQL execution.  In addition, `GraphQLExecutionActionResult`
+a `GraphQLExecutionHttpResult` for direct GraphQL execution, or `ExecutionResultHttpResult` for
+returning pre-executed GraphQL responses.  In addition, `GraphQLExecutionActionResult`
 and `ExecutionResultActionResult` classes are added for returning GraphQL responses directly from
 controller actions.
 
@@ -216,9 +217,11 @@ await app.RunAsync();
 ### Configuration with route handlers (.NET 6+)
 
 Although not recommended, you may set up [route handlers](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/minimal-apis/route-handlers)
-to execute GraphQL requests using `MapGet` and `MapPost` that return a `GraphQLExecutionHttpResult`.
+to execute GraphQL requests using `MapGet` and `MapPost` that return an `IResult`.
 You will not need `UseGraphQL` or `MapGraphQL` in the application startup.  Note that GET must be
 mapped to support WebSocket connections, as WebSocket connections upgrade from HTTP GET requests.
+
+#### Using `GraphQLExecutionHttpResult`
 
 ```csharp
 var app = builder.Build();
@@ -232,6 +235,27 @@ app.MapGet("/graphql", () => new GraphQLExecutionHttpResult());
 app.MapPost("/graphql", () => new GraphQLExecutionHttpResult());
 
 await app.RunAsync();
+```
+
+#### Using `ExecutionResultHttpResult`
+
+```csharp
+app.MapPost("/graphql", async (HttpContext context, IDocumentExecuter<ISchema> documentExecuter, IGraphQLSerializer serializer) =>
+{
+    var request = await serializer.ReadAsync<GraphQLRequest>(context.Request.Body, context.RequestAborted);
+    var opts = new ExecutionOptions
+    {
+        Query = request?.Query,
+        DocumentId = request?.DocumentId,
+        Variables = request?.Variables,
+        Extensions = request?.Extensions,
+        CancellationToken = context.RequestAborted,
+        RequestServices = context.RequestServices,
+        User = context.User,
+    };
+
+    return new ExecutionResultHttpResult(await documentExecuter.ExecuteAsync(opts));
+});
 ```
 
 ### Configuration with a MVC controller

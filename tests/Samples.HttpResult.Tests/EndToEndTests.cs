@@ -19,4 +19,8 @@ public class EndToEndTests
     [Fact]
     public Task GraphQLWebSocket()
         => new ServerTests<Program>().VerifyGraphQLWebSocketsAsync("/graphql");
+
+    [Fact]
+    public Task GraphQLResultPost()
+        => new ServerTests<Program>().VerifyGraphQLPostAsync("/graphql-result");
 }

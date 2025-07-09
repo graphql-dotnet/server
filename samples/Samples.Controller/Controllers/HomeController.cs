@@ -37,7 +37,7 @@ public class HomeController : Controller
     /******* Sample with custom logic only using ExecutionResultActionResult to return the result ********/
     [HttpGet]
     [ActionName("graphql2")]
-    public Task<IActionResult> GraphQL2GetAsync(string query, string? operationName)
+    public Task<IActionResult> GraphQL2GetAsync(string query, string? documentId, string? operationName)
     {
         if (HttpContext.WebSockets.IsWebSocketRequest)
         {
@@ -45,7 +45,7 @@ public class HomeController : Controller
         }
         else
         {
-            return ExecuteGraphQLRequestAsync(BuildRequest(query, operationName));
+            return ExecuteGraphQLRequestAsync(BuildRequest(query, documentId, operationName));
         }
     }
 
@@ -56,7 +56,7 @@ public class HomeController : Controller
         if (HttpContext.Request.HasFormContentType)
         {
             var form = await HttpContext.Request.ReadFormAsync(HttpContext.RequestAborted);
-            return await ExecuteGraphQLRequestAsync(BuildRequest(form["query"].ToString(), form["operationName"].ToString(), form["variables"].ToString(), form["extensions"].ToString()));
+            return await ExecuteGraphQLRequestAsync(BuildRequest(form["query"].ToString(), form["documentId"].ToString(), form["operationName"].ToString(), form["variables"].ToString(), form["extensions"].ToString()));
         }
         else if (HttpContext.Request.HasJsonContentType())
         {
@@ -66,10 +66,11 @@ public class HomeController : Controller
         return BadRequest();
     }
 
-    private GraphQLRequest BuildRequest(string query, string? operationName, string? variables = null, string? extensions = null)
+    private GraphQLRequest BuildRequest(string query, string? documentId, string? operationName, string? variables = null, string? extensions = null)
         => new GraphQLRequest
         {
             Query = query == "" ? null : query,
+            DocumentId = documentId == "" ? null : documentId,
             OperationName = operationName == "" ? null : operationName,
             Variables = _serializer.Deserialize<Inputs>(variables == "" ? null : variables),
             Extensions = _serializer.Deserialize<Inputs>(extensions == "" ? null : extensions),
@@ -82,6 +83,7 @@ public class HomeController : Controller
             var opts = new ExecutionOptions
             {
                 Query = request?.Query,
+                DocumentId = request?.DocumentId,
                 OperationName = request?.OperationName,
                 Variables = request?.Variables,
                 Extensions = request?.Extensions,
