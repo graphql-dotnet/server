@@ -1,9 +1,10 @@
+#if NET6_0_OR_GREATER
 namespace GraphQL.Server.Transports.AspNetCore;
 
 /// <summary>
-/// An <see cref="IActionResult"/> that executes a GraphQL request for the specified schema.
+/// An <see cref="IResult"/> that executes a GraphQL request for the specified schema.
 /// </summary>
-public class GraphQLExecutionActionResult<TSchema> : IActionResult
+public class GraphQLExecutionHttpResult<TSchema> : IResult
     where TSchema : ISchema
 {
     private readonly GraphQLHttpMiddlewareOptions _options;
@@ -11,7 +12,7 @@ public class GraphQLExecutionActionResult<TSchema> : IActionResult
     /// <summary>
     /// Initializes a new instance with an optional middleware configuration delegate.
     /// </summary>
-    public GraphQLExecutionActionResult(Action<GraphQLHttpMiddlewareOptions>? configure = null)
+    public GraphQLExecutionHttpResult(Action<GraphQLHttpMiddlewareOptions>? configure = null)
         : this(Configure(configure))
     {
     }
@@ -26,15 +27,15 @@ public class GraphQLExecutionActionResult<TSchema> : IActionResult
     /// <summary>
     /// Initializes a new instance with the specified middleware options.
     /// </summary>
-    public GraphQLExecutionActionResult(GraphQLHttpMiddlewareOptions options)
+    public GraphQLExecutionHttpResult(GraphQLHttpMiddlewareOptions options)
     {
         _options = options;
     }
 
     /// <inheritdoc/>
-    public virtual Task ExecuteResultAsync(ActionContext context)
+    public virtual Task ExecuteAsync(HttpContext httpContext)
     {
-        var provider = context.HttpContext.RequestServices;
+        var provider = httpContext.RequestServices;
         var middleware = new GraphQLHttpMiddleware<TSchema>(
             static httpContext =>
             {
@@ -47,24 +48,25 @@ public class GraphQLExecutionActionResult<TSchema> : IActionResult
             _options,
             provider.GetService<IHostApplicationLifetime>() ?? NullHostApplicationLifetime.Instance);
 
-        return middleware.InvokeAsync(context.HttpContext);
+        return middleware.InvokeAsync(httpContext);
     }
 }
 
 /// <summary>
-/// An <see cref="IActionResult"/> that executes a GraphQL request for the default schema.
+/// An <see cref="IResult"/> that executes a GraphQL request for the default schema.
 /// </summary>
-public class GraphQLExecutionActionResult : GraphQLExecutionActionResult<ISchema>
+public class GraphQLExecutionHttpResult : GraphQLExecutionHttpResult<ISchema>
 {
-    /// <inheritdoc cref="GraphQLExecutionActionResult{TSchema}.GraphQLExecutionActionResult(Action{GraphQLHttpMiddlewareOptions}?)"/>
-    public GraphQLExecutionActionResult(Action<GraphQLHttpMiddlewareOptions>? configure = null)
+    /// <inheritdoc cref="GraphQLExecutionHttpResult{TSchema}.GraphQLExecutionHttpResult(Action{GraphQLHttpMiddlewareOptions}?)"/>
+    public GraphQLExecutionHttpResult(Action<GraphQLHttpMiddlewareOptions>? configure = null)
         : base(configure)
     {
     }
 
-    /// <inheritdoc cref="GraphQLExecutionActionResult{TSchema}.GraphQLExecutionActionResult(GraphQLHttpMiddlewareOptions)"/>
-    public GraphQLExecutionActionResult(GraphQLHttpMiddlewareOptions options)
+    /// <inheritdoc cref="GraphQLExecutionHttpResult{TSchema}.GraphQLExecutionHttpResult(GraphQLHttpMiddlewareOptions)"/>
+    public GraphQLExecutionHttpResult(GraphQLHttpMiddlewareOptions options)
         : base(options)
     {
     }
 }
+#endif
