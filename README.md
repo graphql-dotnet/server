@@ -56,7 +56,7 @@ The middleware can be configured through the `IApplicationBuilder` or `IEndpoint
 builder interfaces.  Alternatively, route handlers (such as `MapGet` and `MapPost`) can return
 a `GraphQLExecutionHttpResult` for direct GraphQL execution, or `ExecutionResultHttpResult` for
 returning pre-executed GraphQL responses.  Similarly, `GraphQLExecutionActionResult`
-and `ExecutionResultActionResult` classes are added for returning GraphQL responses from
+and `ExecutionResultActionResult` classes can be used to return GraphQL responses from
 controller actions.
 
 Authorization is also supported with the included `AuthorizationValidationRule`.  It will
