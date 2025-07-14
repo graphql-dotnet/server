@@ -53,8 +53,11 @@ as defined in the [apollographql/subscriptions-transport-ws](https://github.com/
 and [enisdenjo/graphql-ws](https://github.com/enisdenjo/graphql-ws) repositories, respectively.
 
 The middleware can be configured through the `IApplicationBuilder` or `IEndpointRouteBuilder`
-builder interfaces.  In addition, an `ExecutionResultActionResult` class is added for returning
-`ExecutionResult` instances directly from a controller action.
+builder interfaces.  Alternatively, route handlers (such as `MapGet` and `MapPost`) can return
+a `GraphQLExecutionHttpResult` for direct GraphQL execution, or `ExecutionResultHttpResult` for
+returning pre-executed GraphQL responses.  Similarly, `GraphQLExecutionActionResult`
+and `ExecutionResultActionResult` classes can be used to return GraphQL responses from
+controller actions.
 
 Authorization is also supported with the included `AuthorizationValidationRule`.  It will
 scan GraphQL documents and validate that the schema and all referenced output graph types, fields of
@@ -209,6 +212,50 @@ app.UseEndpoints(endpoints =>
     endpoints.MapGraphQL("/graphql");
 });
 await app.RunAsync();
+```
+
+### Configuration with route handlers (.NET 6+)
+
+Although not recommended, you may set up [route handlers](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/minimal-apis/route-handlers)
+to execute GraphQL requests using `MapGet` and `MapPost` that return an `IResult`.
+You will not need `UseGraphQL` or `MapGraphQL` in the application startup.  Note that GET must be
+mapped to support WebSocket connections, as WebSocket connections upgrade from HTTP GET requests.
+
+#### Using `GraphQLExecutionHttpResult`
+
+```csharp
+var app = builder.Build();
+app.UseDeveloperExceptionPage();
+app.UseWebSockets();
+
+// configure the graphql endpoint at "/graphql", using GraphQLExecutionHttpResult
+// map GET in order to support both GET and WebSocket requests
+app.MapGet("/graphql", () => new GraphQLExecutionHttpResult());
+// map POST to handle standard GraphQL POST requests
+app.MapPost("/graphql", () => new GraphQLExecutionHttpResult());
+
+await app.RunAsync();
+```
+
+#### Using `ExecutionResultHttpResult`
+
+```csharp
+app.MapPost("/graphql", async (HttpContext context, IDocumentExecuter<ISchema> documentExecuter, IGraphQLSerializer serializer) =>
+{
+    var request = await serializer.ReadAsync<GraphQLRequest>(context.Request.Body, context.RequestAborted);
+    var opts = new ExecutionOptions
+    {
+        Query = request?.Query,
+        DocumentId = request?.DocumentId,
+        Variables = request?.Variables,
+        Extensions = request?.Extensions,
+        CancellationToken = context.RequestAborted,
+        RequestServices = context.RequestServices,
+        User = context.User,
+    };
+
+    return new ExecutionResultHttpResult(await documentExecuter.ExecuteAsync(opts));
+});
 ```
 
 ### Configuration with a MVC controller
@@ -1136,6 +1183,7 @@ typical ASP.NET Core scenarios.
 | Controller      | .NET 8 Minimal           | MVC implementation; does not include WebSocket support |
 | Cors            | .NET 8 Minimal           | Demonstrates configuring a GraphQL endpoint to use a specified CORS policy |
 | EndpointRouting | .NET 8 Minimal           | Demonstrates configuring GraphQL through endpoint routing |
+| HttpResult      | .NET 8 Minimal           | Demonstrates using `MapGet` and/or `MapPost` to return a GraphQL response |
 | Jwt             | .NET 8 Minimal           | Demonstrates authenticating GraphQL requests with a JWT bearer token over HTTP POST and WebSocket connections |
 | MultipleSchemas | .NET 8 Minimal           | Demonstrates configuring multiple schemas within a single server |
 | NativeAot       | .NET 8 Slim              | Demonstrates configuring GraphQL for Native AOT publishing |
