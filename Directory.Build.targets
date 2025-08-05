@@ -15,20 +15,20 @@
   </PropertyGroup>
 
   <ItemGroup Condition="'$(IsTestProject)' != 'true'">
-    <InternalsVisibleTo Condition="'$(SignAssembly)' == 'true'" Include="$(AssemblyName).Tests, $(_FriendAssembliesPublicKey)"/>
-    <InternalsVisibleTo Condition="'$(SignAssembly)' != 'true'" Include="$(AssemblyName).Tests"/>
+    <InternalsVisibleTo Condition="'$(SignAssembly)' == 'true'" Include="$(AssemblyName).Tests, $(_FriendAssembliesPublicKey)" />
+    <InternalsVisibleTo Condition="'$(SignAssembly)' != 'true'" Include="$(AssemblyName).Tests" />
   </ItemGroup>
 
   <!--Workaround for https://github.com/NuGet/Home/issues/5556 and https://github.com/NuGet/Home/issues/5525-->
   <Target Name="UseExplicitPackageVersions" BeforeTargets="GenerateNuspec">
     <ItemGroup>
-      <_ProjectReferenceWithExplicitPackageVersion Include="@(ProjectReference->'%(FullPath)')" Condition="'%(ProjectReference.PackageVersion)' != ''" />
-      <_ProjectReferenceWithExactPackageVersion Include="@(ProjectReference->'%(FullPath)')" Condition="'%(ProjectReference.ExactVersion)' == 'true'" />
+      <_ProjectReferenceWithExplicitPackageVersion Include="@(ProjectReference-&gt;'%(FullPath)')" Condition="'%(ProjectReference.PackageVersion)' != ''" />
+      <_ProjectReferenceWithExactPackageVersion Include="@(ProjectReference-&gt;'%(FullPath)')" Condition="'%(ProjectReference.ExactVersion)' == 'true'" />
       <_ProjectReferenceWithReassignedVersion Include="@(_ProjectReferencesWithVersions)" Condition="'%(Identity)' != '' And '@(_ProjectReferenceWithExplicitPackageVersion)' == '@(_ProjectReferencesWithVersions)'">
-        <ProjectVersion>@(_ProjectReferenceWithExplicitPackageVersion->'%(PackageVersion)')</ProjectVersion>
+        <ProjectVersion>@(_ProjectReferenceWithExplicitPackageVersion-&gt;'%(PackageVersion)')</ProjectVersion>
       </_ProjectReferenceWithReassignedVersion>
       <_ProjectReferenceWithReassignedVersion Include="@(_ProjectReferencesWithVersions)" Condition="'%(Identity)' != '' And '@(_ProjectReferenceWithExactPackageVersion)' == '@(_ProjectReferencesWithVersions)'">
-        <ProjectVersion>[@(_ProjectReferencesWithVersions->'%(ProjectVersion)')]</ProjectVersion>
+        <ProjectVersion>[@(_ProjectReferencesWithVersions-&gt;'%(ProjectVersion)')]</ProjectVersion>
       </_ProjectReferenceWithReassignedVersion>
       <_ProjectReferencesWithVersions Remove="@(_ProjectReferenceWithReassignedVersion)" />
       <_ProjectReferencesWithVersions Include="@(_ProjectReferenceWithReassignedVersion)" />
