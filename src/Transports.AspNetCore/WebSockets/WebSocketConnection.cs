@@ -276,7 +276,7 @@ public class WebSocketConnection : IWebSocketConnection
     protected virtual async Task OnSendMessageAsync(OperationMessage message)
     {
         await _serializer.WriteAsync(_stream, message, RequestAborted);
-        await _stream.FlushAsync(RequestAborted);
+        await _stream.SendEndOfMessageAsync(RequestAborted);
     }
 
     /// <summary>
