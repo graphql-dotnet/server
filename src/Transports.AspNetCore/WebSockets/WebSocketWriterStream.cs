@@ -19,10 +19,12 @@ internal class WebSocketWriterStream : Stream
 
     public override void Write(byte[] buffer, int offset, int count) => WriteAsync(buffer, offset, count).GetAwaiter().GetResult();
 
-    public override Task FlushAsync(CancellationToken cancellationToken)
-        => _webSocket.SendAsync(new ArraySegment<byte>(Array.Empty<byte>()), WebSocketMessageType.Text, true, cancellationToken);
+    public override Task FlushAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
-    public override void Flush() => FlushAsync().GetAwaiter().GetResult();
+    public override void Flush() { }
+
+    public Task SendEndOfMessageAsync(CancellationToken cancellationToken)
+        => _webSocket.SendAsync(new ArraySegment<byte>(Array.Empty<byte>()), WebSocketMessageType.Text, true, cancellationToken);
 
     public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
 
