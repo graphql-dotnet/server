@@ -31,11 +31,10 @@
       </div>
     </div>
   </app-root>
-  <script rel="preload" as="script" type="text/javascript" src="//cdn.jsdelivr.net/npm/altair-static/build/dist/runtime.js"></script>
-  <script rel="preload" as="script" type="text/javascript" src="//cdn.jsdelivr.net/npm/altair-static/build/dist/polyfills.js"></script>
-  <script rel="preload" as="script" type="text/javascript" src="//cdn.jsdelivr.net/npm/altair-static/build/dist/main.js"></script>
+  <script type="module" src="//cdn.jsdelivr.net/npm/altair-static/build/dist/polyfills.js"></script>
+  <script type="module" src="//cdn.jsdelivr.net/npm/altair-static/build/dist/main.js"></script>
 
-  <script>
+  <script type="module">
     function getSubscriptionsEndPoint() {
       let subscriptionsEndPoint = "@Model.SubscriptionsEndPoint";
       if (/^(?:[a-z]+:)?\/\//i.test(subscriptionsEndPoint)) {
