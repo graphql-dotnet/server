@@ -80,6 +80,7 @@ internal sealed class AltairPageModel
 [JsonSerializable(typeof(bool))]
 [JsonSerializable(typeof(int))]
 [JsonSerializable(typeof(string))]
+[JsonSerializable(typeof(string[]))]
 internal partial class SourceGenerationContext : JsonSerializerContext
 {
 }
