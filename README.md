@@ -675,7 +675,7 @@ follows:
 builder.Services.AddResponseCompression(options =>
 {
     options.EnableForHttps = true; // may lead to CRIME and BREACH attacks
-    options.MimeTypes = new[] { "application/json", "application/graphql-response+json" };
+    options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Append("application/graphql-response+json");
 })
 
 // place this first/early in the pipeline
@@ -687,7 +687,7 @@ added to the `MimeTypes` option.  You may choose to enable other content types a
 
 Please note that enabling response compression over HTTPS can lead to CRIME and BREACH
 attacks.  These side-channel attacks typically affects sites that rely on cookies for
-authentication.  Please read [this](https://docs.microsoft.com/en-us/aspnet/core/performance/response-compression?view=aspnetcore-6.0)
+authentication.  Please read [this](https://docs.microsoft.com/en-us/aspnet/core/performance/response-compression)
 and [this](http://www.breachattack.com/#howitworks) for more details.
 
 ### ASP.NET Core 2.1 / .NET Framework 4.8
