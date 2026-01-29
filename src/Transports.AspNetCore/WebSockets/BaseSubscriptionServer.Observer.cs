@@ -73,6 +73,8 @@ public abstract partial class BaseSubscriptionServer
                 await _server.SendDataAsync(_id, value);
                 if (_closeAfterAnyError && value.Errors?.Count > 0)
                 {
+                    if (Interlocked.Exchange(ref _done, 1) == 1)
+                        return;
                     await _server.SendCompletedAsync(_id);
                 }
             }
