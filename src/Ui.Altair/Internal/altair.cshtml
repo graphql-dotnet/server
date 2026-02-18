@@ -4,10 +4,10 @@
 <head>
   <meta charset="utf-8">
   <title>Altair</title>
-  <base href="//cdn.jsdelivr.net/npm/altair-static/build/dist/">
+  <base href="@Model.AltairStaticBaseUrl/">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="//cdn.jsdelivr.net/npm/altair-static/build/dist/favicon.ico">
-  <link href="//cdn.jsdelivr.net/npm/altair-static/build/dist/styles.css" rel="stylesheet" />
+  <link rel="icon" type="image/x-icon" href="@Model.AltairStaticBaseUrl/favicon.ico">
+  <link href="@Model.AltairStaticBaseUrl/styles.css" rel="stylesheet" />
 </head>
 
 <body>
@@ -31,8 +31,8 @@
       </div>
     </div>
   </app-root>
-  <script type="module" src="//cdn.jsdelivr.net/npm/altair-static/build/dist/polyfills.js"></script>
-  <script type="module" src="//cdn.jsdelivr.net/npm/altair-static/build/dist/main.js"></script>
+  <script type="module" src="@Model.AltairStaticBaseUrl/polyfills.js"></script>
+  <script type="module" src="@Model.AltairStaticBaseUrl/main.js"></script>
 
   <script type="module">
     function getSubscriptionsEndPoint() {

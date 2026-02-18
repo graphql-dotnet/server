@@ -41,4 +41,11 @@ public class AltairOptions
     /// Gets or sets a delegate that is called after all transformations of the Altair GraphQL UI page.
     /// </summary>
     public Func<AltairOptions, string, string> PostConfigure { get; set; } = (options, result) => result;
+
+    /// <summary>
+    /// Optional parameter to pin altair-static package version, e.g. "8.5.1".
+    /// Will be used to access a specific cdn version e.g.: "https://cdn.jsdelivr.net/npm/altair-static@8.5.1/build/dist".
+    /// If empty (default value), automatic version resolution is used where no version pinning is utilized (latest).
+    /// </summary>
+    public string AltairVersion { get; set; } = string.Empty;
 }
