@@ -39,7 +39,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout source
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v5
         with:
@@ -67,7 +67,7 @@ jobs:
         run: dotnet test --no-restore --no-build
       - name: Upload coverage to codecov
         if: ${{ startsWith(matrix.os, 'ubuntu') }}
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@v7
         with:
           files: .coverage/GraphQL.Server.Transports.AspNetCore.Tests/coverage.net7.0.opencover.xml,.coverage/GraphQL.Server.Transports.AspNetCore.Tests/coverage.netcoreapp2.1.opencover.xml,.coverage/GraphQL.Server.Samples.Server.Tests/coverage.net7.0.opencover.xml
 
@@ -79,7 +79,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout source
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Setup .NET SDK for NativeAOT
         uses: actions/setup-dotnet@v5
         with:
