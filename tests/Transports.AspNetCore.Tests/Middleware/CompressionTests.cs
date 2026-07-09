@@ -62,6 +62,55 @@ public class CompressionTests
     {
         public static string Hello => "world";
     }
+
+#if NET7_0_OR_GREATER
+    [Fact]
+    public async Task RequestDecompression_Supported()
+    {
+        // Arrange
+        var hostBuilder = new WebHostBuilder();
+        hostBuilder.ConfigureServices(services =>
+        {
+            services.AddGraphQL(b => b
+                .AddAutoSchema<Query>()
+                .AddSystemTextJson());
+            services.AddRouting();
+            services.AddRequestDecompression();
+        });
+        hostBuilder.Configure(app =>
+        {
+            app.UseRequestDecompression();
+            app.UseGraphQL();
+        });
+
+        using var server = new TestServer(hostBuilder);
+        using var client = server.CreateClient();
+
+        // Act
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/graphql");
+        var originalContent = "{hello}";
+        var compressedContentStream = new MemoryStream();
+        using (var gzipStream = new GZipStream(compressedContentStream, CompressionMode.Compress, true))
+        {
+            using var writer = new StreamWriter(gzipStream);
+            writer.Write(originalContent);
+        }
+        compressedContentStream.Seek(0, SeekOrigin.Begin);
+        request.Content = new StreamContent(compressedContentStream);
+        request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/graphql");
+        request.Content.Headers.ContentEncoding.Add("gzip");
+
+        using var response = await client.SendAsync(request);
+
+        // Assert
+        response.EnsureSuccessStatusCode();
+
+        // verify content
+        var responseContent = await response.Content.ReadAsStringAsync();
+
+        responseContent.ShouldBe("""{"data":{"hello":"world"}}""");
+    }
+#endif
 }
 
 #endif
