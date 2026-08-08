@@ -41,7 +41,11 @@ internal sealed class AltairPageModel
                 .Replace("@Model.SubscriptionsEndPoint", StringEncode(_options.SubscriptionsEndPoint))
                 .Replace("@Model.Headers", JsonSerialize(headers))
                 .Replace("@Model.SubscriptionsPayload", JsonSerialize(_options.SubscriptionsPayload))
-                .Replace("@Model.Settings", JsonSerialize(_options.Settings));
+                .Replace("@Model.Settings", JsonSerialize(_options.Settings))
+                .Replace("@Model.AltairStaticBaseUrl",
+                    string.IsNullOrEmpty(_options.AltairVersion)
+                        ? "//cdn.jsdelivr.net/npm/altair-static/build/dist"
+                        : $"//cdn.jsdelivr.net/npm/altair-static@{_options.AltairVersion}/build/dist");
 
             // Here, fully-qualified, absolute and relative URLs are supported for both the
             // GraphQLEndPoint and SubscriptionsEndPoint.  Those paths can be passed unmodified
