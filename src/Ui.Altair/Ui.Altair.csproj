@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <PackageReference Include="Microsoft.AspNetCore" Version="2.1.7" />
+    <PackageReference Include="Microsoft.AspNetCore" Version="2.3.11" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.1.38" />
   </ItemGroup>
 
