@@ -1,7 +1,6 @@
 using GraphQL;
 using GraphQL.Server.Transports.AspNetCore;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Processing;
+using ImageMagick;
 
 namespace Samples.Upload;
 
@@ -18,14 +17,15 @@ public class Mutation
         {
             // Read the file into an Image
             using var sourceStream = file.OpenReadStream();
-            using var image = await Image.LoadAsync(sourceStream, cancellationToken);
+            using var image = new MagickImage();
+            await image.ReadAsync(sourceStream, cancellationToken);
 
             // Rotate the image 90 degrees
-            image.Mutate(x => x.Rotate(90));
+            image.Rotate(90);
 
             // Convert the image to a byte array
             await using var memoryStream = new MemoryStream();
-            await image.SaveAsJpegAsync(memoryStream, cancellationToken);
+            await image.WriteAsync(memoryStream, MagickFormat.Jpeg, cancellationToken);
             byte[] imageBytes = memoryStream.ToArray();
 
             // Convert byte array to a base-64 string
