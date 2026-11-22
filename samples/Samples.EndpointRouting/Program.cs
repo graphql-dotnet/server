@@ -13,7 +13,7 @@ builder.Services.AddRouting();
 
 var app = builder.Build();
 app.UseDeveloperExceptionPage();
-app.UseWebSockets();
+app.UseWebSocketsWithSameOriginCheck();
 app.UseRouting();
 app.UseEndpoints(endpoints =>
 {

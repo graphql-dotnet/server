@@ -97,6 +97,54 @@ public static class GraphQLHttpApplicationBuilderExtensions
     }
 
     /// <summary>
+    /// Enables WebSockets and rejects WebSocket requests whose Origin header does not match
+    /// the request's scheme and Host header, including the port.
+    /// </summary>
+    /// <remarks>
+    /// Requests without an Origin header are allowed, matching the behavior of
+    /// <c>WebSocketOptions.AllowedOrigins</c>. Register this before GraphQL middleware
+    /// or endpoint execution. If using forwarded headers, configure them before this middleware.
+    /// </remarks>
+    /// <param name="builder">The application builder</param>
+    /// <returns>The <see cref="IApplicationBuilder"/> received as parameter</returns>
+    public static IApplicationBuilder UseWebSocketsWithSameOriginCheck(this IApplicationBuilder builder)
+        => builder.UseWebSocketsWithSameOriginCheck(new WebSocketOptions());
+
+    /// <summary>
+    /// Enables WebSockets with the specified options and rejects WebSocket requests whose
+    /// Origin header does not match the request's scheme and Host header, including the port.
+    /// </summary>
+    /// <remarks>
+    /// Requests without an Origin header are allowed. Any restrictions specified by
+    /// <c>WebSocketOptions.AllowedOrigins</c> apply in addition to the same-origin check.
+    /// Register this before GraphQL middleware or endpoint execution. If using forwarded headers,
+    /// configure them before this middleware.
+    /// </remarks>
+    /// <param name="builder">The application builder</param>
+    /// <param name="options">The WebSocket middleware options</param>
+    /// <returns>The <see cref="IApplicationBuilder"/> received as parameter</returns>
+    public static IApplicationBuilder UseWebSocketsWithSameOriginCheck(this IApplicationBuilder builder, WebSocketOptions options)
+    {
+        builder.UseWebSockets(options);
+        return builder.Use(static next => context =>
+        {
+            if (context.WebSockets.IsWebSocketRequest &&
+                context.Request.Headers.TryGetValue("Origin", out var origin))
+            {
+                string expectedOrigin = $"{context.Request.Scheme}://{context.Request.Host}";
+                if (origin.Count != 1 ||
+                    !string.Equals(origin[0], expectedOrigin, StringComparison.OrdinalIgnoreCase))
+                {
+                    context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                    return Task.CompletedTask;
+                }
+            }
+
+            return next(context);
+        });
+    }
+
+    /// <summary>
     /// Ignores <see cref="OperationCanceledException"/> exceptions when
     /// <see cref="HttpContext.RequestAborted"/> is signaled.
     /// </summary>

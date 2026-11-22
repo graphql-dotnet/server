@@ -12,7 +12,7 @@ builder.Services.AddGraphQL(b => b
 
 var app = builder.Build();
 app.UseDeveloperExceptionPage();
-app.UseWebSockets();
+app.UseWebSocketsWithSameOriginCheck();
 // configure the graphql endpoint at "/graphql"
 app.UseGraphQL("/graphql");
 // configure GraphiQL at "/"

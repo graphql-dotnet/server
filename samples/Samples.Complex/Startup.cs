@@ -53,7 +53,7 @@ public class Startup
         if (Environment.IsDevelopment())
             app.UseDeveloperExceptionPage();
 
-        app.UseWebSockets();
+        app.UseWebSocketsWithSameOriginCheck();
 
         app.UseGraphQL<GraphQLHttpMiddlewareWithLogs<ChatSchema>>("/graphql", new GraphQLHttpMiddlewareOptions()
         {

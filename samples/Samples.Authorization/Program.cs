@@ -57,7 +57,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // ------ added code for GraphQL -------
-app.UseWebSockets();
+app.UseWebSocketsWithSameOriginCheck();
 // configure the graphql endpoint at "/graphql"
 app.UseGraphQL("/graphql");
 // configure Playground at "/ui/graphql"

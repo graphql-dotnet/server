@@ -54,7 +54,7 @@ public class StartupWithRouting
         if (Environment.IsDevelopment())
             app.UseDeveloperExceptionPage();
 
-        app.UseWebSockets();
+        app.UseWebSocketsWithSameOriginCheck();
 
         app.UseRouting();
 

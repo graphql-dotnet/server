@@ -11,7 +11,7 @@ builder.Services.AddGraphQL(b => b
 
 var app = builder.Build();
 app.UseDeveloperExceptionPage();
-app.UseWebSockets();
+app.UseWebSocketsWithSameOriginCheck();
 // configure the graphql endpoint at "/cats/graphql"
 app.UseGraphQL<MultipleSchema.Cats.CatsSchema>("/cats/graphql");
 // configure the graphql endpoint at "/dogs/graphql"

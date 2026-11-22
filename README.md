@@ -82,9 +82,16 @@ packages.  These packages depend on `GraphQL` version 8.2.1 or later.
 
 Then update your `Program.cs` or `Startup.cs` to configure GraphQL, registering the schema
 and the serialization engine as a minimum.  Configure WebSockets and GraphQL in the HTTP
-pipeline by calling `UseWebSockets` and `UseGraphQL` at the appropriate point.
+pipeline by calling `UseWebSocketsWithSameOriginCheck` and `UseGraphQL` at the appropriate point.
 Finally, you may also include some UI middleware for easy testing of your GraphQL endpoint
 by calling `UseGraphQLGraphiQL` or a similar method at the appropriate point.
+
+> [!WARNING]
+> Browsers allow cross-origin WebSocket connections without CORS protections.  By default,
+> ASP.NET Core's `UseWebSockets()` also accepts connections from any origin, allowing a page on
+> another website to connect to your GraphQL endpoint.  Use `UseWebSocketsWithSameOriginCheck()`
+> to restrict browser connections to the endpoint's own origin, or configure
+> `WebSocketOptions.AllowedOrigins` to allow specific origins.  See [CORS configuration](#cors-configuration).
 
 Below is a complete sample of a .NET 6 console app that hosts a GraphQL endpoint at
 `http://localhost:5000/graphql`:
@@ -119,7 +126,7 @@ builder.Services.AddGraphQL(b => b
 
 var app = builder.Build();
 app.UseDeveloperExceptionPage();
-app.UseWebSockets();
+app.UseWebSocketsWithSameOriginCheck();
 app.UseGraphQL("/graphql");            // url to host GraphQL endpoint
 app.UseGraphQLGraphiQL(
     "/",                               // url to host GraphiQL at
@@ -182,7 +189,7 @@ sample of the application builder code:
 ```csharp
 var app = builder.Build();
 app.UseDeveloperExceptionPage();
-app.UseWebSockets();
+app.UseWebSocketsWithSameOriginCheck();
 app.UseRouting();
 app.UseEndpoints(endpoints =>
 {
@@ -204,7 +211,7 @@ the UI and GraphQL reside at the same URL:
 ```csharp
 var app = builder.Build();
 app.UseDeveloperExceptionPage();
-app.UseWebSockets();
+app.UseWebSocketsWithSameOriginCheck();
 app.UseRouting();
 app.UseGraphQLVoyager("/graphql");
 app.UseEndpoints(endpoints =>
@@ -226,7 +233,7 @@ mapped to support WebSocket connections, as WebSocket connections upgrade from H
 ```csharp
 var app = builder.Build();
 app.UseDeveloperExceptionPage();
-app.UseWebSockets();
+app.UseWebSocketsWithSameOriginCheck();
 
 // configure the graphql endpoint at "/graphql", using GraphQLExecutionHttpResult
 // map GET in order to support both GET and WebSocket requests
@@ -407,7 +414,7 @@ to the call to `app.UseGraphQL()`.  For example:
 ```csharp
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseWebSockets();
+app.UseWebSocketsWithSameOriginCheck();
 app.UseGraphQL("/graphql");
 ```
 
@@ -601,7 +608,7 @@ endpoints.MapGraphQLVoyager();
 
 ### CORS configuration
 
-ASP.NET Core supports CORS requests independently of GraphQL, including CORS pre-flight
+ASP.NET Core supports CORS for HTTP requests independently of GraphQL, including CORS pre-flight
 requests.  To configure your application for CORS requests, add `AddCors()` and `UseCors()`
 into the application pipeline.
 
@@ -613,8 +620,32 @@ app.UseCors(policy => {
 });
 ```
 
-To configure GraphQL to use a named CORS policy, configure the application to use endpoint routing
-and call `RequireCors()` on the endpoint configuration builder.
+CORS policies configured with `UseCors()` or `RequireCors()` do not restrict WebSocket connections.
+When your client is hosted on the same origin as the GraphQL endpoint, the suggested configuration
+is `UseWebSocketsWithSameOriginCheck()`.  This helper enables WebSockets and compares the `Origin`
+header with the request's scheme and `Host` header, including the port.  WebSocket requests with a
+mismatched origin are rejected with HTTP 403.
+
+```csharp
+app.UseWebSocketsWithSameOriginCheck();
+app.UseGraphQL("/graphql");
+```
+
+If your client is hosted on another origin, use ASP.NET Core's `UseWebSockets()` with an explicit
+`WebSocketOptions.AllowedOrigins` list instead.  This allows connections from the listed origins,
+including origins that differ from the GraphQL endpoint's origin.  Use the client's HTTP or HTTPS
+origin, such as `https://client.example.com`, rather than a `ws://` or `wss://` URL.
+
+```csharp
+app.UseWebSockets(new WebSocketOptions
+{
+    AllowedOrigins = { "https://client.example.com", "https://another-client.example.com" }
+});
+app.UseGraphQL("/graphql");
+```
+
+To configure GraphQL to use a named CORS policy for HTTP requests, configure the application to use
+endpoint routing and call `RequireCors()` on the endpoint configuration builder.
 
 ```csharp
 // ...
@@ -626,19 +657,19 @@ builder.Services.AddCors(builder =>
 
 var app = builder.Build();
 app.UseDeveloperExceptionPage();
-app.UseWebSockets();
+app.UseWebSocketsWithSameOriginCheck();
 app.UseRouting();
 app.UseCors();
 app.UseEndpoints(endpoints =>
 {
-    // configure the graphql endpoint with the specified CORS policy
+    // configure the graphql endpoint with the specified HTTP CORS policy
     endpoints.MapGraphQL()
         .RequireCors("MyCorsPolicy");
 });
 await app.RunAsync();
 ```
 
-In order to ensure that all requests trigger CORS preflight requests, by default the server
+In order to ensure that HTTP requests trigger CORS preflight requests, by default the server
 will reject requests that do not meet one of the following criteria:
 
 - The request is a POST request that includes a Content-Type header that is not
@@ -1116,7 +1147,7 @@ a WebSocket request or any other request.
 var app = builder.Build();
 app.UseDeveloperExceptionPage();
 app.UseIgnoreDisconnections();
-app.UseWebSockets();
+app.UseWebSocketsWithSameOriginCheck();
 app.UseGraphQL();
 ```
 

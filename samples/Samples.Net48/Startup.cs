@@ -30,7 +30,7 @@ public class Startup
     {
         if (env.IsDevelopment())
             app.UseDeveloperExceptionPage();
-        app.UseWebSockets();
+        app.UseWebSocketsWithSameOriginCheck();
         app.UseMvc();
 
         // configure the graphql endpoint at "/graphql"
