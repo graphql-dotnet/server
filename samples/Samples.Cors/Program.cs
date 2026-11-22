@@ -21,7 +21,11 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 app.UseDeveloperExceptionPage();
-app.UseWebSockets();
+// configure allowed WebSocket origins separately from the HTTP CORS policy
+app.UseWebSockets(new WebSocketOptions
+{
+    AllowedOrigins = { "https://localhost:5001" }
+});
 app.UseRouting();
 app.UseCors();
 app.UseEndpoints(endpoints =>

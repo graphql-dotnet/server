@@ -27,7 +27,8 @@ public class GraphQLHttpMiddlewareOptions : IAuthorizationOptions
     /// <summary>
     /// Enables handling of WebSockets requests.
     /// <br/><br/>
-    /// Requires calling <see cref="WebSocketMiddlewareExtensions.UseWebSockets(IApplicationBuilder)"/>
+    /// Requires calling <see cref="GraphQLHttpApplicationBuilderExtensions.UseWebSocketsWithSameOriginCheck(IApplicationBuilder)"/>
+    /// or <see cref="WebSocketMiddlewareExtensions.UseWebSockets(IApplicationBuilder)"/>
     /// to initialize the WebSocket pipeline within the ASP.NET Core framework.
     /// </summary>
     public bool HandleWebSockets { get; set; } = true;

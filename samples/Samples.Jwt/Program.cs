@@ -47,7 +47,7 @@ builder.Services.AddAuthentication(
 var app = builder.Build();
 app.UseDeveloperExceptionPage();
 // enable WebSocket support within the ASP.NET Core framework
-app.UseWebSockets();
+app.UseWebSocketsWithSameOriginCheck();
 // use ASP.NET Core authentication (again, for GET/POST requests mainly)
 app.UseAuthentication();
 // configure the graphql endpoint at "/graphql" for administrators only

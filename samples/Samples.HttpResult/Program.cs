@@ -15,7 +15,7 @@ builder.Services.AddGraphQL(b => b
 
 var app = builder.Build();
 app.UseDeveloperExceptionPage();
-app.UseWebSockets();
+app.UseWebSocketsWithSameOriginCheck();
 
 // configure the graphql endpoint at "/graphql", using GraphQLExecutionHttpResult
 // map GET in order to support both GET and WebSocket requests

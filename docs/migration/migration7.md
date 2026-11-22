@@ -126,7 +126,10 @@ app.UseGraphQL();
 app.UseGraphQL("/graphql");
 ```
 
-Note that the call to `app.UseWebSockets()` is part of ASP.NET Core and is still required for WebSocket support.
+WebSocket support still requires initializing the ASP.NET Core WebSocket middleware.  Use
+`UseWebSocketsWithSameOriginCheck()` to restrict browser connections to the endpoint's own origin,
+or use `UseWebSockets()` with `WebSocketOptions.AllowedOrigins` to allow specific origins.
+See [CORS configuration](../../README.md#cors-configuration).
 
 <details><summary>Migrating from older versions</summary><p>
 
